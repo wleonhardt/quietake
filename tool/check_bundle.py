@@ -99,6 +99,8 @@ def main():
     parser.add_argument("bundle", type=Path)
     parser.add_argument("--application-id", required=True, help="Approved permanent Play package ID")
     parser.add_argument("--forbid-text", action="append", default=[], help="Local audit term; matches are redacted")
+    parser.add_argument("--expect-unsigned", action="store_true",
+                        help="Inspect an intentionally unsigned CI rehearsal; never an upload candidate")
     args = parser.parse_args()
     try:
         errors = archive_errors(args.bundle, tuple(t.encode() for t in args.forbid_text))
@@ -110,7 +112,13 @@ def main():
         if "PAGE_ALIGNMENT_16K" not in config:
             errors.append("Bundle does not request 16 KB native ZIP alignment")
         verification = command("jarsigner", "-J-Duser.language=en", "-verify", str(args.bundle))
-        if "jar verified." not in verification:
+        if args.expect_unsigned:
+            with zipfile.ZipFile(args.bundle) as archive:
+                signatures = any(re.fullmatch(r"META-INF/[^/]+\.(?:SF|RSA|DSA|EC)", name.upper())
+                                 for name in archive.namelist())
+            if "jar is unsigned." not in verification or "jar verified." in verification or signatures:
+                errors.append("Unsigned rehearsal must have no signature or signature files")
+        elif "jar verified." not in verification:
             errors.append("Bundle is unsigned or its JAR signature is invalid")
         else:
             certificate = command("keytool", "-J-Duser.language=en", "-printcert", "-jarfile", str(args.bundle))
@@ -123,7 +131,10 @@ def main():
         print(error, file=sys.stderr)
     if errors:
         return 1
-    print("Bundle checks passed. Store policy declarations and runtime device tests remain separate gates.")
+    if args.expect_unsigned:
+        print("Unsigned rehearsal checks passed. This artifact is not an upload candidate.")
+    else:
+        print("Bundle checks passed. Store policy declarations and runtime device tests remain separate gates.")
     return 0
 
 

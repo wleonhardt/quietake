@@ -1,11 +1,13 @@
 import struct
+import contextlib
+import io
 import tempfile
 import unittest
 from unittest.mock import patch
 from pathlib import Path
 import zipfile
 
-from tool.check_bundle import archive_errors, manifest_errors
+from tool.check_bundle import archive_errors, manifest_errors, main
 
 
 class BundleArchiveTests(unittest.TestCase):
@@ -97,6 +99,53 @@ class BundleArchiveTests(unittest.TestCase):
         for xml in (permission, service):
             with self.subTest(xml=xml):
                 self.assertTrue(manifest_errors(xml, 'app.test.camera'))
+
+
+class BundleSigningModeTests(unittest.TestCase):
+    def run_inspection(self, verification, *, unsigned=False, certificate='CN=Release', entries=()):
+        with tempfile.TemporaryDirectory() as directory:
+            bundle = Path(directory) / 'test.aab'
+            with zipfile.ZipFile(bundle, 'w') as archive:
+                for entry in entries:
+                    archive.writestr(entry, b'synthetic signature marker')
+            args = ['check_bundle.py', str(bundle), '--application-id', 'app.test.camera']
+            if unsigned:
+                args.append('--expect-unsigned')
+
+            def command(*args):
+                if args[:2] == ('bundletool', 'validate'):
+                    return ''
+                if args[:3] == ('bundletool', 'dump', 'manifest'):
+                    return BundleArchiveTests().manifest()
+                if args[:3] == ('bundletool', 'dump', 'config'):
+                    return 'PAGE_ALIGNMENT_16K'
+                if args[0] == 'jarsigner':
+                    return verification
+                if args[0] == 'keytool':
+                    return certificate
+                raise AssertionError(args)
+
+            with patch('sys.argv', args), patch('tool.check_bundle.command', side_effect=command), \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                return main()
+
+    def test_unsigned_rehearsal_requires_explicit_mode(self):
+        self.assertEqual(self.run_inspection('jar is unsigned.'), 1)
+        self.assertEqual(self.run_inspection('jar is unsigned.', unsigned=True), 0)
+
+    def test_rehearsal_rejects_signed_or_ambiguous_output(self):
+        for result in ['jar verified.', 'invalid signature', '']:
+            with self.subTest(result=result):
+                self.assertEqual(self.run_inspection(result, unsigned=True), 1)
+
+    def test_rehearsal_rejects_leftover_signature_files(self):
+        self.assertEqual(self.run_inspection('jar is unsigned.', unsigned=True,
+                                            entries=['META-INF/UPLOAD.SF']), 1)
+
+    def test_default_release_mode_stays_strict(self):
+        self.assertEqual(self.run_inspection('jar verified.'), 0)
+        self.assertEqual(self.run_inspection('jar verified.', certificate='CN=Android Debug'), 1)
+        self.assertEqual(self.run_inspection('invalid signature'), 1)
 
 
 if __name__ == "__main__":
