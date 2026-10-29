@@ -78,7 +78,8 @@ jobs:
           python3 -m unittest discover -s tool -p '*_test.py'
           (cd recover && test -z "$(gofmt -l .)" && go vet ./... && go test ./...)
           dart run tool/check_interop.dart
-          flutter build appbundle --release --target=lib/main.dart --no-pub \
+          # Pub-enabled builds regenerate the registrant without dev-only plugins.
+          flutter build appbundle --release --target=lib/main.dart \
             --obfuscate --split-debug-info=build/private-symbols
           (cd android && ./gradlew :app:testDebugUnitTest --no-daemon)
           python3 tool/check_bundle.py build/app/outputs/bundle/release/app-release.aab \
