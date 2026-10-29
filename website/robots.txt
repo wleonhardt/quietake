@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://quietake.cam/sitemap.xml

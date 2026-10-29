@@ -1,0 +1,15 @@
+{
+  "notice": "Public synthetic interoperability fixture; never a user key.",
+  "public_key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+  "passphrase": "synthetic river violet paper lantern canyon",
+  "box": {
+    "v": 1,
+    "purpose": "tucklight.nas-recovery",
+    "kdf": "argon2id13",
+    "ops": 3,
+    "mem": 268435456,
+    "salt": "AsDCRRJKlKUeKUU7XLGltQ==",
+    "nonce": "60Oz20Vklo13XK8zy58bPBx1sajZk2/O",
+    "wrapped": "TdvDJRVIFmG8h8aHrCJyHegjMSisLlsiineM6aL/qh4oTMJBJzsELjTgxeQuaVB7greS6yDn3H48kUA4ud4gou3cwY4sZwSlHoQ="
+  }
+}

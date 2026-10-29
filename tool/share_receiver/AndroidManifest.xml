@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.quietake.sharefixture.template.dev">
+    <application android:label="Local share fixture" android:allowBackup="false" android:debuggable="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name="com.example.quietake.sharefixture.ShareReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

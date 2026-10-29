@@ -1,0 +1,74 @@
+# Quietake
+
+![Quietake camera icon](assets/brand/quietake.png)
+
+**Capture. Keep. Yours.** A private camera built with Flutter for Android and iOS.
+
+[Website](https://quietake.cam) · [Questions and ideas](https://github.com/wleonhardt/quietake/discussions) · [Bug reports](https://github.com/wleonhardt/quietake/issues)
+
+Quietake captures photos and videos into an encrypted local vault. Organize them
+with favorites and tags, optionally back up encrypted files to your own HTTPS
+WebDAV server, and recover them with the independent Go recovery tool.
+
+This is development source, not a finished store release or an independently
+audited security product. There are no official app downloads yet. Android is the
+first release target; iOS development is ongoing.
+
+## Privacy boundaries
+
+- Captures bypass the system photo gallery. Owned camera input remains in private
+  durable staging until encrypted saving succeeds, then is deleted.
+- A passcode protects the vault key. Optional biometrics use platform storage.
+  Save the recovery key separately from the phone and encrypted backup.
+- Backup is optional and stores ciphertext on your own server. File sizes and
+  filenames remain visible to that server. Sync does not infer deletion from absence.
+- Explicit sharing gives the selected recipient an unencrypted copy. Photo share
+  copies remove GPS by default; this is not a guarantee that all metadata is removed.
+- Casting sends decrypted media over local HTTP to the selected receiver. It is
+  not end-to-end encrypted. Locking stops casting and clears decrypted caches.
+- Android blocks screenshots through platform protection. iOS hides inactive
+  previews and responds to recording; it cannot prevent still screenshots.
+- Google Cast SDK has its own analytics and diagnostics. Read Google's
+  [SDK disclosure](https://developers.google.com/cast/docs/android_sender/data_disclosure).
+
+## Build and test
+
+Use Flutter 3.47.2 / Dart 3.13.2, an Android SDK and JDK 17 or later. iOS builds
+also require macOS, Xcode and CocoaPods. Dependencies are locked in `pubspec.lock`.
+
+```sh
+flutter pub get
+flutter analyze
+flutter test
+cd recover
+go vet ./...
+go test ./...
+```
+
+Run Flutter commands sequentially in each checkout. Synthetic device tests use
+`tool/e2e.sh android` and `tool/e2e.sh ios`. Read [AGENTS.md](AGENTS.md) before
+device operations. Debug/profile builds use `cam.quietake.app.dev`; release uses
+`cam.quietake.app`. Never erase a release or legacy installation for testing.
+Release signing is intentionally absent. Never substitute a debug certificate.
+
+## Recovery and documentation
+
+- [Recovery CLI](recover/README.md)
+- [Container contract](docs/container-format.md)
+- [Private catalog](docs/private-catalog.md)
+- [Portable encrypted backups](docs/portable-backup.md)
+- [NAS passphrase recovery](docs/nas-recovery.md)
+- [Identity migration](docs/identity-migration.md)
+
+Frozen synthetic vectors under `docs/vectors/` must never be regenerated.
+The public repository begins with a reviewed source snapshot; private operational
+records and earlier development history are not included.
+
+## Contributing and licensing
+
+Small, behavior-tested changes are welcome. Explain the problem, preserve privacy
+contracts, and include verification. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Report vulnerabilities privately through [GitHub security advisories](https://github.com/wleonhardt/quietake/security/advisories/new).
+
+Original source is GPL-3.0-only. Third-party materials retain their own licenses;
+see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).

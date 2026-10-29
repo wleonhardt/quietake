@@ -1,0 +1,42 @@
+name: quietake
+description: "Private camera: photos and videos encrypted on capture, synced to a NAS share, cast from the phone."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  archive: ^4.5.2
+  camera: ^0.12.1
+  crypto: ^3.0.7
+  flutter:
+    sdk: flutter
+  flutter_chrome_cast: ^2.0.0
+  flutter_secure_storage: ^11.2.0
+  local_auth: ^3.0.2
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
+  sodium: ^4.1.2
+  video_player: ^2.14.1
+  xml: ^7.1.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  integration_test:
+    sdk: flutter
+  flutter_secure_storage_platform_interface: ^2.1.1
+  video_player_platform_interface: ^6.9.0
+  camera_platform_interface: ^2.15.0
+
+flutter:
+  uses-material-design: true
+  # flutter_chrome_cast's Swift package pins iOS 15.0 while the GoogleCast SPM
+  # package it resolves needs 16.0; the CocoaPods path works.
+  config:
+    enable-swift-package-manager: false
+  assets:
+    - assets/brand/quietake.png
+    - assets/passphrases/eff_large_wordlist.txt
+    - assets/passphrases/LICENSE.txt

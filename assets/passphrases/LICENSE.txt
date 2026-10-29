@@ -1,0 +1,8 @@
+EFF Long Wordlist, Electronic Frontier Foundation, 2016.
+Source: https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt
+Guidance: https://www.eff.org/dice
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+https://creativecommons.org/licenses/by/4.0/
+EFF copyright policy: https://www.eff.org/copyright
+The word list and dice codes are unchanged; line endings are normalized to LF.
+EFF does not endorse this application.
