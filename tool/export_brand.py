@@ -18,7 +18,11 @@ def png(source, destination, size):
 
 def export():
     png(MASTER, ROOT / 'assets/brand/quietake.png', 256)
-    png(MASTER, ROOT / 'release/artwork/store-icon.png', 512)
+    store_icon = ROOT / 'release/artwork/store-icon.png'
+    png(MASTER, store_icon, 512)
+    # Play requires RGBA even though the master has an opaque background.
+    subprocess.run(['go', 'run', str(ROOT / 'tool/store_icon.go'),
+                    str(store_icon), str(store_icon)], check=True)
     for density, size in [('mdpi', 48), ('hdpi', 72), ('xhdpi', 96),
                           ('xxhdpi', 144), ('xxxhdpi', 192)]:
         png(MASTER, RES / f'mipmap-{density}/ic_launcher.png', size)

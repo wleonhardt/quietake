@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -328,6 +329,7 @@ void main() {
         isActive: () => true,
       );
       expect(gpsEntryCount(Uint8List.fromList(sent.single)), 0);
+      expect(sent.single.sublist(12 + 38, 12 + 92), everyElement(0));
       expect(sent.single.length, jpegWithGps().length);
       await shareMediaCopies(
         vault,
@@ -336,8 +338,40 @@ void main() {
         isActive: () => true,
         stripLocation: false,
       );
-      expect(gpsEntryCount(Uint8List.fromList(sent.last)), 1);
+      expect(gpsEntryCount(Uint8List.fromList(sent.last)), 2);
       expect(await vault.readAll(photo.file), jpegWithGps());
+    },
+  );
+
+  test(
+    'unsafe GPS metadata aborts the entire batch and clears prepared copies',
+    () async {
+      final malformed = jpegWithGps();
+      ByteData.sublistView(malformed).setUint32(12 + 60, 8, Endian.little);
+      final photo = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/unsafe.jpg').writeAsBytes(malformed),
+          'unsafe.jpg',
+        ),
+      );
+      final original = await photo.file.readAsBytes();
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        _,
+      ) async {
+        fail('Unsafe metadata must not reach the chooser');
+      });
+      await expectLater(
+        shareMediaCopies(
+          vault,
+          [item, photo],
+          origin: origin,
+          isActive: () => true,
+        ),
+        throwsA(isA<SharePreparationException>()),
+      );
+      expect(await photo.file.readAsBytes(), original);
+      expect(await vault.readAll(photo.file), malformed);
+      expect(await Directory('${root.path}/quietake-share').exists(), isFalse);
     },
   );
 

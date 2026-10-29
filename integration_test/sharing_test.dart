@@ -18,6 +18,7 @@ import 'package:quietake/vault/vault.dart';
 
 import '../test_support/fake_cast_backend.dart';
 import '../test_support/fixtures.dart';
+import '../test_support/exif_fixture.dart';
 import 'harness.dart';
 
 /// Holds one selected read so native UI can cancel or lock during preparation.
@@ -63,7 +64,7 @@ void main() {
     if (key == Keys.libraryPhotos) await applyLibraryView(tester);
   }
 
-  Future<void> seed(TestApp app) async {
+  Future<void> seed(TestApp app, {bool gps = false}) async {
     for (final entry in await app.vault.dir.list().toList()) {
       await entry.delete(recursive: true);
     }
@@ -71,17 +72,91 @@ void main() {
       final source =
           await File('${(await getTemporaryDirectory()).path}/share-seed')
               .writeAsBytes(
-                fixtureBytes(
-                  name.endsWith('mp4')
-                      ? 'tiny.mp4'
-                      : name.endsWith('png')
-                      ? 'wide.png'
-                      : 'tiny.jpg',
-                ),
+                gps && name.endsWith('jpg')
+                    ? jpegWithGps()
+                    : fixtureBytes(
+                        name.endsWith('mp4')
+                            ? 'tiny.mp4'
+                            : name.endsWith('png')
+                            ? 'wide.png'
+                            : 'tiny.jpg',
+                      ),
               );
       await app.vault.ingestAs(source, name);
     }
   }
+
+  testWidgets('JPEG GPS values are erased only in selected share copies', (
+    tester,
+  ) async {
+    final app = await TestApp.unlocked();
+    await seed(app, gps: true);
+    final originals = {
+      for (final file in await app.vault.list())
+        file.path: await file.readAsBytes(),
+    };
+    final sent = <Uint8List>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+      call,
+    ) async {
+      final args = call.arguments as Map;
+      final paths = (args['paths'] as List).cast<String>();
+      final mimes = (args['mimeTypes'] as List).cast<String>();
+      for (var i = 0; i < paths.length; i++) {
+        final bytes = await File(paths[i]).readAsBytes();
+        if (mimes[i] == 'image/jpeg') {
+          sent.add(bytes);
+        } else {
+          expect(bytes, fixtureBytes('wide.png'));
+        }
+      }
+      return '';
+    });
+    try {
+      await tester.pumpWidget(app.widget());
+      await tap(tester, Keys.openGallery);
+      await tap(tester, Keys.libraryPhotos);
+      await tap(tester, Keys.librarySelect);
+      await tap(tester, Keys.librarySelectAll);
+      await tap(tester, Keys.libraryShare);
+      expect(find.text('Remove GPS from JPEG photo copies'), findsOneWidget);
+      await tap(tester, Keys.shareConfirm);
+      await until(
+        tester,
+        () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+      );
+      expect(sent.single.sublist(12 + 38, 12 + 92), everyElement(0));
+      expect(sent.single.sublist(12 + 92), jpegWithGps().sublist(12 + 92));
+      expect(
+        sent.single.sublist(0, 12 + 38),
+        jpegWithGps().sublist(0, 12 + 38),
+      );
+      await tap(tester, Keys.libraryShare);
+      await tap(tester, Keys.shareStripLocation);
+      await tap(tester, Keys.shareConfirm);
+      await until(
+        tester,
+        () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+      );
+      expect(sent, hasLength(2));
+      expect(sent.last, jpegWithGps());
+      for (final entry in originals.entries) {
+        expect(await File(entry.key).readAsBytes(), entry.value);
+      }
+      final temp = await getTemporaryDirectory();
+      for (final name in ['quietake-share', 'share_plus']) {
+        expect(await Directory('${temp.path}/$name').exists(), isFalse);
+      }
+      expect(tester.takeException(), isNull);
+    } finally {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        null,
+      );
+      await tester.pumpWidget(const SizedBox());
+      await app.close();
+    }
+  });
 
   testWidgets(
     'filtered selection shares only chosen copies, mixed batch stays byte-identical',

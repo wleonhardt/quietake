@@ -95,8 +95,8 @@ Future<void> shareMediaCopies(
       );
       try {
         if (stripLocation && !item.isVideo) {
-          // Photos are bounded (Vault.maxPhotoBytes); the EXIF GPS directory
-          // is emptied in place so orientation and the rest survive.
+          // Photos are bounded (Vault.maxPhotoBytes). JPEG GPS data is erased;
+          // unsafe metadata aborts before the chooser receives any copy.
           if (!isActive()) throw _ShareCancelled();
           final plain = await vault.readAll(item.file);
           bytes += plain.length;

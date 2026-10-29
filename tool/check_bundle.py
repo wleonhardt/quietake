@@ -120,6 +120,8 @@ def main():
                 errors.append("Unsigned rehearsal must have no signature or signature files")
         elif "jar verified." not in verification:
             errors.append("Bundle is unsigned or its JAR signature is invalid")
+        elif "unsigned entries" in verification:
+            errors.append("Bundle contains entries not protected by its JAR signature")
         else:
             certificate = command("keytool", "-J-Duser.language=en", "-printcert", "-jarfile", str(args.bundle))
             if "CN=Android Debug" in certificate:

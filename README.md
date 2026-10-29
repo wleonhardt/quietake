@@ -22,8 +22,9 @@ first release target; iOS development is ongoing.
   Save the recovery key separately from the phone and encrypted backup.
 - Backup is optional and stores ciphertext on your own server. File sizes and
   filenames remain visible to that server. Sync does not infer deletion from absence.
-- Explicit sharing gives the selected recipient an unencrypted copy. Photo share
-  copies remove GPS by default; this is not a guarantee that all metadata is removed.
+- Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
+  copies erase EXIF GPS directory contents and referenced values by default.
+  Other metadata and PNG/video copies remain unchanged; this is not complete metadata anonymization.
 - Casting sends decrypted media over local HTTP to the selected receiver. It is
   not end-to-end encrypted. Locking stops casting and clears decrypted caches.
 - Android blocks screenshots through platform protection. iOS hides inactive
