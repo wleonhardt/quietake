@@ -365,7 +365,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 12),
               const Text(
                 'Recording and video playback delay idle locking. Lock now saves '
-                'an active recording and pauses playback. Casting continues while locked.',
+                'an active recording, pauses playback and stops casting.',
               ),
               const SizedBox(height: 12),
               Text(

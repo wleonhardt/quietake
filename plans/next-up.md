@@ -7,4 +7,7 @@
 
 ## Done
 
+- Required source/unsigned-bundle and Android integration CI checks pass.
+- JPEG sharing erases indexed EXIF GPS values while preserving originals and orientation.
+- Bundle inspection rejects partially signed archives; store icon export preserves RGBA format.
 - Public source snapshot and static project website prepared.

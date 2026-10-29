@@ -147,6 +147,12 @@ class BundleSigningModeTests(unittest.TestCase):
         self.assertEqual(self.run_inspection('jar verified.', certificate='CN=Android Debug'), 1)
         self.assertEqual(self.run_inspection('invalid signature'), 1)
 
+    def test_release_rejects_files_added_after_signing(self):
+        # JDK 21 exits zero and reports "jar verified" for this partial signature.
+        result = ('jar verified.\n\nWarning:\n'
+                  'This jar contains unsigned entries which have not been integrity-checked.\n')
+        self.assertEqual(self.run_inspection(result), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
