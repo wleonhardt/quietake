@@ -12,6 +12,7 @@ import 'package:quietake/gallery/item.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/privacy/privacy_scope.dart';
 import 'package:quietake/privacy/screen_privacy.dart';
+import 'package:quietake/sync/sync_settings.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:video_player/video_player.dart';
 
@@ -364,4 +365,43 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
     },
   );
+
+  testWidgets('licenses need no NAS setup and respect the lock gate', (
+    tester,
+  ) async {
+    await begin(tester);
+    expect((await SyncSettings.load()).isConfigured, isFalse);
+    await settings(tester);
+    await scrollTo(tester, Keys.settingsLicenses);
+    await tap(tester, Keys.settingsLicenses);
+    await until(
+      tester,
+      () =>
+          has(Keys.licensesPage) &&
+          find.byType(CircularProgressIndicator).evaluate().isEmpty,
+    );
+    final effLicense = find.widgetWithText(ListTile, 'EFF Long Wordlist');
+    await tester.scrollUntilVisible(
+      effLicense,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(effLicense, findsOneWidget);
+    await tester.tap(effLicense);
+    await tester.pump(const Duration(milliseconds: 500));
+    final attribution = find.textContaining('CC BY 4.0');
+    await until(tester, () => attribution.evaluate().isNotEmpty);
+    final privacy = PrivacyScope.maybeOf(tester.element(attribution.first))!;
+    await privacy.setMinutes(1);
+    await tester.pump(const Duration(seconds: 4));
+    await until(tester, () => has(Keys.lockPasscode));
+    expect(find.byKey(Keys.licensesPage), findsNothing);
+    expect(attribution, findsNothing);
+    await unlock(tester);
+    expect(await app.vault.readAll(photo), fixtureBytes('tiny.jpg'));
+    expect(await app.vault.readAll(video), fixtureBytes('tiny.mp4'));
+    expect((await SyncSettings.load()).isConfigured, isFalse);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 500));
+  });
 }

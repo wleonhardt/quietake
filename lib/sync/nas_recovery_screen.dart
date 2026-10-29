@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../licenses.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
 import '../privacy/privacy_controller.dart';
@@ -418,14 +419,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
             ),
             const Text('Words: Electronic Frontier Foundation · CC BY 4.0'),
             TextButton(
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      await BackupPassphrase.words();
-                      if (context.mounted) {
-                        showLicensePage(context: context);
-                      }
-                    },
+              onPressed: _busy ? null : () => showAppLicenses(context),
               child: const Text('Word-list licenses'),
             ),
           ],
