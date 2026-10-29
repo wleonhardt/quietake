@@ -53,6 +53,17 @@ void main() {
   String videoState(WidgetTester tester) =>
       tester.widget<Text>(find.byKey(Keys.viewerVideoState)).data!;
 
+  Future<void> waitForPage(WidgetTester tester, String position) async {
+    final pager = tester.widget<PageView>(find.byKey(Keys.viewerPager));
+    await pumpUntil(
+      tester,
+      () =>
+          tester.widget<Text>(find.byKey(Keys.viewerPosition)).data ==
+              position &&
+          !pager.controller!.position.isScrollingNotifier.value,
+    );
+  }
+
   testWidgets('gallery lists both items; viewer shows photo then plays video', (
     tester,
   ) async {
@@ -121,7 +132,7 @@ void main() {
       const Offset(0, -400),
       1500,
     );
-    await tester.pump(const Duration(milliseconds: 500));
+    await waitForPage(tester, '2 / 2');
     expect(
       tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
       '2 / 2',
@@ -241,7 +252,7 @@ void main() {
       const Offset(0, 500),
       1500,
     );
-    await tester.pump(const Duration(milliseconds: 500));
+    await waitForPage(tester, '1 / 2');
     expect(
       tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
       '1 / 2',
@@ -436,7 +447,7 @@ void main() {
             const Offset(0, -500),
             1500,
           );
-          await tester.pump(const Duration(milliseconds: 500));
+          await waitForPage(tester, '2 / 2');
           expect(
             tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
             '2 / 2',

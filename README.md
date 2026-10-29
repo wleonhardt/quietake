@@ -33,7 +33,8 @@ first release target; iOS development is ongoing.
 
 ## Build and test
 
-Use Flutter 3.47.2 / Dart 3.13.2, an Android SDK and JDK 17 or later. iOS builds
+CI pins Flutter 3.47.7 / Dart 3.13.5, Temurin JDK 21.0.13+9 and Go 1.27.3.
+Android uses SDK 37, NDK 28.2.13676358 and the committed Gradle wrapper. iOS builds
 also require macOS, Xcode and CocoaPods. Dependencies are locked in `pubspec.lock`.
 
 ```sh
@@ -50,6 +51,10 @@ Run Flutter commands sequentially in each checkout. Synthetic device tests use
 device operations. Debug/profile builds use `cam.quietake.app.dev`; release uses
 `cam.quietake.app`. Never erase a release or legacy installation for testing.
 Release signing is intentionally absent. Never substitute a debug certificate.
+App checks run on pull requests and main: host/native/recovery checks, unsigned
+bundle inspection and Android integration tests. Signing and Play credentials
+are not available to those jobs. A green check does not establish store readiness;
+iOS and physical/Play-delivered release checks remain separate gates.
 
 ## Recovery and documentation
 

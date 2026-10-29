@@ -1,0 +1,130 @@
+name: App checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.7'
+  FLUTTER_REVISION: abaf9c523780a608bd46686fd5e53740a07077f8
+  GO_VERSION: '1.27.3'
+  JAVA_VERSION: '21.0.13+9'
+  GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.workers.max=2'
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  checks:
+    name: Source and unsigned bundle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: false
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: '15859902'
+          log-accepted-android-sdk-licenses: false
+      - name: Verify toolchain and install build prerequisites
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
+          sudo apt-get update
+          sudo apt-get install -y libsodium-dev libglu1-mesa
+          sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/bundletool.jar" \
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
+          echo "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  $RUNNER_TEMP/bundletool.jar" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/quietake-bin"
+          cat > "$RUNNER_TEMP/quietake-bin/bundletool" <<'SH'
+          #!/usr/bin/env bash
+          exec java -jar "$RUNNER_TEMP/bundletool.jar" "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/quietake-bin/bundletool"
+          echo "$RUNNER_TEMP/quietake-bin" >> "$GITHUB_PATH"
+      - name: Check committed source and unsigned bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_root=$(mktemp -d /tmp/quietake-ci.XXXXXX)
+          git archive HEAD | tar -x -C "$source_root"
+          cd "$source_root"
+          test ! -e android/key.properties
+          flutter pub get --enforce-lockfile
+          flutter analyze --no-pub
+          flutter test --no-pub
+          python3 -m unittest discover -s tool -p '*_test.py'
+          (cd recover && test -z "$(gofmt -l .)" && go vet ./... && go test ./...)
+          dart run tool/check_interop.dart
+          # Pub-enabled builds regenerate the registrant without dev-only plugins.
+          flutter build appbundle --release --target=lib/main.dart \
+            --obfuscate --split-debug-info=build/private-symbols
+          (cd android && ./gradlew :app:testDebugUnitTest --no-daemon)
+          python3 tool/check_bundle.py build/app/outputs/bundle/release/app-release.aab \
+            --application-id cam.quietake.app --expect-unsigned --forbid-text /Users/
+          # No binaries, symbols or raw logs are published as workflow artifacts.
+
+  android:
+    name: Android integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: false
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          cmdline-tools-version: '15859902'
+          log-accepted-android-sdk-licenses: false
+      - name: Prepare isolated emulator checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
+          sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          flutter pub get --enforce-lockfile
+      - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          avd-name: quietake
+          profile: pixel_6
+          ram-size: 2048M
+          disk-size: 6G
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated
+          disable-animations: true
+          script: tool/e2e.sh android
