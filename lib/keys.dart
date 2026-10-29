@@ -55,6 +55,7 @@ abstract final class Keys {
   static const captureCast = Key('capture.cast');
   static const captureCastState = Key('capture.castState');
   static const captureTimer = Key('capture.timer');
+  static const captureStarting = Key('capture.starting');
   static const captureFlash = Key('capture.flash');
   static const captureRecordingFrame = Key('capture.recordingFrame');
 

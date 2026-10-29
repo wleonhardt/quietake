@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:camera_platform_interface/camera_platform_interface.dart'
+    show CameraPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,6 +19,7 @@ import '../session.dart';
 import '../sync/sync_controller.dart';
 import 'ingest_video.dart';
 import 'capture_store.dart';
+import 'recording_progress.dart';
 import '../library/tag_picker.dart';
 import '../library/albums_screen.dart';
 
@@ -39,6 +42,11 @@ class _CaptureScreenState extends State<CaptureScreen>
   // screen must wait for the previous screen's asynchronous shutdown.
   static const _cameraUnavailable =
       'Camera unavailable. Check camera permission in Settings.';
+
+  /// How long a stop waits for the first recorded data. CameraX reached
+  /// streaming 2.5 s after Start on the Galaxy S25 when the session was
+  /// rebuilt just before recording; a stop before that finalizes with no data.
+  static const _firstDataWait = Duration(seconds: 4);
   static Future<void>? _lastShutdown;
   late final Future<void>? _previousShutdown;
   final _shutdown = Completer<void>();
@@ -73,7 +81,11 @@ class _CaptureScreenState extends State<CaptureScreen>
   Future<void>? _operation;
   Future<void>? _orienting;
   Future<void>? _releasing;
+
+  /// Set once the recording is live: the platform has written its first data.
   DateTime? _recordStarted;
+  Completer<void>? _firstData;
+  StreamSubscription<void>? _recordedData;
   Timer? _timer;
 
   @override
@@ -327,7 +339,9 @@ class _CaptureScreenState extends State<CaptureScreen>
     await _orienting;
     final controller = _controller;
     try {
-      if (_recording && controller != null) await _stopRecording(controller);
+      if (_recording && controller != null) {
+        await _stopRecording(controller, awaitData: false);
+      }
     } catch (error) {
       if (mounted) setState(() => _status = _saveError(error));
     } finally {
@@ -354,6 +368,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     widget.session.vault.catalog.removeListener(_onCatalog);
     if (_landscape) SystemChrome.setPreferredOrientations([]);
     _timer?.cancel();
+    unawaited(_recordedData?.cancel());
     _releasing ??= _releaseCamera();
     unawaited(
       _releasing!.whenComplete(() {
@@ -468,8 +483,17 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   });
 
-  Future<void> _stopRecording(CameraController controller) async {
+  /// [awaitData] gives a recording that has not written anything yet a bounded
+  /// chance to receive its first keyframe; a background release stops at once.
+  Future<void> _stopRecording(
+    CameraController controller, {
+    bool awaitData = true,
+  }) async {
     final tagIds = {..._recordingTagIds};
+    final firstData = _firstData;
+    if (awaitData && firstData != null && !firstData.isCompleted) {
+      await firstData.future.timeout(_firstDataWait, onTimeout: () {});
+    }
     final XFile clip;
     try {
       clip = await controller.stopVideoRecording();
@@ -478,6 +502,10 @@ class _CaptureScreenState extends State<CaptureScreen>
     } finally {
       // A failed stop must not keep the shutter disabled or the idle lock held.
       _recording = false;
+      _recordStarted = null;
+      _firstData = null;
+      unawaited(_recordedData?.cancel());
+      _recordedData = null;
       _recordingTagIds = {};
       _privacy?.hold(this, false);
       _timer?.cancel();
@@ -520,22 +548,40 @@ class _CaptureScreenState extends State<CaptureScreen>
             return;
           }
         }
+        // Subscribe before starting so the first data event cannot be missed.
+        final firstData = Completer<void>();
+        final data = recordedData(CameraPlatform.instance);
+        final subscription = data?.listen((_) {
+          if (!firstData.isCompleted) firstData.complete();
+        });
+        if (data == null) firstData.complete();
         try {
           await c.startVideoRecording();
         } on CameraException {
+          await subscription?.cancel();
           throw const _RecordingStartException();
         }
         _recordingTagIds = tagIds;
         _recording = true;
+        _firstData = firstData;
+        _recordedData = subscription;
         _privacy?.hold(this, true);
-        _recordStarted = DateTime.now();
-        HapticFeedback.mediumImpact();
-        _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-          if (mounted) setState(() {});
-        });
+        unawaited(firstData.future.then((_) => _goLive(firstData)));
         if (mounted) setState(() {});
       }
     });
+  }
+
+  /// The recording frame and timer start with the first recorded data, not
+  /// with the start call: CameraX can take seconds to stream after a rebuild.
+  void _goLive(Completer<void> firstData) {
+    if (!mounted || !identical(_firstData, firstData)) return;
+    _recordStarted = DateTime.now();
+    HapticFeedback.mediumImpact();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+    setState(() {});
   }
 
   Future<void> _ingest(File plain, String ext, Set<String> tagIds) async {
@@ -576,12 +622,15 @@ class _CaptureScreenState extends State<CaptureScreen>
         _cameras.any((c) => c.lensDirection == CameraLensDirection.back);
     return Scaffold(
       backgroundColor: mediaCanvas,
+      // The camera has no text field of its own; a keyboard under a dialog or
+      // the lock route must not squeeze the controls on a short landscape screen.
+      resizeToAvoidBottomInset: false,
       body: Stack(
         fit: StackFit.expand,
         children: [
           if (c != null) Center(key: Keys.preview, child: CameraPreview(c)),
           // Edge cues: a white flash after a capture, a red frame while recording.
-          if (_flash || _recording)
+          if (_flash || _recordStarted != null)
             IgnorePointer(
               child: AnimatedContainer(
                 key: _flash ? Keys.captureFlash : Keys.captureRecordingFrame,
@@ -672,7 +721,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                                     const LockButton(),
                                   ],
                                 ),
-                                if (_recording)
+                                if (_recordStarted != null)
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
@@ -681,6 +730,21 @@ class _CaptureScreenState extends State<CaptureScreen>
                                       style: const TextStyle(
                                         color: recordAccent,
                                         fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                else if (_recording)
+                                  Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Semantics(
+                                      liveRegion: true,
+                                      child: Text(
+                                        'Starting video…',
+                                        key: Keys.captureStarting,
+                                        style: const TextStyle(
+                                          color: recordAccent,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),

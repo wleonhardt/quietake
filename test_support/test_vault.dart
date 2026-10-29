@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
+import 'package:quietake/library/private_catalog.dart';
 import 'package:quietake/sync/sync_settings.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
@@ -22,5 +24,10 @@ Future<Vault> openTestVault() async {
       value: base64Encode(key.extractBytes()),
     );
   }
-  return Vault(VaultCrypto(sodium), key, await Vault.defaultDir());
+  final dir = await Vault.defaultDir();
+  // Earlier test files may leave a catalog sealed under a different key, which
+  // the app reports as unreadable tags. A fresh test vault starts without one.
+  final catalog = File('${dir.path}/${PrivateCatalog.fileName}');
+  if (await catalog.exists()) await catalog.delete();
+  return Vault(VaultCrypto(sodium), key, dir);
 }

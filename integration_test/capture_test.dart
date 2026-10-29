@@ -34,6 +34,15 @@ void main() {
     for (final f in await vault.list()) {
       await f.delete();
     }
+    // Tags left by earlier runs with --no-uninstall would push the create tile
+    // out of the lazily built tag sheet.
+    await vault.catalog.load();
+    for (final entry in vault.catalog.albums.entries.toList()) {
+      if (entry.value.startsWith('Camera test ') ||
+          entry.value.startsWith('Action ')) {
+        await vault.catalog.deleteAlbum(entry.key);
+      }
+    }
   });
 
   Future<void> pumpUntil(

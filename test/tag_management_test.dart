@@ -160,4 +160,72 @@ void main() {
       },
     );
   }
+
+  testWidgets('tag search stays laid out above a landscape keyboard', (
+    tester,
+  ) async {
+    FlutterSecureStorage.setMockInitialValues({});
+    tester.view.physicalSize = const Size(832, 384);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final privacy = PrivacyController(onLock: () {})..minutes = 0;
+    late Session session;
+    await tester.runAsync(() async {
+      final sodium = await SodiumSumoInit.init();
+      final dir = await Directory.systemTemp.createTemp('tags-landscape');
+      final vault = Vault(
+        VaultCrypto(sodium),
+        sodium.crypto.secretBox.keygen(),
+        dir,
+      );
+      session = Session(
+        vault: vault,
+        server: await MediaServer.start(vault),
+        cast: CastController(vault, FakeCastBackend()),
+        store: MasterKeyStore(sodium, dir),
+      );
+    });
+    try {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: quietakeTheme(),
+          builder: (_, child) => MediaQuery(
+            data: const MediaQueryData(
+              size: Size(832, 384),
+              viewInsets: EdgeInsets.only(bottom: 223),
+            ),
+            child: PrivacyScope(controller: privacy, child: child!),
+          ),
+          home: AlbumsScreen(session: session),
+        ),
+      );
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      expect(find.byKey(Keys.tagSearch).hitTestable(), findsOneWidget);
+      final list = find.descendant(
+        of: find.byType(ListView),
+        matching: find.byType(Scrollable),
+      );
+      await tester.scrollUntilVisible(
+        find.byKey(Keys.albumCreateFirst),
+        50,
+        scrollable: list,
+      );
+      final position = tester.state<ScrollableState>(list).position;
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pump();
+      expect(
+        tester.getBottomLeft(find.byKey(Keys.albumCreateFirst)).dy,
+        lessThanOrEqualTo(384 - 223),
+        reason: 'the last item scrolls above the keyboard',
+      );
+    } finally {
+      await tester.runAsync(() => session.close());
+    }
+  });
 }

@@ -38,7 +38,12 @@ class _BrightCamera extends ControlledCamera {
 }
 
 void main() {
-  for (final size in [const Size(320, 640), const Size(740, 360)]) {
+  for (final size in [
+    const Size(320, 640),
+    const Size(740, 360),
+    // Galaxy S25 held sideways: 384 logical pixels tall.
+    const Size(832, 384),
+  ]) {
     for (final scale in [1.0, 2.0]) {
       testWidgets('camera controls stay legible at $size with $scale text', (
         tester,
@@ -85,6 +90,11 @@ void main() {
                 data: MediaQueryData(
                   size: size,
                   textScaler: TextScaler.linear(scale),
+                  // A keyboard under a dialog or the lock route must not
+                  // squeeze the camera controls sideways.
+                  viewInsets: size.width > size.height
+                      ? const EdgeInsets.only(bottom: 223)
+                      : EdgeInsets.zero,
                 ),
                 child: PrivacyScope(controller: privacy, child: child!),
               ),

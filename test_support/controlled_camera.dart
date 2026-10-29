@@ -3,11 +3,12 @@ import 'dart:io';
 
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/widgets.dart';
+import 'package:quietake/camera/recording_progress.dart';
 
 import 'fixtures.dart';
 
 /// A camera that can reproduce an empty native result without using hardware.
-class ControlledCamera extends CameraPlatform {
+class ControlledCamera extends CameraPlatform implements RecordingProgress {
   ControlledCamera(this.directory);
   final Directory directory;
   bool empty = true;
@@ -15,6 +16,13 @@ class ControlledCamera extends CameraPlatform {
   final disposed = <int>{};
   final _errors = <int, StreamController<CameraErrorEvent>>{};
   final outputs = <File>[];
+
+  /// False holds a started recording until [recorded] receives an event, like
+  /// CameraX before its first keyframe reaches the muxer.
+  bool streamsAtStart = true;
+  final recorded = StreamController<void>.broadcast();
+  @override
+  Stream<void> get recordedData => recorded.stream;
 
   @override
   Future<List<CameraDescription>> availableCameras() async => const [
@@ -60,10 +68,10 @@ class ControlledCamera extends CameraPlatform {
   @override
   Widget buildPreview(int id) => const SizedBox.expand();
   @override
-  Future<void> startVideoRecording(
-    int id, {
-    Duration? maxVideoDuration,
-  }) async {}
+  Future<void> startVideoRecording(int id, {Duration? maxVideoDuration}) async {
+    if (streamsAtStart) recorded.add(null);
+  }
+
   Future<XFile> _output(String extension) async {
     final file = await File(
       '${directory.path}/controlled-${outputs.length}.$extension',

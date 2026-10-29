@@ -167,6 +167,9 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+    // A keyboard, including one under the name dialog, must not squeeze the
+    // search field on a short landscape screen; the list pads itself instead.
+    resizeToAvoidBottomInset: false,
     appBar: AppBar(
       title: const Text('Tags'),
       actions: [
@@ -227,6 +230,11 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                   String count(int value) =>
                       '$value ${value == 1 ? 'capture' : 'captures'}';
                   return ListView.builder(
+                    padding: EdgeInsets.only(
+                      bottom:
+                          MediaQuery.paddingOf(context).bottom +
+                          MediaQuery.viewInsetsOf(context).bottom,
+                    ),
                     itemCount: entries.length + 2,
                     itemBuilder: (context, index) {
                       if (index == 0) {
