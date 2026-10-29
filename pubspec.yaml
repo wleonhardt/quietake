@@ -9,7 +9,7 @@ environment:
 dependencies:
   archive: ^4.5.2
   camera: ^0.12.1
-  crypto: ^3.0.7
+  crypto: ^3.0.8
   flutter:
     sdk: flutter
   flutter_chrome_cast: ^2.0.0
