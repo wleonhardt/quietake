@@ -53,7 +53,7 @@ jobs:
           test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
           sudo apt-get update
           sudo apt-get install -y libsodium-dev libglu1-mesa
-          sdkmanager 'platforms;android-37' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           curl --fail --location --retry 3 --output "$RUNNER_TEMP/bundletool.jar" \
             https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
           echo "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  $RUNNER_TEMP/bundletool.jar" | sha256sum --check
@@ -110,7 +110,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
-          sdkmanager 'platforms;android-37' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
