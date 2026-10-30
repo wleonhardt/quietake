@@ -2,7 +2,7 @@
 
 ## Queue
 
-- In progress: validate physical-device behavior and the latest benchmark/launcher changes with required hosted checks.
+- In progress: diagnose the hosted recording-start timeout and physical locked-import failure, then complete device/hosted checks. Timeout diagnostics report state without changing deadlines or production behavior.
 - Planned: complete documented security checks, resolve findings and validate the release on physical devices. Professional independent security review is optional; no independent-audit claim is made.
 - Planned: finalize store privacy disclosures, signing and distribution.
 
