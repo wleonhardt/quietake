@@ -91,6 +91,7 @@ void main() {
           await settle();
         }
 
+        var keyboardCastReachable = true;
         try {
           await tester.runAsync(
             () => tester.pumpWidget(
@@ -110,6 +111,21 @@ void main() {
           expect(find.byKey(Keys.libraryNoResults), findsOneWidget);
           await tap(Keys.libraryOpenSearch);
           expect(find.text('Search'), findsOneWidget);
+          if (size.height == 360) {
+            tester.view.padding = const FakeViewPadding(top: 62);
+            tester.view.viewInsets = const FakeViewPadding(bottom: 200);
+            addTearDown(tester.view.resetPadding);
+            addTearDown(tester.view.resetViewInsets);
+            await settle();
+            keyboardCastReachable = find
+                .byKey(Keys.galleryCast)
+                .hitTestable()
+                .evaluate()
+                .isNotEmpty;
+            tester.view.resetPadding();
+            tester.view.resetViewInsets();
+            await settle();
+          }
           await tap(Key('library.tag.$subject'));
           await tap(Key('library.tag.$action'));
           expect(find.text('Show 1 capture'), findsOneWidget);
@@ -145,6 +161,11 @@ void main() {
             3,
           );
           expect(tester.takeException(), isNull);
+          expect(
+            keyboardCastReachable,
+            isTrue,
+            reason: 'Cast remains reachable with little space above keyboard',
+          );
           await tester.runAsync(() async {
             expect(await session.vault.list(), hasLength(3));
             expect(await session.vault.deletedNames(), isEmpty);

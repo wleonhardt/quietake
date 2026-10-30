@@ -117,7 +117,8 @@ void main() {
       await until(
         tester,
         () =>
-            find.byKey(Keys.galleryTile(0)).hitTestable().evaluate().isNotEmpty,
+            find.byKey(Keys.galleryTile(0)).hitTestable().evaluate().isNotEmpty &&
+            find.byKey(Keys.galleryTile(1)).evaluate().isEmpty,
       );
       expect(find.byKey(Keys.galleryTile(0)), findsOneWidget);
       expect(find.byKey(Keys.galleryTile(1)), findsNothing);

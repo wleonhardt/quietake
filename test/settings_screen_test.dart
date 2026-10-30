@@ -209,7 +209,8 @@ void main() {
             200,
             scrollable: find.byType(Scrollable).first,
           );
-          expect(effLicense, findsOneWidget);
+          await tester.pumpAndSettle();
+          expect(effLicense.hitTestable(), findsOneWidget);
           await tester.tap(effLicense);
           await tester.pumpAndSettle();
           expect(find.textContaining('CC BY 4.0'), findsWidgets);

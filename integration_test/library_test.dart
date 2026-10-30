@@ -144,6 +144,7 @@ void main() {
       await tap(Keys.librarySelect);
       await tap(Keys.librarySelectAll);
       expect(find.text('1 selected'), findsOneWidget);
+      expect(find.byKey(Keys.galleryCast).hitTestable(), findsOneWidget);
       await tap(Keys.libraryFavorite);
       await until(
         () => find.byKey(Keys.libraryNoResults).evaluate().isNotEmpty,

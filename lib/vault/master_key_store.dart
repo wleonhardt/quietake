@@ -59,7 +59,13 @@ class MasterKeyStore {
   /// Raw key from the keystore, for biometric unlock. Null when absent.
   Future<SecureKey?> cachedKey() async {
     final b64 = await _storage.read(key: cacheName);
-    return b64 == null ? null : SecureKey.fromList(sodium, base64Decode(b64));
+    if (b64 == null) return null;
+    final raw = base64Decode(b64);
+    try {
+      return SecureKey.fromList(sodium, raw);
+    } finally {
+      raw.fillRange(0, raw.length, 0);
+    }
   }
 
   Future<void> clearCache() => _storage.delete(key: cacheName);
@@ -127,7 +133,12 @@ class MasterKeyStore {
         nonce: nonce,
         key: kek,
       );
-      final key = SecureKey.fromList(sodium, raw);
+      final SecureKey key;
+      try {
+        key = SecureKey.fromList(sodium, raw);
+      } finally {
+        raw.fillRange(0, raw.length, 0);
+      }
       await _refreshCache(key);
       return key;
     } on SodiumException {
@@ -156,7 +167,7 @@ class MasterKeyStore {
   /// The master key as base64 in groups of four, for a password manager or
   /// paper.
   String exportRecovery(SecureKey key) {
-    final b64 = base64Encode(key.extractBytes());
+    final b64 = key.runUnlockedSync(base64Encode);
     return [
       for (var i = 0; i < b64.length; i += 4)
         b64.substring(i, (i + 4).clamp(0, b64.length)),
@@ -167,9 +178,11 @@ class MasterKeyStore {
   /// Shown with the recovery key and checked when an empty vault adopts a
   /// typed key (decision 038). It reveals nothing useful about the key.
   String fingerprint(SecureKey key) {
-    final hash = sodium.crypto.genericHash.call(
-      message: key.extractBytes(),
-      outLen: sodium.crypto.genericHash.bytesMin,
+    final hash = key.runUnlockedSync(
+      (bytes) => sodium.crypto.genericHash.call(
+        message: bytes,
+        outLen: sodium.crypto.genericHash.bytesMin,
+      ),
     );
     final hex = hash
         .take(4)
@@ -256,10 +269,14 @@ class MasterKeyStore {
     } on FormatException {
       throw BadRecoveryKeyException();
     }
-    if (raw.length != sodium.crypto.secretBox.keyBytes) {
-      throw BadRecoveryKeyException();
+    try {
+      if (raw.length != sodium.crypto.secretBox.keyBytes) {
+        throw BadRecoveryKeyException();
+      }
+      return SecureKey.fromList(sodium, raw);
+    } finally {
+      raw.fillRange(0, raw.length, 0);
     }
-    return SecureKey.fromList(sodium, raw);
   }
 
   static const recoveryBoxName = 'quietake.recovery.json';
@@ -398,7 +415,7 @@ class MasterKeyStore {
 
   /// A random 256-bit ZIP password, never written into the portable archive.
   static String archivePassword(SecureKey key) =>
-      base64Encode(key.extractBytes());
+      key.runUnlockedSync(base64Encode);
 
   /// Prepares an encrypted keyfile inside the portable restore transaction.
   /// No biometric cache is changed; first passcode unlock can populate it.
@@ -412,7 +429,7 @@ class MasterKeyStore {
   }
 
   Future<void> _cache(SecureKey key) =>
-      _storage.write(key: cacheName, value: base64Encode(key.extractBytes()));
+      _storage.write(key: cacheName, value: key.runUnlockedSync(base64Encode));
 
   Future<void> _writeKeyfile(
     SecureKey key,
@@ -427,10 +444,12 @@ class MasterKeyStore {
     final kek = await _derive(passcode, salt, ops, mem);
     try {
       final nonce = sodium.randombytes.buf(sodium.crypto.secretBox.nonceBytes);
-      final wrapped = sodium.crypto.secretBox.easy(
-        message: key.extractBytes(),
-        nonce: nonce,
-        key: kek,
+      final wrapped = key.runUnlockedSync(
+        (bytes) => sodium.crypto.secretBox.easy(
+          message: bytes,
+          nonce: nonce,
+          key: kek,
+        ),
       );
       final tmp = File('${target.path}.tmp');
       await tmp.writeAsString(

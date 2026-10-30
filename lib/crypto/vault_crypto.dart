@@ -86,10 +86,12 @@ class VaultCrypto {
     final fileKey = sodium.crypto.secretStream.keygen();
     try {
       final nonce = sodium.randombytes.buf(_nonceBytes);
-      final wrapped = sodium.crypto.secretBox.easy(
-        message: fileKey.extractBytes(),
-        nonce: nonce,
-        key: masterKey,
+      final wrapped = fileKey.runUnlockedSync(
+        (bytes) => sodium.crypto.secretBox.easy(
+          message: bytes,
+          nonce: nonce,
+          key: masterKey,
+        ),
       );
       final header = BytesBuilder(copy: false)
         ..add(magic)
@@ -133,14 +135,16 @@ class VaultCrypto {
       if (chunkSize == 0 || chunkSize > maxChunkSize) {
         throw const FormatException('unsupported chunk size');
       }
-      fileKey = SecureKey.fromList(
-        sodium,
-        sodium.crypto.secretBox.openEasy(
-          cipherText: fixed.sublist(10 + _nonceBytes, fixedLen),
-          nonce: fixed.sublist(10, 10 + _nonceBytes),
-          key: masterKey,
-        ),
+      final raw = sodium.crypto.secretBox.openEasy(
+        cipherText: fixed.sublist(10 + _nonceBytes, fixedLen),
+        nonce: fixed.sublist(10, 10 + _nonceBytes),
+        key: masterKey,
       );
+      try {
+        fileKey = SecureKey.fromList(sodium, raw);
+      } finally {
+        raw.fillRange(0, raw.length, 0);
+      }
       yield* sodium.crypto.secretStream.pullChunked(
         cipherStream: reader.rest(),
         key: fileKey,

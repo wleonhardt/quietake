@@ -1,4 +1,3 @@
-import '../test_support/library_controls.dart';
 import '../test_support/fixtures.dart';
 
 import 'dart:io';
@@ -172,7 +171,7 @@ void main() {
     );
     await settle(tester);
     expect(app.session.cast.isCasting, isTrue);
-    await revealLibraryControl(tester, Keys.galleryCast);
+    expect(find.byKey(Keys.galleryCast).hitTestable(), findsOneWidget);
     await tester.tap(find.byKey(Keys.galleryCast));
     await pumpUntil(
       tester,
