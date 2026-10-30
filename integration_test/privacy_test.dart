@@ -341,6 +341,7 @@ void main() {
         tester,
         () => has(Keys.lockPasscode) && !player.value.isPlaying,
       );
+      await until(tester, () => has(Keys.lockBiometric));
       await tap(tester, Keys.lockBiometric);
       expect(
         has(Keys.lockPasscode),
