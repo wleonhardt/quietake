@@ -1,3 +1,3 @@
 # Content validation probe
 
-[Expected failure](missing-proof-target.md)
+[Existing guide](../README.md)
