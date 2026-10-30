@@ -9,6 +9,63 @@ import unittest
 
 
 class EmulatorBootstrapTests(unittest.TestCase):
+    def test_wired_ac_phone_stays_awake_and_restores_setting_on_exit(self):
+        for test_exit in [0, 1]:
+            with self.subTest(test_exit=test_exit), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                (root / 'tool').mkdir()
+                (root / 'integration_test').mkdir()
+                (root / 'integration_test/example_test.dart').touch()
+                for name in ['e2e.sh', 'dev_identity.py']:
+                    shutil.copyfile(Path(__file__).with_name(name), root / 'tool' / name)
+                state = root / 'stay-awake'
+                state.write_text('2')  # USB-only does not cover an AC-reported charger.
+                env = dict(os.environ, ANDROID_HOME=str(root / 'sdk'),
+                           AWAKE_STATE=str(state), TEST_EXIT=str(test_exit))
+                env['PATH'] = str(root / 'bin') + os.pathsep + env['PATH']
+
+                def executable(name, body):
+                    path = root / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text('#!/usr/bin/env python3\n' + body)
+                    path.chmod(0o755)
+
+                executable('sdk/platform-tools/adb', '''
+import os, sys
+from pathlib import Path
+state = Path(os.environ['AWAKE_STATE'])
+args = sys.argv[1:]
+if args == ['devices']:
+    print('List of devices attached\\nsynthetic-phone\\tdevice')
+else:
+    assert args[:2] == ['-s', 'synthetic-phone'], args
+    command = args[2:]
+    if command == ['shell', 'settings', 'get', 'global', 'stay_on_while_plugged_in']:
+        print(state.read_text())
+    elif command[:4] == ['shell', 'svc', 'power', 'stayon']:
+        state.write_text('15' if command[4] == 'true' else '2')
+    elif command[:5] == ['shell', 'settings', 'put', 'global', 'stay_on_while_plugged_in']:
+        state.write_text(command[5])
+''')
+                executable('sdk/build-tools/36.0.0/aapt', '''
+print("package: name='cam.quietake.app.dev'")
+''')
+                executable('bin/flutter', '''
+import os, sys
+from pathlib import Path
+if not int(Path(os.environ['AWAKE_STATE']).read_text()) & 1:
+    sys.exit('AC-reported wired phone can sleep during build/test')
+if sys.argv[1] == 'test':
+    assert '--no-uninstall' in sys.argv
+    sys.exit(int(os.environ['TEST_EXIT']))
+''')
+                result = subprocess.run(['bash', 'tool/e2e.sh', 'synthetic-phone'],
+                                        cwd=root, env=env, capture_output=True,
+                                        text=True, timeout=20)
+                self.assertEqual(result.returncode, test_exit, result.stderr)
+                self.assertNotIn('phone can sleep', result.stderr)
+                self.assertEqual(state.read_text(), '2')
+
     def test_stops_before_next_file_after_native_load_failure(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
