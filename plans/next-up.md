@@ -2,9 +2,10 @@
 
 ## Queue
 
-- In progress: verify version 1.0.0+4 with offline privacy access, Cast 23.0.0 and complete Google native notices. Local analysis, 439 host cases and all 25 Android files / 86 cases pass across retained runs. Full iOS and fresh uninterrupted hosted CI remain pending; real-receiver and signed-candidate checks follow.
+- In progress: verify version 1.0.0+4 with offline privacy access, Cast 23.0.0 and complete Google native notices. Local analysis and 439 host cases pass; full iOS passed 81 cases with five expected skips. Authorized synthetic physical-receiver playback, disconnection and manual/Home-return locking pass. Signed-candidate and Play-installed checks remain separate.
 
-- In progress: diagnose intermittent hosted emulator loss and complete required hosted checks. A CI-only supervisor records native emulator exit codes/signals alongside guest-kernel and host diagnostics; it does not alter emulator flags or publish memory dumps. Earlier failures remain unresolved evidence.
+- In progress: complete required hosted checks. The latest run passed all 25 Android files / 86 cases and the Source job, but the Android job failed before tests because an emulator-version probe lacked libpulse.so.0. The runner now installs that dependency and requires a successful tracing-setup marker before running tests. Actual traced Linux startup remains to be verified; earlier intermittent emulator losses remain unexplained.
+- In progress: publish the requested hello@quietake.cam privacy contact consistently in the public page and bundled policy.
 - Planned: complete documented security checks, resolve findings and validate the release on physical devices. Professional independent security review is optional; no independent-audit claim is made.
 - Planned: finalize store privacy disclosures, signing and distribution.
 

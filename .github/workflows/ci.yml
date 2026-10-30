@@ -111,6 +111,8 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
+          sudo apt-get update
+          sudo apt-get install -y libpulse0
           sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
@@ -131,10 +133,11 @@ jobs:
             "$ANDROID_HOME/emulator/emulator" -version
             python3 tool/emulator_exit_trace.py install "$ANDROID_HOME"
             "$ANDROID_HOME/emulator/emulator" -version
+            touch "$RUNNER_TEMP/quietake-emulator-trace-ready"
           # Preserve guest shutdown/panic output when the emulator disappears.
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated -show-kernel
           disable-animations: true
-          script: tool/e2e.sh android
+          script: test -f "$RUNNER_TEMP/quietake-emulator-trace-ready" && tool/e2e.sh android
       - name: Report emulator host diagnostics
         if: always()
         timeout-minutes: 2

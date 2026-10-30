@@ -2,7 +2,7 @@
   "title": "Quietake privacy policy",
   "updated": "October 30, 2026",
   "publisher": "Leonhardt Labs",
-  "contact": "leonhardt.william@gmail.com",
+  "contact": "hello@quietake.cam",
   "sections": [
     {
       "heading": "Intended audience",
@@ -70,7 +70,7 @@
       "paragraphs": [
         "You can confirm deletion of an individual capture from the viewer. Quietake removes its local copy and requests deletion from the configured WebDAV server. Offline or failed server removal remains pending until sync succeeds. A private local record prevents that capture from being downloaded again on this device. Matching library metadata is also removed; damaged metadata remains preserved for repair and its cleanup retries afterward. Other devices, independent server snapshots/backups and previously shared copies are outside this operation. Complete pending removals before changing servers.",
         "Removing app data or uninstalling does not itself delete WebDAV copies. It also removes this device's deletion journal, so finish pending deletions first. Uninstalling without a usable encrypted copy and recovery key can permanently lose access to captures.",
-        "There is no Quietake user account or publisher-hosted account-deletion service. Contact Leonhardt Labs at leonhardt.william@gmail.com for privacy questions. Do not send private media, passcodes, recovery keys or server credentials. Google SDK retention and deletion are described separately above."
+        "There is no Quietake user account or publisher-hosted account-deletion service. Contact Leonhardt Labs at hello@quietake.cam for privacy questions. Do not send private media, passcodes, recovery keys or server credentials. Google SDK retention and deletion are described separately above."
       ]
     }
   ]
