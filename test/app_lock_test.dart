@@ -188,6 +188,32 @@ void main() {
             .onUnlocked(session.vault.masterKeyForTests.copy());
         await tester.pump();
         expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
+        // Transient focus loss alone must not lock the vault.
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.inactive,
+        );
+        await tester.pump();
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
+        // A deliberate native departure must lock without waiting for paused.
+        ui.channelBuffers.push(
+          ScreenPrivacy.channel.name,
+          const StandardMethodCodec().encodeMethodCall(
+            const MethodCall('userLeaving'),
+          ),
+          (_) {},
+        );
+        await tester.pump();
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsNothing);
+        expect(find.byKey(Keys.lockUnlock).hitTestable(), findsOneWidget);
+        tester
+            .widget<LockScreen>(find.byType(LockScreen))
+            .onUnlocked(session.vault.masterKeyForTests.copy());
+        await tester.pump();
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
         await tester.pumpWidget(const SizedBox());
         await tester.runAsync(() => Future<void>.delayed(Duration.zero));
         await tester.pump();

@@ -19,6 +19,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val previews = Executors.newSingleThreadExecutor()
     private val microphoneRequestCode = 7301
     private var microphoneResult: MethodChannel.Result? = null
+    private var privacyChannel: MethodChannel? = null
     private lateinit var privateImport: PrivateImport
     private lateinit var portableFiles: PortableFiles
     private lateinit var videoPreparation: VideoPreparation
@@ -27,6 +28,11 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        privacyChannel?.invokeMethod("userLeaving", null)
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -64,17 +70,18 @@ class MainActivity : FlutterFragmentActivity() {
                     requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), microphoneRequestCode)
                 }
             }
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/privacy")
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "status" -> result.success(mapOf(
-                        "screenshotProtected" to ((window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0),
-                        "captured" to false, "covered" to false, "backgrounded" to false, "generation" to 0
-                    ))
-                    "ready" -> result.success(null)
-                    else -> result.notImplemented()
-                }
+        val privacy = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/privacy")
+        privacyChannel = privacy
+        privacy.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "status" -> result.success(mapOf(
+                    "screenshotProtected" to ((window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0),
+                    "captured" to false, "covered" to false, "backgrounded" to false, "generation" to 0
+                ))
+                "ready" -> result.success(null)
+                else -> result.notImplemented()
             }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/previews")
             .setMethodCallHandler { call, result ->
                 if (call.method != "video") { result.notImplemented(); return@setMethodCallHandler }

@@ -6,6 +6,38 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/privacy/screen_privacy.dart';
 
 void main() {
+  testWidgets('a native user departure locks before a paused lifecycle event', (
+    tester,
+  ) async {
+    var backgrounds = 0;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      ScreenPrivacy.channel,
+      (call) async => call.method == 'status' ? {'captured': false} : null,
+    );
+    final privacy = ScreenPrivacy(
+      (_) {},
+      onBackground: () async => backgrounds++,
+    );
+    addTearDown(() {
+      privacy.dispose();
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        ScreenPrivacy.channel,
+        null,
+      );
+    });
+    await privacy.start();
+    expect(backgrounds, 0);
+    ui.channelBuffers.push(
+      ScreenPrivacy.channel.name,
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('userLeaving'),
+      ),
+      (_) {},
+    );
+    await tester.pump();
+    expect(backgrounds, 1);
+  });
+
   testWidgets(
     'native capture events and frame acknowledgments follow the current root',
     (tester) async {

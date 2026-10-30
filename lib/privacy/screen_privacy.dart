@@ -14,7 +14,12 @@ class ScreenPrivacy {
   Future<void> start() async {
     _owner = this;
     channel.setMethodCallHandler((call) async {
-      if (!identical(_owner, this) || call.method != 'state') return;
+      if (!identical(_owner, this)) return;
+      if (call.method == 'userLeaving') {
+        await onBackground?.call();
+        return;
+      }
+      if (call.method != 'state') return;
       await _apply(Map<String, dynamic>.from(call.arguments as Map));
     });
     try {
