@@ -2,7 +2,7 @@
 
 ## Queue
 
-- In progress: diagnose the hosted recording-start timeout and physical locked-import failure, then complete device/hosted checks. Timeout diagnostics report state without changing deadlines or production behavior.
+- In progress: diagnose hosted emulator loss after 20 files / 60 passing cases, then complete required hosted checks. Guest-kernel output and crash-file metadata supplement host diagnostics without publishing memory dumps. Capture and the complete physical development suite passed on follow-up; earlier timeouts remain unexplained evidence.
 - Planned: complete documented security checks, resolve findings and validate the release on physical devices. Professional independent security review is optional; no independent-audit claim is made.
 - Planned: finalize store privacy disclosures, signing and distribution.
 

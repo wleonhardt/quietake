@@ -127,7 +127,8 @@ jobs:
           profile: pixel_6
           ram-size: 2048M
           disk-size: 6G
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated
+          # Preserve guest shutdown/panic output when the emulator disappears.
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated -show-kernel
           disable-animations: true
           script: tool/e2e.sh android
       - name: Report emulator host diagnostics
@@ -142,4 +143,7 @@ jobs:
           ps -eo pid,comm,rss --sort=-rss | head -n 16
           cat /proc/pressure/memory
           sudo dmesg --color=never | grep -Ei 'out of memory|oom-kill|killed process|segfault|qemu|kvm' | tail -n 60
+          # Crash database metadata only: never print or upload memory dumps.
+          find /tmp/android-runner -maxdepth 4 -type f \( -name '*.dmp' -o -name '*.meta' \) \
+            -printf 'emulator-crash-file %f bytes=%s\n' 2>/dev/null | head -n 40
           exit 0
