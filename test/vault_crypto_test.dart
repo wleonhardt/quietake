@@ -97,6 +97,17 @@ void main() {
     );
   });
 
+  test('every truncated empty-container prefix fails authentication', () async {
+    final cipher = await collect(vault.encrypt(const Stream.empty(), key));
+    for (var length = 0; length < cipher.length; length++) {
+      await expectLater(
+        collect(vault.decrypt(Stream.value(cipher.sublist(0, length)), key)),
+        throwsA(anything),
+        reason: 'A $length-byte prefix is not an authenticated empty file',
+      );
+    }
+  });
+
   test('partial decryption cancels its source', () async {
     final cipher = await collect(
       vault.encrypt(Stream.value(bytes(chunk * 3)), key, chunkSize: chunk),

@@ -145,11 +145,19 @@ class VaultCrypto {
       } finally {
         raw.fillRange(0, raw.length, 0);
       }
-      yield* sodium.crypto.secretStream.pullChunked(
+      var authenticatedChunk = false;
+      await for (final bytes in sodium.crypto.secretStream.pullChunked(
         cipherStream: reader.rest(),
         key: fileKey,
         chunkSize: chunkSize,
-      );
+      )) {
+        authenticatedChunk = true;
+        yield bytes;
+      }
+      // Even empty plaintext requires an authenticated FINAL chunk.
+      if (!authenticatedChunk) {
+        throw const FormatException('truncated container');
+      }
     } finally {
       fileKey?.dispose();
       await reader.cancel();

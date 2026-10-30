@@ -116,6 +116,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
           flutter pub get --enforce-lockfile
+          free -m
+          df -h "$RUNNER_TEMP" "$GITHUB_WORKSPACE"
       - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: 33
@@ -128,3 +130,16 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated
           disable-animations: true
           script: tool/e2e.sh android
+      - name: Report emulator host diagnostics
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          # Synthetic hosted runner only. No app data, environment or credentials.
+          set +e
+          free -m
+          df -h "$RUNNER_TEMP" "$GITHUB_WORKSPACE"
+          ps -eo pid,comm,rss --sort=-rss | head -n 16
+          cat /proc/pressure/memory
+          sudo dmesg --color=never | grep -Ei 'out of memory|oom-kill|killed process|segfault|qemu|kvm' | tail -n 60
+          exit 0

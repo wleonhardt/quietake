@@ -118,6 +118,32 @@ void main() {
     );
   });
 
+  test('wrapped-key-only remote media is never adopted', () async {
+    final retained = await addLocal('retained.jpg', 1000);
+    final missing = await addLocal('missing.jpg', 1000);
+    await sync.sync();
+    final original = await retained.readAsBytes();
+    await missing.delete();
+    server.files['missing.jpg.shtr'] = server.files['missing.jpg.shtr']!
+        .sublist(0, 82);
+    final remote = {
+      for (final entry in server.files.entries)
+        entry.key: Uint8List.fromList(entry.value),
+    };
+    server.log.clear();
+
+    await expectLater(sync.sync(), throwsA(anything));
+    expect(await missing.exists(), isFalse);
+    expect(await retained.readAsBytes(), original);
+    expect(server.files, remote);
+    expect(
+      server.log.where(
+        (line) => line.startsWith('PUT ') || line.startsWith('DELETE '),
+      ),
+      isEmpty,
+    );
+  });
+
   test(
     'different-size remote copy is preserved instead of silently repaired',
     () async {

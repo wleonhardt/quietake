@@ -140,13 +140,13 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
         _hasKeyfile == true,
   );
 
-  void _enterLock({required bool autoPrompt}) {
+  Future<void> _enterLock({required bool autoPrompt}) async {
     if (!mounted) return;
     FocusManager.instance.primaryFocus?.unfocus();
     _privacy.setEnabled(false);
     // Decision 040: no plaintext keeps streaming or sitting decoded in memory
     // behind the lock screen.
-    unawaited(_session?.lock());
+    final stopped = _session?.lock();
     PaintingBinding.instance.imageCache
       ..clear()
       ..clearLiveImages();
@@ -158,13 +158,14 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
       if (!_locked || !autoPrompt) _autoPrompt = autoPrompt;
       _locked = true;
     });
+    await stopped;
   }
 
   Future<void> _backgroundLock() async {
     final exists = _hasKeyfile == true || await widget.store.hasKeyfile;
     if (exists && mounted) {
       _hasKeyfile = true;
-      _enterLock(autoPrompt: true);
+      await _enterLock(autoPrompt: true);
     }
   }
 

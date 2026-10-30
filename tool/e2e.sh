@@ -63,4 +63,9 @@ case "${1:-android}" in
 esac
 
 # --no-uninstall: a reinstall between test files would wipe the granted permissions.
-flutter test integration_test -d "$DEVICE" --no-uninstall
+# Flutter's native directory dispatcher can continue after a load failure even
+# with --fail-fast. Separate files so set -e stops before the next native build.
+for test_file in integration_test/*_test.dart; do
+  test -f "$test_file"
+  flutter test "$test_file" -d "$DEVICE" --no-uninstall --fail-fast
+done

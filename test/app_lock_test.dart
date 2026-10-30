@@ -21,6 +21,16 @@ import 'package:sodium/sodium_sumo.dart';
 import '../test_support/fake_authenticator.dart';
 import '../test_support/fake_cast_backend.dart';
 
+class _DelayedDisconnectBackend extends FakeCastBackend {
+  Future<void>? disconnectGate;
+
+  @override
+  Future<void> disconnect() async {
+    await disconnectGate;
+    await super.disconnect();
+  }
+}
+
 void main() {
   for (final backgroundBeforeReady in [false, true]) {
     testWidgets(
@@ -28,6 +38,7 @@ void main() {
       (tester) async {
         late Directory dir;
         late Session session;
+        final backend = _DelayedDisconnectBackend();
         final auth = FakeAuthenticator(isAvailable: false, answer: false);
         await tester.runAsync(() async {
           final sodium = await SodiumSumoInit.init();
@@ -42,7 +53,7 @@ void main() {
           session = Session(
             vault: vault,
             server: await MediaServer.start(vault),
-            cast: CastController(vault, FakeCastBackend()),
+            cast: CastController(vault, backend),
             store: store,
           );
         });
@@ -183,6 +194,49 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         expect(find.byKey(Keys.gallerySettings).hitTestable(), findsNothing);
         expect(find.byKey(Keys.lockUnlock).hitTestable(), findsOneWidget);
+        tester
+            .widget<LockScreen>(find.byType(LockScreen))
+            .onUnlocked(session.vault.masterKeyForTests.copy());
+        await tester.pump();
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
+        // Transient focus loss alone must not lock the vault.
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.inactive,
+        );
+        await tester.pump();
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
+        // A deliberate native departure must lock without waiting for paused.
+        final disconnected = Completer<void>();
+        backend.disconnectGate = disconnected.future;
+        backend.loadedUrl = Uri.parse('http://127.0.0.1/synthetic');
+        addTearDown(() {
+          if (!disconnected.isCompleted) disconnected.complete();
+        });
+        var departureComplete = false;
+        ui.channelBuffers.push(
+          ScreenPrivacy.channel.name,
+          const StandardMethodCodec().encodeMethodCall(
+            const MethodCall('userLeaving'),
+          ),
+          (_) => departureComplete = true,
+        );
+        await tester.pump();
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsNothing);
+        expect(find.byKey(Keys.lockUnlock).hitTestable(), findsOneWidget);
+        expect(
+          departureComplete,
+          isFalse,
+          reason: 'Native completion must wait for receiver teardown',
+        );
+        expect(backend.loadedUrl, isNotNull);
+        disconnected.complete();
+        await tester.pump();
+        expect(departureComplete, isTrue);
+        expect(backend.loadedUrl, isNull);
         tester
             .widget<LockScreen>(find.byType(LockScreen))
             .onUnlocked(session.vault.masterKeyForTests.copy());

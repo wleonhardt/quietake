@@ -20,6 +20,8 @@ first release target; iOS development is ongoing.
   durable staging until encrypted saving succeeds, then is deleted.
 - A passcode protects the vault key. Optional biometrics use platform storage.
   Save the recovery key separately from the phone and encrypted backup.
+  Android locks on activity departure, including first-use camera or microphone
+  permission screens; unlock again after responding to continue capturing.
 - Backup is optional and stores ciphertext on your own server. File sizes and
   filenames remain visible to that server. Sync does not infer deletion from absence.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share

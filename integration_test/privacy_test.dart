@@ -367,6 +367,66 @@ void main() {
     },
   );
 
+  testWidgets('native departure locks routes and stops Cast before paused', (
+    tester,
+  ) async {
+    await begin(tester);
+    await tap(tester, Keys.openGallery);
+    await until(tester, () => has(Keys.galleryTile(0)));
+    await tap(tester, Keys.galleryTile(0));
+    await until(tester, () => has(Keys.viewerPhoto));
+    final encrypted = await photo.readAsBytes();
+    await app.session.cast.start(app.backend.available.first, VaultItem(photo));
+    await app.session.cast.show(VaultItem(photo));
+    expect(app.session.cast.isCasting, isTrue);
+    app.auth.answer = false;
+    addTearDown(() => app.auth.answer = true);
+    final prompts = app.auth.reasons.length;
+    final lifecycle = tester.binding.lifecycleState;
+    // The test binding can reset this to null between cases without a new
+    // native resume event. Neither state has delivered a background pause.
+    expect(lifecycle, anyOf(isNull, AppLifecycleState.resumed));
+    var departureComplete = false;
+    ByteData? departureReply;
+    ui.channelBuffers.push(
+      ScreenPrivacy.channel.name,
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('userLeaving'),
+      ),
+      (reply) {
+        departureReply = reply;
+        departureComplete = true;
+      },
+    );
+    await until(tester, () => has(Keys.lockPasscode));
+    expect(has(Keys.viewerPhoto), isFalse);
+    // isCasting clears before asynchronous server/backend teardown completes.
+    await until(tester, () => departureComplete);
+    expect(departureReply, isNotNull);
+    expect(const StandardMethodCodec().decodeEnvelope(departureReply!), isNull);
+    expect(app.session.cast.isCasting, isFalse);
+    expect(app.backend.loadedUrl, isNull);
+    expect(app.backend.log.last, 'disconnect');
+    expect(tester.binding.lifecycleState, lifecycle);
+    expect(await photo.readAsBytes(), encrypted);
+    expect(await app.vault.readAll(photo), fixtureBytes('tiny.jpg'));
+    await until(
+      tester,
+      () =>
+          app.auth.reasons.length > prompts &&
+          has(Keys.lockBiometric) &&
+          tester.widget<TextButton>(find.byKey(Keys.lockBiometric)).onPressed !=
+              null,
+    );
+    expect(has(Keys.lockPasscode), isTrue);
+    app.auth.answer = true;
+    await unlock(tester);
+    expect(has(Keys.viewerPhoto), isTrue);
+    expect(app.session.cast.isCasting, isFalse);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 500));
+  });
+
   testWidgets('licenses need no NAS setup and respect the lock gate', (
     tester,
   ) async {
