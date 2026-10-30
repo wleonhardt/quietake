@@ -9,11 +9,56 @@ import unittest
 
 
 class EmulatorBootstrapTests(unittest.TestCase):
+    def test_stops_before_next_file_after_native_load_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'tool').mkdir()
+            (root / 'integration_test').mkdir()
+            (root / 'bin').mkdir()
+            for name in ['a_test.dart', 'b_test.dart']:
+                (root / 'integration_test' / name).touch()
+            shutil.copyfile(Path(__file__).with_name('e2e.sh'), root / 'tool/e2e.sh')
+            flutter = root / 'bin/flutter'
+            flutter.write_text('''#!/usr/bin/env python3
+import os, sys
+from pathlib import Path
+target = Path(sys.argv[2])
+# Model Flutter's native directory dispatcher continuing after a load failure.
+files = sorted(target.glob('*_test.dart')) if target.is_dir() else [target]
+with open(os.environ['CALLS'], 'a') as output:
+    for file in files:
+        output.write(file.name + '\\n')
+sys.exit(int(os.environ['TEST_EXIT']))
+''')
+            flutter.chmod(0o755)
+            adb = root / 'sdk/platform-tools/adb'
+            adb.parent.mkdir(parents=True)
+            adb.write_text('#!/bin/sh\nexit 0\n')
+            adb.chmod(0o755)
+            log = root / 'calls'
+            env = dict(os.environ, ANDROID_HOME=str(root / 'sdk'), CALLS=str(log),
+                       TEST_EXIT='1')
+            env['PATH'] = str(root / 'bin') + os.pathsep + env['PATH']
+            result = subprocess.run(['bash', 'tool/e2e.sh', 'synthetic-device'],
+                                    cwd=root, env=env, capture_output=True,
+                                    text=True, timeout=20)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(log.read_text().splitlines(), ['a_test.dart'])
+            log.write_text('')
+            env['TEST_EXIT'] = '0'
+            result = subprocess.run(['bash', 'tool/e2e.sh', 'synthetic-device'],
+                                    cwd=root, env=env, capture_output=True,
+                                    text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(log.read_text().splitlines(), ['a_test.dart', 'b_test.dart'])
+
     def test_explicit_emulator_boot_and_binary_guard(self):
         for package in ['cam.quietake.app.dev', 'club.hubner.shuttered.dev', 'cam.quietake.app']:
             with self.subTest(package=package), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 (root / 'tool').mkdir()
+                (root / 'integration_test').mkdir()
+                (root / 'integration_test/example_test.dart').touch()
                 for name in ['e2e.sh', 'dev_identity.py']:
                     shutil.copyfile(Path(__file__).with_name(name), root / 'tool' / name)
                 runner = root / 'tool/e2e.sh'
