@@ -4,7 +4,7 @@
 
 - In progress: verify version 1.0.0+4 with offline privacy access, Cast 23.0.0 and complete Google native notices. Local analysis, 439 host cases and all 25 Android files / 86 cases pass across retained runs. Full iOS and fresh uninterrupted hosted CI remain pending; real-receiver and signed-candidate checks follow.
 
-- In progress: diagnose hosted emulator loss after 20 files / 60 passing cases, then complete required hosted checks. Guest-kernel output and crash-file metadata supplement host diagnostics without publishing memory dumps. Capture and the complete physical development suite passed on follow-up; earlier timeouts remain unexplained evidence.
+- In progress: diagnose intermittent hosted emulator loss and complete required hosted checks. A CI-only supervisor records native emulator exit codes/signals alongside guest-kernel and host diagnostics; it does not alter emulator flags or publish memory dumps. Earlier failures remain unresolved evidence.
 - Planned: complete documented security checks, resolve findings and validate the release on physical devices. Professional independent security review is optional; no independent-audit claim is made.
 - Planned: finalize store privacy disclosures, signing and distribution.
 

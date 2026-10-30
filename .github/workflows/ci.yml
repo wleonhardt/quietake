@@ -127,6 +127,10 @@ jobs:
           profile: pixel_6
           ram-size: 2048M
           disk-size: 6G
+          pre-emulator-launch-script: |
+            "$ANDROID_HOME/emulator/emulator" -version
+            python3 tool/emulator_exit_trace.py install "$ANDROID_HOME"
+            "$ANDROID_HOME/emulator/emulator" -version
           # Preserve guest shutdown/panic output when the emulator disappears.
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated -show-kernel
           disable-animations: true
