@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -41,11 +40,6 @@ class BackupPassphrase {
     if (words.length != 7776 || words.toSet().length != 7776) {
       throw const FormatException('Invalid passphrase word list');
     }
-    LicenseRegistry.addLicense(() async* {
-      yield LicenseEntryWithLineBreaks([
-        'EFF Long Wordlist',
-      ], await rootBundle.loadString('assets/passphrases/LICENSE.txt'));
-    });
     return words;
   }
 

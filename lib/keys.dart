@@ -135,6 +135,8 @@ abstract final class Keys {
   static const settingsPrivacySection = Key('settings.privacySection');
   static const settingsBackupSection = Key('settings.backupSection');
   static const settingsRecoverySection = Key('settings.recoverySection');
+  static const settingsLicenses = Key('settings.licenses');
+  static const licensesPage = Key('licenses.page');
   static const settingsAccessResult = Key('settings.accessResult');
   static const settingsUrl = Key('settings.url');
   static const settingsUser = Key('settings.user');

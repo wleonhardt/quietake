@@ -196,6 +196,32 @@ void main() {
           await tester.ensureVisible(find.byKey(key));
           expect(find.byKey(key).hitTestable(), findsOneWidget);
         }
+        if (!configured) {
+          final licenses = find.byKey(Keys.settingsLicenses);
+          expect(licenses, findsOneWidget);
+          await tester.ensureVisible(licenses);
+          await tester.tap(licenses);
+          await tester.pumpAndSettle();
+          expect(find.byType(LicensePage), findsOneWidget);
+          final effLicense = find.widgetWithText(ListTile, 'EFF Long Wordlist');
+          await tester.scrollUntilVisible(
+            effLicense,
+            200,
+            scrollable: find.byType(Scrollable).first,
+          );
+          expect(effLicense, findsOneWidget);
+          await tester.tap(effLicense);
+          await tester.pumpAndSettle();
+          expect(find.textContaining('CC BY 4.0'), findsWidgets);
+          expect((await SyncSettings.load()).isConfigured, isFalse);
+          await tester.pageBack();
+          await tester.pumpAndSettle();
+          if (find.byType(SettingsScreen).evaluate().isEmpty) {
+            await tester.pageBack();
+            await tester.pumpAndSettle();
+          }
+          expect(find.byType(SettingsScreen), findsOneWidget);
+        }
         final disconnect = find.text(
           configured ? 'Disconnect NAS backup' : 'Clear saved NAS details',
         );
