@@ -99,6 +99,11 @@ void main() {
             await tester.pump();
           }
           expect(find.byKey(Keys.galleryEmpty), findsOneWidget);
+          expect(
+            find.byKey(Keys.galleryCast).hitTestable(),
+            findsOneWidget,
+            reason: 'Cast must be available without opening Library actions',
+          );
           await tester.runAsync(session.sync.sync);
           await tester.pump();
           expect(find.byKey(Keys.gallerySyncResult), findsNothing);

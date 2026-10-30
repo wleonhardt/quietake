@@ -76,5 +76,5 @@ Small, behavior-tested changes are welcome. Explain the problem, preserve privac
 contracts, and include verification. See [CONTRIBUTING.md](CONTRIBUTING.md).
 Report vulnerabilities privately through [GitHub security advisories](https://github.com/wleonhardt/quietake/security/advisories/new).
 
-Original source is GPL-3.0-only. Third-party materials retain their own licenses;
+Original source is MPL-2.0. Third-party materials retain their own licenses;
 see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).

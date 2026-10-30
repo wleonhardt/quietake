@@ -6,4 +6,4 @@
 
 ## Resolved
 
-- Original source uses GPL-3.0-only.
+- Original source uses MPL-2.0.

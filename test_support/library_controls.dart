@@ -16,7 +16,6 @@ Future<void> revealLibraryControl(WidgetTester tester, Key key) async {
     Keys.librarySelect,
     Keys.libraryAlbums,
     Keys.libraryImport,
-    Keys.galleryCast,
     Keys.gallerySync,
     Keys.libraryUntagged,
   ];

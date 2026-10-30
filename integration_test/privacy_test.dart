@@ -381,10 +381,59 @@ void main() {
           has(Keys.licensesPage) &&
           find.byType(CircularProgressIndicator).evaluate().isEmpty,
     );
+    final appLicense = find.widgetWithText(ListTile, 'Quietake');
+    await tester.scrollUntilVisible(
+      appLicense,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(appLicense);
+    await tester.pump(const Duration(milliseconds: 500));
+    await until(
+      tester,
+      () => find
+          .textContaining('Mozilla Public License Version 2.0')
+          .evaluate()
+          .isNotEmpty,
+    );
+    expect(
+      find.textContaining('https://github.com/wleonhardt/quietake'),
+      findsWidgets,
+    );
+    if (appLicense.hitTestable().evaluate().isEmpty) {
+      await tester.tap(find.byTooltip('Back').hitTestable());
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+    if (Platform.isAndroid) {
+      final nativeNotice = find.widgetWithText(
+        ListTile,
+        'kotlinx.coroutines (Android)',
+      );
+      await tester.scrollUntilVisible(
+        nativeNotice,
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(nativeNotice);
+      await tester.pump(const Duration(milliseconds: 500));
+      await until(
+        tester,
+        () => find
+            .textContaining(
+              'Copyright 2016-2024 JetBrains s.r.o and contributors',
+            )
+            .evaluate()
+            .isNotEmpty,
+      );
+      if (nativeNotice.hitTestable().evaluate().isEmpty) {
+        await tester.tap(find.byTooltip('Back').hitTestable());
+        await tester.pump(const Duration(milliseconds: 500));
+      }
+    }
     final effLicense = find.widgetWithText(ListTile, 'EFF Long Wordlist');
     await tester.scrollUntilVisible(
       effLicense,
-      200,
+      -200,
       scrollable: find.byType(Scrollable).first,
     );
     expect(effLicense, findsOneWidget);

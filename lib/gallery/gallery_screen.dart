@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../cast/device_picker.dart';
@@ -300,37 +302,45 @@ class _GalleryScreenState extends State<GalleryScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!widget.searchMode || !_composing)
-          TextButton.icon(
-            key: Keys.libraryOpenSearch,
-            onPressed: _catalogUnavailable ? null : _openSearch,
-            style: TextButton.styleFrom(
-              alignment: Alignment.centerLeft,
-              backgroundColor: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHigh,
+        Row(
+          children: [
+            Expanded(
+              child: !widget.searchMode || !_composing
+                  ? TextButton.icon(
+                      key: Keys.libraryOpenSearch,
+                      onPressed: _catalogUnavailable ? null : _openSearch,
+                      style: TextButton.styleFrom(
+                        alignment: Alignment.centerLeft,
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHigh,
+                      ),
+                      icon: const Icon(Icons.search),
+                      label: Text(
+                        widget.searchMode
+                            ? 'Edit search'
+                            : 'Search names and tags',
+                      ),
+                    )
+                  : TextField(
+                      key: Keys.librarySearch,
+                      controller: _search,
+                      autofocus: true,
+                      onChanged: (_) => _scope(() {}),
+                      onSubmitted: (_) => _scope(() {
+                        _composing = false;
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      }),
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Search names and tags',
+                        isDense: true,
+                      ),
+                    ),
             ),
-            icon: const Icon(Icons.search),
-            label: Text(
-              widget.searchMode ? 'Edit search' : 'Search names and tags',
-            ),
-          ),
-        if (widget.searchMode && _composing)
-          TextField(
-            key: Keys.librarySearch,
-            controller: _search,
-            autofocus: true,
-            onChanged: (_) => _scope(() {}),
-            onSubmitted: (_) => _scope(() {
-              _composing = false;
-              FocusManager.instance.primaryFocus?.unfocus();
-            }),
-            decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Search names and tags',
-              isDense: true,
-            ),
-          ),
+            CastButton(key: Keys.galleryCast, cast: widget.session.cast),
+          ],
+        ),
         if (widget.searchMode &&
             (_tags.isNotEmpty ||
                 _untagged ||
@@ -672,7 +682,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
         _importFiles();
       },
     ),
-    CastButton(key: Keys.galleryCast, cast: widget.session.cast),
     IconButton(
       key: Keys.gallerySync,
       tooltip: widget.session.sync.isSyncing
@@ -732,7 +741,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
       builder: (context, constraints) => Column(
         children: [
           ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: constraints.maxHeight * .65),
+            constraints: BoxConstraints(
+              maxHeight: math.min(
+                constraints.maxHeight,
+                math.max(kMinInteractiveDimension, constraints.maxHeight * .65),
+              ),
+            ),
             child: SingleChildScrollView(
               child: Column(
                 children: [

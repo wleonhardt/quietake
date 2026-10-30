@@ -72,6 +72,8 @@ kotlin {
 dependencies {
     implementation("androidx.work:work-runtime-ktx:2.12.0")
     implementation("com.squareup.okhttp3:okhttp:5.5.1")
+    // Bound deserialization allocation (CVE-2026-102554).
+    implementation("com.google.guava:guava:33.7.2-android")
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.squareup.okhttp3:mockwebserver:5.5.1")
     // Match video_player_android's Media3 version; do not mix module versions.

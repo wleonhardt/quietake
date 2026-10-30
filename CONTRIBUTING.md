@@ -9,7 +9,7 @@ need the guarded Android and iOS synthetic device suites. Read AGENTS.md for dat
 protection rules. Never include real media, credentials, recovery keys or logs
 containing personal information in reports.
 
-Contributions are made under GPL-3.0-only. Identify third-party code and its license.
+Contributions are made under MPL-2.0. Identify third-party code and its license.
 
 Website changes need no package installation: run
 `python3 -m http.server 8000 --directory website`, inspect desktop and mobile

@@ -29,6 +29,8 @@ void main() {
       await until(Keys.openGallery);
       await tester.tap(find.byKey(Keys.openGallery));
       await until(Keys.libraryOpenSearch);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(Keys.galleryCast).hitTestable(), findsOneWidget);
       await revealLibraryControl(tester, Keys.librarySearch);
       expect(find.byKey(Keys.librarySearch).hitTestable(), findsOneWidget);
       await tester.pump(const Duration(milliseconds: 500));
@@ -37,6 +39,7 @@ void main() {
         bottom: 200 * tester.view.devicePixelRatio,
       );
       await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(Keys.galleryCast).hitTestable(), findsOneWidget);
       expect(
         tester.takeException(),
         isNull,
@@ -57,6 +60,7 @@ void main() {
           );
           expect(title.size.width, greaterThan(0));
           expect(title.didExceedMaxLines, isFalse);
+          expect(find.byKey(Keys.galleryCast).hitTestable(), findsOneWidget);
           for (final key in [
             Keys.lockNow,
             Keys.gallerySettings,
