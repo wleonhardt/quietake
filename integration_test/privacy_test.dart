@@ -386,16 +386,25 @@ void main() {
     // The test binding can reset this to null between cases without a new
     // native resume event. Neither state has delivered a background pause.
     expect(lifecycle, anyOf(isNull, AppLifecycleState.resumed));
+    var departureComplete = false;
+    ByteData? departureReply;
     ui.channelBuffers.push(
       ScreenPrivacy.channel.name,
       const StandardMethodCodec().encodeMethodCall(
         const MethodCall('userLeaving'),
       ),
-      (_) {},
+      (reply) {
+        departureReply = reply;
+        departureComplete = true;
+      },
     );
     await until(tester, () => has(Keys.lockPasscode));
     expect(has(Keys.viewerPhoto), isFalse);
-    await until(tester, () => !app.session.cast.isCasting);
+    // isCasting clears before asynchronous server/backend teardown completes.
+    await until(tester, () => departureComplete);
+    expect(departureReply, isNotNull);
+    expect(const StandardMethodCodec().decodeEnvelope(departureReply!), isNull);
+    expect(app.session.cast.isCasting, isFalse);
     expect(app.backend.loadedUrl, isNull);
     expect(app.backend.log.last, 'disconnect');
     expect(tester.binding.lifecycleState, lifecycle);

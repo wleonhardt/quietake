@@ -63,4 +63,5 @@ case "${1:-android}" in
 esac
 
 # --no-uninstall: a reinstall between test files would wipe the granted permissions.
-flutter test integration_test -d "$DEVICE" --no-uninstall
+# Stop on the first failure so CI returns diagnostics without running later files.
+flutter test integration_test -d "$DEVICE" --no-uninstall --fail-fast
