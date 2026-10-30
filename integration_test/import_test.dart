@@ -224,7 +224,20 @@ void main() {
       var count = 0;
       final end = DateTime.now().add(const Duration(seconds: 40));
       while (count != 3 || await staging.exists()) {
-        if (DateTime.now().isAfter(end)) fail('Locked import did not finish');
+        if (DateTime.now().isAfter(end)) {
+          final summary = tester.widgetList<Text>(
+            find.byKey(Keys.importSummary, skipOffstage: false),
+          );
+          final errors = tester.widgetList<Text>(
+            find.byKey(Keys.importError, skipOffstage: false),
+          );
+          fail(
+            'Locked import did not finish: count=$count, '
+            'staging=${await staging.exists()}, '
+            'summary=${summary.map((text) => text.data).toList()}, '
+            'errors=${errors.map((text) => text.data).toList()}',
+          );
+        }
         await tester.pump(const Duration(milliseconds: 100));
         count = (await app.vault.list()).length;
       }

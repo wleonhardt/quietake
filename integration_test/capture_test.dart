@@ -56,8 +56,21 @@ void main() {
         final status = find.byKey(Keys.status).evaluate().isEmpty
             ? 'none'
             : tester.widget<Text>(find.byKey(Keys.status)).data;
+        final previews = tester.widgetList<CameraPreview>(
+          find.byType(CameraPreview),
+        );
+        final camera = previews.singleOrNull?.controller;
+        final video = tester.widgetList<IconButton>(
+          find.byKey(Keys.videoToggle),
+        ).singleOrNull;
         fail(
-          'timed out after $timeout; status=$status; cast=${app.session.cast.isCasting}; loaded=${app.backend.loadedType}',
+          'timed out after $timeout; status=$status; '
+          'cast=${app.session.cast.isCasting}; loaded=${app.backend.loadedType}; '
+          'cameraInitialized=${camera?.value.isInitialized}; '
+          'cameraRecording=${camera?.value.isRecordingVideo}; '
+          'cameraError=${camera?.value.hasError}; audio=${camera?.enableAudio}; '
+          'videoEnabled=${video?.onPressed != null}; videoAction=${video?.tooltip}; '
+          'lifecycle=${tester.binding.lifecycleState}',
         );
       }
       await tester.pump(const Duration(milliseconds: 100));

@@ -46,8 +46,16 @@ case "${1:-android}" in
     DEVICE="$1"
     ADB="$SDK/platform-tools/adb"
     if "$ADB" devices | grep -q "^$DEVICE[[:space:]]*device"; then
-      # A sleeping screen kills the camera preview mid-test: stay on while plugged in.
-      "$ADB" -s "$DEVICE" shell svc power stayon usb
+      # USB data can accompany AC-reported charging (e.g. Samsung). Cover both.
+      ORIGINAL_STAY_ON=$("$ADB" -s "$DEVICE" shell settings get global stay_on_while_plugged_in | tr -d '\r')
+      restore_stay_awake() {
+        local test_status=$?
+        trap - EXIT
+        "$ADB" -s "$DEVICE" shell settings put global stay_on_while_plugged_in "$ORIGINAL_STAY_ON" >/dev/null || true
+        exit "$test_status"
+      }
+      trap restore_stay_awake EXIT
+      "$ADB" -s "$DEVICE" shell svc power stayon true
       "$ADB" -s "$DEVICE" shell input keyevent KEYCODE_WAKEUP
       flutter build apk --debug >/dev/null
       python3 tool/dev_identity.py build/app/outputs/flutter-apk/app-debug.apk
