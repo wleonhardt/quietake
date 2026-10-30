@@ -1,7 +1,7 @@
 name: quietake
 description: "Private camera: photos and videos encrypted on capture, synced to a NAS share, cast from the phone."
 publish_to: 'none'
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: ^3.13.2
@@ -39,6 +39,8 @@ flutter:
     enable-swift-package-manager: false
   assets:
     - LICENSE
+    - assets/privacy-policy.json
+    - assets/licenses/google-play-services-NOTICES.json
     - assets/brand/quietake.png
     - assets/passphrases/eff_large_wordlist.txt
     - assets/passphrases/LICENSE.txt

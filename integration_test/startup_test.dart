@@ -9,6 +9,8 @@ import 'package:quietake/cast/google_cast_backend.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart' as app;
 
+import '../test_support/cast_payload.dart';
+
 /// Exercises real startup, including platform initialization omitted by the harness.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +47,12 @@ void main() {
     });
     expect(tester.takeException(), isNull);
   }, skip: !Platform.isAndroid);
+  testWidgets('Cast photo payload excludes unrelated metadata', (tester) async {
+    await tester.runAsync(() => checkCastLoadPayload('image/jpeg', 4));
+  });
+  testWidgets('Cast video payload excludes unrelated metadata', (tester) async {
+    await tester.runAsync(() => checkCastLoadPayload('video/mp4', 1));
+  });
   testWidgets('native microphone bridge returns the granted permission', (
     tester,
   ) async {

@@ -33,6 +33,8 @@ first release target; iOS development is ongoing.
   previews and responds to recording; it cannot prevent still screenshots.
 - Google Cast SDK has its own analytics and diagnostics. Read Google's
   [SDK disclosure](https://developers.google.com/cast/docs/android_sender/data_disclosure).
+- The app's privacy policy is available offline before setup and from Settings.
+  Public policy URL: [app privacy policy](https://quietake.cam/app-privacy.html).
 
 ## Build and test
 

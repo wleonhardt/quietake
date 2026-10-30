@@ -56,7 +56,15 @@ void main() {
     final deadline = DateTime.now().add(const Duration(seconds: 30));
     while (!done()) {
       if (DateTime.now().isAfter(deadline)) {
-        fail('Privacy UI checkpoint timed out');
+        fail(
+          'Privacy UI checkpoint timed out: '
+          'camera=${has(Keys.openGallery)} lock=${has(Keys.lockPasscode)} '
+          'gallery=${has(Keys.galleryGrid)} empty=${has(Keys.galleryEmpty)} '
+          'settings=${has(Keys.settingsUrl)} '
+          'policy=${has(Keys.privacyPolicyPage)} '
+          'loading=${find.byType(CircularProgressIndicator).evaluate().length} '
+          'photoExists=${photo.existsSync()} videoExists=${video.existsSync()}',
+        );
       }
       await tester.pump(const Duration(milliseconds: 100));
     }
@@ -66,6 +74,12 @@ void main() {
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pump(const Duration(milliseconds: 500));
     await tester.ensureVisible(find.byKey(key));
+    if (key == Keys.openGallery) {
+      await until(
+        tester,
+        () => tester.widget<IconButton>(find.byKey(key)).onPressed != null,
+      );
+    }
     await tester.tap(find.byKey(key));
     await tester.pump(const Duration(milliseconds: 500));
   }
@@ -123,6 +137,17 @@ void main() {
         200,
         scrollable: find.byType(Scrollable).first,
       );
+
+  Future<void> scrollToLicense(WidgetTester tester, Finder license) async {
+    final scrollable = find.descendant(
+      of: find.byKey(Keys.licensesPage),
+      matching: find.byType(Scrollable),
+    ).first;
+    final position = tester.state<ScrollableState>(scrollable).position;
+    position.jumpTo(position.minScrollExtent);
+    await tester.pump();
+    await tester.scrollUntilVisible(license, 200, scrollable: scrollable);
+  }
 
   testWidgets('native screen privacy and manual route lock preserve captures', (
     tester,
@@ -198,8 +223,10 @@ void main() {
       try {
         await tester.pump();
         expect(
-          tester.getSemantics(find.byKey(Keys.changePasscodeError))
-              .flagsCollection.isLiveRegion,
+          tester
+              .getSemantics(find.byKey(Keys.changePasscodeError))
+              .flagsCollection
+              .isLiveRegion,
           isTrue,
         );
       } finally {
@@ -214,7 +241,10 @@ void main() {
         'Passcode changed',
       );
       await tester.ensureVisible(find.byKey(Keys.settingsAccessResult));
-      expect(find.byKey(Keys.settingsAccessResult).hitTestable(), findsOneWidget);
+      expect(
+        find.byKey(Keys.settingsAccessResult).hitTestable(),
+        findsOneWidget,
+      );
       await expectLater(
         app.session.store.unlockWithPasscode(oldPasscode),
         throwsA(isA<WrongPasscodeException>()),
@@ -427,6 +457,69 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
   });
 
+  testWidgets('privacy policy is offline and stays behind the vault lock', (
+    tester,
+  ) async {
+    await begin(tester);
+    final photoBefore = await photo.readAsBytes();
+    final videoBefore = await video.readAsBytes();
+    expect((await SyncSettings.load()).isConfigured, isFalse);
+    await settings(tester);
+    await scrollTo(tester, Keys.settingsPrivacyPolicy);
+    await tap(tester, Keys.settingsPrivacyPolicy);
+    await until(tester, () => find.text('Your vault').evaluate().isNotEmpty);
+    expect(find.textContaining('Leonhardt Labs'), findsWidgets);
+    expect(find.text('Optional Google Cast'), findsOneWidget);
+    final privacy = PrivacyScope.maybeOf(
+      tester.element(find.byKey(Keys.privacyPolicyPage)),
+    )!;
+    privacy.lock();
+    await until(tester, () => has(Keys.lockPasscode));
+    expect(has(Keys.privacyPolicyPage), isFalse);
+    expect(find.text('Your vault'), findsNothing);
+    await unlock(tester);
+    await until(tester, () => has(Keys.privacyPolicyPage));
+    app.auth.answer = false;
+    addTearDown(() => app.auth.answer = true);
+    final promptsBeforeBackground = app.auth.reasons.length;
+    for (final state in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(has(Keys.privacyPolicyPage), isFalse);
+    for (final state in [
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await until(tester, () => has(Keys.lockPasscode));
+    expect(find.text('Your vault'), findsNothing);
+    await until(
+      tester,
+      () =>
+          app.auth.reasons.length > promptsBeforeBackground &&
+          has(Keys.lockBiometric) &&
+          tester.widget<TextButton>(find.byKey(Keys.lockBiometric)).onPressed !=
+              null,
+    );
+    app.auth.answer = true;
+    await unlock(tester);
+    await until(tester, () => has(Keys.privacyPolicyPage));
+    expect(await photo.readAsBytes(), photoBefore);
+    expect(await video.readAsBytes(), videoBefore);
+    expect(await app.vault.readAll(photo), fixtureBytes('tiny.jpg'));
+    expect(await app.vault.readAll(video), fixtureBytes('tiny.mp4'));
+    expect((await SyncSettings.load()).isConfigured, isFalse);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 500));
+  });
+
   testWidgets('licenses need no NAS setup and respect the lock gate', (
     tester,
   ) async {
@@ -439,14 +532,16 @@ void main() {
       tester,
       () =>
           has(Keys.licensesPage) &&
-          find.byType(CircularProgressIndicator).evaluate().isEmpty,
+          find
+              .descendant(
+                of: find.byType(LicensePage),
+                matching: find.byType(ListTile),
+              )
+              .evaluate()
+              .isNotEmpty,
     );
     final appLicense = find.widgetWithText(ListTile, 'Quietake');
-    await tester.scrollUntilVisible(
-      appLicense,
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await scrollToLicense(tester, appLicense);
     await tester.tap(appLicense);
     await tester.pump(const Duration(milliseconds: 500));
     await until(
@@ -469,11 +564,7 @@ void main() {
         ListTile,
         'kotlinx.coroutines (Android)',
       );
-      await tester.scrollUntilVisible(
-        nativeNotice,
-        -200,
-        scrollable: find.byType(Scrollable).first,
-      );
+      await scrollToLicense(tester, nativeNotice);
       await tester.tap(nativeNotice);
       await tester.pump(const Duration(milliseconds: 500));
       await until(
@@ -490,12 +581,28 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
       }
     }
+    if (Platform.isAndroid) {
+      final googleNotice = find.widgetWithText(
+        ListTile,
+        'Google Play services / Animal Sniffer (Android)',
+      );
+      await scrollToLicense(tester, googleNotice);
+      await tester.tap(googleNotice);
+      await tester.pump(const Duration(milliseconds: 500));
+      await until(
+        tester,
+        () => find
+            .textContaining('Kohsuke Kawaguchi and codehaus.org.')
+            .evaluate()
+            .isNotEmpty,
+      );
+      if (googleNotice.hitTestable().evaluate().isEmpty) {
+        await tester.tap(find.byTooltip('Back').hitTestable());
+        await tester.pump(const Duration(milliseconds: 500));
+      }
+    }
     final effLicense = find.widgetWithText(ListTile, 'EFF Long Wordlist');
-    await tester.scrollUntilVisible(
-      effLicense,
-      -200,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await scrollToLicense(tester, effLicense);
     expect(effLicense, findsOneWidget);
     await tester.tap(effLicense);
     await tester.pump(const Duration(milliseconds: 500));

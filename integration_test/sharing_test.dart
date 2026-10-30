@@ -61,6 +61,12 @@ void main() {
     await tester.ensureVisible(find.byKey(key));
     await tester.tap(find.byKey(key));
     await tester.pump(const Duration(milliseconds: 500));
+    if (key == Keys.openGallery) {
+      await until(
+        tester,
+        () => find.byKey(Keys.libraryView).evaluate().isNotEmpty,
+      );
+    }
     if (key == Keys.libraryPhotos) await applyLibraryView(tester);
   }
 

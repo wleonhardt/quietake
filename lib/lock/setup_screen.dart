@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../keys.dart';
+import '../privacy/privacy_policy_screen.dart';
 import '../form_body.dart';
 import '../brand.dart';
 import '../vault/master_key_store.dart';
@@ -286,6 +287,11 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
                     ),
               child: const Text('Restore from NAS with backup passphrase'),
             ),
+          TextButton(
+            key: Keys.setupPrivacyPolicy,
+            onPressed: _busy ? null : () => showPrivacyPolicy(context),
+            child: const Text('Privacy policy'),
+          ),
           if (_error != null)
             Semantics(
               liveRegion: true,

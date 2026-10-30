@@ -66,6 +66,39 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
+  testWidgets('privacy policy is readable before creating a vault', (
+    tester,
+  ) async {
+    final store = MasterKeyStore(sodium, dir);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SetupScreen(store: store, onUnlocked: (_) => fail('unlocked')),
+      ),
+    );
+    await tester.enterText(
+      find.byKey(Keys.setupPasscode),
+      'unfinished-passcode',
+    );
+    final policy = find.widgetWithText(TextButton, 'Privacy policy');
+    expect(policy, findsOneWidget);
+    await tester.ensureVisible(policy);
+    await tester.tap(policy);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Leonhardt Labs'), findsWidgets);
+    expect(find.text('Your vault'), findsOneWidget);
+    await tester.runAsync(() async {
+      expect(await store.hasKeyfile, isFalse);
+      expect(await store.hasCachedKey, isFalse);
+    });
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<TextField>(find.byKey(Keys.setupPasscode)).controller!.text,
+      'unfinished-passcode',
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'setup persists the keyfile only after the recovery key is saved',
     (tester) async {

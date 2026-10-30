@@ -1,0 +1,77 @@
+{
+  "title": "Quietake privacy policy",
+  "updated": "October 30, 2026",
+  "publisher": "Leonhardt Labs",
+  "contact": "leonhardt.william@gmail.com",
+  "sections": [
+    {
+      "heading": "Intended audience",
+      "paragraphs": [
+        "Quietake is intended for adults aged 18 and older. Initial Play availability is planned for the United States."
+      ]
+    },
+    {
+      "heading": "Your vault",
+      "paragraphs": [
+        "Quietake captures photos and videos into an encrypted vault in the app's private storage. The operating system camera creates a temporary capture file; Quietake moves finalized output to private pending storage, encrypts it and deletes the plaintext after secure publication. If encryption fails, pending input remains inside the private app sandbox and retries when the authenticated camera reopens. Pending input is excluded from OS backups and never enters sharing, library or NAS listings. Android video conversion starts after an encrypted original is committed; failed or interrupted conversion preserves that original. An empty native recording reports a failure because no video frames exist to save. Captures do not go through the system photo gallery.",
+        "Optional import reads only files you select with the system Files picker. Quietake makes bounded private temporary copies, validates supported JPEG/PNG/MP4 media, then encrypts them. It never deletes or changes the external originals. Temporary input copies are cleared after the attempt and on the next native app initialization after interruption. Selected imports may finish encrypting while the app is locked; the results stay behind the lock screen. Imported bytes retain source metadata, including any embedded location. Exact-duplicate comparisons happen locally; no public digest index is uploaded.",
+        "Display names, favorites, tag names and memberships are encrypted in the private library catalog. Removing a tag keeps its photos and videos. Search and filters run locally against this unlocked metadata.",
+        "A passcode protects the vault key. Supported biometric authentication is performed by the operating system; Quietake does not receive fingerprint images or face models. The platform secure storage keeps credentials needed for local unlock and optional backup. Your exported recovery key can unlock your preserved encrypted media. Keep it private and separate from the phone."
+      ]
+    },
+    {
+      "heading": "Screen privacy and local locking",
+      "paragraphs": [
+        "You can lock the app manually or choose a foreground idle timeout. The default is five minutes; active recording and video playback delay idle locking. Manual lock finishes and saves a recording and pauses local playback. Background locking is independent of this timeout. Entering the lock screen ends Google Cast, revokes stream tokens and clears decrypted preview caches. Unlocking does not resume casting. Changing the passcode requires the current passcode and preserves the recovery key and encrypted captures.",
+        "Android uses its secure-window protection for screenshots, screen recording and app-switcher previews. iOS hides inactive app previews and covers detected screen recording or mirroring. iOS still screenshots cannot be universally blocked. These protections do not revoke copies explicitly shared or streamed to a receiver."
+      ]
+    },
+    {
+      "heading": "Optional WebDAV backup",
+      "paragraphs": [
+        "You choose whether to configure backup and which HTTPS WebDAV server to use. Quietake sends encrypted media containers and library metadata, and authenticates using the credentials you provide. The server can see connection information, container names and sizes. Names include capture time (date added for imports) and media type; container lengths reveal exact media sizes. Its operator controls that server's retention, access and backup policies.",
+        "Successful disconnect in Settings stops backup and removes saved connection information from Quietake. It does not delete captures already on your phone or NAS. Pending NAS deletions wait until that backup is reconnected.",
+        "There is no publisher-operated media storage endpoint in the app. Foreground transfers retry on capture, settings save or unlock. Android offers optional OS-managed uploads of already encrypted files, using AndroidX WorkManager 2.12.0 and OkHttp 5.5.1. This worker never receives the vault master key or decrypts media. Its NAS credentials and folder ownership proof are encrypted under Android Keystore. Default constraints require an unmetered network and battery-not-low; mobile data is a separate choice. Android scheduling and OEM restrictions may delay work. Force-stop pauses jobs until reopening, and large transfers may require foreground sync. iOS retains foreground/unlock retries. Successful disconnect stops scheduled work and removes this native credential copy too.",
+        "Automatic OS cloud backup and device transfer remain disabled on Android; preserving an encrypted copy and its recovery key or enabled strong backup passphrase is your responsibility."
+      ]
+    },
+    {
+      "heading": "Backup checks and recovery",
+      "paragraphs": [
+        "An optional backup check reads and authenticates the encrypted files on your saved server using the current vault key. It uses private encrypted temporary downloads, reports the checked snapshot and does not repair or delete originals. Ordinary sync does not fully verify unchanged remote copies. Backup includes an encrypted catalog even before you organize captures; server-visible names and sizes remain visible. Wrong-key or damaged restore data and conflicting media copies are preserved. Keep the recovery key separately: a successful check cannot validate the copy of the key you saved elsewhere. Live-session recovery cannot replace the vault's identity with a different key.",
+        "You may explicitly enable NAS passphrase recovery after entering your current local passcode. Quietake uploads a separate authenticated, passphrase-wrapped copy of the vault key to your chosen NAS, never the local PIN keyfile or raw key. The backup passphrase is not saved. Anyone with the encrypted envelope may try passphrase guesses offline; prefer the six randomly generated words. Fresh Setup can restore using your NAS connection and this passphrase into an empty vault, after authenticating all downloaded files. It requires a new local passcode unlock and leaves the NAS unchanged. The connection may be saved in protected storage; Android background uploads remain off until explicitly enabled again.",
+        "Changing or disabling recovery requires current-passcode verification and confirmation. Disable removes the current recovery envelope and retains media. Old server snapshots or interrupted encrypted copies may still accept earlier passphrases. Neither operation rotates the vault key or revokes copies retained elsewhere. Keep the independent recovery key separately too.",
+        "Settings can explicitly save an encrypted ZIP through the system Files picker. The archive contains encrypted captures, library metadata and an encrypted manifest, but no vault key, passcode, keyfile or NAS credential. Its outer directory reveals counts and encrypted sizes. The first version is limited to 10,000 captures and 2 GiB. Fresh Setup can restore it only into an empty vault, using the independent saved recovery key and a new local passcode. It does not merge into an existing vault. Selected source files remain read-only; private encrypted staging is removed after cancellation or completed processing. A validated interrupted adoption may finish on the next launch before authentication."
+      ]
+    },
+    {
+      "heading": "Optional sharing",
+      "paragraphs": [
+        "The player or gallery selection can send normal photos and videos through the operating system share sheet after confirmation. Batches allow ten captures and 256 MiB; larger videos can be shared individually. You choose the receiving app. Videos and PNG photos retain source bytes and metadata, including location if present. The default JPEG option erases EXIF GPS directory contents and their referenced values while preserving orientation and other metadata. Unsafe metadata blocks sharing the batch. This is not complete metadata anonymization: location stored in other metadata schemes may remain. Turning the option off preserves the original metadata. Quietake prepares temporary copies only inside private app storage, with fresh filenames and individual media types. Cancellation or a failed selected item prevents sending the batch. App-created copies, including Android's sharing cache, are removed after returning and at startup after interruption. Vault originals stay encrypted and unchanged.",
+        "The receiving app may retain, modify or transmit its copy under its own policy. Clearing Quietake's files does not revoke a recipient's copy. Native iOS Save to Photos may rewrite JPEG metadata while retaining its decoded image."
+      ]
+    },
+    {
+      "heading": "Optional Google Cast",
+      "paragraphs": [
+        "When you choose a receiver, Quietake temporarily serves selected decrypted media over local HTTP. The receiver and local network can access that stream during the session. Tokens limit access and are revoked when items change or the session stops; they do not encrypt the stream. The LAN server stops at the end of casting. While camera casting is active, new captures automatically appear on the selected receiver. Locking Quietake or sending it to the background ends the cast session and closes the local stream. Already received copies cannot be revoked. Quietake supplies the media URL, content type and title to the Cast SDK so the receiver can load the selected item. Playback information sent to the receiver is separate from the SDK analytics described below.",
+        "The app includes Google Cast / Google Play services software. Google's Cast SDK disclosure (https://developers.google.com/cast/docs/android_sender/data_disclosure) describes anonymous discovery/session logs and device, app and SDK metadata sent encrypted to Google for aggregate usage, performance and defect analysis. Google says neither developers nor users can opt out of this collection or delete the SDK's collected data. Google describes short retention for these logs but does not specify an exact duration in this disclosure. Deleting captures or uninstalling Quietake does not provide a way to delete Google's retained SDK logs.",
+        "Quietake does not provide a switch to disable the SDK's analytics. Choosing not to cast media is not a promise that the included SDK sends no analytics. The SDK's encrypted analytics transport does not encrypt the local media stream described above."
+      ]
+    },
+    {
+      "heading": "Permissions",
+      "paragraphs": [
+        "Camera access is used to capture photos and video. Microphone access is used for video audio. Network access supports configured backup and receiver discovery and playback. Supported biometric APIs provide local authentication. On iOS, saving from the share sheet may ask to add your chosen media to Photos."
+      ]
+    },
+    {
+      "heading": "Retention and deletion",
+      "paragraphs": [
+        "You can confirm deletion of an individual capture from the viewer. Quietake removes its local copy and requests deletion from the configured WebDAV server. Offline or failed server removal remains pending until sync succeeds. A private local record prevents that capture from being downloaded again on this device. Matching library metadata is also removed; damaged metadata remains preserved for repair and its cleanup retries afterward. Other devices, independent server snapshots/backups and previously shared copies are outside this operation. Complete pending removals before changing servers.",
+        "Removing app data or uninstalling does not itself delete WebDAV copies. It also removes this device's deletion journal, so finish pending deletions first. Uninstalling without a usable encrypted copy and recovery key can permanently lose access to captures.",
+        "There is no Quietake user account or publisher-hosted account-deletion service. Contact Leonhardt Labs at leonhardt.william@gmail.com for privacy questions. Do not send private media, passcodes, recovery keys or server credentials. Google SDK retention and deletion are described separately above."
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../privacy/privacy_policy_screen.dart';
 import '../licenses.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
@@ -549,6 +550,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ]),
           const SizedBox(height: 24),
+          OutlinedButton.icon(
+            key: Keys.settingsPrivacyPolicy,
+            onPressed: _busy ? null : () => showPrivacyPolicy(context),
+            icon: const Icon(Icons.privacy_tip_outlined),
+            label: const Text('Privacy policy'),
+          ),
+          const SizedBox(height: 12),
           OutlinedButton.icon(
             key: Keys.settingsLicenses,
             onPressed: _busy ? null : () => showAppLicenses(context),

@@ -153,6 +153,28 @@ void main() {
   ) async {
     await tester.pumpWidget(app());
     await pumpUntil(tester, () => has(Keys.setupPasscode));
+    final filesBeforePolicy = await (await getApplicationDocumentsDirectory())
+        .list()
+        .map((file) => file.path)
+        .toList();
+    await tap(tester, Keys.setupPrivacyPolicy);
+    await pumpUntil(
+      tester,
+      () => find.text('Your vault').evaluate().isNotEmpty,
+    );
+    expect(has(Keys.privacyPolicyPage), isTrue);
+    expect(find.textContaining('Leonhardt Labs'), findsWidgets);
+    expect(await store.hasKeyfile, isFalse);
+    await tester.pageBack();
+    await settle(tester);
+    expect(has(Keys.setupPasscode), isTrue);
+    expect(
+      await (await getApplicationDocumentsDirectory())
+          .list()
+          .map((file) => file.path)
+          .toList(),
+      unorderedEquals(filesBeforePolicy),
+    );
     await enter(tester, Keys.setupPasscode, 'hunter22');
     await enter(tester, Keys.setupConfirm, 'hunter2');
     await tap(tester, Keys.setupSubmit);

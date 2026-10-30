@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/licenses.dart';
 
+import '../test_support/license_loading.dart';
+
 void main() {
   testWidgets('Quietake license includes MPL terms and its source location', (
     tester,
@@ -17,7 +19,7 @@ void main() {
       ),
     );
     await tester.tap(find.text('Licenses'));
-    await tester.pumpAndSettle();
+    await waitForLicenseLoading(tester);
     final entry = find.widgetWithText(ListTile, 'Quietake');
     await tester.scrollUntilVisible(
       entry,

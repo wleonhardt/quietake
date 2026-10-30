@@ -202,6 +202,10 @@ void main() {
           () => find.byKey(Keys.openGallery).evaluate().isNotEmpty,
         );
         await tap(tester, Keys.openGallery);
+        await until(
+          tester,
+          () => find.byKey(Keys.gallerySettings).evaluate().isNotEmpty,
+        );
         await tap(tester, Keys.gallerySettings);
         await until(
           tester,

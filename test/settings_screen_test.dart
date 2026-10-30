@@ -20,6 +20,8 @@ import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_cast_backend.dart';
 
+import '../test_support/license_loading.dart';
+
 void main() {
   for (final mode in ['cancel', 'confirm', 'cleanup']) {
     final confirm = mode != 'cancel';
@@ -197,11 +199,21 @@ void main() {
           expect(find.byKey(key).hitTestable(), findsOneWidget);
         }
         if (!configured) {
+          await tester.ensureVisible(find.byKey(Keys.settingsPrivacyPolicy));
+          await tester.tap(find.byKey(Keys.settingsPrivacyPolicy));
+          await tester.pumpAndSettle();
+          expect(find.byKey(Keys.privacyPolicyPage), findsOneWidget);
+          expect(find.text('Your vault'), findsOneWidget);
+          expect(find.textContaining('Leonhardt Labs'), findsWidgets);
+          expect((await SyncSettings.load()).isConfigured, isFalse);
+          expect(tester.takeException(), isNull);
+          await tester.pageBack();
+          await tester.pumpAndSettle();
           final licenses = find.byKey(Keys.settingsLicenses);
           expect(licenses, findsOneWidget);
           await tester.ensureVisible(licenses);
           await tester.tap(licenses);
-          await tester.pumpAndSettle();
+          await waitForLicenseLoading(tester);
           expect(find.byType(LicensePage), findsOneWidget);
           final effLicense = find.widgetWithText(ListTile, 'EFF Long Wordlist');
           await tester.scrollUntilVisible(
