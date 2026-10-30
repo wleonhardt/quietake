@@ -1,7 +1,7 @@
 name: quietake
 description: "Private camera: photos and videos encrypted on capture, synced to a NAS share, cast from the phone."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.13.2

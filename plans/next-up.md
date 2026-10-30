@@ -7,6 +7,8 @@
 
 ## Done
 
+- First release candidate source declares version 1.0.0+1; signing and distribution remain separate gates.
+
 - Existing license notices are accessible from Settings without configuring NAS recovery.
 - Required source/unsigned-bundle and Android integration CI checks pass.
 - JPEG sharing erases indexed EXIF GPS values while preserving originals and orientation.
