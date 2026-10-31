@@ -1,3 +1,4 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import '../test_support/test_vault.dart';
 
@@ -6,7 +7,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart';
@@ -54,7 +54,7 @@ class _DelayedUnlockStore extends MasterKeyStore {
 /// all through the UI. Starts from a wiped key state and a vault that holds
 /// one container, which must survive every step.
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   late MasterKeyStore store;
   late FakeAuthenticator auth;
@@ -232,7 +232,8 @@ void main() {
       ]) {
         tester.binding.handleAppLifecycleStateChanged(state);
       }
-      await tester.pump();
+      // Coalesced lifecycle events must not depend on a background frame.
+      // Resume before pumping so the old gate cannot authenticate while hidden.
       for (final state in [
         AppLifecycleState.hidden,
         AppLifecycleState.inactive,
@@ -277,8 +278,6 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(st);
     }
-    await tester.pump();
-    await pumpUntil(tester, () => has(Keys.lockPasscode));
     for (final st in [
       AppLifecycleState.hidden,
       AppLifecycleState.inactive,
@@ -313,8 +312,6 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(st);
     }
-    await tester.pump();
-    expect(has(Keys.gallerySettings), isFalse);
     for (final st in [
       AppLifecycleState.hidden,
       AppLifecycleState.inactive,
@@ -322,6 +319,8 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(st);
     }
+    await tester.pump();
+    expect(has(Keys.gallerySettings), isFalse);
     await pumpUntil(tester, () => has(Keys.lockPasscode));
     await enter(tester, Keys.lockPasscode, 'hunter22');
     await tap(tester, Keys.lockUnlock);
@@ -364,8 +363,6 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(st);
     }
-    await tester.pump();
-    expect(has(Keys.recoveryKeyText), isFalse);
     for (final st in [
       AppLifecycleState.hidden,
       AppLifecycleState.inactive,
@@ -373,6 +370,8 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(st);
     }
+    await tester.pump();
+    expect(has(Keys.recoveryKeyText), isFalse);
     await pumpUntil(tester, () => has(Keys.lockPasscode));
     await enter(tester, Keys.lockPasscode, 'hunter22');
     await tap(tester, Keys.lockUnlock);

@@ -3,16 +3,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:video_player/video_player.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/long_video.dart';
 import 'harness.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   testWidgets('ten-minute encrypted video seeks, plays and releases resources', (
     tester,

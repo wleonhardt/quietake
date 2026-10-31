@@ -7,10 +7,10 @@ import 'package:camera_platform_interface/camera_platform_interface.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:quietake/keys.dart';
 
 import 'harness.dart';
+import '../test_support/integration_binding.dart';
 import '../test_support/controlled_camera.dart';
 import '../test_support/fixtures.dart';
 
@@ -36,7 +36,7 @@ class _OrientingCamera extends ControlledCamera {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   testWidgets(
     'video waits for pending Cast camera orientation before replacing controller',

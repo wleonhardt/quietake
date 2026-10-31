@@ -56,6 +56,44 @@ Changed executable inputs need a new candidate. Never replace earlier archives.
   evidence; distinguish provider requirements from repository choices. Existing
   approval cannot be expanded to a new protected or distribution operation.
 
+## Bound device tests and narrow retries
+
+Use `tool/e2e.sh android integration_test/lock_test.dart` (or an authorized device
+ID) to select explicit files. Selection is validated before device changes; no
+arguments still runs all automatic files. Keep lifecycle-dependent cases together
+when later cases rely on setup performed by an earlier case.
+
+- Every automatic integration entrypoint uses the shared binding with a two-minute
+  per-case deadline. The existing long-video case explicitly allows four minutes.
+- A separate host process limits each file to five minutes, including its native
+  build, connection, setup and teardown. Bootstrap builds have fifteen minutes;
+  emulator boot and installation waits have two. These are initial budgets, not
+  performance promises. Change one only with measured successful-run evidence.
+- The host watchdog terminates only its owned process group, escalates after five
+  seconds, and exits 124. Heartbeats cannot extend the deadline. The runner stops
+  before the next file and restores the original Android wake setting on exit.
+- Retain expanded case names and `QUIETAKE_START`, `QUIETAKE_END` and
+  `QUIETAKE_TIMEOUT` markers. A live emulator heartbeat is not test progress.
+- Do not await a widget frame while paused. Observe background work through bounded
+  asynchronous state/storage checks; resume before asserting rendered UI. Check
+  that sensitive routes are hidden on the first resumed frame.
+- After a hang, first prove watchdog failure/cleanup and run only the affected
+  file. Full-suite acceptance follows focused success. Never report a suspected
+  cause as confirmed merely because a local retry passes.
+
+Recurring churn and next improvements:
+
+| Observed issue | Current prevention / next measure |
+| --- | --- |
+| Unlimited integration case/file waits | Two independent deadlines and named progress markers; measure detection latency, not heartbeat count. |
+| Native dispatcher continues after a load failure | One file per Flutter invocation and fail-fast shell dispatch. |
+| Frame/gesture timing differs between CI and local devices | Resume before frame waits; use deterministic drag geometry and observable page/controller state. |
+| AC-reported USB phone sleeps, repeated unlock requests | Hold all-charging stay-awake for the authorized batch, then restore its exact prior value. |
+| Permissions disappear during automatic uninstall | Preserve `--no-uninstall`, development identity inspection and protected-package boundaries. |
+| Concurrent Flutter commands corrupt generated plugin registration | Serialize builds/tests in each checkout. |
+| Full suite repeated for unrelated content or identical exports | Scoped checks and input-bound evidence reuse; require a reason for each repeat. |
+| Per-file native builds consume time | Keep the new timing markers. A measured baseline found 25 assemblies totaling 456.6 seconds. Evaluate a small combined-harness/cache experiment only after bounded execution is stable; preserve isolation and compare failure localization. |
+
 ## Record once and measure
 
 Keep plans/next-up.md under roughly 100 lines, linking historical evidence instead

@@ -1,3 +1,4 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import '../test_support/viewer_gestures.dart';
 
@@ -7,7 +8,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:video_player/video_player.dart';
@@ -18,7 +18,7 @@ import 'harness.dart';
 /// Gallery and viewer, seeded from test-only fixtures so it runs on the iOS
 /// simulator too (no camera needed).
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   late TestApp app;
   late Vault vault;

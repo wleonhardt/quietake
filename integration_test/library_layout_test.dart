@@ -1,15 +1,15 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/library_controls.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:quietake/keys.dart';
 
 import 'harness.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   testWidgets('library search fits landscape with keyboard and large text', (
     tester,
   ) async {

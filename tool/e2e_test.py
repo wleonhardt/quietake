@@ -10,18 +10,23 @@ import unittest
 
 class EmulatorBootstrapTests(unittest.TestCase):
     def test_wired_ac_phone_stays_awake_and_restores_setting_on_exit(self):
-        for test_exit in [0, 1]:
+        for test_exit in [0, 1, 124]:
             with self.subTest(test_exit=test_exit), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 (root / 'tool').mkdir()
                 (root / 'integration_test').mkdir()
                 (root / 'integration_test/example_test.dart').touch()
-                for name in ['e2e.sh', 'dev_identity.py']:
+                (root / 'integration_test/next_test.dart').touch()
+                for name in ['e2e.sh', 'dev_identity.py', 'run_bounded.py']:
                     shutil.copyfile(Path(__file__).with_name(name), root / 'tool' / name)
+                if test_exit == 124:
+                    runner = root / 'tool/e2e.sh'
+                    runner.write_text(runner.read_text().replace('bounded 300', 'bounded .3').replace('--grace 5', '--grace .1'))
                 state = root / 'stay-awake'
                 state.write_text('2')  # USB-only does not cover an AC-reported charger.
                 env = dict(os.environ, ANDROID_HOME=str(root / 'sdk'),
-                           AWAKE_STATE=str(state), TEST_EXIT=str(test_exit))
+                           AWAKE_STATE=str(state), TEST_EXIT=str(test_exit),
+                           TEST_CALLS=str(root / 'test-calls'))
                 env['PATH'] = str(root / 'bin') + os.pathsep + env['PATH']
 
                 def executable(name, body):
@@ -57,6 +62,11 @@ if not int(Path(os.environ['AWAKE_STATE']).read_text()) & 1:
     sys.exit('AC-reported wired phone can sleep during build/test')
 if sys.argv[1] == 'test':
     assert '--no-uninstall' in sys.argv
+    with open(os.environ['TEST_CALLS'], 'a') as stream:
+        stream.write(sys.argv[2] + '\\n')
+    if os.environ['TEST_EXIT'] == '124':
+        import time
+        time.sleep(20)
     sys.exit(int(os.environ['TEST_EXIT']))
 ''')
                 result = subprocess.run(['bash', 'tool/e2e.sh', 'synthetic-phone'],
@@ -65,6 +75,10 @@ if sys.argv[1] == 'test':
                 self.assertEqual(result.returncode, test_exit, result.stderr)
                 self.assertNotIn('phone can sleep', result.stderr)
                 self.assertEqual(state.read_text(), '2')
+                if test_exit == 124:
+                    self.assertIn('QUIETAKE_TIMEOUT label=integration_test/example_test.dart', result.stdout)
+                    self.assertEqual((root / 'test-calls').read_text().splitlines(),
+                                     ['integration_test/example_test.dart'])
 
     def test_stops_before_next_file_after_native_load_failure(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -74,7 +88,8 @@ if sys.argv[1] == 'test':
             (root / 'bin').mkdir()
             for name in ['a_test.dart', 'b_test.dart']:
                 (root / 'integration_test' / name).touch()
-            shutil.copyfile(Path(__file__).with_name('e2e.sh'), root / 'tool/e2e.sh')
+            for name in ['e2e.sh', 'run_bounded.py']:
+                shutil.copyfile(Path(__file__).with_name(name), root / 'tool' / name)
             flutter = root / 'bin/flutter'
             flutter.write_text('''#!/usr/bin/env python3
 import os, sys
@@ -108,6 +123,23 @@ sys.exit(int(os.environ['TEST_EXIT']))
                                     text=True, timeout=20)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(log.read_text().splitlines(), ['a_test.dart', 'b_test.dart'])
+            log.write_text('')
+            result = subprocess.run(['bash', 'tool/e2e.sh', 'synthetic-device',
+                                     'integration_test/b_test.dart'],
+                                    cwd=root, env=env, capture_output=True,
+                                    text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(log.read_text().splitlines(), ['b_test.dart'])
+            for invalid in ['integration_test/missing_test.dart',
+                            'integration_test/physical_check.dart',
+                            'integration_test/../integration_test/a_test.dart']:
+                log.write_text('')
+                result = subprocess.run(['bash', 'tool/e2e.sh', 'synthetic-device', invalid],
+                                        cwd=root, env=env, capture_output=True,
+                                        text=True, timeout=20)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(log.read_text(), '')
+
 
     def test_explicit_emulator_boot_and_binary_guard(self):
         for package in ['cam.quietake.app.dev', 'club.hubner.shuttered.dev', 'cam.quietake.app']:
@@ -116,7 +148,7 @@ sys.exit(int(os.environ['TEST_EXIT']))
                 (root / 'tool').mkdir()
                 (root / 'integration_test').mkdir()
                 (root / 'integration_test/example_test.dart').touch()
-                for name in ['e2e.sh', 'dev_identity.py']:
+                for name in ['e2e.sh', 'dev_identity.py', 'run_bounded.py']:
                     shutil.copyfile(Path(__file__).with_name(name), root / 'tool' / name)
                 runner = root / 'tool/e2e.sh'
                 runner.write_text(runner.read_text().replace('/tmp/quietake-emulator.log', str(root / 'emulator.log')))

@@ -72,7 +72,16 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed &&
         _resumePrompt &&
         _biometric) {
-      _useBiometric();
+      // Pause/resume can arrive without a frame between them. Let the root
+      // gate update visibility before an old home lock attempts authentication.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            _resumePrompt &&
+            WidgetsBinding.instance.lifecycleState ==
+                AppLifecycleState.resumed) {
+          _useBiometric();
+        }
+      });
     }
   }
 

@@ -1,3 +1,4 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/test_vault.dart';
 
 import 'dart:convert';
@@ -5,7 +6,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
@@ -13,7 +13,7 @@ import 'package:sodium/sodium_sumo.dart';
 /// On-device throughput of the .shtr container. Prints BENCH lines; the
 /// number to watch is encrypt MB/s on the OnePlus 13 (target >= 200).
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   testWidgets('NAS recovery KDF wrap and open at fixed production cost', (
     tester,

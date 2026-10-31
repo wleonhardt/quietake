@@ -1,3 +1,4 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/library_controls.dart';
 
 import 'dart:async';
@@ -6,7 +7,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/keys.dart';
@@ -41,7 +41,7 @@ class GatedVault extends Vault {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   const channel = MethodChannel('dev.fluttercommunity.plus/share');
 
   Future<void> until(WidgetTester tester, bool Function() done) async {

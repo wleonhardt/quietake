@@ -1,10 +1,10 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/media/media_server.dart';
@@ -16,7 +16,7 @@ import 'harness.dart';
 /// LAN-bound server comes up, the "receiver" (this test) fetches the current
 /// item over the LAN address, swiping switches it, stopping tears it down.
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   late TestApp app;
   late Vault vault;

@@ -1,10 +1,10 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/library_controls.dart';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart';
@@ -21,7 +21,7 @@ import '../test_support/fake_authenticator.dart';
 /// loopback: configure in Settings, test, save, sync, lose the local copy,
 /// sync again and get it back.
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   late TestApp app;
   late Vault vault;

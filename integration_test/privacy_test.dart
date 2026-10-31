@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/gallery/item.dart';
 import 'package:quietake/keys.dart';
@@ -16,11 +15,12 @@ import 'package:quietake/sync/sync_settings.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:video_player/video_player.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import 'harness.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   late TestApp app;
   late File photo, video;
   const oldPasscode = 'privacy-test-current';
@@ -489,8 +489,6 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(state);
     }
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(has(Keys.privacyPolicyPage), isFalse);
     for (final state in [
       AppLifecycleState.hidden,
       AppLifecycleState.inactive,
@@ -498,6 +496,8 @@ void main() {
     ]) {
       tester.binding.handleAppLifecycleStateChanged(state);
     }
+    await tester.pump();
+    expect(has(Keys.privacyPolicyPage), isFalse);
     await until(tester, () => has(Keys.lockPasscode));
     expect(find.text('Your vault'), findsNothing);
     await until(

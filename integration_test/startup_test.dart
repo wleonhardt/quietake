@@ -3,17 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/cast/google_cast_backend.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart' as app;
 
+import '../test_support/integration_binding.dart';
 import '../test_support/cast_payload.dart';
 
 /// Exercises real startup, including platform initialization omitted by the harness.
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   testWidgets(
     'real entry point reaches the vault gate without initializing Cast',
     (tester) async {

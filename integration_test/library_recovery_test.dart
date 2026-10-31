@@ -1,10 +1,10 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/library_controls.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/library/private_catalog.dart';
@@ -16,7 +16,7 @@ import '../test_support/fixtures.dart';
 import 'harness.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   Future<void> until(WidgetTester tester, bool Function() ready) async {
     final deadline = DateTime.now().add(const Duration(seconds: 30));
     while (!ready()) {

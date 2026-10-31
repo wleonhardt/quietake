@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/backup/portable_backup.dart';
 import 'package:quietake/backup/portable_screen.dart';
@@ -14,6 +13,7 @@ import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/fake_authenticator.dart';
 import '../test_support/fake_cast_backend.dart';
 import '../test_support/fixtures.dart';
@@ -43,7 +43,7 @@ class _PauseAtReadyStore extends MasterKeyStore {
 }
 
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = initializeIntegrationBinding();
   void lifecycle(bool foreground) {
     final states = foreground
         ? [
