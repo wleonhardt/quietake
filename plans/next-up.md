@@ -7,6 +7,9 @@
   Source regression, focused Android/iOS lock/privacy checks and native Android
   Back verification passed before this version reservation. Preserve those scopes;
   the signed successor and its Play-delivered upgrade still need separate proof.
+- Keep brief capture-confirmation timing in controlled-clock widget coverage.
+  Device capture checks verify encrypted media, playback and catalog persistence;
+  a loaded device can miss the 180 ms flash between test frames.
 - Finish internal Play validation, report coverage and data-preserving upgrades.
   Preserve original vaults and encrypted backups; restore old backups only into
   separate empty targets. Source CI is not signed-artifact or store evidence.
