@@ -1,4 +1,5 @@
 import '../test_support/fixtures.dart';
+import '../test_support/viewer_gestures.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -55,13 +56,23 @@ void main() {
 
   Future<void> waitForPage(WidgetTester tester, String position) async {
     final pager = tester.widget<PageView>(find.byKey(Keys.viewerPager));
-    await pumpUntil(
-      tester,
-      () =>
-          tester.widget<Text>(find.byKey(Keys.viewerPosition)).data ==
-              position &&
-          !pager.controller!.position.isScrollingNotifier.value,
-    );
+    try {
+      await pumpUntil(
+        tester,
+        () =>
+            tester.widget<Text>(find.byKey(Keys.viewerPosition)).data ==
+                position &&
+            !pager.controller!.position.isScrollingNotifier.value,
+      );
+    } on TestFailure catch (error) {
+      fail(
+        '$error; expected=$position '
+        'actual=${tester.widget<Text>(find.byKey(Keys.viewerPosition)).data} '
+        'page=${pager.controller!.page} '
+        'scrolling=${pager.controller!.position.isScrollingNotifier.value} '
+        'physics=${pager.physics}',
+      );
+    }
   }
 
   testWidgets('gallery lists both items; viewer shows photo then plays video', (
@@ -127,11 +138,7 @@ void main() {
     expect(size, const Size(160, 120), reason: 'decrypted JPEG decodes');
 
     // Swipe to the video page; it streams from the loopback server.
-    await tester.fling(
-      find.byKey(Keys.viewerPager),
-      const Offset(0, -400),
-      1500,
-    );
+    await swipeViewerPage(tester, forward: true);
     await waitForPage(tester, '2 / 2');
     expect(
       tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
@@ -247,11 +254,7 @@ void main() {
     );
     await tester.binding.setSurfaceSize(null);
     await tester.pump(const Duration(milliseconds: 500));
-    await tester.fling(
-      find.byKey(Keys.viewerPager),
-      const Offset(0, 500),
-      1500,
-    );
+    await swipeViewerPage(tester, forward: false);
     await waitForPage(tester, '1 / 2');
     expect(
       tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
@@ -442,11 +445,7 @@ void main() {
         expect(await Directory('${temp.path}/share_plus').exists(), isFalse);
         expect(await vault.list(), hasLength(2));
         if (expected == 'image/jpeg') {
-          await tester.fling(
-            find.byKey(Keys.viewerPager),
-            const Offset(0, -500),
-            1500,
-          );
+          await swipeViewerPage(tester, forward: true);
           await waitForPage(tester, '2 / 2');
           expect(
             tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
