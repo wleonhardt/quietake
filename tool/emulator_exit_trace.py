@@ -5,6 +5,7 @@ from contextlib import nullcontext
 import os
 from pathlib import Path
 import signal
+import resource
 import subprocess
 import sys
 import time
@@ -26,6 +27,7 @@ def install(sdk, log_dir):
 
 
 def supervise(native, arguments, log_dir):
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     started = time.monotonic()
     # Only AVD launches are noisy. Keep version/setup probes visible.
     capture = '-avd' in arguments
@@ -43,6 +45,7 @@ def supervise(native, arguments, log_dir):
             signal.signal(sig, lambda number, frame: child.send_signal(number))
         print(f'QUIETAKE_EMULATOR_START pid={child.pid}', flush=True)
         if diagnostic:
+            (log_dir / 'emulator.pid').write_text(str(child.pid))
             print(f'QUIETAKE_EMULATOR_LOG path={diagnostic.name}', flush=True)
         code = child.wait()
     name = signal.Signals(-code).name if code < 0 else 'none'

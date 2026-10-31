@@ -49,7 +49,8 @@ class EmulatorExitTraceTest(unittest.TestCase):
         self.assertNotIn('native stderr', result.stdout + result.stderr)
         self.assertNotIn('name with spaces', result.stdout)
         self.assertIn('QUIETAKE_EMULATOR_LOG path=', result.stdout)
-        self.assertIn('QUIETAKE_EMULATOR_START pid=', result.stdout)
+        pid = (self.logs / 'emulator.pid').read_text()
+        self.assertIn(f'QUIETAKE_EMULATOR_START pid={pid}', result.stdout)
         self.assertIn('returncode=0 signal=none', result.stdout)
         self.assertEqual(result.stderr, '')
 

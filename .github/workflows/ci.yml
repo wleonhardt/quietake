@@ -1,16 +1,14 @@
-name: App checks
+name: Diagnostic emulator crash probe
 
 on:
   pull_request:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: app-checks-${{ github.ref }}
+  group: emulator-probe-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -22,143 +20,34 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
 
 jobs:
-  checks:
-    name: Source and unsigned bundle
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-      - name: Select applicable checks
-        id: scope
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 -m unittest tool.ci_scope_test
-          python3 tool/ci_scope.py select --event "$GITHUB_EVENT_PATH" \
-            --event-name "$GITHUB_EVENT_NAME" --output "$RUNNER_TEMP/quietake-scope.json"
-      - name: Check non-app content
-        id: content
-        if: steps.scope.outputs.mode == 'non-app'
-        run: python3 tool/ci_scope.py check-content "$RUNNER_TEMP/quietake-scope.json"
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        if: steps.scope.outputs.mode == 'full'
-        with:
-          distribution: temurin
-          java-version: ${{ env.JAVA_VERSION }}
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        if: steps.scope.outputs.mode == 'full'
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
-        if: steps.scope.outputs.mode == 'full'
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: false
-      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
-        if: steps.scope.outputs.mode == 'full'
-        with:
-          cmdline-tools-version: '15859902'
-          log-accepted-android-sdk-licenses: false
-      - name: Verify toolchain and install build prerequisites
-        if: steps.scope.outputs.mode == 'full'
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
-          sudo apt-get update
-          sudo apt-get install -y libsodium-dev libglu1-mesa
-          sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
-          curl --fail --location --retry 3 --output "$RUNNER_TEMP/bundletool.jar" \
-            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
-          echo "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  $RUNNER_TEMP/bundletool.jar" | sha256sum --check
-          mkdir -p "$RUNNER_TEMP/quietake-bin"
-          cat > "$RUNNER_TEMP/quietake-bin/bundletool" <<'SH'
-          #!/usr/bin/env bash
-          exec java -jar "$RUNNER_TEMP/bundletool.jar" "$@"
-          SH
-          chmod +x "$RUNNER_TEMP/quietake-bin/bundletool"
-          echo "$RUNNER_TEMP/quietake-bin" >> "$GITHUB_PATH"
-      - name: Check committed source and unsigned bundle
-        if: steps.scope.outputs.mode == 'full'
-        id: full
-        shell: bash
-        run: |
-          set -euo pipefail
-          source_root=$(mktemp -d /tmp/quietake-ci.XXXXXX)
-          git archive HEAD | tar -x -C "$source_root"
-          cd "$source_root"
-          test ! -e android/key.properties
-          flutter pub get --enforce-lockfile
-          flutter analyze --no-pub
-          flutter test --no-pub
-          python3 -m unittest discover -s tool -p '*_test.py'
-          (cd recover && test -z "$(gofmt -l .)" && go vet ./... && go test ./...)
-          dart run tool/check_interop.dart
-          # Pub-enabled builds regenerate the registrant without dev-only plugins.
-          flutter build appbundle --release --target=lib/main.dart \
-            --obfuscate --split-debug-info=build/private-symbols
-          (cd android && ./gradlew :app:testDebugUnitTest --no-daemon)
-          python3 tool/check_bundle.py build/app/outputs/bundle/release/app-release.aab \
-            --application-id cam.quietake.app --expect-unsigned --forbid-text /Users/
-          # No binaries, symbols or raw logs are published as workflow artifacts.
-
-      - name: Require selected checks to complete
-        if: always()
-        env:
-          CHECK_MODE: ${{ steps.scope.outputs.mode }}
-          SELECTION_RESULT: ${{ steps.scope.outcome }}
-          CONTENT_RESULT: ${{ steps.content.outcome }}
-          FULL_RESULT: ${{ steps.full.outcome }}
-        run: python3 tool/ci_scope.py complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"
-
   android:
-    name: Android integration
+    name: Emulator crash probe (not acceptance)
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Select applicable checks
-        id: scope
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 -m unittest tool.ci_scope_test
-          python3 tool/ci_scope.py select --event "$GITHUB_EVENT_PATH" \
-            --event-name "$GITHUB_EVENT_NAME" --output "$RUNNER_TEMP/quietake-scope.json"
-      - name: Check non-app content
-        id: content
-        if: steps.scope.outputs.mode == 'non-app'
-        run: python3 tool/ci_scope.py check-content "$RUNNER_TEMP/quietake-scope.json"
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
-        if: steps.scope.outputs.mode == 'full'
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
-        if: steps.scope.outputs.mode == 'full'
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: false
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
-        if: steps.scope.outputs.mode == 'full'
         with:
           cmdline-tools-version: '15859902'
           log-accepted-android-sdk-licenses: false
       - name: Prepare isolated emulator checks
-        if: steps.scope.outputs.mode == 'full'
         shell: bash
         run: |
           set -euo pipefail
           test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
           sudo apt-get update
-          sudo apt-get install -y libpulse0
+          sudo apt-get install -y libpulse0 gdb
           sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
@@ -167,7 +56,6 @@ jobs:
           free -m
           df -h "$RUNNER_TEMP" "$GITHUB_WORKSPACE"
       - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
-        if: steps.scope.outputs.mode == 'full'
         id: full
         with:
           api-level: 33
@@ -178,16 +66,16 @@ jobs:
           ram-size: 2048M
           disk-size: 6G
           pre-emulator-launch-script: |
-            "$ANDROID_HOME/emulator/emulator" -version
+            "$ANDROID_HOME/emulator/emulator" -version | grep -F '37.2.13.0 (build_id 16740729)'
             python3 tool/emulator_exit_trace.py install "$ANDROID_HOME" "$RUNNER_TEMP/quietake-emulator-logs"
             "$ANDROID_HOME/emulator/emulator" -version
             touch "$RUNNER_TEMP/quietake-emulator-trace-ready"
           # Preserve guest shutdown/panic output in the separate diagnostic log.
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated -show-kernel
           disable-animations: true
-          script: test -f "$RUNNER_TEMP/quietake-emulator-trace-ready" && tool/e2e.sh android
+          script: bash tool/emulator_crash_probe.sh
       - name: Emulator diagnostic log
-        if: always() && steps.scope.outputs.mode == 'full'
+        if: always()
         continue-on-error: true
         timeout-minutes: 2
         shell: bash
@@ -203,7 +91,7 @@ jobs:
             echo '::endgroup::'
           done
       - name: Report emulator host diagnostics
-        if: always() && steps.scope.outputs.mode == 'full'
+        if: always()
         continue-on-error: true
         timeout-minutes: 2
         shell: bash
@@ -220,11 +108,10 @@ jobs:
             -printf 'emulator-crash-file %f bytes=%s\n' 2>/dev/null | head -n 40
           exit 0
 
-      - name: Require selected checks to complete
+      - name: Native stack diagnostics
         if: always()
-        env:
-          CHECK_MODE: ${{ steps.scope.outputs.mode }}
-          SELECTION_RESULT: ${{ steps.scope.outcome }}
-          CONTENT_RESULT: ${{ steps.content.outcome }}
-          FULL_RESULT: ${{ steps.full.outcome }}
-        run: python3 tool/ci_scope.py complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"
+        continue-on-error: true
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          test ! -f "$RUNNER_TEMP/quietake-native-stack.log" || cat "$RUNNER_TEMP/quietake-native-stack.log"
