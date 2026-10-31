@@ -179,13 +179,29 @@ jobs:
           disk-size: 6G
           pre-emulator-launch-script: |
             "$ANDROID_HOME/emulator/emulator" -version
-            python3 tool/emulator_exit_trace.py install "$ANDROID_HOME"
+            python3 tool/emulator_exit_trace.py install "$ANDROID_HOME" "$RUNNER_TEMP/quietake-emulator-logs"
             "$ANDROID_HOME/emulator/emulator" -version
             touch "$RUNNER_TEMP/quietake-emulator-trace-ready"
-          # Preserve guest shutdown/panic output when the emulator disappears.
+          # Preserve guest shutdown/panic output in the separate diagnostic log.
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back emulated -camera-front emulated -show-kernel
           disable-animations: true
           script: test -f "$RUNNER_TEMP/quietake-emulator-trace-ready" && tool/e2e.sh android
+      - name: Emulator diagnostic log
+        if: always() && steps.scope.outputs.mode == 'full'
+        continue-on-error: true
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          # Synthetic emulator stdout/stderr only, never app data or memory dumps.
+          for log in "$RUNNER_TEMP/quietake-emulator-logs"/emulator-*.log; do
+            [ -f "$log" ] || continue
+            echo "::group::$(basename "$log")"
+            stop_token=$(python3 -c 'import uuid; print(uuid.uuid4().hex)')
+            echo "::stop-commands::$stop_token"
+            cat "$log"
+            printf '\n::%s::\n' "$stop_token"
+            echo '::endgroup::'
+          done
       - name: Report emulator host diagnostics
         if: always() && steps.scope.outputs.mode == 'full'
         continue-on-error: true

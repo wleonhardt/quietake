@@ -19,6 +19,12 @@ void main() {
   testWidgets('private library organizes, searches and preserves originals', (
     tester,
   ) async {
+    final elapsed = Stopwatch()..start();
+    void checkpoint(String phase) {
+      // ignore: avoid_print
+      print('LIBRARY phase=$phase elapsed_ms=${elapsed.elapsedMilliseconds}');
+    }
+
     final app = await TestApp.unlocked();
     for (final entry in await app.vault.dir.list().toList()) {
       await entry.delete(recursive: true);
@@ -90,6 +96,7 @@ void main() {
       await tap(Keys.openGallery);
       await until(() => find.byKey(Keys.galleryGrid).evaluate().isNotEmpty);
       expect(count(), 3);
+      checkpoint('seeded-gallery');
       await tester.binding.setSurfaceSize(const Size(320, 360));
       await tester.pump(const Duration(milliseconds: 500));
       await tester.drag(find.byKey(Keys.galleryGrid), const Offset(0, -160));
@@ -115,6 +122,7 @@ void main() {
         closeTo(beforeSearch, 1),
         reason: 'Closing focused Search restores the existing Library scroll position',
       );
+      checkpoint('search-scroll-restored');
       await tester.binding.setSurfaceSize(null);
       await tester.pump(const Duration(milliseconds: 500));
       await tap(Keys.libraryAlbums);
@@ -126,6 +134,7 @@ void main() {
       await tap(Keys.albumRename);
       await name('Quiet weekend');
       await until(() => app.vault.catalog.albums[id] == 'Quiet weekend');
+      checkpoint('tag-created-renamed');
       await tester.pageBack();
       await tester.pump(const Duration(milliseconds: 500));
 
@@ -171,6 +180,7 @@ void main() {
       await tester.longPress(find.byKey(Keys.galleryTile(0)));
       await tester.pump();
       await tap(Keys.libraryRename);
+      checkpoint('favorites-filtered');
       await name('Evening glow');
       await tap(Keys.libraryCancelSelection);
       await enter(Keys.librarySearch, 'EVENING');
@@ -214,6 +224,7 @@ void main() {
       expect(reopened.details('2026-02.mp4.shtr').albums, {id});
       expect(reopened.details('2026-01.jpg.shtr').favorite, isTrue);
       await reopened.close();
+      checkpoint('search-sort-persisted');
 
       await tap(Keys.libraryAlbums);
       await tap(Keys.albumCreate);
@@ -257,6 +268,7 @@ void main() {
         1,
         reason: 'Subject and action use intersection by default',
       );
+      checkpoint('tag-intersection');
       await tap(Keys.librarySearchOptions);
       await tap(Keys.libraryMatchAny);
       expect(count(), 2);
@@ -304,6 +316,7 @@ void main() {
           fixtureBytes(file.path.contains('.mp4') ? 'tiny.mp4' : 'tiny.jpg'),
         );
       }
+      checkpoint('tags-merged-removed-originals-verified');
       await tap(Keys.galleryTile(0));
       await until(() => find.byKey(Keys.viewerPhoto).evaluate().isNotEmpty);
       await tap(Keys.viewerDelete);
@@ -328,11 +341,16 @@ void main() {
       expect(count(), 2);
       expect(await app.vault.deletedNames(), contains('2026-01.jpg.shtr'));
       expect(tester.takeException(), isNull);
+      checkpoint('deletion-verified');
     } finally {
       await tester.binding.setSurfaceSize(null);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 500));
       await app.close();
+      checkpoint('closed');
     }
-  });
+    // This end-to-end workflow previously passed in 144 s on Android and 132 s
+    // on iOS. Keep the shared two-minute default for shorter cases and the
+    // independent five-minute file watchdog; allow this measured longer case.
+  }, timeout: const Timeout(Duration(minutes: 3)));
 }

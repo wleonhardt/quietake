@@ -64,7 +64,9 @@ arguments still runs all automatic files. Keep lifecycle-dependent cases togethe
 when later cases rely on setup performed by an earlier case.
 
 - Every automatic integration entrypoint uses the shared binding with a two-minute
-  per-case deadline. The existing long-video case explicitly allows four minutes.
+  per-case deadline. The measured library workflow explicitly allows three minutes;
+  the long-video case allows four minutes. Library phase timestamps distinguish
+  continuing work from a stalled operation.
 - A separate host process limits each file to five minutes, including its native
   build, connection, setup and teardown. Bootstrap builds have fifteen minutes;
   emulator boot and installation waits have two. These are initial budgets, not
