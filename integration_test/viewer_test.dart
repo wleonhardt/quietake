@@ -1,4 +1,6 @@
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
+import '../test_support/viewer_gestures.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -6,7 +8,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:video_player/video_player.dart';
@@ -17,7 +18,7 @@ import 'harness.dart';
 /// Gallery and viewer, seeded from test-only fixtures so it runs on the iOS
 /// simulator too (no camera needed).
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
 
   late TestApp app;
   late Vault vault;
@@ -55,13 +56,23 @@ void main() {
 
   Future<void> waitForPage(WidgetTester tester, String position) async {
     final pager = tester.widget<PageView>(find.byKey(Keys.viewerPager));
-    await pumpUntil(
-      tester,
-      () =>
-          tester.widget<Text>(find.byKey(Keys.viewerPosition)).data ==
-              position &&
-          !pager.controller!.position.isScrollingNotifier.value,
-    );
+    try {
+      await pumpUntil(
+        tester,
+        () =>
+            tester.widget<Text>(find.byKey(Keys.viewerPosition)).data ==
+                position &&
+            !pager.controller!.position.isScrollingNotifier.value,
+      );
+    } on TestFailure catch (error) {
+      fail(
+        '$error; expected=$position '
+        'actual=${tester.widget<Text>(find.byKey(Keys.viewerPosition)).data} '
+        'page=${pager.controller!.page} '
+        'scrolling=${pager.controller!.position.isScrollingNotifier.value} '
+        'physics=${pager.physics}',
+      );
+    }
   }
 
   testWidgets('gallery lists both items; viewer shows photo then plays video', (
@@ -127,11 +138,7 @@ void main() {
     expect(size, const Size(160, 120), reason: 'decrypted JPEG decodes');
 
     // Swipe to the video page; it streams from the loopback server.
-    await tester.fling(
-      find.byKey(Keys.viewerPager),
-      const Offset(0, -400),
-      1500,
-    );
+    await swipeViewerPage(tester, forward: true);
     await waitForPage(tester, '2 / 2');
     expect(
       tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
@@ -247,11 +254,7 @@ void main() {
     );
     await tester.binding.setSurfaceSize(null);
     await tester.pump(const Duration(milliseconds: 500));
-    await tester.fling(
-      find.byKey(Keys.viewerPager),
-      const Offset(0, 500),
-      1500,
-    );
+    await swipeViewerPage(tester, forward: false);
     await waitForPage(tester, '1 / 2');
     expect(
       tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,
@@ -442,11 +445,7 @@ void main() {
         expect(await Directory('${temp.path}/share_plus').exists(), isFalse);
         expect(await vault.list(), hasLength(2));
         if (expected == 'image/jpeg') {
-          await tester.fling(
-            find.byKey(Keys.viewerPager),
-            const Offset(0, -500),
-            1500,
-          );
+          await swipeViewerPage(tester, forward: true);
           await waitForPage(tester, '2 / 2');
           expect(
             tester.widget<Text>(find.byKey(Keys.viewerPosition)).data,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/licenses.dart';
 
+import '../test_support/license_loading.dart';
+
 void main() {
   testWidgets('Android licenses expose the bundled coroutines attribution', (
     tester,
@@ -17,7 +19,7 @@ void main() {
       ),
     );
     await tester.tap(find.text('Licenses'));
-    await tester.pumpAndSettle();
+    await waitForLicenseLoading(tester);
     final notice = find.widgetWithText(
       ListTile,
       'kotlinx.coroutines (Android)',
@@ -50,5 +52,25 @@ void main() {
     await tester.tap(eff);
     await tester.pumpAndSettle();
     expect(find.textContaining('CC BY 4.0'), findsWidgets);
+    if (eff.hitTestable().evaluate().isEmpty) {
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+    }
+    final google = find.widgetWithText(
+      ListTile,
+      'Google Play services / Animal Sniffer (Android)',
+    );
+    await tester.scrollUntilVisible(
+      google,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(google);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Kohsuke Kawaguchi and codehaus.org.'),
+      findsWidgets,
+    );
+    expect(find.textContaining('The MIT License'), findsWidgets);
   });
 }

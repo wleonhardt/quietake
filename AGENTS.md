@@ -5,8 +5,15 @@ this file, then accepted records in plans/decisions/.
 
 ## Non-negotiable rules
 
-- Run `flutter analyze` and `flutter test` before and after changes. Both must pass.
+- Follow [scoped validation and work budgets](plans/development-process.md).
+  App changes require clean `flutter analyze` and passing `flutter test`.
+  Unrelated prose/website/tooling changes require their applicable checks.
+  Reuse unchanged scoped evidence with its original source identity.
 - Serialize Flutter commands within a checkout.
+- Initialize automatic integration files with `initializeIntegrationBinding()`
+  from `test_support/integration_binding.dart`. Use the guarded runner's focused
+  file selection and deadlines described in plans/development-process.md. Resume
+  lifecycle before awaiting frames; do not hide hangs by increasing timeouts.
 - Run `cd recover && gofmt -l . && go vet ./... && go test ./...` for recovery changes.
 - Run `dart run tool/check_interop.dart` for crypto or recovery changes.
 - Run `tool/e2e.sh android` and `tool/e2e.sh ios` for app UI or vault changes.

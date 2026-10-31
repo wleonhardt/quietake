@@ -3,18 +3,18 @@ import 'dart:io';
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/sync/sync_settings.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/controlled_camera.dart';
 import '../test_support/fake_webdav_server.dart';
 import '../test_support/fixtures.dart';
 import 'harness.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   for (final scenario in [
     (video: false, background: false),
     (video: true, background: false),

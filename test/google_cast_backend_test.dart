@@ -6,6 +6,8 @@ import 'package:flutter_chrome_cast/session.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/google_cast_backend.dart';
 
+import '../test_support/cast_payload.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const context = MethodChannel('google_cast.context');
@@ -72,6 +74,13 @@ void main() {
     for (final channel in [context, discovery, sessions]) {
       messenger.setMockMethodCallHandler(channel, null);
     }
+  });
+
+  test('photo load sends only selected stream and title', () async {
+    await checkCastLoadPayload('image/jpeg', 4);
+  });
+  test('video load sends only selected stream and title', () async {
+    await checkCastLoadPayload('video/mp4', 1);
   });
 
   test(

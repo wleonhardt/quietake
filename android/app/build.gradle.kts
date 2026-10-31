@@ -78,8 +78,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:mockwebserver:5.5.1")
     // Match video_player_android's Media3 version; do not mix module versions.
     implementation("androidx.media3:media3-transformer:1.9.2")
-    // The Flutter plugin pins 21.5.0; use the SDK with upstream security fixes.
-    implementation("com.google.android.gms:play-services-cast-framework:22.3.1")
+    // The wrapper pins 21.5.0; align with the current sender disclosure (decision 051).
+    implementation("com.google.android.gms:play-services-cast-framework:23.0.0")
 }
 
 flutter {

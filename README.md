@@ -33,6 +33,8 @@ first release target; iOS development is ongoing.
   previews and responds to recording; it cannot prevent still screenshots.
 - Google Cast SDK has its own analytics and diagnostics. Read Google's
   [SDK disclosure](https://developers.google.com/cast/docs/android_sender/data_disclosure).
+- The app's privacy policy is available offline before setup and from Settings.
+  Public policy URL: [app privacy policy](https://quietake.cam/app-privacy.html).
 
 ## Build and test
 
@@ -50,7 +52,9 @@ go test ./...
 ```
 
 Run Flutter commands sequentially in each checkout. Synthetic device tests use
-`tool/e2e.sh android` and `tool/e2e.sh ios`. Read [AGENTS.md](AGENTS.md) before
+`tool/e2e.sh android` and `tool/e2e.sh ios`. For focused diagnosis, use
+`tool/e2e.sh android integration_test/lock_test.dart`; each file has a five-minute
+host deadline plus a two-minute default per-case deadline. Read [AGENTS.md](AGENTS.md) before
 device operations. Debug/profile builds use `cam.quietake.app.dev`; release uses
 `cam.quietake.app`. Never erase a release or legacy installation for testing.
 Release signing is intentionally absent. Never substitute a debug certificate.

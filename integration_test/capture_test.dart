@@ -7,12 +7,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:video_player/video_player.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/mp4.dart';
 import 'harness.dart';
 
@@ -23,7 +23,7 @@ import 'harness.dart';
 /// decryptable container with the right magic bytes. On the iOS simulator,
 /// which has no camera, the app must show "No camera" and stay usable.
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = initializeIntegrationBinding();
 
   late TestApp app;
   late Vault vault;

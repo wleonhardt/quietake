@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,16 @@ void showAppLicenses(BuildContext context) {
         'EFF Long Wordlist',
       ], await rootBundle.loadString('assets/passphrases/LICENSE.txt'));
       if (defaultTargetPlatform == TargetPlatform.android) {
+        final google = jsonDecode(
+          await rootBundle.loadString(
+            'assets/licenses/google-play-services-NOTICES.json',
+          ),
+        ) as Map<String, dynamic>;
+        for (final notice in google['licenses'] as List) {
+          yield LicenseEntryWithLineBreaks([
+            'Google Play services / ${notice['package']} (Android)',
+          ], notice['text'] as String);
+        }
         yield LicenseEntryWithLineBreaks(
           ['kotlinx.coroutines (Android)'],
           await rootBundle.loadString(

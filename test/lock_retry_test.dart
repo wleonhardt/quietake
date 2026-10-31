@@ -492,51 +492,53 @@ void main() {
       key.dispose();
     },
   );
-  testWidgets(
-    'only the visible lock gate may start biometrics after cold-start backgrounding',
-    (tester) async {
-      final key = sodium.crypto.secretBox.keygen();
-      final auth = _PendingAuth();
-      await tester.pumpWidget(
-        QuietakeApp(
-          store: _CachedStore(sodium, key),
-          auth: auth,
-          castBackend: FakeCastBackend(),
-        ),
-      );
-      await tester.pump();
-      await tester.pump();
-      expect(auth.prompts, hasLength(1));
-      for (final state in [
-        AppLifecycleState.inactive,
-        AppLifecycleState.hidden,
-        AppLifecycleState.paused,
-      ]) {
-        tester.binding.handleAppLifecycleStateChanged(state);
-      }
-      await tester.pump();
-      for (final state in [
-        AppLifecycleState.hidden,
-        AppLifecycleState.inactive,
-        AppLifecycleState.resumed,
-      ]) {
-        tester.binding.handleAppLifecycleStateChanged(state);
-      }
-      await tester.pump();
-      await tester.pump();
-      expect(
-        auth.prompts,
-        hasLength(2),
-        reason:
-            'The hidden home lock must not compete with the visible overlay',
-      );
-      for (final prompt in auth.prompts) {
-        if (!prompt.isCompleted) prompt.complete(false);
-      }
-      await tester.pumpWidget(const SizedBox());
-      key.dispose();
-    },
-  );
+  for (final coalesced in [false, true]) {
+    testWidgets(
+      'only the visible lock gate may start biometrics after cold-start backgrounding; coalesced=$coalesced',
+      (tester) async {
+        final key = sodium.crypto.secretBox.keygen();
+        final auth = _PendingAuth();
+        await tester.pumpWidget(
+          QuietakeApp(
+            store: _CachedStore(sodium, key),
+            auth: auth,
+            castBackend: FakeCastBackend(),
+          ),
+        );
+        await tester.pump();
+        await tester.pump();
+        expect(auth.prompts, hasLength(1));
+        for (final state in [
+          AppLifecycleState.inactive,
+          AppLifecycleState.hidden,
+          AppLifecycleState.paused,
+        ]) {
+          tester.binding.handleAppLifecycleStateChanged(state);
+        }
+        if (!coalesced) await tester.pump();
+        for (final state in [
+          AppLifecycleState.hidden,
+          AppLifecycleState.inactive,
+          AppLifecycleState.resumed,
+        ]) {
+          tester.binding.handleAppLifecycleStateChanged(state);
+        }
+        await tester.pump();
+        await tester.pump();
+        expect(
+          auth.prompts,
+          hasLength(2),
+          reason:
+              'The hidden home lock must not compete with the visible overlay',
+        );
+        for (final prompt in auth.prompts) {
+          if (!prompt.isCompleted) prompt.complete(false);
+        }
+        await tester.pumpWidget(const SizedBox());
+        key.dispose();
+      },
+    );
+  }
   testWidgets(
     'deliberate locks wait for explicit biometrics across backgrounding',
     (tester) async {

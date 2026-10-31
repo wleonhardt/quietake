@@ -2,18 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
 import 'package:video_player/video_player.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import 'harness.dart';
 
 /// Disposable development vault only. Covers gestures and repeated playback
 /// through the real decoder rather than a mocked video platform.
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   late TestApp app;
 
   setUp(() async {

@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:quietake/keys.dart';
 
+import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import 'harness.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeIntegrationBinding();
   testWidgets(
     'live empty vault rejects another recovery identity without replacing passcode',
     (tester) async {
