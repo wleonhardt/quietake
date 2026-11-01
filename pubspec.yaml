@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   archive: ^4.5.2
-  camera: ^0.12.1
+  camera: ^0.12.2
   camera_android_camerax: ^0.7.5
   camera_platform_interface: ^2.15.0
   crypto: ^3.0.8
