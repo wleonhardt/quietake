@@ -84,6 +84,7 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
   int _lockEpoch = 0;
   bool _foreground = true;
   var _lockNavigator = GlobalKey<NavigatorState>();
+  bool _contentCanHandlePop = false;
 
   @override
   void initState() {
@@ -183,6 +184,13 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
     return true;
   }
 
+  void _updateBackHandling() {
+    if (!mounted) return;
+    unawaited(
+      SystemNavigator.setFrameworkHandlesBack(_locked || _contentCanHandlePop),
+    );
+  }
+
   void _unlock(SecureKey key, int epoch) {
     if (_captured || epoch != _lockEpoch) {
       key.dispose();
@@ -236,6 +244,8 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    // Removing the lock gate does not change the preserved content history.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateBackHandling());
     final Widget home;
     final epoch = _lockEpoch;
     final s = _session;
@@ -266,6 +276,11 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
     }
     return MaterialApp(
       title: 'Quietake',
+      onNavigationNotification: (notification) {
+        _contentCanHandlePop = notification.canHandlePop;
+        _updateBackHandling();
+        return true;
+      },
       theme: quietakeTheme(brightness: Brightness.light),
       darkTheme: quietakeTheme(),
       highContrastTheme: quietakeTheme(
@@ -290,15 +305,19 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
               ),
               if (_locked)
                 HeroControllerScope.none(
-                  child: Navigator(
-                    key: _lockNavigator,
-                    onGenerateRoute: (_) => MaterialPageRoute<void>(
-                      builder: (_) => LockScreen(
-                        store: widget.store,
-                        auth: widget.auth,
-                        acceptsRecoveryKey: s?.vault.matchesKey,
-                        onUnlocked: (key) => _unlock(key, epoch),
-                        autoPrompt: _autoPrompt,
+                  // This sibling must not replace the content navigator's state.
+                  child: NotificationListener<NavigationNotification>(
+                    onNotification: (_) => true,
+                    child: Navigator(
+                      key: _lockNavigator,
+                      onGenerateRoute: (_) => MaterialPageRoute<void>(
+                        builder: (_) => LockScreen(
+                          store: widget.store,
+                          auth: widget.auth,
+                          acceptsRecoveryKey: s?.vault.matchesKey,
+                          onUnlocked: (key) => _unlock(key, epoch),
+                          autoPrompt: _autoPrompt,
+                        ),
                       ),
                     ),
                   ),

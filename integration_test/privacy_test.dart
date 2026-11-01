@@ -186,6 +186,14 @@ void main() {
     expect(has(Keys.viewerPhoto), isTrue);
     await tap(tester, Keys.viewerControls);
     expect(has(Keys.viewerShare), isTrue);
+    await tester.binding.handlePopRoute();
+    await until(tester, () => !has(Keys.viewerPhoto));
+    expect(has(Keys.viewerPhoto), isFalse);
+    expect(has(Keys.galleryTile(0)), isTrue);
+    await tester.binding.handlePopRoute();
+    await until(tester, () => !has(Keys.galleryGrid));
+    expect(has(Keys.galleryGrid), isFalse);
+    expect(has(Keys.openGallery), isTrue);
     expect(await app.vault.readAll(photo), fixtureBytes('tiny.jpg'));
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 500));
@@ -416,6 +424,11 @@ void main() {
     // The test binding can reset this to null between cases without a new
     // native resume event. Neither state has delivered a background pause.
     expect(lifecycle, anyOf(isNull, AppLifecycleState.resumed));
+    final lifecycleEvents = <AppLifecycleState>[];
+    final lifecycleListener = AppLifecycleListener(
+      onStateChange: lifecycleEvents.add,
+    );
+    addTearDown(lifecycleListener.dispose);
     var departureComplete = false;
     ByteData? departureReply;
     ui.channelBuffers.push(
@@ -437,7 +450,13 @@ void main() {
     expect(app.session.cast.isCasting, isFalse);
     expect(app.backend.loadedUrl, isNull);
     expect(app.backend.log.last, 'disconnect');
-    expect(tester.binding.lifecycleState, lifecycle);
+    expect(
+      lifecycleEvents,
+      everyElement(
+        anyOf(AppLifecycleState.resumed, AppLifecycleState.inactive),
+      ),
+      reason: 'Native departure must protect routes before hidden or paused',
+    );
     expect(await photo.readAsBytes(), encrypted);
     expect(await app.vault.readAll(photo), fixtureBytes('tiny.jpg'));
     await until(

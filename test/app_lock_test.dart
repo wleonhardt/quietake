@@ -36,6 +36,22 @@ void main() {
     testWidgets(
       'background lock hides pushed routes and restores route after unlock; queued=$backgroundBeforeReady',
       (tester) async {
+        bool? frameworkHandlesBack;
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async {
+            if (call.method == 'SystemNavigator.setFrameworkHandlesBack') {
+              frameworkHandlesBack = call.arguments as bool;
+            }
+            return null;
+          },
+        );
+        addTearDown(() {
+          tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          );
+        });
         late Directory dir;
         late Session session;
         final backend = _DelayedDisconnectBackend();
@@ -56,6 +72,18 @@ void main() {
             cast: CastController(vault, backend),
             store: store,
           );
+        });
+        addTearDown(() async {
+          await tester.pumpWidget(const SizedBox());
+          await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+          await tester.pump();
+          await tester.runAsync(() async {
+            await session.server.close();
+            session.cast.dispose();
+            session.vault.masterKeyForTests.dispose();
+            await dir.delete(recursive: true);
+          });
+          await tester.pump();
         });
         final camerasReady = Completer<List<Object?>>();
         var cameraQueries = 0;
@@ -177,6 +205,7 @@ void main() {
           findsNothing,
           reason: 'Rapid taps must not push duplicate gallery routes',
         );
+        expect(frameworkHandlesBack, isFalse);
         await tester.tap(find.byKey(Keys.openGallery));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 500));
@@ -194,11 +223,26 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         expect(find.byKey(Keys.gallerySettings).hitTestable(), findsNothing);
         expect(find.byKey(Keys.lockUnlock).hitTestable(), findsOneWidget);
+        expect(frameworkHandlesBack, isTrue);
+        await tester.tap(find.byKey(Keys.lockRecovery));
+        await tester.pumpAndSettle();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byKey(Keys.lockUnlock).hitTestable(), findsOneWidget);
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsNothing);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byKey(Keys.lockUnlock).hitTestable(), findsOneWidget);
         tester
             .widget<LockScreen>(find.byType(LockScreen))
             .onUnlocked(session.vault.masterKeyForTests.copy());
         await tester.pump();
         expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
+        expect(
+          frameworkHandlesBack,
+          isTrue,
+          reason: 'Android must dispatch Back to the restored gallery route',
+        );
         // Transient focus loss alone must not lock the vault.
         tester.binding.handleAppLifecycleStateChanged(
           AppLifecycleState.inactive,
@@ -242,16 +286,11 @@ void main() {
             .onUnlocked(session.vault.masterKeyForTests.copy());
         await tester.pump();
         expect(find.byKey(Keys.gallerySettings).hitTestable(), findsOneWidget);
-        await tester.pumpWidget(const SizedBox());
-        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
-        await tester.pump();
-        await tester.runAsync(() async {
-          await session.server.close();
-          session.cast.dispose();
-          session.vault.masterKeyForTests.dispose();
-          await dir.delete(recursive: true);
-        });
-        await tester.pump();
+        expect(frameworkHandlesBack, isTrue);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byKey(Keys.gallerySettings).hitTestable(), findsNothing);
+        expect(frameworkHandlesBack, isFalse);
       },
     );
   }

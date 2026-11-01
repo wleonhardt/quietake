@@ -256,10 +256,8 @@ void main() {
     }
     await tester.pump(const Duration(seconds: 2));
     await tester.tap(find.byKey(Keys.videoToggle));
-    await pumpUntil(
-      tester,
-      () async => find.byKey(Keys.captureFlash).evaluate().isNotEmpty,
-    );
+    // The 180 ms flash is covered with the widget test's controlled clock.
+    // A loaded device can finish it between integration-test frames.
     await pumpUntil(tester, () async => (await vault.list()).length == 2);
     final video = (await vault.list()).firstWhere(
       (f) => f.path.endsWith('.mp4.shtr'),

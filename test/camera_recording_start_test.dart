@@ -158,6 +158,13 @@ void main() {
       await _until(tester, () => camera.stops == 1);
       await _until(
         tester,
+        () => find.byKey(Keys.captureFlash).evaluate().isNotEmpty,
+      );
+      expect(find.byKey(Keys.captureFlash), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byKey(Keys.captureFlash), findsNothing);
+      await _until(
+        tester,
         () => find.textContaining('Saved securely').evaluate().isNotEmpty,
       );
       expect(find.byKey(Keys.captureStarting), findsNothing);
