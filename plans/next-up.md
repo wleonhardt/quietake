@@ -35,7 +35,7 @@
   still spends batch size budget, minor). `vault.dart` and `share_media.dart` read, no
   defect (`Vault.ingestAs` deletes its plaintext even when the name collides; only the importer's
   private staging copy is affected and microsecond names make that unreachable). `nas_recovery.dart` and
-  `portable_backup.dart` read, no defect. Unread: `vault_crypto.dart` (frozen vectors). Add a failing test per bug found.
+  `portable_backup.dart` read, no defect. Sweep of async button handlers and `SyncSettings`/keyfile callers found only the Settings gap fixed above; `_backgroundLock` in `main.dart` would skip locking if `hasKeyfile` threw before the first check finished, which `File.exists` does not realistically do (not changed). Unread: `vault_crypto.dart` (frozen vectors), most of `capture_screen.dart`/`viewer_screen.dart` (device e2e covered). Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop. The home NAS needs
   WebDAV credentials that live in HubnerDocs `.secrets`, which this loop must
   not read. A real-NAS run needs a test credential and an empty test folder
