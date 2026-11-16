@@ -45,9 +45,9 @@ README and `docs/portable-backup.md` now describe Recently deleted. The portable
 export lists the current library only, so trashed captures are not exported
 (covered by `test/portable_backup_test.dart`).
 
-The privacy policy text in `website/app-privacy.html` and the in-app policy stays
-unchanged until the owner reviews it. Proposed replacement for the first sentences
-of "Retention and deletion":
+The owner approved this wording on 2026-11-16. It is now in `assets/privacy-policy.json`
+and `website/app-privacy.html` (updated date November 16, 2026), and `tool/ci_scope.py`
+checks that the two match. The first sentences of "Retention and deletion" are:
 
 > You can delete an individual capture from the viewer. By default Quietake first
 > moves it to Recently deleted, where it stays encrypted on this device for 30 days

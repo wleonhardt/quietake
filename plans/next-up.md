@@ -41,20 +41,18 @@
   not read. A real-NAS run needs a test credential and an empty test folder
   handed over by the owner; until then loopback WebDAV tests stand in.
 
-## Feature ideas (planned, unscheduled)
+## Feature ideas (owner answers 2026-11-16, build one small item per iteration, in this order)
 
-Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
+Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record first.
 
-- Recently deleted: decision 015 accepted (default on, 30 days, Delete now skips trash). Slices 1 to 4 done (policy wording drafted in decision 015, owner must review before `website/app-privacy.html` and the in-app policy change): vault trash markers, sync hold, viewer dialog with Recently deleted, Recently deleted screen on the Tags screen (iOS and Android emulator e2e passed: recently_deleted, delete, viewer, capture, library, portable, library_layout; Android emulator, not a physical phone). Slice 3: unlock-time purge, Settings switch, Storage count. The unlock-time purge is tested through `Session.start(vaultDir:)`. Android background upload still uploads trashed captures (harmless; the NAS keeps them) while Dart sync skips them. Limit: widget test cannot confirm Delete now (Session.close hangs); `recently_deleted_test.dart` covers it on device.
-- Bug fixed from coverage review: Moments retry and the refresh after returning from a month passed a Future out of `setState` (assertion in debug builds); now block bodies, test `an unreadable vault offers a retry that recovers`. Coverage at 94.1% (668 tests); lowest: `portable_screen.dart` 72%, `nas_recovery_screen.dart` 75%.
-- Capture options are done (grid, tap-to-focus, focus/exposure lock, self timer, burst, burst size 3/5/10 in Settings, decision 016). Possible follow-up: a real-device capture pass. Burst size change applies when the camera screen next opens; simulator camera is a stub, so real burst timing is unverified.
-- Albums: cover choice (the Moments month view is done).
-- Viewer: keep the screen awake during the slideshow only while the vault is unlocked (needs a plugin decision; the slideshow itself is done).
-- Share: per-share option to strip all EXIF fields, not only GPS; video location strip is a separate, larger item.
-- Backup: a NAS restore dry run (the check reminder and the ZIP dry run are done).
-- Storage view, rest: what is pending upload, and a safe prune of re-creatable caches only (the count and encrypted size are done).
-- Import: folder import with progress and a resume after interruption, using the existing 10,000-file limits.
-- Localization: extract strings and add one second language; policy text stays reviewed by the owner.
+1. Slideshow keep-awake: approved, small own platform channel (no plugin), only while the vault is unlocked and the slideshow runs.
+2. Albums (tags) cover choice: approved, add an optional field to catalog schema 1; update `docs/private-catalog.md`, keep older files readable, test round trip.
+3. Share: strip every EXIF field except orientation from JPEG share copies. Video metadata removal is a separate, later item (owner wrote "T-shirt video EXIF removal", read as a later small-to-medium item; confirm if unsure).
+4. Import: folder import with progress and resume after interruption, existing 10,000-file limits.
+5. Localization: Spanish, French and German via Flutter gen-l10n; policy text stays English until the owner reviews translations.
+6. Storage view: owner said "whatever is best": drop cache prune (previews are memory only) and pending-upload count; no work planned.
+7. NAS restore dry run: owner says the test credentials are in bw-cli. Needs the vault unlocked by the owner (a master password is never typed by the agent); see Queue note.
+8. Recently deleted is finished (decision 015, policy wording approved and applied).
 
 Ideas from related privacy camera and vault projects (added 2026-11-16, none started; checked against `lib/`, none exists yet):
 
