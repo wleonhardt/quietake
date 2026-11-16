@@ -43,7 +43,7 @@
 
 ## Done
 
-- Iterations 49-52, test-only, no defect: restore-journal tampering refused by `resume` (`master_key_store_test.dart`); WebDAV listing size limit and rejected PROPFIND (`webdav_client_test.dart`); catalog-less legacy backup never restores a deleted capture (`delete_sync_test.dart`); `saveSettings` persists, syncs and reports busy (`sync_controller_test.dart`). Full host suite at iteration 52: 554 passed, analyzer clean.
+- Iterations 49-52, test-only, no defect: restore-journal tampering refused by `resume` (`master_key_store_test.dart`); WebDAV listing size limit and rejected PROPFIND (`webdav_client_test.dart`); catalog-less legacy backup never restores a deleted capture (`delete_sync_test.dart`); `saveSettings` persists, syncs and reports busy (`sync_controller_test.dart`); stale `.recovery-work-*` staging removed before a recovery change, other hidden dirs kept (`nas_recovery_test.dart`). Full host suite at iteration 52: 554 passed, analyzer clean.
 - Bug fixed: Gallery Settings button threw an unhandled error and did nothing when the saved NAS details could not be read (keystore failure). It now shows "Could not read saved NAS details. Try again." (red/green in `gallery_selection_test.dart`). Host suite 547 passed, analyzer clean, iOS `backup_test.dart` passed (4 cases, 56.7 s). Android not rerun. Corrupt-JSON blobs fail the same way and now get the same message; sync still reports pending.
 - Bug fixed: after a failed session open from first-run Setup or restore, `_hasKeyfile` stayed
   false, so Setup reappeared with no reason although the keyfile was committed. `_start` now sets
