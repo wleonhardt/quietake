@@ -273,4 +273,50 @@ void main() {
     );
     expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
   });
+
+  testWidgets('saving with empty connection details explains what is missing', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      initial: const SyncSettings(url: '', username: '', password: ''),
+    );
+    await tester.ensureVisible(find.byKey(Keys.settingsSave));
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.settingsSave)));
+    await until(tester, find.text('Enter a folder URL, username and password'));
+    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
+  });
+
+  testWidgets('cancelling the recovery prompt never reads the key', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.ensureVisible(find.text('Show recovery key'));
+    await tester.tap(find.text('Show recovery key'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Keys.recoveryPrompt), _passcode);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(Keys.recoveryPrompt), findsNothing);
+    expect(find.byKey(Keys.recoveryKeyText), findsNothing);
+  });
+
+  testWidgets('an unreadable keyfile reports it instead of a wrong passcode', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.runAsync(
+      () => File('${dir.path}/vault.keyfile.json').delete(),
+    );
+    await tester.ensureVisible(find.text('Show recovery key'));
+    await tester.tap(find.text('Show recovery key'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Keys.recoveryPrompt), _passcode);
+    await tester.tap(find.byKey(Keys.recoveryPromptOk));
+    await until(
+      tester,
+      find.text('Could not read the recovery key. Try again.'),
+    );
+    expect(find.byKey(Keys.recoveryKeyText), findsNothing);
+  });
 }

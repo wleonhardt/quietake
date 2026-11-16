@@ -159,35 +159,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Re-check the passcode, then show the recovery key.
   Future<void> _showRecovery() async {
-    final pass = TextEditingController();
     SecureKey? key;
     try {
-      final ok = await showDialog<bool>(
+      final passcode = await showDialog<String>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Confirm passcode'),
-          content: TextField(
-            key: Keys.recoveryPrompt,
-            controller: pass,
-            onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
-            obscureText: true,
-            autofocus: true,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              key: Keys.recoveryPromptOk,
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Show'),
-            ),
-          ],
+        builder: (ctx) => _PasscodePrompt(
+          onActivity: () => PrivacyScope.maybeOf(context)?.activity(),
         ),
       );
-      if (ok != true || !mounted) return;
-      key = await widget.session.store.unlockWithPasscode(pass.text);
+      if (passcode == null || !mounted) return;
+      key = await widget.session.store.unlockWithPasscode(passcode);
       // Read the key once, before the route builder can outlive its disposal.
       final recovery = widget.session.store.exportRecovery(key);
       final fingerprint = widget.session.store.fingerprint(key);
@@ -209,7 +190,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } finally {
       key?.dispose();
-      pass.dispose();
     }
   }
 
@@ -567,4 +547,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+}
+
+/// Owns its controller, so it is disposed only after the dialog has left the tree.
+class _PasscodePrompt extends StatefulWidget {
+  const _PasscodePrompt({required this.onActivity});
+  final VoidCallback onActivity;
+  @override
+  State<_PasscodePrompt> createState() => _PasscodePromptState();
+}
+
+class _PasscodePromptState extends State<_PasscodePrompt> {
+  final _pass = TextEditingController();
+
+  @override
+  void dispose() {
+    _pass.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Confirm passcode'),
+    content: TextField(
+      key: Keys.recoveryPrompt,
+      controller: _pass,
+      onChanged: (_) => widget.onActivity(),
+      obscureText: true,
+      autofocus: true,
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(
+        key: Keys.recoveryPromptOk,
+        onPressed: () => Navigator.pop(context, _pass.text),
+        child: const Text('Show'),
+      ),
+    ],
+  );
 }

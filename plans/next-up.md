@@ -44,6 +44,7 @@
 ## Done
 
 - Host test (`viewer_actions_test.dart`): swiping the real viewer moves to the next capture and back (the page-change handler was uncovered), double tap zooms a photo while Reset to fit restores it, and a too-large photo shows its size message (`viewer_test.dart`), and backgrounding pauses video playback while foregrounding resumes it, and a paused video with hidden controls offers a play overlay (`viewer_video_test.dart`). Coverage at iteration 70: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 72%, `viewer_screen.dart` 82%.
+- Bug fixed: cancelling the Settings "Show recovery key" passcode prompt disposed its text controller while the dialog was still animating out (debug assertion "TextEditingController was used after being disposed"). The prompt is now a small widget that owns its controller (red/green `settings_access_test.dart`, which also covers empty-save and unreadable-keyfile messages). Host suite 578 passed, analyzer clean, iOS `lock_test.dart` passed (7 cases, 74.4 s). Android not rerun.
 - Host test (`share_dialog_test.dart`): a failing system chooser shows the retry message, keeps the dialog, and a retry then succeeds and closes it.
 - Host test (`setup_screen_test.dart`): the Setup screen's ZIP and NAS restore entry points open their screens.
 - Full host suite at iteration 75: 573 passed, analyzer clean.
