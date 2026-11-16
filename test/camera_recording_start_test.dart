@@ -32,6 +32,47 @@ class _SlowStartCamera extends ControlledCamera {
   }
 }
 
+/// Offers both lenses and refuses to reopen the camera after the first open,
+/// like a lens that cannot be switched.
+class _FlipCamera extends _SlowStartCamera {
+  _FlipCamera(super.directory) {
+    streamsAtStart = true;
+  }
+
+  @override
+  Future<List<CameraDescription>> availableCameras() async => const [
+    CameraDescription(
+      name: 'back',
+      lensDirection: CameraLensDirection.back,
+      sensorOrientation: 0,
+    ),
+    CameraDescription(
+      name: 'front',
+      lensDirection: CameraLensDirection.front,
+      sensorOrientation: 0,
+    ),
+  ];
+
+  @override
+  Future<int> createCamera(
+    CameraDescription description,
+    ResolutionPreset? preset, {
+    bool enableAudio = false,
+  }) {
+    if (created >= 1 &&
+        description.lensDirection == CameraLensDirection.front) {
+      throw CameraException('switch', 'unavailable');
+    }
+    return super.createCamera(description, preset, enableAudio: enableAudio);
+  }
+
+  // The controller disposes the old camera for the switch and again on release.
+  @override
+  Future<void> dispose(int id) async {
+    if (!disposed.contains(id)) await super.dispose(id);
+  }
+}
+
 Future<({Directory directory, Session session})> _boot(
   WidgetTester tester,
 ) async {
@@ -141,6 +182,34 @@ void main() {
             .isNotEmpty,
       );
       expect(find.text('Stop'), findsNothing);
+      expect(tester.takeException(), isNull);
+    } finally {
+      await shutdown(tester);
+    }
+  });
+
+  testWidgets('a lens that cannot be switched keeps the camera and explains', (
+    tester,
+  ) async {
+    await boot(tester);
+    try {
+      camera = _FlipCamera(directory);
+      CameraPlatform.instance = camera;
+      await tester.pumpWidget(
+        MaterialApp(home: CaptureScreen(session: session)),
+      );
+      await _until(
+        tester,
+        () => find.byKey(Keys.cameraFlip).evaluate().isNotEmpty,
+      );
+      await tester.tap(find.byKey(Keys.cameraFlip));
+      await _until(
+        tester,
+        () => find
+            .text('Could not switch camera. Try again.')
+            .evaluate()
+            .isNotEmpty,
+      );
       expect(tester.takeException(), isNull);
     } finally {
       await shutdown(tester);
