@@ -615,7 +615,19 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   Future<void> _openSettings() async {
-    final initial = await SyncSettings.load();
+    final SyncSettings initial;
+    try {
+      initial = await SyncSettings.load();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not read saved NAS details. Try again.'),
+          ),
+        );
+      }
+      return;
+    }
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<SyncSettings>(

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -11,12 +13,43 @@ import 'package:quietake/library/private_catalog.dart';
 import 'package:quietake/gallery/viewer_screen.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
+import 'package:quietake/settings/settings_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_cast_backend.dart';
 import '../test_support/library_controls.dart';
+
+class _UnreadableStorage extends FlutterSecureStoragePlatform {
+  @override
+  Future<String?> read({
+    required String key,
+    required Map<String, String> options,
+  }) async => throw PlatformException(code: 'unavailable');
+  @override
+  Future<void> write({
+    required String key,
+    required String value,
+    required Map<String, String> options,
+  }) async {}
+  @override
+  Future<bool> containsKey({
+    required String key,
+    required Map<String, String> options,
+  }) async => false;
+  @override
+  Future<void> delete({
+    required String key,
+    required Map<String, String> options,
+  }) async {}
+  @override
+  Future<void> deleteAll({required Map<String, String> options}) async {}
+  @override
+  Future<Map<String, String>> readAll({
+    required Map<String, String> options,
+  }) async => {};
+}
 
 void main() {
   late Directory dir;
@@ -79,6 +112,22 @@ void main() {
       () => find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
     );
   }
+
+  testWidgets('unreadable saved NAS details keep the gallery and explain', (
+    tester,
+  ) async {
+    await open(tester);
+    FlutterSecureStoragePlatform.instance = _UnreadableStorage();
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.gallerySettings)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(SettingsScreen), findsNothing);
+    expect(tester.takeException(), isNull);
+    expect(
+      find.text('Could not read saved NAS details. Try again.'),
+      findsOneWidget,
+    );
+  });
 
   testWidgets('Select captures from the actions sheet enters selection', (
     tester,
