@@ -10,6 +10,21 @@ import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_authenticator.dart';
 
+class _CachedKeyStore extends _UnreadableStore {
+  _CachedKeyStore(super.sodium);
+  @override
+  Future<bool> get hasCachedKey async => true;
+}
+
+class _RefusingAuth extends FakeAuthenticator {
+  _RefusingAuth() : super(answer: false);
+  @override
+  Future<bool> authenticate(String reason) async {
+    lastError = 'Too many attempts. Try again later.';
+    return super.authenticate(reason);
+  }
+}
+
 class _UnreadableStore extends MasterKeyStore {
   _UnreadableStore(SodiumSumo sodium) : super(sodium, Directory.systemTemp);
   @override
@@ -75,6 +90,27 @@ void main() {
     expect(unlocked, isNotNull);
     expect(find.byType(SetupScreen), findsNothing);
     unlocked!.dispose();
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('a refused biometric prompt shows the reason and keeps retry', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: LockScreen(
+          store: _CachedKeyStore(sodium),
+          auth: _RefusingAuth(),
+          autoPrompt: false,
+          onUnlocked: (_) => fail('a refused prompt must not unlock'),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(Keys.lockBiometric));
+    await tester.pump();
+    expect(find.text('Too many attempts. Try again later.'), findsOneWidget);
+    expect(find.byKey(Keys.lockBiometric), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 }
