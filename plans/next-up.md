@@ -57,6 +57,7 @@
   with a FormatException (red/green test). Full host suite passed: 486 tests,
   analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
   test, 111 s build, loopback WebDAV). Android not rerun; no UI or vault code changed.
+- Host test `lock_unlock_failure_test.dart`: a non-passcode unlock failure shows the retry message; no defect. SetupScreen restore failure message still untested.
 - Host tests now cover NAS recovery change-mode validation and confirm-cancel, Albums screen empty state, search and delete-cancel, camera-open recovery of an interrupted photo, viewer favorite and delete (cancel, delete one of two), gallery selection (select, favorite, name, tags, unreadable catalog, open viewer), `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
