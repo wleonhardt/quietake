@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:camera_platform_interface/camera_platform_interface.dart'
     show CameraPlatform;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -558,6 +559,29 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
+  static const _burstSize = 5;
+
+  /// Takes [_burstSize] photos one after another. Each one is saved through the
+  /// same private path as a single photo, so a stop part way keeps what is saved.
+  Future<void> _burst() {
+    final tagIds = {..._tagIds};
+    return _capture(() async {
+      final c = _controller;
+      if (c == null) return;
+      var saved = 0;
+      for (var i = 0; i < _burstSize; i++) {
+        if (!mounted || !_foreground || !widget.active) break;
+        final shot = await c.takePicture();
+        _confirm();
+        await _ingest(File(shot.path), 'jpg', tagIds);
+        saved++;
+      }
+      if (mounted && saved > 1) {
+        setState(() => _status = 'Saved $saved photos securely');
+      }
+    });
+  }
+
   Future<void> _shutter() {
     final tagIds = {..._tagIds};
     return _capture(() async {
@@ -1095,17 +1119,30 @@ class _CaptureScreenState extends State<CaptureScreen>
                             _recording ? 'Stop' : 'Video',
                           ),
                           _labeledControl(
-                            IconButton(
-                              key: Keys.shutter,
-                              iconSize: 64,
-                              color: onMediaCanvas,
-                              icon: const Icon(Icons.radio_button_checked),
-                              onPressed: c == null || _recording || busy
-                                  ? null
-                                  : _onShutter,
-                              tooltip: _countdown == null
-                                  ? 'Take photo'
-                                  : 'Cancel timer',
+                            _burstGesture(
+                              enabled:
+                                  c != null &&
+                                  !_recording &&
+                                  !busy &&
+                                  _countdown == null,
+                              // The tooltip must not claim the long press itself.
+                              child: TooltipTheme(
+                                data: const TooltipThemeData(
+                                  triggerMode: TooltipTriggerMode.manual,
+                                ),
+                                child: IconButton(
+                                  key: Keys.shutter,
+                                  iconSize: 64,
+                                  color: onMediaCanvas,
+                                  icon: const Icon(Icons.radio_button_checked),
+                                  onPressed: c == null || _recording || busy
+                                      ? null
+                                      : _onShutter,
+                                  tooltip: _countdown == null
+                                      ? 'Take photo'
+                                      : 'Cancel timer',
+                                ),
+                              ),
                             ),
                             'Photo',
                           ),
@@ -1156,7 +1193,23 @@ class _CaptureScreenState extends State<CaptureScreen>
     ),
   );
 
-  Widget _labeledControl(IconButton button, String label) => Expanded(
+  /// Press and hold the shutter for a burst. A custom action offers the same
+  /// to screen readers, since the gesture has no button of its own.
+  Widget _burstGesture({required bool enabled, required Widget child}) =>
+      MergeSemantics(
+        child: Semantics(
+          customSemanticsActions: enabled
+              ? {const CustomSemanticsAction(label: 'Take 5 photos'): _burst}
+              : null,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onLongPress: enabled ? _burst : null,
+            child: child,
+          ),
+        ),
+      );
+
+  Widget _labeledControl(Widget button, String label) => Expanded(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
