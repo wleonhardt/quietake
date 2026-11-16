@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sodium/sodium_sumo.dart';
 
 import 'cast/cast_backend.dart';
@@ -64,11 +66,16 @@ class Session {
   static Future<Session> start(
     MasterKeyStore store,
     SecureKey key,
-    CastBackend backend,
-  ) async {
+    CastBackend backend, {
+    Directory? vaultDir,
+  }) async {
     Vault? vault;
     try {
-      vault = Vault(VaultCrypto(store.sodium), key, await Vault.defaultDir());
+      vault = Vault(
+        VaultCrypto(store.sodium),
+        key,
+        vaultDir ?? await Vault.defaultDir(),
+      );
       try {
         // Captures past their 30 days go now. A failure retries next unlock.
         await vault.purgeTrash();

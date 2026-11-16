@@ -74,4 +74,46 @@ void main() {
     );
     expect(key.disposed, isTrue);
   });
+
+  test(
+    'starting a session purges captures trashed more than 30 days ago',
+    () async {
+      final sodium = await SodiumSumoInit.init();
+      final dir = await Directory.systemTemp.createTemp(
+        'quietake-session-purge',
+      );
+      final key = sodium.crypto.secretBox.keygen();
+      final seed = Vault(VaultCrypto(sodium), key.copy(), dir);
+      final input = await File('${dir.path}/input').writeAsBytes([1, 2, 3]);
+      final old = await seed.ingestAs(input, 'old.jpg');
+      final input2 = await File('${dir.path}/input2').writeAsBytes([4, 5, 6]);
+      final fresh = await seed.ingestAs(input2, 'fresh.jpg');
+      await seed.trash(
+        old,
+        at: DateTime.now().subtract(const Duration(days: 31)),
+      );
+      await seed.trash(
+        fresh,
+        at: DateTime.now().subtract(const Duration(days: 1)),
+      );
+      await seed.catalog.close();
+      seed.dispose();
+
+      final session = await Session.start(
+        MasterKeyStore(sodium, dir),
+        key,
+        FakeCastBackend(),
+        vaultDir: dir,
+      );
+      try {
+        expect(await old.exists(), isFalse);
+        expect(await fresh.exists(), isTrue);
+        expect(await session.vault.deletedNames(), {'old.jpg.shtr'});
+        expect((await session.vault.trashedAt()).keys, ['fresh.jpg.shtr']);
+      } finally {
+        await session.close();
+        await dir.delete(recursive: true);
+      }
+    },
+  );
 }
