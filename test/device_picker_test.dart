@@ -6,6 +6,7 @@ import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/cast/device_picker.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/media/media_server.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -88,5 +89,27 @@ void main() {
     expect(find.text('Looking for TVs on this network'), findsOneWidget);
     await tester.tap(find.byKey(Keys.castClose));
     await tester.pumpAndSettle();
+  });
+
+  testWidgets('choosing a TV connects and explains what happens next', (
+    tester,
+  ) async {
+    if (await tester.runAsync(MediaServer.lanAddress) == null) return;
+    final (backend, cast) = await open(tester, FakeCastBackend());
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.castDevice(0))));
+    for (var i = 0; i < 100 && !cast.isCasting; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+    }
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(backend.log, contains('connect tv-1'));
+    expect(cast.isCasting, isTrue);
+    expect(
+      find.text('Connected to Living Room TV. Open a capture to cast it.'),
+      findsOneWidget,
+    );
+    await tester.runAsync(cast.stop);
   });
 }
