@@ -32,6 +32,8 @@ abstract final class Keys {
   static const videoToggle = Key('capture.videoToggle');
   static const cameraFlip = Key('capture.flip');
   static const cameraGrid = Key('capture.grid');
+  static const captureDelay = Key('capture.delay');
+  static const captureCountdown = Key('capture.countdown');
   static const captureFocusRing = Key('capture.focusRing');
   static const cameraGridOverlay = Key('capture.gridOverlay');
   static const tagSearch = Key('tags.search');

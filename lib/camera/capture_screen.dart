@@ -55,6 +55,9 @@ class _CaptureScreenState extends State<CaptureScreen>
   CameraLensDirection _lens = CameraLensDirection.back;
   bool _recording = false;
   bool _grid = false;
+  int _delay = 0;
+  int? _countdown;
+  Timer? _countdownTimer;
   Offset? _focusRing;
   Timer? _focusRingTimer;
   Set<String> _tagIds = {};
@@ -310,6 +313,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (widget.active && _foreground) {
       _resumeCamera();
     } else {
+      _stopCountdown();
       _tagIds = {};
       ++_cameraEpoch;
       _releasing ??= _releaseCamera();
@@ -319,6 +323,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
+      _stopCountdown();
       _tagIds = {};
       _foreground = false;
       ++_cameraEpoch;
@@ -365,6 +370,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _focusRingTimer?.cancel();
+    _countdownTimer?.cancel();
     _privacy?.hold(this, false);
     _foreground = false;
     ++_cameraEpoch;
@@ -477,6 +483,35 @@ class _CaptureScreenState extends State<CaptureScreen>
     PendingCaptureException() => 'Capture waiting for secure save. Free storage, then lock and unlock to retry.',
     _ => 'Could not save capture. Try again.',
   };
+
+  void _stopCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+    if (_countdown != null) {
+      _countdown = null;
+      if (mounted) setState(() {});
+    }
+  }
+
+  /// The shutter button: take a photo now, or start or cancel the self timer.
+  void _onShutter() {
+    if (_countdown != null) {
+      _stopCountdown();
+    } else if (_delay == 0) {
+      _shutter();
+    } else {
+      setState(() => _countdown = _delay);
+      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        final left = (_countdown ?? 1) - 1;
+        if (left > 0) {
+          setState(() => _countdown = left);
+        } else {
+          _stopCountdown();
+          _shutter();
+        }
+      });
+    }
+  }
 
   Future<void> _shutter() {
     final tagIds = {..._tagIds};
@@ -675,6 +710,24 @@ class _CaptureScreenState extends State<CaptureScreen>
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (tap) => _focusAt(box, tap, c),
                     child: CameraPreview(c),
+                  ),
+                ),
+              ),
+            ),
+          if (_countdown != null)
+            IgnorePointer(
+              child: Center(
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    '$_countdown',
+                    key: Keys.captureCountdown,
+                    style: const TextStyle(
+                      color: onMediaCanvas,
+                      fontSize: 96,
+                      fontWeight: FontWeight.bold,
+                      shadows: [Shadow(blurRadius: 8)],
+                    ),
                   ),
                 ),
               ),
@@ -895,6 +948,31 @@ class _CaptureScreenState extends State<CaptureScreen>
                         ),
                         const SizedBox(width: 8),
                         IconButton.filledTonal(
+                          key: Keys.captureDelay,
+                          style: IconButton.styleFrom(
+                            backgroundColor: cameraCanvas,
+                            foregroundColor: onMediaCanvas,
+                          ),
+                          tooltip: _delay == 0
+                              ? 'Timer off'
+                              : 'Timer $_delay seconds',
+                          onPressed: _recording || _countdown != null
+                              ? null
+                              : () => setState(
+                                  () => _delay = switch (_delay) {
+                                    0 => 3,
+                                    3 => 10,
+                                    _ => 0,
+                                  },
+                                ),
+                          icon: Icon(switch (_delay) {
+                            3 => Icons.timer_3,
+                            10 => Icons.timer_10,
+                            _ => Icons.timer_off_outlined,
+                          }),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton.filledTonal(
                           key: Keys.cameraGrid,
                           style: IconButton.styleFrom(
                             backgroundColor: cameraCanvas,
@@ -945,6 +1023,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                               onPressed:
                                   c == null ||
                                       busy ||
+                                      _countdown != null ||
                                       !_foreground ||
                                       !widget.active
                                   ? null
@@ -963,8 +1042,10 @@ class _CaptureScreenState extends State<CaptureScreen>
                               icon: const Icon(Icons.radio_button_checked),
                               onPressed: c == null || _recording || busy
                                   ? null
-                                  : _shutter,
-                              tooltip: 'Take photo',
+                                  : _onShutter,
+                              tooltip: _countdown == null
+                                  ? 'Take photo'
+                                  : 'Cancel timer',
                             ),
                             'Photo',
                           ),
