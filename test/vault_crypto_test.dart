@@ -225,6 +225,47 @@ void main() {
     },
   );
 
+  test(
+    'plaintextLength rejects short, headerless and truncated files',
+    () async {
+      final cipher = await collect(
+        vault.encrypt(
+          Stream.value(bytes(chunk * 2 + 5)),
+          key,
+          chunkSize: chunk,
+        ),
+      );
+      final dir = await Directory.systemTemp.createTemp('quietake-length');
+      try {
+        final cases = <String, List<int>>{
+          'empty': const [],
+          'short': cipher.sublist(0, 6),
+          'bad-magic': [0, ...cipher.sublist(1)],
+          'bad-version': [...cipher.sublist(0, 4), 2, ...cipher.sublist(5)],
+          'header-only': cipher.sublist(0, vault.headerLength),
+          'partial-tag': cipher.sublist(0, vault.headerLength + 10),
+          'header-only-plus-tag-short': cipher.sublist(
+            0,
+            vault.headerLength + 16,
+          ),
+        };
+        for (final entry in cases.entries) {
+          final file = await File('${dir.path}/${entry.key}.shtr')
+              .writeAsBytes(entry.value);
+          await expectLater(
+            vault.plaintextLength(file),
+            throwsFormatException,
+            reason: entry.key,
+          );
+        }
+        final whole = await File('${dir.path}/whole.shtr').writeAsBytes(cipher);
+        expect(await vault.plaintextLength(whole), chunk * 2 + 5);
+      } finally {
+        await dir.delete(recursive: true);
+      }
+    },
+  );
+
   test('file round trip', () async {
     final dir = await Directory.systemTemp.createTemp('quietake');
     final plain = File('${dir.path}/in.bin')..writeAsBytesSync(bytes(300000));
