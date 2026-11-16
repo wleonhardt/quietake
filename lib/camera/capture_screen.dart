@@ -55,6 +55,8 @@ class _CaptureScreenState extends State<CaptureScreen>
   CameraLensDirection _lens = CameraLensDirection.back;
   bool _recording = false;
   bool _grid = false;
+  Offset? _focusRing;
+  Timer? _focusRingTimer;
   Set<String> _tagIds = {};
   Set<String> _recordingTagIds = {};
   bool _choosingAlbum = false;
@@ -362,6 +364,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _focusRingTimer?.cancel();
     _privacy?.hold(this, false);
     _foreground = false;
     ++_cameraEpoch;
@@ -412,6 +415,31 @@ class _CaptureScreenState extends State<CaptureScreen>
         if (mounted) setState(() {});
       }
     }();
+  }
+
+  /// Focuses and meters on the tapped point. Devices that cannot do it keep
+  /// their automatic focus, so a refusal is ignored.
+  Future<void> _focusAt(
+    BuildContext box,
+    TapUpDetails tap,
+    CameraController controller,
+  ) async {
+    final size = (box.findRenderObject() as RenderBox).size;
+    final point = Offset(
+      (tap.localPosition.dx / size.width).clamp(0.0, 1.0),
+      (tap.localPosition.dy / size.height).clamp(0.0, 1.0),
+    );
+    _focusRingTimer?.cancel();
+    setState(() => _focusRing = tap.globalPosition);
+    _focusRingTimer = Timer(const Duration(milliseconds: 800), () {
+      if (mounted) setState(() => _focusRing = null);
+    });
+    try {
+      await controller.setFocusPoint(point);
+      await controller.setExposurePoint(point);
+    } catch (_) {
+      // Best effort: no manual focus on this camera.
+    }
   }
 
   Future<void> _openGallery() async {
@@ -636,7 +664,37 @@ class _CaptureScreenState extends State<CaptureScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          if (c != null) Center(key: Keys.preview, child: CameraPreview(c)),
+          if (c != null)
+            Center(
+              key: Keys.preview,
+              child: Builder(
+                builder: (box) => Semantics(
+                  label: 'Camera preview',
+                  hint: 'Tap to focus',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapUp: (tap) => _focusAt(box, tap, c),
+                    child: CameraPreview(c),
+                  ),
+                ),
+              ),
+            ),
+          if (_focusRing != null)
+            Positioned(
+              left: _focusRing!.dx - 32,
+              top: _focusRing!.dy - 32,
+              child: IgnorePointer(
+                child: Container(
+                  key: Keys.captureFocusRing,
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: flashRing, width: 2),
+                  ),
+                ),
+              ),
+            ),
           if (c != null && _grid)
             const IgnorePointer(
               child: CustomPaint(

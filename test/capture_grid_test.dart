@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:camera_platform_interface/camera_platform_interface.dart';
+import 'package:camera/camera.dart' show CameraPreview;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -21,6 +23,20 @@ import '../test_support/fake_cast_backend.dart';
 /// A camera whose orientation lock works.
 class _CastCamera extends ControlledCamera {
   _CastCamera(super.directory);
+  final focus = <Point<double>?>[];
+  final exposure = <Point<double>?>[];
+  bool refuse = false;
+
+  @override
+  Future<void> setFocusPoint(int cameraId, Point<double>? point) async {
+    focus.add(point);
+    if (refuse) throw CameraException('focus', 'unsupported');
+  }
+
+  @override
+  Future<void> setExposurePoint(int cameraId, Point<double>? point) async {
+    exposure.add(point);
+  }
 
   @override
   Future<void> lockCaptureOrientation(
@@ -33,6 +49,7 @@ class _CastCamera extends ControlledCamera {
 }
 
 typedef _Booted = ({
+  _CastCamera camera,
   Session session,
   FakeCastBackend backend,
   Future<void> Function(bool Function()) until,
@@ -94,7 +111,12 @@ Future<_Booted> _boot(
   }
 
   await until(() => find.byKey(Keys.preview).evaluate().isNotEmpty);
-  return (session: session, backend: backend, until: until);
+  return (
+    camera: camera as _CastCamera,
+    session: session,
+    backend: backend,
+    until: until,
+  );
 }
 
 void main() {
@@ -113,5 +135,44 @@ void main() {
     await tester.tap(find.byKey(Keys.cameraGrid));
     await tester.pump();
     expect(find.byKey(Keys.cameraGridOverlay), findsNothing);
+  });
+
+  testWidgets('tapping the preview focuses and meters there and shows a ring', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final booted = await _boot(tester, _CastCamera.new);
+    // The top controls cover the upper part of the preview; tap below them.
+    final preview = tester.getRect(find.byType(CameraPreview));
+    final at = preview.center + Offset(0, preview.height / 4);
+    await tester.tapAt(at);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(Keys.captureFocusRing), findsOneWidget);
+    expect(booted.camera.focus.single!.x, closeTo(0.5, 0.01));
+    expect(booted.camera.exposure.single!.y, closeTo(0.75, 0.01));
+
+    await tester.pump(const Duration(milliseconds: 900));
+    expect(find.byKey(Keys.captureFocusRing), findsNothing);
+  });
+
+  testWidgets('a camera that refuses manual focus keeps working', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final booted = await _boot(tester, _CastCamera.new);
+    booted.camera.refuse = true;
+    final preview = tester.getRect(find.byType(CameraPreview));
+    await tester.tapAt(preview.center + Offset(0, preview.height / 4));
+    await tester.pump(const Duration(milliseconds: 900));
+    expect(booted.camera.focus, hasLength(1));
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(Keys.preview), findsOneWidget);
   });
 }

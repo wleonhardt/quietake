@@ -46,7 +46,7 @@
 Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
 
 - Recently deleted: keep deleted captures encrypted for 30 days and offer restore. Backup sync must still never infer deletion from absence.
-- Capture options: timer, tap-to-focus and exposure lock, and a burst mode (grid overlay is done) that stays inside private staging.
+- Capture options: timer, exposure lock, and a burst mode (grid overlay and tap-to-focus are done) that stays inside private staging.
 - Albums: cover choice and a "Moments" view that groups captures by date from the vault catalog, with no cloud index.
 - Viewer: keep the screen awake during the slideshow only while the vault is unlocked (needs a plugin decision; the slideshow itself is done).
 - Share: per-share option to strip all EXIF fields, not only GPS; video location strip is a separate, larger item.
@@ -58,6 +58,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 ## Done
 
 - Feature from the ideas list: backup check reminder (decision `005-backup-check-reminder.md`). The last full check date is saved per share and Check backup shows a reminder after 30 days or when never checked. Tests in `sync_settings_test.dart`, `backup_verification_test.dart` and `backup_screen_test.dart`. Reminder shows only after the first sync of a launch; no notification. Host suite 627 passed, analyzer clean, iOS `backup_test.dart` passed (4 cases, 56.3 s). Android not run.
+- Feature from the ideas list: tap to focus and meter on the camera preview with a 0.8 s ring (decision `009-tap-to-focus.md`). Tests in `capture_grid_test.dart`. Not tried on a real camera: simulators have no focus hardware. Found on the way: a `GestureDetector` over `CameraPreview` needs `HitTestBehavior.opaque`, or the texture never receives the tap. The preview also needed a semantic label ("Camera preview", hint "Tap to focus"): `camera_controls_layout_test.dart` failed on an unlabeled tappable node. Host suite 633 passed, analyzer clean, iOS `camera_lifecycle_test.dart` passed (2 cases, 35.2 s). Android not run.
 - Feature from the ideas list: viewer slideshow (decision `008-viewer-slideshow.md`), 4 s per photo, stops at a video or the last capture, no keep-awake. Tests in `viewer_actions_test.dart`. Host suite 631 passed, analyzer clean, iOS `delete_test.dart` passed (5 cases, 67.3 s). Android not run.
 - Feature from the ideas list: Tags screen sort by capture count (decision `007-tags-sort-by-count.md`), session-only; test in `albums_screen_test.dart`. Host suite 629 passed, analyzer clean, iOS `library_test.dart` passed (1 case, 164.3 s). Android not run.
 - Feature from the ideas list: capture grid overlay (decision `006-capture-grid.md`), a Show/Hide grid button drawing thirds over the preview, session-only, never in captured media. Test `capture_grid_test.dart`. Host suite 628 passed, analyzer clean, iOS `capture_test.dart` passed (1 case, 2 skipped, 48.4 s). Android and narrow-screen layout of the extra button not checked.
