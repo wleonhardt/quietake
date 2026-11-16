@@ -242,6 +242,22 @@ void main() {
     expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
   });
 
+  testWidgets('a failed idle timeout save reports it and keeps the old value', (
+    tester,
+  ) async {
+    await open(tester);
+    final before = privacy.minutes;
+    failSecureStorage();
+    await tester.tap(find.byKey(Keys.idleTimeout));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() => tester.tap(find.text('15 minutes').last));
+    await until(
+      tester,
+      find.text('Could not save privacy settings. Try again.'),
+    );
+    expect(privacy.minutes, before);
+  });
+
   testWidgets('a failed disconnect reports it and keeps the screen open', (
     tester,
   ) async {
