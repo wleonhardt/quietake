@@ -93,4 +93,43 @@ void main() {
       },
     );
   }
+
+  testWidgets('a completed restore lands on the lock screen, not Setup', (
+    tester,
+  ) async {
+    FlutterSecureStorage.setMockInitialValues({});
+    late Directory dir;
+    await tester.runAsync(() async {
+      dir = await Directory.systemTemp.createTemp('quietake-restored');
+    });
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox());
+      await tester.runAsync(() => dir.delete(recursive: true));
+    });
+    await tester.pumpWidget(
+      QuietakeApp(
+        store: MasterKeyStore(sodium, dir),
+        auth: FakeAuthenticator(isAvailable: false),
+        castBackend: FakeCastBackend(),
+      ),
+    );
+    for (
+      var i = 0;
+      i < 50 && find.byType(SetupScreen).evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    // Restore commits the keyfile, then tells the app.
+    await tester.runAsync(
+      () => File('${dir.path}/vault.keyfile.json').writeAsString('{}'),
+    );
+    tester.widget<SetupScreen>(find.byType(SetupScreen)).onRestored!();
+    await tester.pump();
+    expect(find.byType(SetupScreen), findsNothing);
+    expect(find.byType(LockScreen), findsOneWidget);
+  });
 }
