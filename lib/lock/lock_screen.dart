@@ -53,6 +53,8 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   @override
   void didUpdateWidget(covariant LockScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // The app reports a failed vault open through the same, still-mounted screen.
+    if (widget.message != oldWidget.message) _error = widget.message;
     if (oldWidget.autoPrompt && !widget.autoPrompt) {
       _attempt++;
       _resumePrompt = false;

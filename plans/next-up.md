@@ -34,6 +34,10 @@
 
 ## Done
 
+- Bug fixed: `LockScreen` copied `message` only in `initState`, so the "Could not open the vault"
+  reason never showed after a failed session open (red/green `app_start_failure_test.dart`).
+  Host suite 535 passed, analyzer clean, iOS simulator `integration_test/lock_test.dart` passed
+  (7 cases, 76.5 s). Android lock e2e not rerun.
 - Go recovery (`gofmt`, `vet`, `test`) and `tool/check_interop.dart` pass on this
   branch at its current source; nothing crypto/recovery changed.
 - `WebDavClient.list` now rejects a listing entry with no href or no file name
