@@ -80,4 +80,39 @@ void main() {
       }
     },
   );
+  testWidgets('the interrupted-restore error follows the device language', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localesTestValue = [const Locale('de')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      ScreenPrivacy.channel,
+      (call) async => call.method == 'status'
+          ? {'generation': 1, 'captured': false, 'backgrounded': false}
+          : null,
+    );
+    try {
+      await tester.pumpWidget(
+        RestoreStartupGate(
+          store: store,
+          child: const MaterialApp(home: Text('Startup complete')),
+        ),
+      );
+      for (var i = 0; i < 100; i++) {
+        if (find.byKey(Keys.portableStartupRetry).evaluate().isNotEmpty) break;
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      expect(find.text('Wiederherstellung wiederholen'), findsOneWidget);
+      expect(find.text('Retry restore'), findsNothing);
+    } finally {
+      await tester.pumpWidget(const SizedBox());
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        ScreenPrivacy.channel,
+        null,
+      );
+    }
+  });
 }

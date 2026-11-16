@@ -452,5 +452,10 @@
   "nasWrongCurrent": "Falscher aktueller Code. Versuchen Sie es erneut.",
   "nasCancelled": "Abgebrochen. Originale bleiben erhalten.",
   "nasRestoreFailed": "Wiederherstellung fehlgeschlagen. Prüfen Sie die NAS-Verbindung, die Backup-Passphrase und die Voraussetzung eines leeren Tresors. Originale bleiben erhalten.",
-  "nasChangeFailed": "Wiederherstellung konnte nicht geändert werden. Prüfen Sie das gespeicherte NAS-Backup, die unterstützte Wiederherstellungsdatei und die Serverkompatibilität. Synchronisieren Sie zuerst und versuchen Sie es dann erneut. Originale bleiben erhalten."
+  "nasChangeFailed": "Wiederherstellung konnte nicht geändert werden. Prüfen Sie das gespeicherte NAS-Backup, die unterstützte Wiederherstellungsdatei und die Serverkompatibilität. Synchronisieren Sie zuerst und versuchen Sie es dann erneut. Originale bleiben erhalten.",
+  "coverChooseTitle": "Titelbild wählen",
+  "coverEmpty": "Versehen Sie zuerst einige Aufnahmen mit dem Tag und wählen Sie dann eine als Titelbild.",
+  "coverUse": "Diese Aufnahme als Titelbild verwenden",
+  "restoreGateFailed": "Die unterbrochene Backup-Wiederherstellung konnte nicht abgeschlossen werden. Vorbereitete verschlüsselte Dateien bleiben erhalten. Prüfen Sie den verfügbaren Speicher und versuchen Sie es erneut.",
+  "restoreGateRetry": "Wiederherstellung wiederholen"
 }

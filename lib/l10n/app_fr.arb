@@ -452,5 +452,10 @@
   "nasWrongCurrent": "Code actuel incorrect. Réessayez.",
   "nasCancelled": "Annulé. Originaux conservés.",
   "nasRestoreFailed": "Impossible de restaurer. Vérifiez la connexion au NAS, la phrase secrète de sauvegarde et l'exigence d'un coffre vide. Originaux conservés.",
-  "nasChangeFailed": "Impossible de modifier la récupération. Vérifiez la sauvegarde NAS enregistrée, le fichier de récupération pris en charge et la compatibilité du serveur. Synchronisez d'abord, puis réessayez. Originaux conservés."
+  "nasChangeFailed": "Impossible de modifier la récupération. Vérifiez la sauvegarde NAS enregistrée, le fichier de récupération pris en charge et la compatibilité du serveur. Synchronisez d'abord, puis réessayez. Originaux conservés.",
+  "coverChooseTitle": "Choisir la couverture",
+  "coverEmpty": "Étiquetez d'abord quelques captures, puis choisissez-en une comme couverture.",
+  "coverUse": "Utiliser cette capture comme couverture",
+  "restoreGateFailed": "Impossible de terminer la restauration interrompue de la sauvegarde. Les fichiers chiffrés préparés sont conservés. Vérifiez le stockage disponible, puis réessayez.",
+  "restoreGateRetry": "Réessayer la restauration"
 }

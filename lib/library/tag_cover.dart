@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../gallery/item.dart';
 import '../gallery/preview.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../session.dart';
 
 /// A small preview of a capture, or [fallback] while it loads or is missing.
@@ -64,11 +65,11 @@ Future<String?> chooseTagCover(
 ) => showDialog<String>(
   context: context,
   builder: (context) => AlertDialog(
-    title: const Text('Choose cover'),
+    title: Text(context.l10n.coverChooseTitle),
     content: SizedBox(
       width: double.maxFinite,
       child: names.isEmpty
-          ? const Text('Tag some captures first, then choose one as the cover.')
+          ? Text(context.l10n.coverEmpty)
           : GridView.count(
               key: Keys.tagCoverGrid,
               shrinkWrap: true,
@@ -79,7 +80,7 @@ Future<String?> chooseTagCover(
                 for (final name in names)
                   Semantics(
                     button: true,
-                    label: 'Use this capture as the cover',
+                    label: context.l10n.coverUse,
                     child: InkWell(
                       key: Keys.tagCoverPick(name),
                       onTap: () => Navigator.pop(context, name),
@@ -97,7 +98,7 @@ Future<String?> chooseTagCover(
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(context.l10n.cancel),
       ),
     ],
   ),

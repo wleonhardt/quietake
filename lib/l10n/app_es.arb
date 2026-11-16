@@ -452,5 +452,10 @@
   "nasWrongCurrent": "Código actual incorrecto. Inténtalo de nuevo.",
   "nasCancelled": "Cancelado. Se conservan los originales.",
   "nasRestoreFailed": "No se pudo restaurar. Revisa la conexión con el NAS, la frase de contraseña de la copia y el requisito de bóveda vacía. Se conservan los originales.",
-  "nasChangeFailed": "No se pudo cambiar la recuperación. Revisa la copia guardada del NAS, el archivo de recuperación compatible y la compatibilidad del servidor. Sincroniza primero y vuelve a intentarlo. Se conservan los originales."
+  "nasChangeFailed": "No se pudo cambiar la recuperación. Revisa la copia guardada del NAS, el archivo de recuperación compatible y la compatibilidad del servidor. Sincroniza primero y vuelve a intentarlo. Se conservan los originales.",
+  "coverChooseTitle": "Elegir portada",
+  "coverEmpty": "Etiqueta primero algunas capturas y luego elige una como portada.",
+  "coverUse": "Usar esta captura como portada",
+  "restoreGateFailed": "No se pudo terminar la restauración interrumpida de la copia. Los archivos cifrados preparados se conservan. Revisa el almacenamiento disponible y vuelve a intentarlo.",
+  "restoreGateRetry": "Reintentar restauración"
 }

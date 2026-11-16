@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../brand.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/screen_privacy.dart';
 import '../vault/master_key_store.dart';
 import 'restore_transaction.dart';
@@ -47,30 +48,33 @@ class _RestoreStartupGateState extends State<RestoreStartupGate> {
       }
       return MaterialApp(
         theme: quietakeTheme(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: result.hasError
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Could not finish interrupted backup restore. Prepared encrypted files are preserved. Check available storage, then try again.',
-                        ),
-                        const SizedBox(height: 20),
-                        FilledButton(
-                          key: Keys.portableStartupRetry,
-                          onPressed: () {
-                            final next = RestoreTransaction(widget.store)
-                                .resume();
-                            setState(() {
-                              _ready = next;
-                            });
-                          },
-                          child: const Text('Retry restore'),
-                        ),
-                      ],
+                  ? Builder(
+                      // Below the MaterialApp so the strings see its locale.
+                      builder: (context) => Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(context.l10n.restoreGateFailed),
+                          const SizedBox(height: 20),
+                          FilledButton(
+                            key: Keys.portableStartupRetry,
+                            onPressed: () {
+                              final next = RestoreTransaction(widget.store)
+                                  .resume();
+                              setState(() {
+                                _ready = next;
+                              });
+                            },
+                            child: Text(context.l10n.restoreGateRetry),
+                          ),
+                        ],
+                      ),
                     )
                   : const Center(child: CircularProgressIndicator()),
             ),

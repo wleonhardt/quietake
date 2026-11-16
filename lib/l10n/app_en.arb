@@ -914,5 +914,10 @@
   "nasWrongCurrent": "Wrong current passcode. Try again.",
   "nasCancelled": "Cancelled. Originals kept.",
   "nasRestoreFailed": "Could not restore. Check the NAS connection, backup passphrase and empty-vault requirement. Originals kept.",
-  "nasChangeFailed": "Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept."
+  "nasChangeFailed": "Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.",
+  "coverChooseTitle": "Choose cover",
+  "coverEmpty": "Tag some captures first, then choose one as the cover.",
+  "coverUse": "Use this capture as the cover",
+  "restoreGateFailed": "Could not finish interrupted backup restore. Prepared encrypted files are preserved. Check available storage, then try again.",
+  "restoreGateRetry": "Retry restore"
 }

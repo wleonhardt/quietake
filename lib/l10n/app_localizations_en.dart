@@ -1668,4 +1668,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get nasChangeFailed =>
       'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.';
+
+  @override
+  String get coverChooseTitle => 'Choose cover';
+
+  @override
+  String get coverEmpty =>
+      'Tag some captures first, then choose one as the cover.';
+
+  @override
+  String get coverUse => 'Use this capture as the cover';
+
+  @override
+  String get restoreGateFailed =>
+      'Could not finish interrupted backup restore. Prepared encrypted files are preserved. Check available storage, then try again.';
+
+  @override
+  String get restoreGateRetry => 'Retry restore';
 }

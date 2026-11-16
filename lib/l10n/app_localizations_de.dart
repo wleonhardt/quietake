@@ -1706,4 +1706,21 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get nasChangeFailed =>
       'Wiederherstellung konnte nicht geändert werden. Prüfen Sie das gespeicherte NAS-Backup, die unterstützte Wiederherstellungsdatei und die Serverkompatibilität. Synchronisieren Sie zuerst und versuchen Sie es dann erneut. Originale bleiben erhalten.';
+
+  @override
+  String get coverChooseTitle => 'Titelbild wählen';
+
+  @override
+  String get coverEmpty =>
+      'Versehen Sie zuerst einige Aufnahmen mit dem Tag und wählen Sie dann eine als Titelbild.';
+
+  @override
+  String get coverUse => 'Diese Aufnahme als Titelbild verwenden';
+
+  @override
+  String get restoreGateFailed =>
+      'Die unterbrochene Backup-Wiederherstellung konnte nicht abgeschlossen werden. Vorbereitete verschlüsselte Dateien bleiben erhalten. Prüfen Sie den verfügbaren Speicher und versuchen Sie es erneut.';
+
+  @override
+  String get restoreGateRetry => 'Wiederherstellung wiederholen';
 }

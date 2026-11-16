@@ -1705,4 +1705,21 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get nasChangeFailed =>
       'Impossible de modifier la récupération. Vérifiez la sauvegarde NAS enregistrée, le fichier de récupération pris en charge et la compatibilité du serveur. Synchronisez d\'abord, puis réessayez. Originaux conservés.';
+
+  @override
+  String get coverChooseTitle => 'Choisir la couverture';
+
+  @override
+  String get coverEmpty =>
+      'Étiquetez d\'abord quelques captures, puis choisissez-en une comme couverture.';
+
+  @override
+  String get coverUse => 'Utiliser cette capture comme couverture';
+
+  @override
+  String get restoreGateFailed =>
+      'Impossible de terminer la restauration interrompue de la sauvegarde. Les fichiers chiffrés préparés sont conservés. Vérifiez le stockage disponible, puis réessayez.';
+
+  @override
+  String get restoreGateRetry => 'Réessayer la restauration';
 }

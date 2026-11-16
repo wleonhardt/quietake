@@ -2819,6 +2819,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.'**
   String get nasChangeFailed;
+
+  /// No description provided for @coverChooseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose cover'**
+  String get coverChooseTitle;
+
+  /// No description provided for @coverEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag some captures first, then choose one as the cover.'**
+  String get coverEmpty;
+
+  /// No description provided for @coverUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this capture as the cover'**
+  String get coverUse;
+
+  /// No description provided for @restoreGateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not finish interrupted backup restore. Prepared encrypted files are preserved. Check available storage, then try again.'**
+  String get restoreGateFailed;
+
+  /// No description provided for @restoreGateRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry restore'**
+  String get restoreGateRetry;
 }
 
 class _AppLocalizationsDelegate

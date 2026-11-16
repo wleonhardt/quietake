@@ -1702,4 +1702,21 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get nasChangeFailed =>
       'No se pudo cambiar la recuperación. Revisa la copia guardada del NAS, el archivo de recuperación compatible y la compatibilidad del servidor. Sincroniza primero y vuelve a intentarlo. Se conservan los originales.';
+
+  @override
+  String get coverChooseTitle => 'Elegir portada';
+
+  @override
+  String get coverEmpty =>
+      'Etiqueta primero algunas capturas y luego elige una como portada.';
+
+  @override
+  String get coverUse => 'Usar esta captura como portada';
+
+  @override
+  String get restoreGateFailed =>
+      'No se pudo terminar la restauración interrumpida de la copia. Los archivos cifrados preparados se conservan. Revisa el almacenamiento disponible y vuelve a intentarlo.';
+
+  @override
+  String get restoreGateRetry => 'Reintentar restauración';
 }

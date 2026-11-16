@@ -45,8 +45,10 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
    `intl` `yMMMM`.
 5. Settings, backup and NAS screens, and snackbar errors. Check backup screen,
    Cast picker, Lock now, the brand tagline, the Settings screen and the portable
-   backup screen and the NAS recovery screen are done. Left: the tag cover dialog
-   and the interrupted-restore startup screen. Restore-layer and passphrase
+   backup screen and the NAS recovery screen are done. The tag cover dialog
+   and the interrupted-restore startup screen are done too (the startup screen
+   builds its own `MaterialApp`, so it carries the delegates itself). Slice 5 is
+   complete. Restore-layer and passphrase
    validation messages stay English. The sync layer's result text stays
    English. Settings keeps outcome text as a selector, so it follows the
    language at build time; storage sizes use `intl` number formatting.
