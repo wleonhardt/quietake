@@ -8,6 +8,7 @@ import '../keys.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
 import '../session.dart';
+import 'folder_import.dart';
 import 'import_media.dart';
 
 bool _importInProgress = false;
@@ -24,6 +25,9 @@ class _ImportScreenState extends State<ImportScreen> {
   var _busy = false;
   var _cancelled = false;
   var _total = 0;
+  var _handled = 0;
+  PickedFolder? _folder;
+  FolderImportSummary? _folderSummary;
   String? _error;
 
   @override
@@ -38,6 +42,7 @@ class _ImportScreenState extends State<ImportScreen> {
       unawaited(
         importChannel.invokeMethod<void>('cancel').catchError((Object _) {}),
       );
+      unawaited(_folder?.cancel().catchError((Object _) {}));
     }
   }
 
@@ -104,6 +109,86 @@ class _ImportScreenState extends State<ImportScreen> {
     }
   }
 
+  /// Copies the supported files of one folder in chunks. The summary stays on
+  /// screen; running it again on the same folder resumes where it stopped.
+  Future<void> _pickFolder() async {
+    if (_busy) return;
+    if (_importInProgress) {
+      setState(
+        () => _error = 'Previous import is finishing. Try again shortly.',
+      );
+      return;
+    }
+    _importInProgress = true;
+    setState(() {
+      _busy = true;
+      _cancelled = false;
+      _error = null;
+      _results.clear();
+      _folderSummary = null;
+      _total = 0;
+      _handled = 0;
+    });
+    try {
+      final folder = await PickedFolder.pick();
+      if (folder == null) return;
+      _folder = folder;
+      final root = await getTemporaryDirectory();
+      final summary =
+          await FolderImport(
+            widget.session.vault,
+            Directory('${root.path}/quietake-import'),
+          ).run(
+            folder,
+            isCancelled: () => _cancelled,
+            onProgress: (handled, total) {
+              widget.session.sync.sync();
+              if (mounted) {
+                setState(() {
+                  _handled = handled;
+                  _total = total;
+                });
+              }
+            },
+          );
+      if (mounted) setState(() => _folderSummary = summary);
+    } on FormatException catch (error) {
+      if (mounted) setState(() => _error = error.message);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error = 'Folder import stopped. Choose the folder again to continue; finished files are saved.',
+        );
+      }
+    } finally {
+      try {
+        await _folder?.release();
+        await importChannel.invokeMethod<void>('clear');
+      } catch (_) {
+        if (mounted) {
+          setState(
+            () => _error = 'Temporary cleanup failed. Restart Quietake before trying again.',
+          );
+        }
+      }
+      _folder = null;
+      _importInProgress = false;
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  String _folderText(FolderImportSummary s) {
+    final unfinished = s.failed + s.cancelled;
+    return [
+          '${s.imported} imported',
+          if (s.duplicates > 0) '${s.duplicates} duplicates skipped',
+          if (s.alreadyDone > 0) '${s.alreadyDone} already imported earlier',
+          if (s.failed > 0) '${s.failed} failed',
+          if (s.cancelled > 0) '${s.cancelled} not started',
+        ].join(' · ') +
+        (unfinished > 0 ? '. Choose the same folder again to continue.' : '.');
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -122,6 +207,13 @@ class _ImportScreenState extends State<ImportScreen> {
           icon: const Icon(Icons.file_open_outlined),
           label: const Text('Choose files'),
         ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          key: Keys.importFolder,
+          onPressed: _busy ? null : _pickFolder,
+          icon: const Icon(Icons.folder_open_outlined),
+          label: const Text('Choose folder'),
+        ),
         const SizedBox(height: 12),
         const ExpansionTile(
           key: Keys.importDetails,
@@ -129,7 +221,7 @@ class _ImportScreenState extends State<ImportScreen> {
           title: Text('Supported files and limits'),
           children: [
             Text(
-              'JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked.',
+              'JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked.',
             ),
           ],
         ),
@@ -138,7 +230,9 @@ class _ImportScreenState extends State<ImportScreen> {
             padding: const EdgeInsets.all(12),
             child: LinearProgressIndicator(
               key: Keys.importProgress,
-              value: _total == 0 ? null : _results.length / _total,
+              value: _total == 0
+                  ? null
+                  : (_folder != null ? _handled : _results.length) / _total,
             ),
           ),
           TextButton(
@@ -151,7 +245,11 @@ class _ImportScreenState extends State<ImportScreen> {
             ),
           ),
         ],
+        if (_busy && _folder != null && _total > 0)
+          Text('$_handled of $_total files', key: Keys.importFolderCount),
         if (_error != null) Text(_error!, key: Keys.importError),
+        if (_folderSummary != null)
+          Text(_folderText(_folderSummary!), key: Keys.importFolderSummary),
         if (_results.isNotEmpty) ...[
           Text(
             [

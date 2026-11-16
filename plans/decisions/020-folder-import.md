@@ -40,8 +40,10 @@ bounded chunk at a time, and can be run again to finish what was interrupted.
    import. `PickedFolder` is the Dart `FolderSource` over the channel. No
    screen uses it yet, so device runs only prove the native code compiles and
    existing import still works; the pickers need the screen slice to be exercised.
-3. Import screen: "Choose folder" button, progress by count, resume prompt, e2e.
-4. Policy and README wording.
+3. Import screen (done): "Choose folder" button under "Choose files", count progress,
+   one summary line, and "Choose the same folder again to continue" when files failed
+   or were not started. Device test mocks the folder channel over real files.
+4. Policy and website wording (done, owner review pending).
 
 ## Limits
 

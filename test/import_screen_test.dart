@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/library/folder_import.dart';
 import 'package:quietake/library/import_media.dart';
 import 'package:quietake/library/import_screen.dart';
 import 'package:quietake/media/media_server.dart';
@@ -25,9 +26,13 @@ void main() {
   late List<String> calls;
   Future<Object?> Function() pick = () async => <Object?>[];
   Future<void> Function() clear = () async {};
+  Future<Object?> Function() pickFolder = () async => null;
+  late List<String> folderCalls;
 
   setUp(() async {
     calls = [];
+    folderCalls = [];
+    pickFolder = () async => null;
     pick = () async => <Object?>[];
     clear = () async {};
   });
@@ -57,6 +62,14 @@ void main() {
     });
     binding.defaultBinaryMessenger
       ..setMockMethodCallHandler(paths, (_) async => dir.path)
+      ..setMockMethodCallHandler(folderChannel, (call) async {
+        folderCalls.add(call.method);
+        return switch (call.method) {
+          'pick' => await pickFolder(),
+          'copy' => throw PlatformException(code: 'copy'),
+          _ => null,
+        };
+      })
       ..setMockMethodCallHandler(importChannel, (call) async {
         calls.add(call.method);
         return switch (call.method) {
@@ -68,6 +81,7 @@ void main() {
     addTearDown(() {
       binding.defaultBinaryMessenger
         ..setMockMethodCallHandler(paths, null)
+        ..setMockMethodCallHandler(folderChannel, null)
         ..setMockMethodCallHandler(importChannel, null);
     });
     await tester.pumpWidget(MaterialApp(home: ImportScreen(session: session)));
@@ -164,6 +178,112 @@ void main() {
     );
     gate.complete(<Object?>[]);
     for (var i = 0; i < 5; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(find.byKey(Keys.importProgress), findsNothing);
+  });
+
+  Future<void> chooseFolder(WidgetTester tester) async {
+    // Started in the real zone: the ledger write would hang in the fake one.
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.importFolder)));
+    // Real file work (ledger, copies) runs across many turns; wait for the end.
+    for (var i = 0; i < 150; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+      if (find.byKey(Keys.importProgress).evaluate().isEmpty && i > 2) break;
+    }
+  }
+
+  testWidgets('a cancelled folder picker changes nothing', (tester) async {
+    await open(tester);
+    await chooseFolder(tester);
+    expect(find.byKey(Keys.importFolderSummary), findsNothing);
+    expect(find.byKey(Keys.importError), findsNothing);
+    expect(folderCalls, ['pick']);
+    expect(calls, ['clear']);
+    expect(
+      tester.widget<OutlinedButton>(find.byKey(Keys.importFolder)).onPressed,
+      isNotNull,
+    );
+  });
+
+  testWidgets('files that cannot be read are counted and can be retried', (
+    tester,
+  ) async {
+    pickFolder = () async => {
+      'identity': 'folder',
+      'entries': [
+        {'id': 'a', 'name': 'a.jpg'},
+        {'id': 'b', 'name': 'b.png'},
+        {'id': 'c', 'name': 'notes.txt'},
+      ],
+    };
+    await open(tester);
+    await chooseFolder(tester);
+    expect(
+      text(tester, Keys.importFolderSummary),
+      '0 imported · 2 failed. Choose the same folder again to continue.',
+    );
+    // Both copies were attempted, then access was released and copies cleared.
+    expect(folderCalls, ['pick', 'copy', 'copy', 'release']);
+    expect(calls, ['clear']);
+  });
+
+  testWidgets('a folder over the file limit is refused with a reason', (
+    tester,
+  ) async {
+    pickFolder = () async => {
+      'identity': 'folder',
+      'entries': [
+        for (var i = 0; i < 10001; i++) {'id': 'f$i', 'name': 'f$i.jpg'},
+      ],
+    };
+    await open(tester);
+    await chooseFolder(tester);
+    expect(
+      text(tester, Keys.importError),
+      'Choose a folder with up to 10,000 files.',
+    );
+    expect(folderCalls, ['pick', 'release']);
+  });
+
+  testWidgets('a failing folder picker reports a retryable error', (
+    tester,
+  ) async {
+    pickFolder = () async => throw PlatformException(code: 'list');
+    await open(tester);
+    await chooseFolder(tester);
+    expect(text(tester, Keys.importError), contains('Folder import stopped'));
+    expect(
+      tester.widget<OutlinedButton>(find.byKey(Keys.importFolder)).onPressed,
+      isNotNull,
+    );
+  });
+
+  testWidgets('both choose buttons are disabled while a folder import runs', (
+    tester,
+  ) async {
+    final gate = Completer<Object?>();
+    pickFolder = () => gate.future;
+    await open(tester);
+    await tester.tap(find.byKey(Keys.importFolder));
+    await tester.pump();
+    expect(find.byKey(Keys.importProgress), findsOneWidget);
+    expect(
+      tester.widget<OutlinedButton>(find.byKey(Keys.importFolder)).onPressed,
+      isNull,
+    );
+    expect(
+      tester.widget<FilledButton>(find.byKey(Keys.importChoose)).onPressed,
+      isNull,
+    );
+    gate.complete(null);
+    for (var i = 0; i < 8; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 20)),
       );
