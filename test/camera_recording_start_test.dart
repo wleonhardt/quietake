@@ -116,6 +116,37 @@ void main() {
     );
   }
 
+  testWidgets('a denied microphone explains why video cannot record', (
+    tester,
+  ) async {
+    await boot(tester);
+    try {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        channel,
+        (call) async => call.method == 'requestMicrophone' ? false : true,
+      );
+      await tester.pumpWidget(
+        MaterialApp(home: CaptureScreen(session: session)),
+      );
+      await _until(
+        tester,
+        () => find.byKey(Keys.preview).evaluate().isNotEmpty,
+      );
+      await tester.tap(find.byKey(Keys.videoToggle));
+      await _until(
+        tester,
+        () => find
+            .textContaining('Allow microphone access in Settings')
+            .evaluate()
+            .isNotEmpty,
+      );
+      expect(find.text('Stop'), findsNothing);
+      expect(tester.takeException(), isNull);
+    } finally {
+      await shutdown(tester);
+    }
+  });
+
   testWidgets('recording shows as live only after the first video data', (
     tester,
   ) async {
