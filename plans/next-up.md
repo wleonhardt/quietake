@@ -16,7 +16,8 @@
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
 - Coverage run (`flutter test --coverage`, 486 tests) lowest files: `import_screen.dart`
-  22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51%,
+  22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51% (connection test paths now covered by
+  `settings_connection_test.dart`; passcode/recovery/background rows remain),
   `background_uploads.dart` 55%, `nas_recovery_screen.dart` 62%. Take these next.
 - Next: continue `lib/` bug review. Read so far with no defect found:
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
@@ -45,6 +46,9 @@
   `testWidgets` hung with no output after 3 minutes even with `runAsync` polling.
   Not diagnosed further; export success/save paths stay covered by
   `portable_backup_test.dart` and `integration_test/portable_test.dart`.
+- `testWidgets` swaps in a mock HTTP client that answers 400 to everything. A widget
+  test that talks to the loopback `FakeWebDavServer` must set
+  `HttpOverrides.global = null` first.
 - Widget tests that touch real files must wrap that IO in `tester.runAsync`;
   bare file IO inside `testWidgets` never completes (share dialog test hang).
 - The 1.0.0+4 source passed both protected checks and complete hosted Android
