@@ -4,6 +4,8 @@ Settings → Create encrypted ZIP checks the current passcode and saves a copy
 through the system Files picker. Keep the independent recovery key separately.
 The archive does not contain the recovery key, local passcode, wrapped keyfile,
 NAS credentials or deletion journal. Export leaves vault originals unchanged.
+It lists the current library only, so captures in Recently deleted are not
+included; restore them first if the archive must hold them.
 
 Fresh Setup → Restore encrypted ZIP selects a copy, asks for its recovery key and
 a new local passcode, and validates every capture and the private library before

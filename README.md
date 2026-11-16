@@ -24,6 +24,9 @@ first release target; iOS development is ongoing.
   permission screens; unlock again after responding to continue capturing.
 - Backup is optional and stores ciphertext on your own server. File sizes and
   filenames remain visible to that server. Sync does not infer deletion from absence.
+- Delete can first move a capture to Recently deleted, encrypted on the phone for
+  30 days and still on the NAS. Delete now and expiry remove it for good. A
+  Settings switch turns this off.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
   copies erase EXIF GPS directory contents and referenced values by default.
   Other metadata and PNG/video copies remain unchanged; this is not complete metadata anonymization.

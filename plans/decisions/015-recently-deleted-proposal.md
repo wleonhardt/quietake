@@ -38,3 +38,23 @@ one small step at a time without an agreed shape.
    need reviewed wording.
 3. Should "Delete now" from the viewer skip the trash for people who want an
    immediate delete?
+
+## Slice 4: documentation and proposed privacy policy wording
+
+README and `docs/portable-backup.md` now describe Recently deleted. The portable ZIP
+export lists the current library only, so trashed captures are not exported
+(covered by `test/portable_backup_test.dart`).
+
+The privacy policy text in `website/app-privacy.html` and the in-app policy stays
+unchanged until the owner reviews it. Proposed replacement for the first sentences
+of "Retention and deletion":
+
+> You can delete an individual capture from the viewer. By default Quietake first
+> moves it to Recently deleted, where it stays encrypted on this device for 30 days
+> and its copy on your WebDAV server is kept. You can restore it, delete it now, or
+> let it expire; deleting now or expiry removes the local copy and requests
+> deletion from the configured WebDAV server as described below. A Settings switch
+> turns Recently deleted off, so Delete removes the capture immediately.
+
+The rest of the section stays as written. The recovery-key warning applies to
+Recently deleted captures too, since they are ordinary encrypted containers.

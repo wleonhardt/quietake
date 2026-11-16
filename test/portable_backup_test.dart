@@ -41,6 +41,24 @@ void main() {
     await root.delete(recursive: true);
   });
 
+  test('export leaves out captures in Recently deleted', () async {
+    final extra = await File('${root.path}/input2').writeAsBytes([9, 9, 9]);
+    final trashed = await vault.ingestAs(extra, 'trashed.jpg');
+    await vault.trash(trashed);
+
+    await backup.export(archive);
+    final stage = await backup.stage(archive, root);
+    final restored = Vault(vault.crypto, key.copy(), stage);
+    try {
+      final names = (await restored.list()).map((f) => f.uri.pathSegments.last);
+      expect(names, ['private-title.jpg.shtr']);
+    } finally {
+      await restored.catalog.close();
+      restored.dispose();
+      await stage.delete(recursive: true);
+    }
+  });
+
   test('encrypted ZIP round trip preserves media and catalog without exposing original names', () async {
     final before = await (await vault.list()).single.readAsBytes();
     await backup.export(archive);
