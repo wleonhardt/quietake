@@ -10,6 +10,7 @@ import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/item.dart';
 import 'package:quietake/gallery/viewer_screen.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -40,6 +41,7 @@ void main() {
     double textScale = 1,
     Size size = const Size(800, 1600),
     Duration slideshowInterval = const Duration(seconds: 4),
+    Locale? locale,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -77,6 +79,9 @@ void main() {
     });
     await tester.pumpWidget(
       MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context)
               .copyWith(textScaler: TextScaler.linear(textScale)),
@@ -146,6 +151,23 @@ void main() {
     expect(find.byKey(Keys.viewerInfoDialog), findsNothing);
   });
 
+  testWidgets('viewer tooltips and Details follow the device language', (
+    tester,
+  ) async {
+    await open(tester, locale: const Locale('de'));
+    expect(find.byTooltip('Zu Favoriten hinzufügen'), findsOneWidget);
+    expect(find.byTooltip('Foto löschen'), findsOneWidget);
+    expect(find.byTooltip('Add favorite'), findsNothing);
+    await tester.tap(find.byKey(Keys.viewerInfo));
+    await until(
+      tester,
+      () => find.byKey(Keys.viewerInfoDialog).evaluate().isNotEmpty,
+    );
+    expect(find.text('Typ: Foto'), findsOneWidget);
+    expect(find.text('Tags: Keine'), findsOneWidget);
+    expect(find.text('Schließen'), findsOneWidget);
+  });
+
   testWidgets('Details fits a narrow screen at large text', (tester) async {
     await open(tester, textScale: 2, size: const Size(320, 640));
     await tester.runAsync(() async {
@@ -191,6 +213,12 @@ void main() {
       () => find.byKey(Keys.deleteDialog).evaluate().isNotEmpty,
     );
     expect(find.text('Delete this photo?'), findsOneWidget);
+    expect(
+      find.text(
+        'Recently deleted keeps it on this phone, encrypted, for 30 days so you can restore it. Delete now removes it from this phone permanently. Pending deletions apply if you reconnect a NAS backup. Other backups and shared copies are unaffected. Active casting will stop.',
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(Keys.deleteCancel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));

@@ -934,4 +934,149 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shareChooseApp => 'Choisir une app';
+
+  @override
+  String get viewerShareFailed => 'Impossible de partager. Veuillez réessayer.';
+
+  @override
+  String get viewerDetails => 'Détails';
+
+  @override
+  String viewerType(String kind) {
+    return 'Type : $kind';
+  }
+
+  @override
+  String viewerCaptured(String when) {
+    return 'Capturée : $when';
+  }
+
+  @override
+  String get viewerUnknown => 'Inconnue';
+
+  @override
+  String viewerTags(String tags) {
+    return 'Étiquettes : $tags';
+  }
+
+  @override
+  String get viewerNone => 'Aucune';
+
+  @override
+  String viewerSize(int bytes) {
+    return 'Taille chiffrée : $bytes octets';
+  }
+
+  @override
+  String get viewerSizeUnavailable => 'Taille chiffrée : indisponible';
+
+  @override
+  String get viewerClose => 'Fermer';
+
+  @override
+  String get viewerDeletePhotoTitle => 'Supprimer cette photo ?';
+
+  @override
+  String get viewerDeleteVideoTitle => 'Supprimer cette vidéo ?';
+
+  @override
+  String viewerDeleteKeepNas(int days) {
+    return '« Supprimés récemment » la conserve sur ce téléphone, chiffrée, pendant $days jours pour que vous puissiez la restaurer. Votre copie NAS reste jusque-là. « Supprimer maintenant » la retire définitivement de ce téléphone et de votre NAS configuré.';
+  }
+
+  @override
+  String viewerDeleteKeep(int days) {
+    return '« Supprimés récemment » la conserve sur ce téléphone, chiffrée, pendant $days jours pour que vous puissiez la restaurer. « Supprimer maintenant » la retire définitivement de ce téléphone.';
+  }
+
+  @override
+  String get viewerDeleteNasNow =>
+      'Elle sera définitivement retirée de ce téléphone et de votre NAS configuré.';
+
+  @override
+  String get viewerDeleteNow =>
+      'Elle sera définitivement retirée de ce téléphone.';
+
+  @override
+  String get viewerDeleteNasTail =>
+      'Si le NAS est indisponible, la suppression se termine quand la synchronisation réussit.';
+
+  @override
+  String get viewerDeletePendingTail =>
+      'Les suppressions en attente s\'appliquent si vous reconnectez une sauvegarde NAS.';
+
+  @override
+  String get viewerDeleteEnd =>
+      'Les autres sauvegardes et les copies partagées ne sont pas affectées. La diffusion en cours s\'arrêtera.';
+
+  @override
+  String get viewerDelete => 'Supprimer';
+
+  @override
+  String get viewerRemoveFavorite => 'Retirer des favoris';
+
+  @override
+  String get viewerAddFavorite => 'Ajouter aux favoris';
+
+  @override
+  String get viewerSlideshowStart => 'Lancer le diaporama';
+
+  @override
+  String get viewerSlideshowStop => 'Arrêter le diaporama';
+
+  @override
+  String get viewerShare => 'Partager une copie';
+
+  @override
+  String get viewerDeletePhoto => 'Supprimer la photo';
+
+  @override
+  String get viewerDeleteVideo => 'Supprimer la vidéo';
+
+  @override
+  String get viewerHideControls => 'Masquer les commandes';
+
+  @override
+  String get viewerShowControls => 'Afficher les commandes';
+
+  @override
+  String viewerCasting(String device) {
+    return 'diffusion vers $device';
+  }
+
+  @override
+  String get viewerPhotoUnavailable => 'Photo indisponible. Réessayer';
+
+  @override
+  String get viewerPrivatePhoto => 'Photo privée';
+
+  @override
+  String get viewerResetFit => 'Ajuster à l\'écran';
+
+  @override
+  String get viewerVideoUnavailable => 'Vidéo indisponible. Réessayer';
+
+  @override
+  String get viewerReplay => 'Revoir la vidéo';
+
+  @override
+  String get viewerPlay => 'Lire la vidéo';
+
+  @override
+  String get viewerPause => 'Mettre la vidéo en pause';
+
+  @override
+  String get viewerVideoPosition => 'Position de la vidéo';
+
+  @override
+  String get viewerBack10 => 'Reculer de 10 secondes';
+
+  @override
+  String get viewerForward10 => 'Avancer de 10 secondes';
+
+  @override
+  String get viewerMute => 'Couper le son de la vidéo';
+
+  @override
+  String get viewerUnmute => 'Réactiver le son de la vidéo';
 }

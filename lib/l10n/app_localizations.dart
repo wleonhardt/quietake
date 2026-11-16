@@ -1565,6 +1565,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose app'**
   String get shareChooseApp;
+
+  /// No description provided for @viewerShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share. Please try again.'**
+  String get viewerShareFailed;
+
+  /// No description provided for @viewerDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get viewerDetails;
+
+  /// No description provided for @viewerType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type: {kind}'**
+  String viewerType(String kind);
+
+  /// No description provided for @viewerCaptured.
+  ///
+  /// In en, this message translates to:
+  /// **'Captured: {when}'**
+  String viewerCaptured(String when);
+
+  /// No description provided for @viewerUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get viewerUnknown;
+
+  /// No description provided for @viewerTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags: {tags}'**
+  String viewerTags(String tags);
+
+  /// No description provided for @viewerNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get viewerNone;
+
+  /// No description provided for @viewerSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted size: {bytes} bytes'**
+  String viewerSize(int bytes);
+
+  /// No description provided for @viewerSizeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted size: unavailable'**
+  String get viewerSizeUnavailable;
+
+  /// No description provided for @viewerClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get viewerClose;
+
+  /// No description provided for @viewerDeletePhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this photo?'**
+  String get viewerDeletePhotoTitle;
+
+  /// No description provided for @viewerDeleteVideoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this video?'**
+  String get viewerDeleteVideoTitle;
+
+  /// No description provided for @viewerDeleteKeepNas.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Your NAS copy stays until then. Delete now removes it from this phone and your configured NAS permanently.'**
+  String viewerDeleteKeepNas(int days);
+
+  /// No description provided for @viewerDeleteKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Delete now removes it from this phone permanently.'**
+  String viewerDeleteKeep(int days);
+
+  /// No description provided for @viewerDeleteNasNow.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be permanently removed from this phone and your configured NAS.'**
+  String get viewerDeleteNasNow;
+
+  /// No description provided for @viewerDeleteNow.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be permanently removed from this phone.'**
+  String get viewerDeleteNow;
+
+  /// No description provided for @viewerDeleteNasTail.
+  ///
+  /// In en, this message translates to:
+  /// **'If the NAS is unavailable, deletion finishes when sync succeeds.'**
+  String get viewerDeleteNasTail;
+
+  /// No description provided for @viewerDeletePendingTail.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending deletions apply if you reconnect a NAS backup.'**
+  String get viewerDeletePendingTail;
+
+  /// No description provided for @viewerDeleteEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Other backups and shared copies are unaffected. Active casting will stop.'**
+  String get viewerDeleteEnd;
+
+  /// No description provided for @viewerDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get viewerDelete;
+
+  /// No description provided for @viewerRemoveFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove favorite'**
+  String get viewerRemoveFavorite;
+
+  /// No description provided for @viewerAddFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add favorite'**
+  String get viewerAddFavorite;
+
+  /// No description provided for @viewerSlideshowStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start slideshow'**
+  String get viewerSlideshowStart;
+
+  /// No description provided for @viewerSlideshowStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop slideshow'**
+  String get viewerSlideshowStop;
+
+  /// No description provided for @viewerShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a copy'**
+  String get viewerShare;
+
+  /// No description provided for @viewerDeletePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete photo'**
+  String get viewerDeletePhoto;
+
+  /// No description provided for @viewerDeleteVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete video'**
+  String get viewerDeleteVideo;
+
+  /// No description provided for @viewerHideControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide controls'**
+  String get viewerHideControls;
+
+  /// No description provided for @viewerShowControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Show controls'**
+  String get viewerShowControls;
+
+  /// No description provided for @viewerCasting.
+  ///
+  /// In en, this message translates to:
+  /// **'casting to {device}'**
+  String viewerCasting(String device);
+
+  /// No description provided for @viewerPhotoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo unavailable. Retry'**
+  String get viewerPhotoUnavailable;
+
+  /// No description provided for @viewerPrivatePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Private photo'**
+  String get viewerPrivatePhoto;
+
+  /// No description provided for @viewerResetFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to fit'**
+  String get viewerResetFit;
+
+  /// No description provided for @viewerVideoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Video unavailable. Retry'**
+  String get viewerVideoUnavailable;
+
+  /// No description provided for @viewerReplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Replay video'**
+  String get viewerReplay;
+
+  /// No description provided for @viewerPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play video'**
+  String get viewerPlay;
+
+  /// No description provided for @viewerPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause video'**
+  String get viewerPause;
+
+  /// No description provided for @viewerVideoPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Video position'**
+  String get viewerVideoPosition;
+
+  /// No description provided for @viewerBack10.
+  ///
+  /// In en, this message translates to:
+  /// **'Back 10 seconds'**
+  String get viewerBack10;
+
+  /// No description provided for @viewerForward10.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward 10 seconds'**
+  String get viewerForward10;
+
+  /// No description provided for @viewerMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute video'**
+  String get viewerMute;
+
+  /// No description provided for @viewerUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute video'**
+  String get viewerUnmute;
 }
 
 class _AppLocalizationsDelegate

@@ -7,6 +7,7 @@ import 'package:video_player/video_player.dart';
 
 import '../cast/device_picker.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../brand.dart';
 import '../library/name_dialog.dart';
 import '../privacy/privacy_scope.dart';
@@ -130,9 +131,9 @@ class _ViewerScreenState extends State<ViewerScreen> {
       ], origin: box.localToGlobal(Offset.zero) & box.size);
     } catch (_) {
       if (mounted && _isActive) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not share. Please try again.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.viewerShareFailed)));
       }
     } finally {
       if (mounted) setState(() => _sharing = false);
@@ -152,29 +153,41 @@ class _ViewerScreenState extends State<ViewerScreen> {
       context: context,
       builder: (context) => AlertDialog(
         key: Keys.viewerInfoDialog,
-        title: const Text('Details'),
+        title: Text(context.l10n.viewerDetails),
         content: FutureBuilder<int>(
           future: item.file.length(),
           builder: (context, size) => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Type: ${item.isVideo ? 'Video' : 'Photo'}'),
               Text(
-                'Captured: ${at == null ? 'Unknown' : '${at.year}-${two(at.month)}-${two(at.day)} ${two(at.hour)}:${two(at.minute)}'}',
+                context.l10n.viewerType(
+                  item.isVideo ? context.l10n.camVideo : context.l10n.camPhoto,
+                ),
               ),
-              Text('Tags: ${tags.isEmpty ? 'None' : tags.join(', ')}'),
+              Text(
+                context.l10n.viewerCaptured(
+                  at == null
+                      ? context.l10n.viewerUnknown
+                      : '${at.year}-${two(at.month)}-${two(at.day)} ${two(at.hour)}:${two(at.minute)}',
+                ),
+              ),
+              Text(
+                context.l10n.viewerTags(
+                  tags.isEmpty ? context.l10n.viewerNone : tags.join(', '),
+                ),
+              ),
               if (size.hasData)
-                Text('Encrypted size: ${size.data} bytes')
+                Text(context.l10n.viewerSize(size.data!))
               else if (size.hasError)
-                const Text('Encrypted size: unavailable'),
+                Text(context.l10n.viewerSizeUnavailable),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(context.l10n.viewerClose),
           ),
         ],
       ),
@@ -193,22 +206,32 @@ class _ViewerScreenState extends State<ViewerScreen> {
         context: context,
         builder: (context) => AlertDialog(
           key: Keys.deleteDialog,
-          title: Text('Delete this ${item.isVideo ? 'video' : 'photo'}?'),
+          title: Text(
+            item.isVideo
+                ? context.l10n.viewerDeleteVideoTitle
+                : context.l10n.viewerDeletePhotoTitle,
+          ),
           content: Text(
-            '${keep ? 'Recently deleted keeps it on this phone, encrypted, for '
-                      '${Vault.trashKeep.inDays} days so you can restore it'
-                      '${configured ? '. Your NAS copy stays until then' : ''}. '
-                      'Delete now removes it from this phone'
-                      '${configured ? ' and your configured NAS' : ''} permanently. ' : 'It will be permanently removed from this phone'
-                      '${configured ? ' and your configured NAS' : ''}. '}'
-            '${configured ? 'If the NAS is unavailable, deletion finishes when sync succeeds. ' : 'Pending deletions apply if you reconnect a NAS backup. '}'
-            'Other backups and shared copies are unaffected. Active casting will stop.',
+            [
+              if (keep && configured)
+                context.l10n.viewerDeleteKeepNas(Vault.trashKeep.inDays)
+              else if (keep)
+                context.l10n.viewerDeleteKeep(Vault.trashKeep.inDays)
+              else if (configured)
+                context.l10n.viewerDeleteNasNow
+              else
+                context.l10n.viewerDeleteNow,
+              configured
+                  ? context.l10n.viewerDeleteNasTail
+                  : context.l10n.viewerDeletePendingTail,
+              context.l10n.viewerDeleteEnd,
+            ].join(' '),
           ),
           actions: [
             TextButton(
               key: Keys.deleteCancel,
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             TextButton(
               key: Keys.deleteConfirm,
@@ -216,13 +239,17 @@ class _ViewerScreenState extends State<ViewerScreen> {
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
               onPressed: () => Navigator.pop(context, _DeleteChoice.now),
-              child: Text(keep ? 'Delete now' : 'Delete'),
+              child: Text(
+                keep
+                    ? context.l10n.recentlyDeletedDeleteNow
+                    : context.l10n.viewerDelete,
+              ),
             ),
             if (keep)
               FilledButton(
                 key: Keys.deleteTrash,
                 onPressed: () => Navigator.pop(context, _DeleteChoice.trash),
-                child: const Text('Recently deleted'),
+                child: Text(context.l10n.recentlyDeletedTitle),
               ),
           ],
         ),
@@ -253,9 +280,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
     } catch (_) {
       if (mounted && _isActive) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not finish deleting. Please retry.'),
-          ),
+          SnackBar(content: Text(context.l10n.recentlyDeletedDeleteFailed)),
         );
       }
     } finally {
@@ -278,7 +303,9 @@ class _ViewerScreenState extends State<ViewerScreen> {
             .favorite;
         return IconButton(
           key: Keys.viewerFavorite,
-          tooltip: favorite ? 'Remove favorite' : 'Add favorite',
+          tooltip: favorite
+              ? context.l10n.viewerRemoveFavorite
+              : context.l10n.viewerAddFavorite,
           icon: Icon(favorite ? Icons.favorite : Icons.favorite_border),
           onPressed:
               _sharing || _deleting || !widget.session.vault.catalog.isLoaded
@@ -297,7 +324,9 @@ class _ViewerScreenState extends State<ViewerScreen> {
     ),
     IconButton(
       key: Keys.viewerSlideshow,
-      tooltip: _slideshow == null ? 'Start slideshow' : 'Stop slideshow',
+      tooltip: _slideshow == null
+          ? context.l10n.viewerSlideshowStart
+          : context.l10n.viewerSlideshowStop,
       onPressed: _toggleSlideshow,
       icon: Icon(
         _slideshow == null ? Icons.slideshow : Icons.stop_circle_outlined,
@@ -305,14 +334,14 @@ class _ViewerScreenState extends State<ViewerScreen> {
     ),
     IconButton(
       key: Keys.viewerInfo,
-      tooltip: 'Details',
+      tooltip: context.l10n.viewerDetails,
       onPressed: _showDetails,
       icon: const Icon(Icons.info_outline),
     ),
     Builder(
       builder: (buttonContext) => IconButton(
         key: Keys.viewerShare,
-        tooltip: 'Share a copy',
+        tooltip: context.l10n.viewerShare,
         onPressed: _sharing || _deleting ? null : () => _share(buttonContext),
         icon: _sharing
             ? const SizedBox(
@@ -325,7 +354,9 @@ class _ViewerScreenState extends State<ViewerScreen> {
     ),
     IconButton(
       key: Keys.viewerDelete,
-      tooltip: _current.isVideo ? 'Delete video' : 'Delete photo',
+      tooltip: _current.isVideo
+          ? context.l10n.viewerDeleteVideo
+          : context.l10n.viewerDeletePhoto,
       onPressed: _sharing || _deleting ? null : _delete,
       icon: _deleting
           ? const SizedBox(
@@ -340,7 +371,9 @@ class _ViewerScreenState extends State<ViewerScreen> {
 
   Widget _visibilityButton() => IconButton(
     key: Keys.viewerControls,
-    tooltip: _controlsVisible ? 'Hide controls' : 'Show controls',
+    tooltip: _controlsVisible
+        ? context.l10n.viewerHideControls
+        : context.l10n.viewerShowControls,
     color: onMediaCanvas,
     style: IconButton.styleFrom(backgroundColor: mediaScrim),
     onPressed: _toggleControls,
@@ -421,9 +454,9 @@ class _ViewerScreenState extends State<ViewerScreen> {
                       }
                       return Text(
                         cast.error != null
-                            ? 'Could not cast. Try again.'
+                            ? context.l10n.camCastFailed
                             : cast.isCasting
-                            ? 'casting to ${cast.device!.name}'
+                            ? context.l10n.viewerCasting(cast.device!.name)
                             : '',
                         key: Keys.viewerCastState,
                         style: const TextStyle(
@@ -608,7 +641,7 @@ class _PhotoPageState extends State<_PhotoPage> {
         _bytes = widget.vault.readAll(widget.item.file);
       }),
       icon: const Icon(Icons.refresh),
-      label: const Text('Photo unavailable. Retry'),
+      label: Text(context.l10n.viewerPhotoUnavailable),
     ),
   );
 
@@ -666,7 +699,7 @@ class _PhotoPageState extends State<_PhotoPage> {
                   fit: BoxFit.contain,
                   // Keep the fitted frame while the larger decode arrives.
                   gaplessPlayback: true,
-                  semanticLabel: 'Private photo',
+                  semanticLabel: context.l10n.viewerPrivatePhoto,
                   errorBuilder: (_, _, _) => _unavailable(),
                 ),
               ),
@@ -681,7 +714,7 @@ class _PhotoPageState extends State<_PhotoPage> {
                   key: Keys.viewerFit,
                   onPressed: _reset,
                   icon: const Icon(Icons.fit_screen),
-                  label: const Text('Reset to fit'),
+                  label: Text(context.l10n.viewerResetFit),
                 ),
               ),
             ),
@@ -875,7 +908,7 @@ class _VideoPageState extends State<_VideoPage> with WidgetsBindingObserver {
               key: Keys.viewerError,
               onPressed: _retry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Video unavailable. Retry'),
+              label: Text(context.l10n.viewerVideoUnavailable),
             ),
           );
         }
@@ -916,7 +949,9 @@ class _VideoPageState extends State<_VideoPage> with WidgetsBindingObserver {
                           // discoverable way to resume.
                           IconButton.filledTonal(
                             key: Keys.viewerPlayOverlay,
-                            tooltip: completed ? 'Replay video' : 'Play video',
+                            tooltip: completed
+                                ? context.l10n.viewerReplay
+                                : context.l10n.viewerPlay,
                             iconSize: 48,
                             onPressed: () => completed
                                 ? player
@@ -940,7 +975,7 @@ class _VideoPageState extends State<_VideoPage> with WidgetsBindingObserver {
                     child: Column(
                       children: [
                         Semantics(
-                          label: 'Video position',
+                          label: context.l10n.viewerVideoPosition,
                           child: Slider(
                             key: Keys.viewerSeek,
                             semanticFormatterCallback: (value) => mediaTime(
@@ -974,7 +1009,7 @@ class _VideoPageState extends State<_VideoPage> with WidgetsBindingObserver {
                           children: [
                             IconButton(
                               key: Keys.viewerSkipBack,
-                              tooltip: 'Back 10 seconds',
+                              tooltip: context.l10n.viewerBack10,
                               color: onMediaCanvas,
                               icon: const Icon(Icons.replay_10),
                               onPressed: () => _skip(-10),
@@ -982,10 +1017,10 @@ class _VideoPageState extends State<_VideoPage> with WidgetsBindingObserver {
                             IconButton(
                               key: Keys.viewerPlay,
                               tooltip: value.isPlaying
-                                  ? 'Pause video'
+                                  ? context.l10n.viewerPause
                                   : completed
-                                  ? 'Replay video'
-                                  : 'Play video',
+                                  ? context.l10n.viewerReplay
+                                  : context.l10n.viewerPlay,
                               color: onMediaCanvas,
                               icon: Icon(
                                 value.isPlaying
@@ -998,14 +1033,16 @@ class _VideoPageState extends State<_VideoPage> with WidgetsBindingObserver {
                             ),
                             IconButton(
                               key: Keys.viewerSkipForward,
-                              tooltip: 'Forward 10 seconds',
+                              tooltip: context.l10n.viewerForward10,
                               color: onMediaCanvas,
                               icon: const Icon(Icons.forward_10),
                               onPressed: () => _skip(10),
                             ),
                             IconButton(
                               key: Keys.viewerMute,
-                              tooltip: _muted ? 'Unmute video' : 'Mute video',
+                              tooltip: _muted
+                                  ? context.l10n.viewerUnmute
+                                  : context.l10n.viewerMute,
                               color: onMediaCanvas,
                               icon: Icon(
                                 _muted

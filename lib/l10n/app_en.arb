@@ -533,5 +533,96 @@
     }
   },
   "shareFailed": "Could not share. Another share may still be finishing. Try again.",
-  "shareChooseApp": "Choose app"
+  "shareChooseApp": "Choose app",
+  "viewerShareFailed": "Could not share. Please try again.",
+  "viewerDetails": "Details",
+  "viewerType": "Type: {kind}",
+  "@viewerType": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerCaptured": "Captured: {when}",
+  "@viewerCaptured": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerUnknown": "Unknown",
+  "viewerTags": "Tags: {tags}",
+  "@viewerTags": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerNone": "None",
+  "viewerSize": "Encrypted size: {bytes} bytes",
+  "@viewerSize": {
+    "placeholders": {
+      "bytes": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerSizeUnavailable": "Encrypted size: unavailable",
+  "viewerClose": "Close",
+  "viewerDeletePhotoTitle": "Delete this photo?",
+  "viewerDeleteVideoTitle": "Delete this video?",
+  "viewerDeleteKeepNas": "Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Your NAS copy stays until then. Delete now removes it from this phone and your configured NAS permanently.",
+  "@viewerDeleteKeepNas": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerDeleteKeep": "Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Delete now removes it from this phone permanently.",
+  "@viewerDeleteKeep": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerDeleteNasNow": "It will be permanently removed from this phone and your configured NAS.",
+  "viewerDeleteNow": "It will be permanently removed from this phone.",
+  "viewerDeleteNasTail": "If the NAS is unavailable, deletion finishes when sync succeeds.",
+  "viewerDeletePendingTail": "Pending deletions apply if you reconnect a NAS backup.",
+  "viewerDeleteEnd": "Other backups and shared copies are unaffected. Active casting will stop.",
+  "viewerDelete": "Delete",
+  "viewerRemoveFavorite": "Remove favorite",
+  "viewerAddFavorite": "Add favorite",
+  "viewerSlideshowStart": "Start slideshow",
+  "viewerSlideshowStop": "Stop slideshow",
+  "viewerShare": "Share a copy",
+  "viewerDeletePhoto": "Delete photo",
+  "viewerDeleteVideo": "Delete video",
+  "viewerHideControls": "Hide controls",
+  "viewerShowControls": "Show controls",
+  "viewerCasting": "casting to {device}",
+  "@viewerCasting": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerPhotoUnavailable": "Photo unavailable. Retry",
+  "viewerPrivatePhoto": "Private photo",
+  "viewerResetFit": "Reset to fit",
+  "viewerVideoUnavailable": "Video unavailable. Retry",
+  "viewerReplay": "Replay video",
+  "viewerPlay": "Play video",
+  "viewerPause": "Pause video",
+  "viewerVideoPosition": "Video position",
+  "viewerBack10": "Back 10 seconds",
+  "viewerForward10": "Forward 10 seconds",
+  "viewerMute": "Mute video",
+  "viewerUnmute": "Unmute video"
 }

@@ -934,4 +934,149 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shareChooseApp => 'Elegir app';
+
+  @override
+  String get viewerShareFailed => 'No se pudo compartir. Inténtalo de nuevo.';
+
+  @override
+  String get viewerDetails => 'Detalles';
+
+  @override
+  String viewerType(String kind) {
+    return 'Tipo: $kind';
+  }
+
+  @override
+  String viewerCaptured(String when) {
+    return 'Capturada: $when';
+  }
+
+  @override
+  String get viewerUnknown => 'Desconocida';
+
+  @override
+  String viewerTags(String tags) {
+    return 'Etiquetas: $tags';
+  }
+
+  @override
+  String get viewerNone => 'Ninguna';
+
+  @override
+  String viewerSize(int bytes) {
+    return 'Tamaño cifrado: $bytes bytes';
+  }
+
+  @override
+  String get viewerSizeUnavailable => 'Tamaño cifrado: no disponible';
+
+  @override
+  String get viewerClose => 'Cerrar';
+
+  @override
+  String get viewerDeletePhotoTitle => '¿Eliminar esta foto?';
+
+  @override
+  String get viewerDeleteVideoTitle => '¿Eliminar este vídeo?';
+
+  @override
+  String viewerDeleteKeepNas(int days) {
+    return '«Eliminados recientemente» la conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. Tu copia en el NAS se mantiene hasta entonces. «Eliminar ahora» la quita de forma permanente de este teléfono y de tu NAS configurado.';
+  }
+
+  @override
+  String viewerDeleteKeep(int days) {
+    return '«Eliminados recientemente» la conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. «Eliminar ahora» la quita de forma permanente de este teléfono.';
+  }
+
+  @override
+  String get viewerDeleteNasNow =>
+      'Se eliminará de forma permanente de este teléfono y de tu NAS configurado.';
+
+  @override
+  String get viewerDeleteNow =>
+      'Se eliminará de forma permanente de este teléfono.';
+
+  @override
+  String get viewerDeleteNasTail =>
+      'Si el NAS no está disponible, la eliminación termina cuando la sincronización se complete.';
+
+  @override
+  String get viewerDeletePendingTail =>
+      'Las eliminaciones pendientes se aplican si vuelves a conectar una copia de seguridad en el NAS.';
+
+  @override
+  String get viewerDeleteEnd =>
+      'Las demás copias de seguridad y las copias compartidas no se ven afectadas. La transmisión activa se detendrá.';
+
+  @override
+  String get viewerDelete => 'Eliminar';
+
+  @override
+  String get viewerRemoveFavorite => 'Quitar favorito';
+
+  @override
+  String get viewerAddFavorite => 'Añadir a favoritos';
+
+  @override
+  String get viewerSlideshowStart => 'Iniciar presentación';
+
+  @override
+  String get viewerSlideshowStop => 'Detener presentación';
+
+  @override
+  String get viewerShare => 'Compartir una copia';
+
+  @override
+  String get viewerDeletePhoto => 'Eliminar foto';
+
+  @override
+  String get viewerDeleteVideo => 'Eliminar vídeo';
+
+  @override
+  String get viewerHideControls => 'Ocultar controles';
+
+  @override
+  String get viewerShowControls => 'Mostrar controles';
+
+  @override
+  String viewerCasting(String device) {
+    return 'transmitiendo a $device';
+  }
+
+  @override
+  String get viewerPhotoUnavailable => 'Foto no disponible. Reintentar';
+
+  @override
+  String get viewerPrivatePhoto => 'Foto privada';
+
+  @override
+  String get viewerResetFit => 'Ajustar a la pantalla';
+
+  @override
+  String get viewerVideoUnavailable => 'Vídeo no disponible. Reintentar';
+
+  @override
+  String get viewerReplay => 'Repetir vídeo';
+
+  @override
+  String get viewerPlay => 'Reproducir vídeo';
+
+  @override
+  String get viewerPause => 'Pausar vídeo';
+
+  @override
+  String get viewerVideoPosition => 'Posición del vídeo';
+
+  @override
+  String get viewerBack10 => 'Retroceder 10 segundos';
+
+  @override
+  String get viewerForward10 => 'Avanzar 10 segundos';
+
+  @override
+  String get viewerMute => 'Silenciar vídeo';
+
+  @override
+  String get viewerUnmute => 'Activar sonido del vídeo';
 }

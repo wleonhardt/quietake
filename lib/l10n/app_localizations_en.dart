@@ -914,4 +914,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareChooseApp => 'Choose app';
+
+  @override
+  String get viewerShareFailed => 'Could not share. Please try again.';
+
+  @override
+  String get viewerDetails => 'Details';
+
+  @override
+  String viewerType(String kind) {
+    return 'Type: $kind';
+  }
+
+  @override
+  String viewerCaptured(String when) {
+    return 'Captured: $when';
+  }
+
+  @override
+  String get viewerUnknown => 'Unknown';
+
+  @override
+  String viewerTags(String tags) {
+    return 'Tags: $tags';
+  }
+
+  @override
+  String get viewerNone => 'None';
+
+  @override
+  String viewerSize(int bytes) {
+    return 'Encrypted size: $bytes bytes';
+  }
+
+  @override
+  String get viewerSizeUnavailable => 'Encrypted size: unavailable';
+
+  @override
+  String get viewerClose => 'Close';
+
+  @override
+  String get viewerDeletePhotoTitle => 'Delete this photo?';
+
+  @override
+  String get viewerDeleteVideoTitle => 'Delete this video?';
+
+  @override
+  String viewerDeleteKeepNas(int days) {
+    return 'Recently deleted keeps it on this phone, encrypted, for $days days so you can restore it. Your NAS copy stays until then. Delete now removes it from this phone and your configured NAS permanently.';
+  }
+
+  @override
+  String viewerDeleteKeep(int days) {
+    return 'Recently deleted keeps it on this phone, encrypted, for $days days so you can restore it. Delete now removes it from this phone permanently.';
+  }
+
+  @override
+  String get viewerDeleteNasNow =>
+      'It will be permanently removed from this phone and your configured NAS.';
+
+  @override
+  String get viewerDeleteNow =>
+      'It will be permanently removed from this phone.';
+
+  @override
+  String get viewerDeleteNasTail =>
+      'If the NAS is unavailable, deletion finishes when sync succeeds.';
+
+  @override
+  String get viewerDeletePendingTail =>
+      'Pending deletions apply if you reconnect a NAS backup.';
+
+  @override
+  String get viewerDeleteEnd =>
+      'Other backups and shared copies are unaffected. Active casting will stop.';
+
+  @override
+  String get viewerDelete => 'Delete';
+
+  @override
+  String get viewerRemoveFavorite => 'Remove favorite';
+
+  @override
+  String get viewerAddFavorite => 'Add favorite';
+
+  @override
+  String get viewerSlideshowStart => 'Start slideshow';
+
+  @override
+  String get viewerSlideshowStop => 'Stop slideshow';
+
+  @override
+  String get viewerShare => 'Share a copy';
+
+  @override
+  String get viewerDeletePhoto => 'Delete photo';
+
+  @override
+  String get viewerDeleteVideo => 'Delete video';
+
+  @override
+  String get viewerHideControls => 'Hide controls';
+
+  @override
+  String get viewerShowControls => 'Show controls';
+
+  @override
+  String viewerCasting(String device) {
+    return 'casting to $device';
+  }
+
+  @override
+  String get viewerPhotoUnavailable => 'Photo unavailable. Retry';
+
+  @override
+  String get viewerPrivatePhoto => 'Private photo';
+
+  @override
+  String get viewerResetFit => 'Reset to fit';
+
+  @override
+  String get viewerVideoUnavailable => 'Video unavailable. Retry';
+
+  @override
+  String get viewerReplay => 'Replay video';
+
+  @override
+  String get viewerPlay => 'Play video';
+
+  @override
+  String get viewerPause => 'Pause video';
+
+  @override
+  String get viewerVideoPosition => 'Video position';
+
+  @override
+  String get viewerBack10 => 'Back 10 seconds';
+
+  @override
+  String get viewerForward10 => 'Forward 10 seconds';
+
+  @override
+  String get viewerMute => 'Mute video';
+
+  @override
+  String get viewerUnmute => 'Unmute video';
 }
