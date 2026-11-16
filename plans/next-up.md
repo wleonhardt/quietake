@@ -43,6 +43,7 @@
 
 ## Done
 
+- Full host suite at iteration 111: 604 passed, analyzer clean (supersedes the iteration 104 count).
 - Host test (`lock_unlock_failure_test.dart`): a wrong passcode submitted with the keyboard action shows "wrong passcode" (the `onSubmitted` path was untested).
 - Host test (`lock_unlock_failure_test.dart`): a refused biometric prompt shows the authenticator's reason and keeps the biometric button.
 - Host test (`lock_unlock_failure_test.dart`): recovery started from the lock screen opens a restore-only Setup and hands its key to the app, popping Setup.
