@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -23,7 +24,9 @@ class ViewerScreen extends StatefulWidget {
     required this.session,
     required this.items,
     required this.initialIndex,
+    this.slideshowInterval = const Duration(seconds: 4),
   });
+  final Duration slideshowInterval;
   final Session session;
   final List<VaultItem> items;
   final int initialIndex;
@@ -39,6 +42,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
   bool _deleting = false;
   bool _photoZoomed = false;
   bool _controlsVisible = true;
+  Timer? _slideshow;
   VaultItem get _current => _items[_index];
 
   /// Hidden chrome fades, then leaves the tree so finders and semantics see it
@@ -60,8 +64,42 @@ class _ViewerScreenState extends State<ViewerScreen> {
     if (widget.session.cast.isCasting) widget.session.cast.show(_current);
   }
 
+  /// Moves to the next photo on a timer. It stops at a video or the last
+  /// capture, and it never counts as activity, so the idle lock still applies.
+  void _toggleSlideshow() {
+    if (_slideshow != null) {
+      _stopSlideshow();
+      return;
+    }
+    setState(() {
+      _slideshow = Timer.periodic(widget.slideshowInterval, (_) {
+        final next = _index + 1;
+        if (!mounted ||
+            next >= _items.length ||
+            _items[next].isVideo ||
+            _current.isVideo) {
+          _stopSlideshow();
+          return;
+        }
+        if (_isActive && !_photoZoomed && !_sharing && !_deleting) {
+          _controller.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    });
+  }
+
+  void _stopSlideshow() {
+    _slideshow?.cancel();
+    if (mounted && _slideshow != null) setState(() => _slideshow = null);
+    _slideshow = null;
+  }
+
   @override
   void dispose() {
+    _slideshow?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -240,6 +278,14 @@ class _ViewerScreenState extends State<ViewerScreen> {
                 },
         );
       },
+    ),
+    IconButton(
+      key: Keys.viewerSlideshow,
+      tooltip: _slideshow == null ? 'Start slideshow' : 'Stop slideshow',
+      onPressed: _toggleSlideshow,
+      icon: Icon(
+        _slideshow == null ? Icons.slideshow : Icons.stop_circle_outlined,
+      ),
     ),
     IconButton(
       key: Keys.viewerInfo,

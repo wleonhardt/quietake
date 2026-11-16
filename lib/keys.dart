@@ -211,6 +211,7 @@ abstract final class Keys {
   static const viewerVideo = Key('viewer.video');
   static const viewerShare = Key('viewer.share');
   static const viewerInfo = Key('viewer.info');
+  static const viewerSlideshow = Key('viewer.slideshow');
   static const viewerInfoDialog = Key('viewer.info.dialog');
   static const viewerDelete = Key('viewer.delete');
   static const deleteDialog = Key('delete.dialog');

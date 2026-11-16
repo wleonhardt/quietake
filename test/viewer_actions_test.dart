@@ -38,6 +38,7 @@ void main() {
     WidgetTester tester, {
     double textScale = 1,
     Size size = const Size(800, 1600),
+    Duration slideshowInterval = const Duration(seconds: 4),
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -90,6 +91,7 @@ void main() {
                   session: session,
                   items: [...items],
                   initialIndex: 0,
+                  slideshowInterval: slideshowInterval,
                 ),
               ),
             ),
@@ -263,5 +265,33 @@ void main() {
       tester,
       () => find.text('casting to Living Room TV').evaluate().isNotEmpty,
     );
+  });
+
+  testWidgets('a slideshow advances to the next photo and stops at the last', (
+    tester,
+  ) async {
+    await open(tester, slideshowInterval: const Duration(seconds: 1));
+    expect(find.text('1 / 2'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.viewerSlideshow));
+    await tester.pump();
+    expect(find.byTooltip('Stop slideshow'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 1100));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('2 / 2'), findsOneWidget);
+
+    // The next tick finds no further photo and ends the show.
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byTooltip('Start slideshow'), findsOneWidget);
+  });
+
+  testWidgets('stopping a slideshow keeps the current photo', (tester) async {
+    await open(tester, slideshowInterval: const Duration(seconds: 1));
+    await tester.tap(find.byKey(Keys.viewerSlideshow));
+    await tester.pump();
+    await tester.tap(find.byKey(Keys.viewerSlideshow));
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('1 / 2'), findsOneWidget);
+    expect(find.byTooltip('Start slideshow'), findsOneWidget);
   });
 }

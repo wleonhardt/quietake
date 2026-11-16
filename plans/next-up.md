@@ -48,7 +48,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 - Recently deleted: keep deleted captures encrypted for 30 days and offer restore. Backup sync must still never infer deletion from absence.
 - Capture options: timer, tap-to-focus and exposure lock, and a burst mode (grid overlay is done) that stays inside private staging.
 - Albums: cover choice and a "Moments" view that groups captures by date from the vault catalog, with no cloud index.
-- Viewer: slideshow with the screen kept awake only while the vault is unlocked.
+- Viewer: keep the screen awake during the slideshow only while the vault is unlocked (needs a plugin decision; the slideshow itself is done).
 - Share: per-share option to strip all EXIF fields, not only GPS; video location strip is a separate, larger item.
 - Backup: a restore dry run that checks without writing (the check reminder is done).
 - Storage view, rest: what is pending upload, and a safe prune of re-creatable caches only (the count and encrypted size are done).
@@ -58,6 +58,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 ## Done
 
 - Feature from the ideas list: backup check reminder (decision `005-backup-check-reminder.md`). The last full check date is saved per share and Check backup shows a reminder after 30 days or when never checked. Tests in `sync_settings_test.dart`, `backup_verification_test.dart` and `backup_screen_test.dart`. Reminder shows only after the first sync of a launch; no notification. Host suite 627 passed, analyzer clean, iOS `backup_test.dart` passed (4 cases, 56.3 s). Android not run.
+- Feature from the ideas list: viewer slideshow (decision `008-viewer-slideshow.md`), 4 s per photo, stops at a video or the last capture, no keep-awake. Tests in `viewer_actions_test.dart`. Host suite 631 passed, analyzer clean, iOS `delete_test.dart` passed (5 cases, 67.3 s). Android not run.
 - Feature from the ideas list: Tags screen sort by capture count (decision `007-tags-sort-by-count.md`), session-only; test in `albums_screen_test.dart`. Host suite 629 passed, analyzer clean, iOS `library_test.dart` passed (1 case, 164.3 s). Android not run.
 - Feature from the ideas list: capture grid overlay (decision `006-capture-grid.md`), a Show/Hide grid button drawing thirds over the preview, session-only, never in captured media. Test `capture_grid_test.dart`. Host suite 628 passed, analyzer clean, iOS `capture_test.dart` passed (1 case, 2 skipped, 48.4 s). Android and narrow-screen layout of the extra button not checked.
 - Accessibility idea closed (iterations 127-128), tests only: Albums and the viewer Details dialog at 320 px and 2x text, the viewer photo label and named controls.
