@@ -175,6 +175,7 @@ abstract final class Keys {
   static const portablePasscode = Key('portable.passcode');
   static const portableConfirm = Key('portable.confirm');
   static const portableStart = Key('portable.start');
+  static const portableCheck = Key('portable.check');
   static const portableCancel = Key('portable.cancel');
   static const portableProgress = Key('portable.progress');
   static const portableResult = Key('portable.result');

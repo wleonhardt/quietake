@@ -129,13 +129,19 @@ class _PortableScreenState extends State<PortableScreen>
     }
   }
 
-  Future<void> _run() async {
+  /// [dryRun] checks the selected ZIP with the recovery key and restores nothing.
+  Future<void> _run({bool dryRun = false}) async {
     if (_busy) return;
     if (_portableBusy) {
       _status('Previous backup is finishing. Try again shortly.');
       return;
     }
+    if (dryRun && (_selected == null || _recovery.text.trim().isEmpty)) {
+      _status('Choose a backup and enter its recovery key.');
+      return;
+    }
     if (_restoring &&
+        !dryRun &&
         (_selected == null ||
             _pass.text.length < MasterKeyStore.minPasscodeLength ||
             _pass.text != _confirm.text)) {
@@ -183,6 +189,12 @@ class _PortableScreenState extends State<PortableScreen>
           },
         );
         _fraction = null;
+        if (dryRun) {
+          _status(
+            'Backup checked: every encrypted file and the catalog authenticate with this key. Nothing was restored. Choose the file again to restore it.',
+          );
+          return;
+        }
         await transaction.commit(
           staged,
           key,
@@ -332,6 +344,14 @@ class _PortableScreenState extends State<PortableScreen>
             Semantics(
               liveRegion: true,
               child: Text(_result, key: Keys.portableResult),
+            ),
+            const SizedBox(height: 12),
+          ],
+          if (_restoring) ...[
+            OutlinedButton(
+              key: Keys.portableCheck,
+              onPressed: _busy ? null : () => _run(dryRun: true),
+              child: const Text('Check backup only'),
             ),
             const SizedBox(height: 12),
           ],

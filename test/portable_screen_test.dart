@@ -107,6 +107,17 @@ void main() {
     expect(calls, isEmpty);
   });
 
+  testWidgets('Check backup only also needs a backup and its recovery key', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.ensureVisible(find.byKey(Keys.portableCheck));
+    await tester.tap(find.byKey(Keys.portableCheck));
+    await tester.pump();
+    expect(result(tester), 'Choose a backup and enter its recovery key.');
+    expect(calls, isEmpty);
+  });
+
   testWidgets('picking reports selection, cancellation and copy failure', (
     tester,
   ) async {
