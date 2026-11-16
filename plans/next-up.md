@@ -29,8 +29,8 @@
   `capture_store.dart` (atomic `encryptFile` protects the
   prepared-video overwrite), `privacy_controller.dart`, `master_key_store.dart`, `webdav_client.dart` and the
   push path of `sync_service.dart`. Store-level passcode minimum is enforced
-  only at UI/NAS entry points (tests rely on short ones). Still to read:
-  rest of `sync/`. `main.dart` lifecycle and `sync_service.dart` pull path read; `exif_location.dart`
+  only at UI/NAS entry points (tests rely on short ones). `background_uploads.dart`, `sync_settings.dart` and `backup_screen.dart` read, no defect (all covered by tests). Still to read:
+  nothing in `sync/`. `main.dart` lifecycle and `sync_service.dart` pull path read; `exif_location.dart`
   and `import_media.dart` read, no defect (XMP geotags stay by documented design; a failed import
   still spends batch size budget, minor). `vault.dart` and `share_media.dart` read, no
   defect (`Vault.ingestAs` deletes its plaintext even when the name collides; only the importer's
