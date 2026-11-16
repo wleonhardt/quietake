@@ -32,8 +32,10 @@
   only at UI/NAS entry points (tests rely on short ones). Still to read:
   rest of `sync/`. `main.dart` lifecycle and `sync_service.dart` pull path read; `exif_location.dart`
   and `import_media.dart` read, no defect (XMP geotags stay by documented design; a failed import
-  still spends batch size budget, minor). Unread: `vault.dart`, `vault_crypto.dart`,
-  `portable_backup.dart`, `share_media.dart`, `nas_recovery.dart`. Add a failing test per bug found.
+  still spends batch size budget, minor). `vault.dart` and `share_media.dart` read, no
+  defect (`Vault.ingestAs` deletes its plaintext even when the name collides; only the importer's
+  private staging copy is affected and microsecond names make that unreachable). Unread:
+  `vault_crypto.dart`, `portable_backup.dart`, `nas_recovery.dart`. Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop. The home NAS needs
   WebDAV credentials that live in HubnerDocs `.secrets`, which this loop must
   not read. A real-NAS run needs a test credential and an empty test folder
