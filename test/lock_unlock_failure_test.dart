@@ -25,6 +25,16 @@ class _RefusingAuth extends FakeAuthenticator {
   }
 }
 
+class _WrongPasscodeStore extends _UnreadableStore {
+  _WrongPasscodeStore(super.sodium);
+  int tries = 0;
+  @override
+  Future<SecureKey> unlockWithPasscode(String passcode) {
+    tries++;
+    throw WrongPasscodeException();
+  }
+}
+
 class _UnreadableStore extends MasterKeyStore {
   _UnreadableStore(SodiumSumo sodium) : super(sodium, Directory.systemTemp);
   @override
@@ -113,4 +123,29 @@ void main() {
     expect(find.byKey(Keys.lockBiometric), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
+
+  testWidgets(
+    'a wrong passcode submitted from the keyboard shows its message',
+    (tester) async {
+      final store = _WrongPasscodeStore(sodium);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: LockScreen(
+            store: store,
+            auth: FakeAuthenticator(isAvailable: false),
+            autoPrompt: false,
+            onUnlocked: (_) => fail('a wrong passcode must not unlock'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.enterText(find.byKey(Keys.lockPasscode), 'nope');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      await tester.pump();
+      expect(store.tries, 1);
+      expect(find.text(WrongPasscodeException().toString()), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 }
