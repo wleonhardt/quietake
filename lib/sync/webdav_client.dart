@@ -137,14 +137,19 @@ class WebDavClient {
     final doc = XmlDocument.parse(body);
     final out = <RemoteEntry>[];
     for (final r in doc.findAllElements('response', namespaceUri: 'DAV:')) {
-      final href = r.getElement('href', namespaceUri: 'DAV:')!.innerText.trim();
+      final href = r.getElement('href', namespaceUri: 'DAV:')?.innerText.trim();
+      if (href == null) {
+        throw const FormatException('WebDAV listing entry has no href');
+      }
       final isDir = r
           .findAllElements('resourcetype', namespaceUri: 'DAV:')
           .any((e) => e.getElement('collection', namespaceUri: 'DAV:') != null);
       if (isDir) continue;
-      final name = checkedFileName(
-        Uri.parse(href).pathSegments.where((s) => s.isNotEmpty).last,
-      );
+      final segments = Uri.parse(href).pathSegments.where((s) => s.isNotEmpty);
+      if (segments.isEmpty) {
+        throw const FormatException('WebDAV listing entry has no file name');
+      }
+      final name = checkedFileName(segments.last);
       final len = r.findAllElements('getcontentlength', namespaceUri: 'DAV:');
       final tag = r.findAllElements('getetag', namespaceUri: 'DAV:');
       // Some servers send an empty getcontentlength for files they cannot size.

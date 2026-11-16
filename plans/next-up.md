@@ -19,18 +19,21 @@
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
   prepared-video overwrite), `privacy_controller.dart`, `master_key_store.dart`, `webdav_client.dart` and the
-  push path of `sync_service.dart`. Minor, unfixed: `WebDavClient.list` null-checks
-  `href` and takes `.last` of its segments, so a malformed 207 reply surfaces as a
-  generic error instead of a clear one. Store-level passcode minimum is enforced
+  push path of `sync_service.dart`. Store-level passcode minimum is enforced
   only at UI/NAS entry points (tests rely on short ones). Still to read:
   `main.dart` lifecycle, rest of `sync/`. Add a failing test per bug found.
-- NAS and simulator checks are authorized for the dev loop; no NAS run has
-  happened yet. Keep to synthetic data and the development application ID.
+- NAS and simulator checks are authorized for the dev loop. The home NAS needs
+  WebDAV credentials that live in HubnerDocs `.secrets`, which this loop must
+  not read. A real-NAS run needs a test credential and an empty test folder
+  handed over by the owner; until then loopback WebDAV tests stand in.
 
 ## Done
 
 - Go recovery (`gofmt`, `vet`, `test`) and `tool/check_interop.dart` pass on this
   branch at its current source; nothing crypto/recovery changed.
+- `WebDavClient.list` now rejects a listing entry with no href or no file name
+  with a FormatException (red/green test). Full host suite passed: 486 tests,
+  analyzer clean. Not rerun on devices; no UI or vault code changed.
 - Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).

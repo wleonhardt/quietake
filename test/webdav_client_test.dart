@@ -314,4 +314,42 @@ void main() {
       await server.close();
     }
   });
+
+  for (final (label, body) in [
+    (
+      'without an href',
+      '<d:response><d:propstat><d:prop><d:resourcetype/></d:prop></d:propstat></d:response>',
+    ),
+    (
+      'whose href has no file name',
+      '<d:response><d:href>/</d:href><d:propstat><d:prop><d:resourcetype/>'
+          '</d:prop></d:propstat></d:response>',
+    ),
+  ]) {
+    test('a listing entry $label is a FormatException', () async {
+      final server = await FakeWebDavServer.start();
+      server.collectionExists = true;
+      server.respond = (request) async {
+        if (request.method != 'PROPFIND') return false;
+        await request.drain<void>();
+        request.response.statusCode = 207;
+        request.response.write(
+          '<?xml version="1.0"?><d:multistatus xmlns:d="DAV:">$body</d:multistatus>',
+        );
+        await request.response.close();
+        return true;
+      };
+      final dav = WebDavClient(
+        base: server.url,
+        username: server.username,
+        password: server.password,
+      );
+      try {
+        await expectLater(dav.list(), throwsFormatException);
+      } finally {
+        dav.close();
+        await server.close();
+      }
+    });
+  }
 }
