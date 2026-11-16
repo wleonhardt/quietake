@@ -62,6 +62,7 @@ void main() {
 
   Future<void> open(
     WidgetTester tester, {
+    int captures = 0,
     SyncSettings initial = const SyncSettings(
       url: 'https://nas.example.com/vault/',
       username: 'u',
@@ -90,6 +91,11 @@ void main() {
         cast: CastController(vault, FakeCastBackend()),
         store: store,
       );
+      for (var i = 0; i < captures; i++) {
+        final input = await File('test_fixtures/tiny.jpg')
+            .copy('${dir.path}/in$i.jpg');
+        await vault.ingestAs(input, 'p$i.jpg');
+      }
     });
     privacy = PrivacyController(onLock: () {});
     addTearDown(() async {
@@ -121,8 +127,12 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.byKey(const Key('test.open')));
-    await tester.pumpAndSettle();
+    // The screen starts file IO while building, so run the push in the real zone.
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(const Key('test.open')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    });
   }
 
   Future<void> settle(WidgetTester tester) async {
@@ -142,6 +152,23 @@ void main() {
     });
     await tester.pump(const Duration(milliseconds: 500));
   }
+
+  testWidgets('Storage says an empty vault holds nothing yet', (tester) async {
+    await open(tester);
+    await until(tester, find.textContaining('on this phone'));
+    expect(find.text('No captures on this phone yet.'), findsOneWidget);
+  });
+
+  testWidgets('Storage counts captures and their encrypted size', (
+    tester,
+  ) async {
+    await open(tester, captures: 2);
+    await until(tester, find.textContaining('on this phone'));
+    final text = tester.widget<Text>(find.byKey(Keys.settingsStorage)).data!;
+    expect(text, startsWith('2 captures, '));
+    expect(text, endsWith(' encrypted on this phone.'));
+    expect(text, matches(RegExp(r'^2 captures, \d+(\.\d)? (bytes|KB|MB) enc')));
+  });
 
   testWidgets('choosing an idle timeout saves it', (tester) async {
     await open(tester);

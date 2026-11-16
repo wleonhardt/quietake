@@ -265,6 +265,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  /// Count and encrypted size of the vault files on this phone.
+  late final Future<String> _storage = _storageSummary();
+
+  Future<String> _storageSummary() async {
+    final files = await widget.session.vault.list();
+    if (files.isEmpty) return 'No captures on this phone yet.';
+    var bytes = 0;
+    for (final file in files) {
+      try {
+        bytes += await file.length();
+      } on FileSystemException {
+        // A file that vanished while counting adds nothing.
+      }
+    }
+    final size = bytes < 1024
+        ? '$bytes bytes'
+        : bytes < 1024 * 1024
+        ? '${(bytes / 1024).toStringAsFixed(1)} KB'
+        : '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    return '${files.length} ${files.length == 1 ? 'capture' : 'captures'}, '
+        '$size encrypted on this phone.';
+  }
+
   Widget _heading(Key key, String title) => Semantics(
     key: key,
     header: true,
@@ -529,6 +552,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ]),
+          const SizedBox(height: 24),
+          _heading(Keys.settingsStorageSection, 'Storage'),
+          const SizedBox(height: 12),
+          FutureBuilder<String>(
+            future: _storage,
+            builder: (context, snapshot) => snapshot.hasData
+                ? Text(snapshot.data!, key: Keys.settingsStorage)
+                : Text(
+                    snapshot.hasError
+                        ? 'Storage could not be read.'
+                        : 'Counting captures…',
+                    key: Keys.settingsStorage,
+                  ),
+          ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
             key: Keys.settingsPrivacyPolicy,

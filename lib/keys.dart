@@ -140,6 +140,8 @@ abstract final class Keys {
   static const privacyPolicyPage = Key('privacyPolicy.page');
   static const privacyPolicyScroll = Key('privacyPolicy.scroll');
   static const settingsLicenses = Key('settings.licenses');
+  static const settingsStorage = Key('settings.storage');
+  static const settingsStorageSection = Key('settings.storageSection');
   static const licensesPage = Key('licenses.page');
   static const settingsAccessResult = Key('settings.accessResult');
   static const settingsUrl = Key('settings.url');
