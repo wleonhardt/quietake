@@ -150,4 +150,24 @@ void main() {
     await swipeViewerPage(tester, forward: false);
     await until(tester, () => find.text('1 / 2').evaluate().isNotEmpty);
   });
+
+  testWidgets('double tap zooms a photo and Reset to fit restores it', (
+    tester,
+  ) async {
+    await open(tester);
+    await until(
+      tester,
+      () => find.byKey(Keys.viewerPhoto).evaluate().isNotEmpty,
+    );
+    expect(find.byKey(Keys.viewerFit), findsNothing);
+    final photo = find.byKey(Keys.viewerPhoto);
+    await tester.tap(photo, warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(photo, warnIfMissed: false);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.viewerFit), findsOneWidget);
+    await tester.tap(find.byKey(Keys.viewerFit));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.viewerFit), findsNothing);
+  });
 }
