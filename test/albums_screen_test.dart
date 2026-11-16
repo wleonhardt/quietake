@@ -33,6 +33,7 @@ void main() {
   Future<void> open(
     WidgetTester tester, {
     List<String> tags = const [],
+    List<List<int>> captures = const [],
     bool vaultMissing = false,
     double textScale = 1,
     Size size = const Size(800, 1600),
@@ -57,6 +58,14 @@ void main() {
         store: MasterKeyStore(sodium, dir),
       );
       ids = [for (final t in tags) await vault.catalog.createAlbum(t)];
+      for (var i = 0; i < captures.length; i++) {
+        final source = await File('${dir.path}/input').writeAsBytes([1, 2, 3]);
+        final file = await vault.ingestAs(source, 'c$i.jpg');
+        await vault.catalog.organize(
+          {file.uri.pathSegments.last},
+          tagIds: {for (final t in captures[i]) ids[t]},
+        );
+      }
     });
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox());
@@ -162,5 +171,30 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(session.vault.catalog.albums.length, 1);
+  });
+
+  testWidgets('tags can be sorted by capture count and back by name', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      tags: ['Alpha', 'Mid', 'Zulu'],
+      captures: [
+        [2],
+        [2],
+        [0],
+      ],
+    );
+    double top(String tag) => tester.getTopLeft(find.text(tag)).dy;
+    expect(top('Alpha') < top('Mid') && top('Mid') < top('Zulu'), isTrue);
+
+    await tester.tap(find.byKey(Keys.albumSort));
+    await tester.pump();
+    expect(top('Zulu') < top('Alpha') && top('Alpha') < top('Mid'), isTrue);
+    expect(find.byTooltip('Sort by name'), findsOneWidget);
+
+    await tester.tap(find.byKey(Keys.albumSort));
+    await tester.pump();
+    expect(top('Alpha') < top('Mid') && top('Mid') < top('Zulu'), isTrue);
   });
 }

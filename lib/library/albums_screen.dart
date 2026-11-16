@@ -20,6 +20,7 @@ class AlbumsScreen extends StatefulWidget {
 
 class _AlbumsScreenState extends State<AlbumsScreen> {
   final _search = TextEditingController();
+  bool _byCount = false;
   late Future<Set<String>> _available = _loadNames();
   PrivateCatalog get _catalog => widget.session.vault.catalog;
   PrivacyController? _privacy;
@@ -175,6 +176,14 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
       actions: [
         const LockButton(),
         IconButton(
+          key: Keys.albumSort,
+          tooltip: _byCount ? 'Sort by name' : 'Sort by most captures',
+          icon: Icon(
+            _byCount ? Icons.sort_by_alpha : Icons.format_list_numbered,
+          ),
+          onPressed: () => setState(() => _byCount = !_byCount),
+        ),
+        IconButton(
           key: Keys.albumCreate,
           tooltip: 'Create tag',
           icon: const Icon(Icons.add),
@@ -226,6 +235,13 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                     for (final id in tags) {
                       counts.update(id, (n) => n + 1, ifAbsent: () => 1);
                     }
+                  }
+                  if (_byCount) {
+                    // The list is already by name, and sort is stable.
+                    entries.sort(
+                      (a, b) =>
+                          (counts[b.key] ?? 0).compareTo(counts[a.key] ?? 0),
+                    );
                   }
                   String count(int value) =>
                       '$value ${value == 1 ? 'capture' : 'captures'}';

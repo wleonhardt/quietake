@@ -107,6 +107,7 @@ abstract final class Keys {
   static const librarySelectAll = Key('library.selectAll');
   static const albumCreate = Key('album.create');
   static const albumCreateFirst = Key('album.createFirst');
+  static const albumSort = Key('album.sort');
   static const albumRename = Key('album.rename');
   static const albumDelete = Key('album.delete');
   static const albumDeleteConfirm = Key('album.deleteConfirm');
