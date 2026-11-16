@@ -208,4 +208,37 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(ViewerScreen), findsOneWidget);
   });
+
+  testWidgets('Add tags then Remove tags change the selected capture', (
+    tester,
+  ) async {
+    await open(tester);
+    final catalog = session.vault.catalog;
+    final tag = (await tester.runAsync(() => catalog.createAlbum('Harbour')))!;
+    await tester.longPress(find.byKey(Keys.galleryTile(0)));
+    await tester.pump();
+    Future<void> apply(Key action) async {
+      // The handler's continuation does file IO, so it must start in the real zone.
+      await tester.runAsync(() => tester.tap(find.byKey(action)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.byKey(Keys.albumChoose(tag)));
+      await tester.pump();
+      await tester.tap(find.byKey(Keys.tagPickerApply));
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    await apply(Keys.libraryAddAlbum);
+    await until(
+      tester,
+      () =>
+          catalog.items.values.where((d) => d.albums.contains(tag)).length == 1,
+    );
+    await apply(Keys.libraryRemoveAlbum);
+    await until(
+      tester,
+      () => catalog.items.values.every((d) => !d.albums.contains(tag)),
+    );
+    expect(catalog.items, isNotEmpty);
+  });
 }
