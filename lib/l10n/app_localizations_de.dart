@@ -1723,4 +1723,33 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreGateRetry => 'Wiederherstellung wiederholen';
+
+  @override
+  String get settingsCheckRecovery =>
+      'Meinen Wiederherstellungsschlüssel prüfen';
+
+  @override
+  String get recoveryCheckTitle => 'Wiederherstellungsschlüssel prüfen';
+
+  @override
+  String get recoveryCheckIntro =>
+      'Geben Sie den Wiederherstellungsschlüssel ein, den Sie anderswo gespeichert haben. Er wird auf diesem Telefon verglichen und nie gespeichert.';
+
+  @override
+  String get recoveryCheckAction => 'Prüfen';
+
+  @override
+  String get recoveryCheckClose => 'Schließen';
+
+  @override
+  String get recoveryCheckMatch =>
+      'Er stimmt mit dem Wiederherstellungsschlüssel Ihres Tresors überein.';
+
+  @override
+  String get recoveryCheckMismatch =>
+      'Dieser Schlüssel passt nicht zu diesem Tresor. Prüfen Sie, wo Sie ihn gespeichert haben, und versuchen Sie es erneut.';
+
+  @override
+  String get recoveryCheckInvalid =>
+      'Das ist kein gültiger Wiederherstellungsschlüssel. Prüfen Sie, ob Zeichen fehlen oder zu viel sind.';
 }

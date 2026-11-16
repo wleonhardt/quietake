@@ -538,6 +538,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: _showRecovery,
             ),
             const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: Keys.settingsRecoveryCheck,
+              icon: const Icon(Icons.fact_check_outlined),
+              label: Text(l10n.settingsCheckRecovery),
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (_) => _RecoveryCheckDialog(
+                  session: widget.session,
+                  onActivity: () => PrivacyScope.maybeOf(context)?.activity(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             ListTile(
               key: Keys.nasRecoveryOpen,
               leading: const Icon(Icons.password),
@@ -694,4 +707,86 @@ class _PasscodePromptState extends State<_PasscodePrompt> {
       ),
     ],
   );
+}
+
+/// Compares a typed recovery key with the live vault key. Owns its controller so
+/// the typed text is cleared when the dialog leaves the tree.
+class _RecoveryCheckDialog extends StatefulWidget {
+  const _RecoveryCheckDialog({required this.session, required this.onActivity});
+  final Session session;
+  final VoidCallback onActivity;
+  @override
+  State<_RecoveryCheckDialog> createState() => _RecoveryCheckDialogState();
+}
+
+class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog> {
+  final _typed = TextEditingController();
+  String Function(AppLocalizations)? _result;
+
+  @override
+  void dispose() {
+    _typed.dispose();
+    super.dispose();
+  }
+
+  void _check() {
+    SecureKey? key;
+    try {
+      key = widget.session.store.importRecovery(_typed.text);
+      final match = widget.session.vault.matchesKey(key);
+      _result = match
+          ? (l10n) => l10n.recoveryCheckMatch
+          : (l10n) => l10n.recoveryCheckMismatch;
+    } on BadRecoveryKeyException {
+      _result = (l10n) => l10n.recoveryCheckInvalid;
+    } finally {
+      key?.dispose();
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      scrollable: true,
+      title: Text(l10n.recoveryCheckTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.recoveryCheckIntro),
+          const SizedBox(height: 16),
+          TextField(
+            key: Keys.recoveryCheckField,
+            controller: _typed,
+            onChanged: (_) => widget.onActivity(),
+            obscureText: true,
+            enableSuggestions: false,
+            autocorrect: false,
+            decoration: InputDecoration(labelText: l10n.recoveryKeyLabel),
+          ),
+          if (_result != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Semantics(
+                liveRegion: true,
+                child: Text(_result!(l10n), key: Keys.recoveryCheckResult),
+              ),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.recoveryCheckClose),
+        ),
+        FilledButton(
+          key: Keys.recoveryCheckOk,
+          onPressed: _check,
+          child: Text(l10n.recoveryCheckAction),
+        ),
+      ],
+    );
+  }
 }

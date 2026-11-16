@@ -1722,4 +1722,32 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get restoreGateRetry => 'Réessayer la restauration';
+
+  @override
+  String get settingsCheckRecovery => 'Vérifier ma clé de récupération';
+
+  @override
+  String get recoveryCheckTitle => 'Vérifier la clé de récupération';
+
+  @override
+  String get recoveryCheckIntro =>
+      'Saisissez la clé de récupération enregistrée ailleurs. Elle est comparée sur ce téléphone et n\'est jamais conservée.';
+
+  @override
+  String get recoveryCheckAction => 'Vérifier';
+
+  @override
+  String get recoveryCheckClose => 'Fermer';
+
+  @override
+  String get recoveryCheckMatch =>
+      'Elle correspond à la clé de récupération de votre coffre.';
+
+  @override
+  String get recoveryCheckMismatch =>
+      'Cette clé ne correspond pas à ce coffre. Vérifiez où vous l\'avez enregistrée, puis réessayez.';
+
+  @override
+  String get recoveryCheckInvalid =>
+      'Ce n\'est pas une clé de récupération valide. Vérifiez s\'il manque des caractères ou s\'il y en a en trop.';
 }

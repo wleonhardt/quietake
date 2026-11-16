@@ -1719,4 +1719,32 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get restoreGateRetry => 'Reintentar restauración';
+
+  @override
+  String get settingsCheckRecovery => 'Comprobar mi clave de recuperación';
+
+  @override
+  String get recoveryCheckTitle => 'Comprobar clave de recuperación';
+
+  @override
+  String get recoveryCheckIntro =>
+      'Escribe la clave de recuperación que guardaste en otro sitio. Se compara en este teléfono y nunca se guarda.';
+
+  @override
+  String get recoveryCheckAction => 'Comprobar';
+
+  @override
+  String get recoveryCheckClose => 'Cerrar';
+
+  @override
+  String get recoveryCheckMatch =>
+      'Coincide con la clave de recuperación de tu bóveda.';
+
+  @override
+  String get recoveryCheckMismatch =>
+      'Esta clave no coincide con esta bóveda. Revisa dónde la guardaste e inténtalo de nuevo.';
+
+  @override
+  String get recoveryCheckInvalid =>
+      'No es una clave de recuperación válida. Comprueba si faltan caracteres o sobran.';
 }

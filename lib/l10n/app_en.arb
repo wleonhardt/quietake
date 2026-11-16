@@ -919,5 +919,13 @@
   "coverEmpty": "Tag some captures first, then choose one as the cover.",
   "coverUse": "Use this capture as the cover",
   "restoreGateFailed": "Could not finish interrupted backup restore. Prepared encrypted files are preserved. Check available storage, then try again.",
-  "restoreGateRetry": "Retry restore"
+  "restoreGateRetry": "Retry restore",
+  "settingsCheckRecovery": "Check my recovery key",
+  "recoveryCheckTitle": "Check recovery key",
+  "recoveryCheckIntro": "Type the recovery key you saved elsewhere. It is compared on this phone and never stored.",
+  "recoveryCheckAction": "Check",
+  "recoveryCheckClose": "Close",
+  "recoveryCheckMatch": "This matches your vault's recovery key.",
+  "recoveryCheckMismatch": "This key does not match this vault. Check where you saved it, then try again.",
+  "recoveryCheckInvalid": "This is not a valid recovery key. Check for missing or extra characters."
 }

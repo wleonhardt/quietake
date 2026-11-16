@@ -1685,4 +1685,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreGateRetry => 'Retry restore';
+
+  @override
+  String get settingsCheckRecovery => 'Check my recovery key';
+
+  @override
+  String get recoveryCheckTitle => 'Check recovery key';
+
+  @override
+  String get recoveryCheckIntro =>
+      'Type the recovery key you saved elsewhere. It is compared on this phone and never stored.';
+
+  @override
+  String get recoveryCheckAction => 'Check';
+
+  @override
+  String get recoveryCheckClose => 'Close';
+
+  @override
+  String get recoveryCheckMatch => 'This matches your vault\'s recovery key.';
+
+  @override
+  String get recoveryCheckMismatch =>
+      'This key does not match this vault. Check where you saved it, then try again.';
+
+  @override
+  String get recoveryCheckInvalid =>
+      'This is not a valid recovery key. Check for missing or extra characters.';
 }

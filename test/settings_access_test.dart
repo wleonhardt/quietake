@@ -210,6 +210,67 @@ void main() {
     expect(find.byKey(Keys.recoveryKeyText), findsNothing);
   });
 
+  Future<void> openRecoveryCheck(WidgetTester tester) async {
+    await tester.ensureVisible(find.byKey(Keys.settingsRecoveryCheck));
+    await tester.tap(find.byKey(Keys.settingsRecoveryCheck));
+    await tester.pumpAndSettle();
+  }
+
+  Future<String> checkRecovery(WidgetTester tester, String typed) async {
+    await tester.enterText(find.byKey(Keys.recoveryCheckField), typed);
+    await tester.tap(find.byKey(Keys.recoveryCheckOk));
+    await tester.pumpAndSettle();
+    return tester.widget<Text>(find.byKey(Keys.recoveryCheckResult)).data!;
+  }
+
+  testWidgets(
+    'Check my recovery key accepts the saved key and rejects others',
+    (tester) async {
+      await open(tester);
+      final saved = session.store.exportRecovery(
+        session.vault.masterKeyForTests,
+      );
+      await openRecoveryCheck(tester);
+      expect(await checkRecovery(tester, 'not a key'), contains('not a valid'));
+      final other = session.store.exportRecovery(
+        session.store.sodium.crypto.secretBox.keygen(),
+      );
+      expect(await checkRecovery(tester, other), contains('does not match'));
+      expect(await checkRecovery(tester, saved), contains('matches'));
+      expect(await checkRecovery(tester, saved), isNot(contains('does not')));
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Keys.recoveryCheckField), findsNothing);
+    },
+  );
+
+  testWidgets('the recovery key check clears the typed key when closed', (
+    tester,
+  ) async {
+    await open(tester);
+    await openRecoveryCheck(tester);
+    await tester.enterText(find.byKey(Keys.recoveryCheckField), 'secret text');
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    await openRecoveryCheck(tester);
+    expect(
+      tester
+          .widget<TextField>(find.byKey(Keys.recoveryCheckField))
+          .controller!
+          .text,
+      '',
+    );
+  });
+
+  testWidgets('the recovery key check follows the device language', (
+    tester,
+  ) async {
+    await open(tester, locale: const Locale('de'));
+    await openRecoveryCheck(tester);
+    expect(await checkRecovery(tester, 'kein Schlüssel'), contains('gültig'));
+    expect(find.text('Schließen'), findsOneWidget);
+  });
+
   testWidgets('the right passcode shows the recovery key', (tester) async {
     await open(tester);
     await tester.ensureVisible(find.text('Show recovery key'));

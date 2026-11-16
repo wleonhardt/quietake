@@ -457,5 +457,13 @@
   "coverEmpty": "Versehen Sie zuerst einige Aufnahmen mit dem Tag und wählen Sie dann eine als Titelbild.",
   "coverUse": "Diese Aufnahme als Titelbild verwenden",
   "restoreGateFailed": "Die unterbrochene Backup-Wiederherstellung konnte nicht abgeschlossen werden. Vorbereitete verschlüsselte Dateien bleiben erhalten. Prüfen Sie den verfügbaren Speicher und versuchen Sie es erneut.",
-  "restoreGateRetry": "Wiederherstellung wiederholen"
+  "restoreGateRetry": "Wiederherstellung wiederholen",
+  "settingsCheckRecovery": "Meinen Wiederherstellungsschlüssel prüfen",
+  "recoveryCheckTitle": "Wiederherstellungsschlüssel prüfen",
+  "recoveryCheckIntro": "Geben Sie den Wiederherstellungsschlüssel ein, den Sie anderswo gespeichert haben. Er wird auf diesem Telefon verglichen und nie gespeichert.",
+  "recoveryCheckAction": "Prüfen",
+  "recoveryCheckClose": "Schließen",
+  "recoveryCheckMatch": "Er stimmt mit dem Wiederherstellungsschlüssel Ihres Tresors überein.",
+  "recoveryCheckMismatch": "Dieser Schlüssel passt nicht zu diesem Tresor. Prüfen Sie, wo Sie ihn gespeichert haben, und versuchen Sie es erneut.",
+  "recoveryCheckInvalid": "Das ist kein gültiger Wiederherstellungsschlüssel. Prüfen Sie, ob Zeichen fehlen oder zu viel sind."
 }

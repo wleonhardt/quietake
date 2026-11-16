@@ -2849,6 +2849,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry restore'**
   String get restoreGateRetry;
+
+  /// No description provided for @settingsCheckRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Check my recovery key'**
+  String get settingsCheckRecovery;
+
+  /// No description provided for @recoveryCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check recovery key'**
+  String get recoveryCheckTitle;
+
+  /// No description provided for @recoveryCheckIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the recovery key you saved elsewhere. It is compared on this phone and never stored.'**
+  String get recoveryCheckIntro;
+
+  /// No description provided for @recoveryCheckAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get recoveryCheckAction;
+
+  /// No description provided for @recoveryCheckClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get recoveryCheckClose;
+
+  /// No description provided for @recoveryCheckMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This matches your vault\'s recovery key.'**
+  String get recoveryCheckMatch;
+
+  /// No description provided for @recoveryCheckMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This key does not match this vault. Check where you saved it, then try again.'**
+  String get recoveryCheckMismatch;
+
+  /// No description provided for @recoveryCheckInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a valid recovery key. Check for missing or extra characters.'**
+  String get recoveryCheckInvalid;
 }
 
 class _AppLocalizationsDelegate

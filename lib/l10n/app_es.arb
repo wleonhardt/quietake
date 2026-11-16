@@ -457,5 +457,13 @@
   "coverEmpty": "Etiqueta primero algunas capturas y luego elige una como portada.",
   "coverUse": "Usar esta captura como portada",
   "restoreGateFailed": "No se pudo terminar la restauración interrumpida de la copia. Los archivos cifrados preparados se conservan. Revisa el almacenamiento disponible y vuelve a intentarlo.",
-  "restoreGateRetry": "Reintentar restauración"
+  "restoreGateRetry": "Reintentar restauración",
+  "settingsCheckRecovery": "Comprobar mi clave de recuperación",
+  "recoveryCheckTitle": "Comprobar clave de recuperación",
+  "recoveryCheckIntro": "Escribe la clave de recuperación que guardaste en otro sitio. Se compara en este teléfono y nunca se guarda.",
+  "recoveryCheckAction": "Comprobar",
+  "recoveryCheckClose": "Cerrar",
+  "recoveryCheckMatch": "Coincide con la clave de recuperación de tu bóveda.",
+  "recoveryCheckMismatch": "Esta clave no coincide con esta bóveda. Revisa dónde la guardaste e inténtalo de nuevo.",
+  "recoveryCheckInvalid": "No es una clave de recuperación válida. Comprueba si faltan caracteres o sobran."
 }

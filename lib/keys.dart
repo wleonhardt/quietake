@@ -217,6 +217,10 @@ abstract final class Keys {
   static const disconnectConfirm = Key('settings.disconnectConfirm');
   static const recoveryPrompt = Key('recovery.prompt');
   static const recoveryPromptOk = Key('recovery.promptOk');
+  static const settingsRecoveryCheck = Key('settings.recoveryCheck');
+  static const recoveryCheckField = Key('recovery.checkField');
+  static const recoveryCheckOk = Key('recovery.checkOk');
+  static const recoveryCheckResult = Key('recovery.checkResult');
 
   static const setupPasscode = Key('setup.passcode');
   static const setupConfirm = Key('setup.confirm');
