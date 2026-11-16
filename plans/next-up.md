@@ -48,7 +48,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 1. Slideshow keep-awake: DONE (decision 017). Own `quietake/screen` channel; host test with mocked channel; iOS and Android emulator viewer tests pass; the actual dimming is not observable in them.
 2. Albums (tags) cover choice: DONE (decision 018): optional `covers` field plus Tags screen thumbnail, Set cover and Clear cover. Viewer shortcut not built. Host test covers the empty picker only; pick and clear run in `library_test.dart` on devices.
 3. Share EXIF strip: DONE (decision 019): JPEG share copies keep only orientation; XMP, IPTC, comments and MPF go too; policy and website wording updated and awaits owner review. Video metadata removal is a later item (meaning unconfirmed).
-4. Import: folder import with progress and resume after interruption, existing 10,000-file limits.
+4. Folder import (decision 020): slice 1 DONE (`FolderImport`, encrypted resume ledger, `FolderSource` interface, host tests with a fake source; no native picker or UI yet). NEXT slices: Android SAF tree picker and iOS folder picker, then the import screen button with progress and resume, then policy and README wording. Subfolders not walked.
 5. Localization: Spanish, French and German via Flutter gen-l10n; policy text stays English until the owner reviews translations.
 6. Storage view: owner said "whatever is best": drop cache prune (previews are memory only) and pending-upload count; no work planned.
 7. NAS restore dry run: owner says the test credentials are in bw-cli. Needs the vault unlocked by the owner (a master password is never typed by the agent); see Queue note.
