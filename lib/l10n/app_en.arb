@@ -684,5 +684,144 @@
     }
   },
   "castCancelConnection": "Cancel connection",
-  "castToTv": "Cast to TV"
+  "castToTv": "Cast to TV",
+  "settingsTitle": "Settings",
+  "settingsPrivacySection": "Privacy & access",
+  "settingsIdleLabel": "Lock after inactivity",
+  "settingsIdleOff": "Off",
+  "settingsIdleMinutes": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
+  "@settingsIdleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsIdleNote": "Recording and video playback delay idle locking. Lock now saves an active recording, pauses playback and stops casting.",
+  "settingsScreenshotsIos": "App-switcher previews are hidden. iOS screenshots cannot be blocked.",
+  "settingsScreenshotsAndroid": "Screenshots, screen recording and app-switcher previews are protected on Android.",
+  "settingsPrivacySaveFailed": "Could not save privacy settings. Try again.",
+  "settingsPasscodeChanged": "Passcode changed",
+  "settingsBackupSection": "Backup",
+  "settingsBackupIntro": "Optional backup of encrypted media to your own WebDAV share.",
+  "settingsUrlLabel": "WebDAV folder URL",
+  "settingsUsername": "Username",
+  "settingsPassword": "Password",
+  "settingsBackgroundTitle": "Back up while app is closed",
+  "settingsBackgroundBody": "Android schedules encrypted uploads when network and battery allow. Save and complete one foreground sync first. Force-stop pauses work until you reopen Quietake.",
+  "settingsMobileTitle": "Allow mobile data",
+  "settingsMobileBody": "Off uses unmetered networks only. Large videos can consume substantial data.",
+  "settingsBgChecking": "Checking Android scheduler…",
+  "settingsBgScheduled": "Scheduled when network and battery allow.",
+  "settingsBgUploading": "Android is uploading encrypted copies.",
+  "settingsBgTransferred": "Last background pass finished. Full backup verification is separate.",
+  "settingsBgReconcile": "Open the vault and sync to check this backup before background uploads resume.",
+  "settingsBgPending": "Background backup pending. Android will retry.",
+  "settingsBgOff": "Background backup is off or waiting for its first successful sync.",
+  "settingsBgUnavailable": "Scheduler unavailable. Foreground sync remains available.",
+  "settingsSave": "Save backup settings",
+  "settingsTest": "Test connection",
+  "settingsTesting": "Testing connection…",
+  "settingsConnected": "Connected · {count, plural, =1{1 file} other{{count} files}}",
+  "@settingsConnected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsErrHttp": "Connection failed (HTTP {status}). Check folder URL, username and password.",
+  "@settingsErrHttp": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsErrReach": "Could not reach NAS. Check the URL and Wi-Fi.",
+  "settingsErrGeneric": "Connection failed. Check the saved details and try again.",
+  "settingsSaveFirst": "Save connection changes before checking backup.",
+  "settingsEnterDetails": "Enter a folder URL, username and password",
+  "settingsSaveFailed": "Could not save connection details. Try again.",
+  "settingsDisconnectFailed": "Could not disconnect NAS backup. Try again.",
+  "settingsWrongPasscode": "Wrong passcode. Try again.",
+  "settingsRecoveryReadFailed": "Could not read the recovery key. Try again.",
+  "settingsDisconnectTitle": "Disconnect NAS backup?",
+  "settingsClearTitle": "Clear saved NAS details?",
+  "settingsDisconnectBody": "Stops automatic backup and removes saved connection details. Captures stay on your phone and NAS. Pending NAS deletions will not finish until you reconnect that backup.",
+  "settingsDisconnectAction": "Disconnect",
+  "settingsClearAction": "Clear details",
+  "settingsDisconnectButton": "Disconnect NAS backup",
+  "settingsClearButton": "Clear saved NAS details",
+  "settingsRecoverySection": "Recovery & export",
+  "settingsShowRecovery": "Show recovery key",
+  "settingsNasPassTitle": "NAS backup passphrase",
+  "settingsNasPassBody": "Enable, change or disable recovery without your recovery key",
+  "settingsPortableTitle": "Portable encrypted backup",
+  "settingsPortableBody": "Save a ZIP to Files using your recovery key",
+  "settingsCameraSection": "Camera",
+  "settingsBurstLabel": "Photos in a burst",
+  "settingsBurstHelp": "Press and hold the shutter.",
+  "settingsBurstChoice": "{count} photos",
+  "@settingsBurstChoice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsStorageSection": "Storage",
+  "settingsStorageUnreadable": "Storage could not be read.",
+  "settingsStorageCounting": "Counting captures…",
+  "settingsStorageNone": "No captures on this phone yet.",
+  "settingsStorageSummary": "{count, plural, =1{1 capture} other{{count} captures}}, {size} encrypted on this phone.",
+  "@settingsStorageSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsStorageTrashed": "{count} in Recently deleted, removed for good after {days} days.",
+  "@settingsStorageTrashed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSizeBytes": "{value} bytes",
+  "@settingsSizeBytes": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSizeKb": "{value} KB",
+  "@settingsSizeKb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSizeMb": "{value} MB",
+  "@settingsSizeMb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsKeepDeleted": "Keep deleted captures for 30 days",
+  "settingsKeepDeletedBody": "Delete moves a capture to Recently deleted first. It stays encrypted.",
+  "settingsLicenses": "Licenses",
+  "settingsShow": "Show"
 }

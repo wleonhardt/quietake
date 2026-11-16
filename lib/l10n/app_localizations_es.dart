@@ -1178,4 +1178,275 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get castToTv => 'Transmitir al televisor';
+
+  @override
+  String get settingsTitle => 'Ajustes';
+
+  @override
+  String get settingsPrivacySection => 'Privacidad y acceso';
+
+  @override
+  String get settingsIdleLabel => 'Bloquear tras inactividad';
+
+  @override
+  String get settingsIdleOff => 'Desactivado';
+
+  @override
+  String settingsIdleMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutos',
+      one: '1 minuto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsIdleNote =>
+      'La grabación y la reproducción de vídeo retrasan el bloqueo por inactividad. Bloquear ahora guarda una grabación activa, pausa la reproducción y detiene la transmisión.';
+
+  @override
+  String get settingsScreenshotsIos =>
+      'Las vistas previas del selector de apps están ocultas. Las capturas de pantalla de iOS no se pueden bloquear.';
+
+  @override
+  String get settingsScreenshotsAndroid =>
+      'Las capturas de pantalla, la grabación de pantalla y las vistas previas del selector de apps están protegidas en Android.';
+
+  @override
+  String get settingsPrivacySaveFailed =>
+      'No se pudieron guardar los ajustes de privacidad. Inténtalo de nuevo.';
+
+  @override
+  String get settingsPasscodeChanged => 'Código cambiado';
+
+  @override
+  String get settingsBackupSection => 'Copia de seguridad';
+
+  @override
+  String get settingsBackupIntro =>
+      'Copia de seguridad opcional de los archivos cifrados en tu propio recurso WebDAV.';
+
+  @override
+  String get settingsUrlLabel => 'URL de la carpeta WebDAV';
+
+  @override
+  String get settingsUsername => 'Usuario';
+
+  @override
+  String get settingsPassword => 'Contraseña';
+
+  @override
+  String get settingsBackgroundTitle => 'Copia de seguridad con la app cerrada';
+
+  @override
+  String get settingsBackgroundBody =>
+      'Android programa las subidas cifradas cuando la red y la batería lo permiten. Guarda y completa antes una sincronización en primer plano. Forzar la detención pausa el trabajo hasta que vuelvas a abrir Quietake.';
+
+  @override
+  String get settingsMobileTitle => 'Permitir datos móviles';
+
+  @override
+  String get settingsMobileBody =>
+      'Desactivado usa solo redes sin límite de datos. Los vídeos grandes pueden consumir muchos datos.';
+
+  @override
+  String get settingsBgChecking => 'Comprobando el programador de Android…';
+
+  @override
+  String get settingsBgScheduled =>
+      'Programada para cuando la red y la batería lo permitan.';
+
+  @override
+  String get settingsBgUploading => 'Android está subiendo copias cifradas.';
+
+  @override
+  String get settingsBgTransferred =>
+      'La última pasada en segundo plano terminó. La verificación completa de la copia es independiente.';
+
+  @override
+  String get settingsBgReconcile =>
+      'Abre la bóveda y sincroniza para comprobar esta copia antes de que se reanuden las subidas en segundo plano.';
+
+  @override
+  String get settingsBgPending =>
+      'Copia en segundo plano pendiente. Android lo reintentará.';
+
+  @override
+  String get settingsBgOff =>
+      'La copia en segundo plano está desactivada o espera su primera sincronización correcta.';
+
+  @override
+  String get settingsBgUnavailable =>
+      'Programador no disponible. La sincronización en primer plano sigue disponible.';
+
+  @override
+  String get settingsSave => 'Guardar ajustes de copia';
+
+  @override
+  String get settingsTest => 'Probar conexión';
+
+  @override
+  String get settingsTesting => 'Probando la conexión…';
+
+  @override
+  String settingsConnected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count archivos',
+      one: '1 archivo',
+    );
+    return 'Conectado · $_temp0';
+  }
+
+  @override
+  String settingsErrHttp(int status) {
+    return 'Error de conexión (HTTP $status). Revisa la URL de la carpeta, el usuario y la contraseña.';
+  }
+
+  @override
+  String get settingsErrReach =>
+      'No se pudo contactar con el NAS. Revisa la URL y el Wi-Fi.';
+
+  @override
+  String get settingsErrGeneric =>
+      'Error de conexión. Revisa los datos guardados e inténtalo de nuevo.';
+
+  @override
+  String get settingsSaveFirst =>
+      'Guarda los cambios de conexión antes de comprobar la copia.';
+
+  @override
+  String get settingsEnterDetails =>
+      'Introduce una URL de carpeta, un usuario y una contraseña';
+
+  @override
+  String get settingsSaveFailed =>
+      'No se pudieron guardar los datos de conexión. Inténtalo de nuevo.';
+
+  @override
+  String get settingsDisconnectFailed =>
+      'No se pudo desconectar la copia en el NAS. Inténtalo de nuevo.';
+
+  @override
+  String get settingsWrongPasscode => 'Código incorrecto. Inténtalo de nuevo.';
+
+  @override
+  String get settingsRecoveryReadFailed =>
+      'No se pudo leer la clave de recuperación. Inténtalo de nuevo.';
+
+  @override
+  String get settingsDisconnectTitle => '¿Desconectar la copia en el NAS?';
+
+  @override
+  String get settingsClearTitle => '¿Borrar los datos guardados del NAS?';
+
+  @override
+  String get settingsDisconnectBody =>
+      'Detiene la copia automática y elimina los datos de conexión guardados. Las capturas permanecen en tu teléfono y en el NAS. Las eliminaciones pendientes en el NAS no terminarán hasta que vuelvas a conectar esa copia.';
+
+  @override
+  String get settingsDisconnectAction => 'Desconectar';
+
+  @override
+  String get settingsClearAction => 'Borrar datos';
+
+  @override
+  String get settingsDisconnectButton => 'Desconectar la copia en el NAS';
+
+  @override
+  String get settingsClearButton => 'Borrar los datos guardados del NAS';
+
+  @override
+  String get settingsRecoverySection => 'Recuperación y exportación';
+
+  @override
+  String get settingsShowRecovery => 'Mostrar clave de recuperación';
+
+  @override
+  String get settingsNasPassTitle =>
+      'Frase de contraseña de la copia en el NAS';
+
+  @override
+  String get settingsNasPassBody =>
+      'Activa, cambia o desactiva la recuperación sin tu clave de recuperación';
+
+  @override
+  String get settingsPortableTitle => 'Copia cifrada portátil';
+
+  @override
+  String get settingsPortableBody =>
+      'Guarda un ZIP en Archivos usando tu clave de recuperación';
+
+  @override
+  String get settingsCameraSection => 'Cámara';
+
+  @override
+  String get settingsBurstLabel => 'Fotos por ráfaga';
+
+  @override
+  String get settingsBurstHelp => 'Mantén pulsado el disparador.';
+
+  @override
+  String settingsBurstChoice(int count) {
+    return '$count fotos';
+  }
+
+  @override
+  String get settingsStorageSection => 'Almacenamiento';
+
+  @override
+  String get settingsStorageUnreadable => 'No se pudo leer el almacenamiento.';
+
+  @override
+  String get settingsStorageCounting => 'Contando capturas…';
+
+  @override
+  String get settingsStorageNone => 'Aún no hay capturas en este teléfono.';
+
+  @override
+  String settingsStorageSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count capturas',
+      one: '1 captura',
+    );
+    return '$_temp0, $size cifrados en este teléfono.';
+  }
+
+  @override
+  String settingsStorageTrashed(int count, int days) {
+    return '$count en Eliminados recientemente, se borran definitivamente tras $days días.';
+  }
+
+  @override
+  String settingsSizeBytes(int value) {
+    return '$value bytes';
+  }
+
+  @override
+  String settingsSizeKb(String value) {
+    return '$value KB';
+  }
+
+  @override
+  String settingsSizeMb(String value) {
+    return '$value MB';
+  }
+
+  @override
+  String get settingsKeepDeleted => 'Conservar las capturas eliminadas 30 días';
+
+  @override
+  String get settingsKeepDeletedBody =>
+      'Eliminar mueve primero una captura a Eliminados recientemente. Sigue cifrada.';
+
+  @override
+  String get settingsLicenses => 'Licencias';
+
+  @override
+  String get settingsShow => 'Mostrar';
 }

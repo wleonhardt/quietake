@@ -1973,6 +1973,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cast to TV'**
   String get castToTv;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsPrivacySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & access'**
+  String get settingsPrivacySection;
+
+  /// No description provided for @settingsIdleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock after inactivity'**
+  String get settingsIdleLabel;
+
+  /// No description provided for @settingsIdleOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsIdleOff;
+
+  /// No description provided for @settingsIdleMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{1 minute} other{{minutes} minutes}}'**
+  String settingsIdleMinutes(int minutes);
+
+  /// No description provided for @settingsIdleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording and video playback delay idle locking. Lock now saves an active recording, pauses playback and stops casting.'**
+  String get settingsIdleNote;
+
+  /// No description provided for @settingsScreenshotsIos.
+  ///
+  /// In en, this message translates to:
+  /// **'App-switcher previews are hidden. iOS screenshots cannot be blocked.'**
+  String get settingsScreenshotsIos;
+
+  /// No description provided for @settingsScreenshotsAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots, screen recording and app-switcher previews are protected on Android.'**
+  String get settingsScreenshotsAndroid;
+
+  /// No description provided for @settingsPrivacySaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save privacy settings. Try again.'**
+  String get settingsPrivacySaveFailed;
+
+  /// No description provided for @settingsPasscodeChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Passcode changed'**
+  String get settingsPasscodeChanged;
+
+  /// No description provided for @settingsBackupSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get settingsBackupSection;
+
+  /// No description provided for @settingsBackupIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional backup of encrypted media to your own WebDAV share.'**
+  String get settingsBackupIntro;
+
+  /// No description provided for @settingsUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WebDAV folder URL'**
+  String get settingsUrlLabel;
+
+  /// No description provided for @settingsUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get settingsUsername;
+
+  /// No description provided for @settingsPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get settingsPassword;
+
+  /// No description provided for @settingsBackgroundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up while app is closed'**
+  String get settingsBackgroundTitle;
+
+  /// No description provided for @settingsBackgroundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Android schedules encrypted uploads when network and battery allow. Save and complete one foreground sync first. Force-stop pauses work until you reopen Quietake.'**
+  String get settingsBackgroundBody;
+
+  /// No description provided for @settingsMobileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow mobile data'**
+  String get settingsMobileTitle;
+
+  /// No description provided for @settingsMobileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Off uses unmetered networks only. Large videos can consume substantial data.'**
+  String get settingsMobileBody;
+
+  /// No description provided for @settingsBgChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking Android scheduler…'**
+  String get settingsBgChecking;
+
+  /// No description provided for @settingsBgScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled when network and battery allow.'**
+  String get settingsBgScheduled;
+
+  /// No description provided for @settingsBgUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Android is uploading encrypted copies.'**
+  String get settingsBgUploading;
+
+  /// No description provided for @settingsBgTransferred.
+  ///
+  /// In en, this message translates to:
+  /// **'Last background pass finished. Full backup verification is separate.'**
+  String get settingsBgTransferred;
+
+  /// No description provided for @settingsBgReconcile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the vault and sync to check this backup before background uploads resume.'**
+  String get settingsBgReconcile;
+
+  /// No description provided for @settingsBgPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Background backup pending. Android will retry.'**
+  String get settingsBgPending;
+
+  /// No description provided for @settingsBgOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Background backup is off or waiting for its first successful sync.'**
+  String get settingsBgOff;
+
+  /// No description provided for @settingsBgUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduler unavailable. Foreground sync remains available.'**
+  String get settingsBgUnavailable;
+
+  /// No description provided for @settingsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save backup settings'**
+  String get settingsSave;
+
+  /// No description provided for @settingsTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get settingsTest;
+
+  /// No description provided for @settingsTesting.
+  ///
+  /// In en, this message translates to:
+  /// **'Testing connection…'**
+  String get settingsTesting;
+
+  /// No description provided for @settingsConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected · {count, plural, =1{1 file} other{{count} files}}'**
+  String settingsConnected(int count);
+
+  /// No description provided for @settingsErrHttp.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed (HTTP {status}). Check folder URL, username and password.'**
+  String settingsErrHttp(int status);
+
+  /// No description provided for @settingsErrReach.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach NAS. Check the URL and Wi-Fi.'**
+  String get settingsErrReach;
+
+  /// No description provided for @settingsErrGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed. Check the saved details and try again.'**
+  String get settingsErrGeneric;
+
+  /// No description provided for @settingsSaveFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Save connection changes before checking backup.'**
+  String get settingsSaveFirst;
+
+  /// No description provided for @settingsEnterDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a folder URL, username and password'**
+  String get settingsEnterDetails;
+
+  /// No description provided for @settingsSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save connection details. Try again.'**
+  String get settingsSaveFailed;
+
+  /// No description provided for @settingsDisconnectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not disconnect NAS backup. Try again.'**
+  String get settingsDisconnectFailed;
+
+  /// No description provided for @settingsWrongPasscode.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong passcode. Try again.'**
+  String get settingsWrongPasscode;
+
+  /// No description provided for @settingsRecoveryReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the recovery key. Try again.'**
+  String get settingsRecoveryReadFailed;
+
+  /// No description provided for @settingsDisconnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect NAS backup?'**
+  String get settingsDisconnectTitle;
+
+  /// No description provided for @settingsClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear saved NAS details?'**
+  String get settingsClearTitle;
+
+  /// No description provided for @settingsDisconnectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops automatic backup and removes saved connection details. Captures stay on your phone and NAS. Pending NAS deletions will not finish until you reconnect that backup.'**
+  String get settingsDisconnectBody;
+
+  /// No description provided for @settingsDisconnectAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get settingsDisconnectAction;
+
+  /// No description provided for @settingsClearAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear details'**
+  String get settingsClearAction;
+
+  /// No description provided for @settingsDisconnectButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect NAS backup'**
+  String get settingsDisconnectButton;
+
+  /// No description provided for @settingsClearButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear saved NAS details'**
+  String get settingsClearButton;
+
+  /// No description provided for @settingsRecoverySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery & export'**
+  String get settingsRecoverySection;
+
+  /// No description provided for @settingsShowRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Show recovery key'**
+  String get settingsShowRecovery;
+
+  /// No description provided for @settingsNasPassTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NAS backup passphrase'**
+  String get settingsNasPassTitle;
+
+  /// No description provided for @settingsNasPassBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable, change or disable recovery without your recovery key'**
+  String get settingsNasPassBody;
+
+  /// No description provided for @settingsPortableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Portable encrypted backup'**
+  String get settingsPortableTitle;
+
+  /// No description provided for @settingsPortableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a ZIP to Files using your recovery key'**
+  String get settingsPortableBody;
+
+  /// No description provided for @settingsCameraSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get settingsCameraSection;
+
+  /// No description provided for @settingsBurstLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos in a burst'**
+  String get settingsBurstLabel;
+
+  /// No description provided for @settingsBurstHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold the shutter.'**
+  String get settingsBurstHelp;
+
+  /// No description provided for @settingsBurstChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} photos'**
+  String settingsBurstChoice(int count);
+
+  /// No description provided for @settingsStorageSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get settingsStorageSection;
+
+  /// No description provided for @settingsStorageUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage could not be read.'**
+  String get settingsStorageUnreadable;
+
+  /// No description provided for @settingsStorageCounting.
+  ///
+  /// In en, this message translates to:
+  /// **'Counting captures…'**
+  String get settingsStorageCounting;
+
+  /// No description provided for @settingsStorageNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No captures on this phone yet.'**
+  String get settingsStorageNone;
+
+  /// No description provided for @settingsStorageSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 capture} other{{count} captures}}, {size} encrypted on this phone.'**
+  String settingsStorageSummary(int count, String size);
+
+  /// No description provided for @settingsStorageTrashed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in Recently deleted, removed for good after {days} days.'**
+  String settingsStorageTrashed(int count, int days);
+
+  /// No description provided for @settingsSizeBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} bytes'**
+  String settingsSizeBytes(int value);
+
+  /// No description provided for @settingsSizeKb.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} KB'**
+  String settingsSizeKb(String value);
+
+  /// No description provided for @settingsSizeMb.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} MB'**
+  String settingsSizeMb(String value);
+
+  /// No description provided for @settingsKeepDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep deleted captures for 30 days'**
+  String get settingsKeepDeleted;
+
+  /// No description provided for @settingsKeepDeletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete moves a capture to Recently deleted first. It stays encrypted.'**
+  String get settingsKeepDeletedBody;
+
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Licenses'**
+  String get settingsLicenses;
+
+  /// No description provided for @settingsShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get settingsShow;
 }
 
 class _AppLocalizationsDelegate

@@ -1178,4 +1178,277 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get castToTv => 'Diffuser sur le téléviseur';
+
+  @override
+  String get settingsTitle => 'Réglages';
+
+  @override
+  String get settingsPrivacySection => 'Confidentialité et accès';
+
+  @override
+  String get settingsIdleLabel => 'Verrouiller après inactivité';
+
+  @override
+  String get settingsIdleOff => 'Désactivé';
+
+  @override
+  String settingsIdleMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsIdleNote =>
+      'L\'enregistrement et la lecture vidéo retardent le verrouillage automatique. Verrouiller maintenant enregistre une vidéo en cours, met la lecture en pause et arrête la diffusion.';
+
+  @override
+  String get settingsScreenshotsIos =>
+      'Les aperçus du sélecteur d\'apps sont masqués. Les captures d\'écran iOS ne peuvent pas être bloquées.';
+
+  @override
+  String get settingsScreenshotsAndroid =>
+      'Les captures d\'écran, l\'enregistrement d\'écran et les aperçus du sélecteur d\'apps sont protégés sur Android.';
+
+  @override
+  String get settingsPrivacySaveFailed =>
+      'Impossible d\'enregistrer les réglages de confidentialité. Réessayez.';
+
+  @override
+  String get settingsPasscodeChanged => 'Code modifié';
+
+  @override
+  String get settingsBackupSection => 'Sauvegarde';
+
+  @override
+  String get settingsBackupIntro =>
+      'Sauvegarde facultative des médias chiffrés vers votre propre partage WebDAV.';
+
+  @override
+  String get settingsUrlLabel => 'URL du dossier WebDAV';
+
+  @override
+  String get settingsUsername => 'Nom d\'utilisateur';
+
+  @override
+  String get settingsPassword => 'Mot de passe';
+
+  @override
+  String get settingsBackgroundTitle => 'Sauvegarder quand l\'app est fermée';
+
+  @override
+  String get settingsBackgroundBody =>
+      'Android planifie les envois chiffrés lorsque le réseau et la batterie le permettent. Enregistrez et terminez d\'abord une synchronisation au premier plan. Un arrêt forcé suspend le travail jusqu\'à la réouverture de Quietake.';
+
+  @override
+  String get settingsMobileTitle => 'Autoriser les données mobiles';
+
+  @override
+  String get settingsMobileBody =>
+      'Désactivé, seuls les réseaux non facturés au volume sont utilisés. Les vidéos volumineuses peuvent consommer beaucoup de données.';
+
+  @override
+  String get settingsBgChecking => 'Vérification du planificateur Android…';
+
+  @override
+  String get settingsBgScheduled =>
+      'Planifiée lorsque le réseau et la batterie le permettent.';
+
+  @override
+  String get settingsBgUploading => 'Android envoie des copies chiffrées.';
+
+  @override
+  String get settingsBgTransferred =>
+      'Le dernier passage en arrière-plan est terminé. La vérification complète de la sauvegarde est distincte.';
+
+  @override
+  String get settingsBgReconcile =>
+      'Ouvrez le coffre et synchronisez pour vérifier cette sauvegarde avant la reprise des envois en arrière-plan.';
+
+  @override
+  String get settingsBgPending =>
+      'Sauvegarde en arrière-plan en attente. Android réessaiera.';
+
+  @override
+  String get settingsBgOff =>
+      'La sauvegarde en arrière-plan est désactivée ou attend sa première synchronisation réussie.';
+
+  @override
+  String get settingsBgUnavailable =>
+      'Planificateur indisponible. La synchronisation au premier plan reste disponible.';
+
+  @override
+  String get settingsSave => 'Enregistrer les réglages de sauvegarde';
+
+  @override
+  String get settingsTest => 'Tester la connexion';
+
+  @override
+  String get settingsTesting => 'Test de la connexion…';
+
+  @override
+  String settingsConnected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers',
+      one: '1 fichier',
+    );
+    return 'Connecté · $_temp0';
+  }
+
+  @override
+  String settingsErrHttp(int status) {
+    return 'Échec de la connexion (HTTP $status). Vérifiez l\'URL du dossier, le nom d\'utilisateur et le mot de passe.';
+  }
+
+  @override
+  String get settingsErrReach =>
+      'Impossible de joindre le NAS. Vérifiez l\'URL et le Wi-Fi.';
+
+  @override
+  String get settingsErrGeneric =>
+      'Échec de la connexion. Vérifiez les informations enregistrées et réessayez.';
+
+  @override
+  String get settingsSaveFirst =>
+      'Enregistrez les modifications de connexion avant de vérifier la sauvegarde.';
+
+  @override
+  String get settingsEnterDetails =>
+      'Saisissez une URL de dossier, un nom d\'utilisateur et un mot de passe';
+
+  @override
+  String get settingsSaveFailed =>
+      'Impossible d\'enregistrer les informations de connexion. Réessayez.';
+
+  @override
+  String get settingsDisconnectFailed =>
+      'Impossible de déconnecter la sauvegarde NAS. Réessayez.';
+
+  @override
+  String get settingsWrongPasscode => 'Code incorrect. Réessayez.';
+
+  @override
+  String get settingsRecoveryReadFailed =>
+      'Impossible de lire la clé de récupération. Réessayez.';
+
+  @override
+  String get settingsDisconnectTitle => 'Déconnecter la sauvegarde NAS ?';
+
+  @override
+  String get settingsClearTitle =>
+      'Effacer les informations NAS enregistrées ?';
+
+  @override
+  String get settingsDisconnectBody =>
+      'Arrête la sauvegarde automatique et supprime les informations de connexion enregistrées. Les captures restent sur votre téléphone et sur le NAS. Les suppressions en attente sur le NAS ne se termineront pas tant que vous n\'aurez pas reconnecté cette sauvegarde.';
+
+  @override
+  String get settingsDisconnectAction => 'Déconnecter';
+
+  @override
+  String get settingsClearAction => 'Effacer les informations';
+
+  @override
+  String get settingsDisconnectButton => 'Déconnecter la sauvegarde NAS';
+
+  @override
+  String get settingsClearButton => 'Effacer les informations NAS enregistrées';
+
+  @override
+  String get settingsRecoverySection => 'Récupération et export';
+
+  @override
+  String get settingsShowRecovery => 'Afficher la clé de récupération';
+
+  @override
+  String get settingsNasPassTitle => 'Phrase secrète de la sauvegarde NAS';
+
+  @override
+  String get settingsNasPassBody =>
+      'Activez, modifiez ou désactivez la récupération sans votre clé de récupération';
+
+  @override
+  String get settingsPortableTitle => 'Sauvegarde chiffrée portable';
+
+  @override
+  String get settingsPortableBody =>
+      'Enregistrez un ZIP dans Fichiers avec votre clé de récupération';
+
+  @override
+  String get settingsCameraSection => 'Appareil photo';
+
+  @override
+  String get settingsBurstLabel => 'Photos par rafale';
+
+  @override
+  String get settingsBurstHelp => 'Maintenez le déclencheur enfoncé.';
+
+  @override
+  String settingsBurstChoice(int count) {
+    return '$count photos';
+  }
+
+  @override
+  String get settingsStorageSection => 'Stockage';
+
+  @override
+  String get settingsStorageUnreadable => 'Impossible de lire le stockage.';
+
+  @override
+  String get settingsStorageCounting => 'Comptage des captures…';
+
+  @override
+  String get settingsStorageNone =>
+      'Aucune capture sur ce téléphone pour le moment.';
+
+  @override
+  String settingsStorageSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return '$_temp0, $size chiffrés sur ce téléphone.';
+  }
+
+  @override
+  String settingsStorageTrashed(int count, int days) {
+    return '$count dans Supprimés récemment, effacés définitivement après $days jours.';
+  }
+
+  @override
+  String settingsSizeBytes(int value) {
+    return '$value octets';
+  }
+
+  @override
+  String settingsSizeKb(String value) {
+    return '$value Ko';
+  }
+
+  @override
+  String settingsSizeMb(String value) {
+    return '$value Mo';
+  }
+
+  @override
+  String get settingsKeepDeleted =>
+      'Conserver les captures supprimées 30 jours';
+
+  @override
+  String get settingsKeepDeletedBody =>
+      'Supprimer déplace d\'abord une capture dans Supprimés récemment. Elle reste chiffrée.';
+
+  @override
+  String get settingsLicenses => 'Licences';
+
+  @override
+  String get settingsShow => 'Afficher';
 }

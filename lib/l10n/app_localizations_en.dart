@@ -1157,4 +1157,273 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get castToTv => 'Cast to TV';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsPrivacySection => 'Privacy & access';
+
+  @override
+  String get settingsIdleLabel => 'Lock after inactivity';
+
+  @override
+  String get settingsIdleOff => 'Off';
+
+  @override
+  String settingsIdleMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsIdleNote =>
+      'Recording and video playback delay idle locking. Lock now saves an active recording, pauses playback and stops casting.';
+
+  @override
+  String get settingsScreenshotsIos =>
+      'App-switcher previews are hidden. iOS screenshots cannot be blocked.';
+
+  @override
+  String get settingsScreenshotsAndroid =>
+      'Screenshots, screen recording and app-switcher previews are protected on Android.';
+
+  @override
+  String get settingsPrivacySaveFailed =>
+      'Could not save privacy settings. Try again.';
+
+  @override
+  String get settingsPasscodeChanged => 'Passcode changed';
+
+  @override
+  String get settingsBackupSection => 'Backup';
+
+  @override
+  String get settingsBackupIntro =>
+      'Optional backup of encrypted media to your own WebDAV share.';
+
+  @override
+  String get settingsUrlLabel => 'WebDAV folder URL';
+
+  @override
+  String get settingsUsername => 'Username';
+
+  @override
+  String get settingsPassword => 'Password';
+
+  @override
+  String get settingsBackgroundTitle => 'Back up while app is closed';
+
+  @override
+  String get settingsBackgroundBody =>
+      'Android schedules encrypted uploads when network and battery allow. Save and complete one foreground sync first. Force-stop pauses work until you reopen Quietake.';
+
+  @override
+  String get settingsMobileTitle => 'Allow mobile data';
+
+  @override
+  String get settingsMobileBody =>
+      'Off uses unmetered networks only. Large videos can consume substantial data.';
+
+  @override
+  String get settingsBgChecking => 'Checking Android scheduler…';
+
+  @override
+  String get settingsBgScheduled => 'Scheduled when network and battery allow.';
+
+  @override
+  String get settingsBgUploading => 'Android is uploading encrypted copies.';
+
+  @override
+  String get settingsBgTransferred =>
+      'Last background pass finished. Full backup verification is separate.';
+
+  @override
+  String get settingsBgReconcile =>
+      'Open the vault and sync to check this backup before background uploads resume.';
+
+  @override
+  String get settingsBgPending =>
+      'Background backup pending. Android will retry.';
+
+  @override
+  String get settingsBgOff =>
+      'Background backup is off or waiting for its first successful sync.';
+
+  @override
+  String get settingsBgUnavailable =>
+      'Scheduler unavailable. Foreground sync remains available.';
+
+  @override
+  String get settingsSave => 'Save backup settings';
+
+  @override
+  String get settingsTest => 'Test connection';
+
+  @override
+  String get settingsTesting => 'Testing connection…';
+
+  @override
+  String settingsConnected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+    );
+    return 'Connected · $_temp0';
+  }
+
+  @override
+  String settingsErrHttp(int status) {
+    return 'Connection failed (HTTP $status). Check folder URL, username and password.';
+  }
+
+  @override
+  String get settingsErrReach =>
+      'Could not reach NAS. Check the URL and Wi-Fi.';
+
+  @override
+  String get settingsErrGeneric =>
+      'Connection failed. Check the saved details and try again.';
+
+  @override
+  String get settingsSaveFirst =>
+      'Save connection changes before checking backup.';
+
+  @override
+  String get settingsEnterDetails =>
+      'Enter a folder URL, username and password';
+
+  @override
+  String get settingsSaveFailed =>
+      'Could not save connection details. Try again.';
+
+  @override
+  String get settingsDisconnectFailed =>
+      'Could not disconnect NAS backup. Try again.';
+
+  @override
+  String get settingsWrongPasscode => 'Wrong passcode. Try again.';
+
+  @override
+  String get settingsRecoveryReadFailed =>
+      'Could not read the recovery key. Try again.';
+
+  @override
+  String get settingsDisconnectTitle => 'Disconnect NAS backup?';
+
+  @override
+  String get settingsClearTitle => 'Clear saved NAS details?';
+
+  @override
+  String get settingsDisconnectBody =>
+      'Stops automatic backup and removes saved connection details. Captures stay on your phone and NAS. Pending NAS deletions will not finish until you reconnect that backup.';
+
+  @override
+  String get settingsDisconnectAction => 'Disconnect';
+
+  @override
+  String get settingsClearAction => 'Clear details';
+
+  @override
+  String get settingsDisconnectButton => 'Disconnect NAS backup';
+
+  @override
+  String get settingsClearButton => 'Clear saved NAS details';
+
+  @override
+  String get settingsRecoverySection => 'Recovery & export';
+
+  @override
+  String get settingsShowRecovery => 'Show recovery key';
+
+  @override
+  String get settingsNasPassTitle => 'NAS backup passphrase';
+
+  @override
+  String get settingsNasPassBody =>
+      'Enable, change or disable recovery without your recovery key';
+
+  @override
+  String get settingsPortableTitle => 'Portable encrypted backup';
+
+  @override
+  String get settingsPortableBody =>
+      'Save a ZIP to Files using your recovery key';
+
+  @override
+  String get settingsCameraSection => 'Camera';
+
+  @override
+  String get settingsBurstLabel => 'Photos in a burst';
+
+  @override
+  String get settingsBurstHelp => 'Press and hold the shutter.';
+
+  @override
+  String settingsBurstChoice(int count) {
+    return '$count photos';
+  }
+
+  @override
+  String get settingsStorageSection => 'Storage';
+
+  @override
+  String get settingsStorageUnreadable => 'Storage could not be read.';
+
+  @override
+  String get settingsStorageCounting => 'Counting captures…';
+
+  @override
+  String get settingsStorageNone => 'No captures on this phone yet.';
+
+  @override
+  String settingsStorageSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return '$_temp0, $size encrypted on this phone.';
+  }
+
+  @override
+  String settingsStorageTrashed(int count, int days) {
+    return '$count in Recently deleted, removed for good after $days days.';
+  }
+
+  @override
+  String settingsSizeBytes(int value) {
+    return '$value bytes';
+  }
+
+  @override
+  String settingsSizeKb(String value) {
+    return '$value KB';
+  }
+
+  @override
+  String settingsSizeMb(String value) {
+    return '$value MB';
+  }
+
+  @override
+  String get settingsKeepDeleted => 'Keep deleted captures for 30 days';
+
+  @override
+  String get settingsKeepDeletedBody =>
+      'Delete moves a capture to Recently deleted first. It stays encrypted.';
+
+  @override
+  String get settingsLicenses => 'Licenses';
+
+  @override
+  String get settingsShow => 'Show';
 }

@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/privacy_policy_screen.dart';
 import '../licenses.dart';
 import '../form_body.dart';
@@ -44,13 +46,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final _url = TextEditingController(text: widget.initial.url);
   late final _user = TextEditingController(text: widget.initial.username);
   late final _pass = TextEditingController(text: widget.initial.password);
-  String? _result;
-  String? _privacyResult;
+  // Outcome text is kept as a selector so it follows the language at build time.
+  String Function(AppLocalizations)? _result;
+  String Function(AppLocalizations)? _privacyResult;
   WebDavClient? _testing;
   bool _busy = false;
   late bool _background = widget.initial.backgroundUploads;
   late bool _mobileData = widget.initial.mobileData;
-  String _backgroundStatus = 'Checking Android scheduler…';
+  String Function(AppLocalizations) _backgroundStatus = (l10n) =>
+      l10n.settingsBgChecking;
   bool _keepDeleted = true;
   int _burstSize = BurstSetting.standard;
 
@@ -72,20 +76,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         setState(
           () => _backgroundStatus = switch (state) {
-            'scheduled' => 'Scheduled when network and battery allow.',
-            'uploading' => 'Android is uploading encrypted copies.',
-            'transferred' => 'Last background pass finished. Full backup verification is separate.',
-            'reconcile' => 'Open the vault and sync to check this backup before background uploads resume.',
-            'pending' => 'Background backup pending. Android will retry.',
-            _ => 'Background backup is off or waiting for its first successful sync.',
+            'scheduled' => (l10n) => l10n.settingsBgScheduled,
+            'uploading' => (l10n) => l10n.settingsBgUploading,
+            'transferred' => (l10n) => l10n.settingsBgTransferred,
+            'reconcile' => (l10n) => l10n.settingsBgReconcile,
+            'pending' => (l10n) => l10n.settingsBgPending,
+            _ => (l10n) => l10n.settingsBgOff,
           },
         );
       }
     } catch (_) {
       if (mounted) {
         setState(
-          () => _backgroundStatus =
-              'Scheduler unavailable. Foreground sync remains available.',
+          () => _backgroundStatus = (l10n) => l10n.settingsBgUnavailable,
         );
       }
     }
@@ -109,27 +112,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// Fixed categories; raw exception text can carry the request URL.
-  static String _connectionError(Object error) => switch (error) {
-    FormatException(:final message) => message,
-    WebDavException(:final status) =>
-      'Connection failed (HTTP $status). Check folder URL, username and password.',
-    SocketException() ||
-    HttpException() ||
-    TimeoutException() => 'Could not reach NAS. Check the URL and Wi-Fi.',
-    _ => 'Connection failed. Check the saved details and try again.',
-  };
+  static String Function(AppLocalizations) _connectionError(Object error) =>
+      switch (error) {
+        FormatException(:final message) => (_) => message,
+        WebDavException(:final status) => (l10n) => l10n.settingsErrHttp(
+          status,
+        ),
+        SocketException() ||
+        HttpException() ||
+        TimeoutException() => (l10n) => l10n.settingsErrReach,
+        _ => (l10n) => l10n.settingsErrGeneric,
+      };
 
   Future<void> _test() async {
     if (_busy) return;
     setState(() {
       _busy = true;
-      _result = 'Testing connection…';
+      _result = (l10n) => l10n.settingsTesting;
     });
     try {
       final c = _testing = _current.client();
       await c.ensureCollection();
       final n = (await c.list()).length;
-      if (mounted) setState(() => _result = 'Connected · $n files');
+      if (mounted) {
+        setState(() => _result = (l10n) => l10n.settingsConnected(n));
+      }
     } catch (e) {
       if (mounted) setState(() => _result = _connectionError(e));
     } finally {
@@ -144,9 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (current.url != widget.initial.url ||
         current.username != widget.initial.username ||
         current.password != widget.initial.password) {
-      setState(
-        () => _result = 'Save connection changes before checking backup.',
-      );
+      setState(() => _result = (l10n) => l10n.settingsSaveFirst);
       return;
     }
     await Navigator.push(
@@ -164,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
     if (changed == true && mounted) {
-      setState(() => _privacyResult = 'Passcode changed');
+      setState(() => _privacyResult = (l10n) => l10n.settingsPasscodeChanged);
       widget.session.sync.sync();
     }
   }
@@ -195,12 +200,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     } on PasscodeLockedException catch (e) {
-      if (mounted) setState(() => _result = e.toString());
+      if (mounted) setState(() => _result = (_) => e.toString());
     } on WrongPasscodeException {
-      if (mounted) setState(() => _result = 'Wrong passcode. Try again.');
+      if (mounted) {
+        setState(() => _result = (l10n) => l10n.settingsWrongPasscode);
+      }
     } catch (_) {
       if (mounted) {
-        setState(() => _result = 'Could not read the recovery key. Try again.');
+        setState(() => _result = (l10n) => l10n.settingsRecoveryReadFailed);
       }
     } finally {
       key?.dispose();
@@ -213,20 +220,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settings = _current;
     try {
       if (!settings.isConfigured) {
-        throw const FormatException(
-          'Enter a folder URL, username and password',
-        );
+        setState(() => _result = (l10n) => l10n.settingsEnterDetails);
+        return;
       }
       settings.client().close();
       await widget.session.sync.saveSettings(settings);
       if (mounted) Navigator.of(context).pop(settings);
     } on FormatException catch (e) {
-      if (mounted) setState(() => _result = e.message);
+      if (mounted) setState(() => _result = (_) => e.message);
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _result = 'Could not save connection details. Try again.',
-        );
+        setState(() => _result = (l10n) => l10n.settingsSaveFailed);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -240,26 +244,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           widget.initial.isConfigured
-              ? 'Disconnect NAS backup?'
-              : 'Clear saved NAS details?',
+              ? context.l10n.settingsDisconnectTitle
+              : context.l10n.settingsClearTitle,
         ),
         scrollable: true,
-        content: const Text(
-          'Stops automatic backup and removes saved connection details. '
-          'Captures stay on your phone and NAS. Pending NAS deletions will not '
-          'finish until you reconnect that backup.',
-        ),
+        content: Text(context.l10n.settingsDisconnectBody),
         actions: [
           TextButton(
             key: Keys.disconnectCancel,
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             key: Keys.disconnectConfirm,
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              widget.initial.isConfigured ? 'Disconnect' : 'Clear details',
+              widget.initial.isConfigured
+                  ? context.l10n.settingsDisconnectAction
+                  : context.l10n.settingsClearAction,
             ),
           ),
         ],
@@ -272,7 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
       if (mounted) {
-        setState(() => _result = 'Could not disconnect NAS backup. Try again.');
+        setState(() => _result = (l10n) => l10n.settingsDisconnectFailed);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -280,16 +282,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// Count and encrypted size of the vault files on this phone.
-  late final Future<String> _storage = _storageSummary();
+  late final Future<String> _storage = _storageSummary(
+    context.l10n,
+    Localizations.maybeLocaleOf(context)?.toString() ?? 'en',
+  );
 
-  Future<String> _storageSummary() async {
+  Future<String> _storageSummary(AppLocalizations l10n, String locale) async {
     final files = await widget.session.vault.list();
     final held = (await widget.session.vault.trashedAt()).length;
     final extra = held == 0
         ? ''
-        : ' $held in Recently deleted, removed for good after '
-              '${Vault.trashKeep.inDays} days.';
-    if (files.isEmpty) return 'No captures on this phone yet.$extra';
+        : ' ${l10n.settingsStorageTrashed(held, Vault.trashKeep.inDays)}';
+    if (files.isEmpty) return '${l10n.settingsStorageNone}$extra';
     var bytes = 0;
     for (final file in files) {
       try {
@@ -298,13 +302,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // A file that vanished while counting adds nothing.
       }
     }
+    String one(double value) => NumberFormat.decimalPatternDigits(
+      locale: locale,
+      decimalDigits: 1,
+    ).format(value);
     final size = bytes < 1024
-        ? '$bytes bytes'
+        ? l10n.settingsSizeBytes(bytes)
         : bytes < 1024 * 1024
-        ? '${(bytes / 1024).toStringAsFixed(1)} KB'
-        : '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    return '${files.length} ${files.length == 1 ? 'capture' : 'captures'}, '
-        '$size encrypted on this phone.$extra';
+        ? l10n.settingsSizeKb(one(bytes / 1024))
+        : l10n.settingsSizeMb(one(bytes / (1024 * 1024)));
+    return '${l10n.settingsStorageSummary(files.length, size)}$extra';
   }
 
   Widget _heading(Key key, String title) => Semantics(
@@ -333,14 +340,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final privacy = PrivacyScope.maybeOf(context);
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settingsTitle),
         actions: const [LockButton()],
       ),
       body: FormBody(
         children: [
-          _heading(Keys.settingsPrivacySection, 'Privacy & access'),
+          _heading(Keys.settingsPrivacySection, l10n.settingsPrivacySection),
           const SizedBox(height: 12),
           _card([
             if (privacy != null) ...[
@@ -355,8 +363,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     isDense: false,
                     itemHeight: null,
                     initialValue: privacy.minutes,
-                    decoration: const InputDecoration(
-                      labelText: 'Lock after inactivity',
+                    decoration: InputDecoration(
+                      labelText: l10n.settingsIdleLabel,
                     ),
                     items: [
                       for (final minutes in PrivacyController.choices)
@@ -364,8 +372,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: minutes,
                           child: Text(
                             minutes == 0
-                                ? 'Off'
-                                : '$minutes ${minutes == 1 ? 'minute' : 'minutes'}',
+                                ? l10n.settingsIdleOff
+                                : l10n.settingsIdleMinutes(minutes),
                           ),
                         ),
                     ],
@@ -378,7 +386,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             } catch (_) {
                               if (mounted) {
                                 setState(
-                                  () => _privacyResult = 'Could not save privacy settings. Try again.',
+                                  () =>
+                                      _privacyResult = (l10n) =>
+                                          l10n.settingsPrivacySaveFailed,
                                 );
                               }
                             }
@@ -387,15 +397,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Recording and video playback delay idle locking. Lock now saves '
-                'an active recording, pauses playback and stops casting.',
-              ),
+              Text(l10n.settingsIdleNote),
               const SizedBox(height: 12),
               Text(
                 Theme.of(context).platform == TargetPlatform.iOS
-                    ? 'App-switcher previews are hidden. iOS screenshots cannot be blocked.'
-                    : 'Screenshots, screen recording and app-switcher previews are protected on Android.',
+                    ? l10n.settingsScreenshotsIos
+                    : l10n.settingsScreenshotsAndroid,
               ),
               const SizedBox(height: 24),
             ],
@@ -403,24 +410,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
               key: Keys.settingsChangePasscode,
               onPressed: _busy ? null : _changePasscode,
               icon: const Icon(Icons.password),
-              label: const Text('Change passcode'),
+              label: Text(l10n.changePasscodeTitle),
             ),
             if (_privacyResult != null)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Semantics(
                   liveRegion: true,
-                  child: Text(_privacyResult!, key: Keys.settingsAccessResult),
+                  child: Text(
+                    _privacyResult!(l10n),
+                    key: Keys.settingsAccessResult,
+                  ),
                 ),
               ),
           ]),
           const SizedBox(height: 32),
-          _heading(Keys.settingsBackupSection, 'Backup'),
+          _heading(Keys.settingsBackupSection, l10n.settingsBackupSection),
           const SizedBox(height: 12),
           _card([
-            const Text(
-              'Optional backup of encrypted media to your own WebDAV share.',
-            ),
+            Text(l10n.settingsBackupIntro),
             const SizedBox(height: 20),
             TextField(
               key: Keys.settingsUrl,
@@ -429,8 +437,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               enabled: !_busy,
               keyboardType: TextInputType.url,
               autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'WebDAV folder URL',
+              decoration: InputDecoration(
+                labelText: l10n.settingsUrlLabel,
                 hintText: 'https://nas.example.com/vault/',
               ),
             ),
@@ -441,7 +449,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
               enabled: !_busy,
               autocorrect: false,
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: InputDecoration(labelText: l10n.settingsUsername),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -452,16 +460,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               obscureText: true,
               enableSuggestions: false,
               autocorrect: false,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(labelText: l10n.settingsPassword),
             ),
             const SizedBox(height: 24),
             if (Platform.isAndroid) ...[
               SwitchListTile(
                 key: Keys.backgroundUploads,
-                title: const Text('Back up while app is closed'),
-                subtitle: const Text(
-                  'Android schedules encrypted uploads when network and battery allow. Save and complete one foreground sync first. Force-stop pauses work until you reopen Quietake.',
-                ),
+                title: Text(l10n.settingsBackgroundTitle),
+                subtitle: Text(l10n.settingsBackgroundBody),
                 value: _background,
                 onChanged: _busy
                     ? null
@@ -470,16 +476,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (_background)
                 SwitchListTile(
                   key: Keys.backgroundMobileData,
-                  title: const Text('Allow mobile data'),
-                  subtitle: const Text(
-                    'Off uses unmetered networks only. Large videos can consume substantial data.',
-                  ),
+                  title: Text(l10n.settingsMobileTitle),
+                  subtitle: Text(l10n.settingsMobileBody),
                   value: _mobileData,
                   onChanged: _busy
                       ? null
                       : (value) => setState(() => _mobileData = value),
                 ),
-              Text(_backgroundStatus, key: Keys.backgroundStatus),
+              Text(_backgroundStatus(l10n), key: Keys.backgroundStatus),
               const SizedBox(height: 16),
             ],
             // Full-width like every other settings button (2026-10-28 polish);
@@ -487,26 +491,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             FilledButton(
               key: Keys.settingsSave,
               onPressed: _busy ? null : _save,
-              child: const Text('Save backup settings'),
+              child: Text(l10n.settingsSave),
             ),
             const SizedBox(height: 12),
             OutlinedButton(
               key: Keys.settingsTest,
               onPressed: _busy ? null : _test,
-              child: const Text('Test connection'),
+              child: Text(l10n.settingsTest),
             ),
             if (_result != null)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Semantics(
                   liveRegion: true,
-                  child: Text(_result!, key: Keys.settingsResult),
+                  child: Text(_result!(l10n), key: Keys.settingsResult),
                 ),
               ),
             const SizedBox(height: 24),
             OutlinedButton.icon(
               key: Keys.backupOpen,
-              label: const Text('Check saved backup'),
+              label: Text(l10n.backupCheckSaved),
               onPressed: _busy || !widget.initial.isConfigured
                   ? null
                   : _openBackupCheck,
@@ -518,29 +522,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(Icons.cloud_off_outlined),
               label: Text(
                 widget.initial.isConfigured
-                    ? 'Disconnect NAS backup'
-                    : 'Clear saved NAS details',
+                    ? l10n.settingsDisconnectButton
+                    : l10n.settingsClearButton,
               ),
             ),
           ]),
           const SizedBox(height: 32),
-          _heading(Keys.settingsRecoverySection, 'Recovery & export'),
+          _heading(Keys.settingsRecoverySection, l10n.settingsRecoverySection),
           const SizedBox(height: 12),
           _card([
             OutlinedButton.icon(
               key: Keys.settingsRecovery,
               icon: const Icon(Icons.key),
-              label: const Text('Show recovery key'),
+              label: Text(l10n.settingsShowRecovery),
               onPressed: _showRecovery,
             ),
             const SizedBox(height: 12),
             ListTile(
               key: Keys.nasRecoveryOpen,
               leading: const Icon(Icons.password),
-              title: const Text('NAS backup passphrase'),
-              subtitle: const Text(
-                'Enable, change or disable recovery without your recovery key',
-              ),
+              title: Text(l10n.settingsNasPassTitle),
+              subtitle: Text(l10n.settingsNasPassBody),
               onTap: _busy
                   ? null
                   : () => Navigator.push(
@@ -556,10 +558,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               key: Keys.portableExportOpen,
               leading: const Icon(Icons.archive_outlined),
-              title: const Text('Portable encrypted backup'),
-              subtitle: const Text(
-                'Save a ZIP to Files using your recovery key',
-              ),
+              title: Text(l10n.settingsPortableTitle),
+              subtitle: Text(l10n.settingsPortableBody),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute<void>(
@@ -572,19 +572,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ]),
           const SizedBox(height: 24),
-          _heading(Keys.settingsCameraSection, 'Camera'),
+          _heading(Keys.settingsCameraSection, l10n.settingsCameraSection),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
             key: Keys.settingsBurstSize,
             isExpanded: true,
             initialValue: _burstSize,
-            decoration: const InputDecoration(
-              labelText: 'Photos in a burst',
-              helperText: 'Press and hold the shutter.',
+            decoration: InputDecoration(
+              labelText: l10n.settingsBurstLabel,
+              helperText: l10n.settingsBurstHelp,
             ),
             items: [
               for (final size in BurstSetting.choices)
-                DropdownMenuItem(value: size, child: Text('$size photos')),
+                DropdownMenuItem(
+                  value: size,
+                  child: Text(l10n.settingsBurstChoice(size)),
+                ),
             ],
             onChanged: (size) async {
               if (size == null) return;
@@ -593,7 +596,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const SizedBox(height: 24),
-          _heading(Keys.settingsStorageSection, 'Storage'),
+          _heading(Keys.settingsStorageSection, l10n.settingsStorageSection),
           const SizedBox(height: 12),
           FutureBuilder<String>(
             future: _storage,
@@ -601,8 +604,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? Text(snapshot.data!, key: Keys.settingsStorage)
                 : Text(
                     snapshot.hasError
-                        ? 'Storage could not be read.'
-                        : 'Counting captures…',
+                        ? l10n.settingsStorageUnreadable
+                        : l10n.settingsStorageCounting,
                     key: Keys.settingsStorage,
                   ),
           ),
@@ -618,16 +621,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               icon: const Icon(Icons.delete_outline),
-              label: const Text('Recently deleted'),
+              label: Text(l10n.recentlyDeletedTitle),
             ),
           ),
           SwitchListTile(
             key: Keys.settingsKeepDeleted,
             contentPadding: EdgeInsets.zero,
-            title: const Text('Keep deleted captures for 30 days'),
-            subtitle: const Text(
-              'Delete moves a capture to Recently deleted first. It stays encrypted.',
-            ),
+            title: Text(l10n.settingsKeepDeleted),
+            subtitle: Text(l10n.settingsKeepDeletedBody),
             value: _keepDeleted,
             onChanged: (value) async {
               setState(() => _keepDeleted = value);
@@ -639,14 +640,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             key: Keys.settingsPrivacyPolicy,
             onPressed: _busy ? null : () => showPrivacyPolicy(context),
             icon: const Icon(Icons.privacy_tip_outlined),
-            label: const Text('Privacy policy'),
+            label: Text(l10n.privacyPolicy),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             key: Keys.settingsLicenses,
             onPressed: _busy ? null : () => showAppLicenses(context),
             icon: const Icon(Icons.description_outlined),
-            label: const Text('Licenses'),
+            label: Text(l10n.settingsLicenses),
           ),
         ],
       ),
@@ -673,7 +674,7 @@ class _PasscodePromptState extends State<_PasscodePrompt> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Confirm passcode'),
+    title: Text(context.l10n.confirmPasscodeLabel),
     content: TextField(
       key: Keys.recoveryPrompt,
       controller: _pass,
@@ -684,12 +685,12 @@ class _PasscodePromptState extends State<_PasscodePrompt> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(context.l10n.cancel),
       ),
       FilledButton(
         key: Keys.recoveryPromptOk,
         onPressed: () => Navigator.pop(context, _pass.text),
-        child: const Text('Show'),
+        child: Text(context.l10n.settingsShow),
       ),
     ],
   );

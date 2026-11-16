@@ -1182,4 +1182,275 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get castToTv => 'Auf Fernseher übertragen';
+
+  @override
+  String get settingsTitle => 'Einstellungen';
+
+  @override
+  String get settingsPrivacySection => 'Datenschutz & Zugriff';
+
+  @override
+  String get settingsIdleLabel => 'Nach Inaktivität sperren';
+
+  @override
+  String get settingsIdleOff => 'Aus';
+
+  @override
+  String settingsIdleMinutes(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes Minuten',
+      one: '1 Minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsIdleNote =>
+      'Aufnahme und Videowiedergabe verzögern die Inaktivitätssperre. Jetzt sperren speichert eine laufende Aufnahme, pausiert die Wiedergabe und beendet die Übertragung.';
+
+  @override
+  String get settingsScreenshotsIos =>
+      'Vorschauen im App-Umschalter sind ausgeblendet. Screenshots unter iOS lassen sich nicht blockieren.';
+
+  @override
+  String get settingsScreenshotsAndroid =>
+      'Screenshots, Bildschirmaufzeichnung und Vorschauen im App-Umschalter sind unter Android geschützt.';
+
+  @override
+  String get settingsPrivacySaveFailed =>
+      'Datenschutzeinstellungen konnten nicht gespeichert werden. Versuchen Sie es erneut.';
+
+  @override
+  String get settingsPasscodeChanged => 'Code geändert';
+
+  @override
+  String get settingsBackupSection => 'Backup';
+
+  @override
+  String get settingsBackupIntro =>
+      'Optionales Backup verschlüsselter Medien auf Ihre eigene WebDAV-Freigabe.';
+
+  @override
+  String get settingsUrlLabel => 'WebDAV-Ordner-URL';
+
+  @override
+  String get settingsUsername => 'Benutzername';
+
+  @override
+  String get settingsPassword => 'Passwort';
+
+  @override
+  String get settingsBackgroundTitle => 'Backup bei geschlossener App';
+
+  @override
+  String get settingsBackgroundBody =>
+      'Android plant verschlüsselte Uploads, wenn Netzwerk und Akku es erlauben. Speichern Sie zuerst und schließen Sie eine Synchronisierung im Vordergrund ab. Beim Beenden erzwingen pausiert die Arbeit, bis Sie Quietake erneut öffnen.';
+
+  @override
+  String get settingsMobileTitle => 'Mobile Daten erlauben';
+
+  @override
+  String get settingsMobileBody =>
+      'Aus nutzt nur Netzwerke ohne Datenlimit. Große Videos können viel Datenvolumen verbrauchen.';
+
+  @override
+  String get settingsBgChecking => 'Android-Planer wird geprüft …';
+
+  @override
+  String get settingsBgScheduled =>
+      'Geplant, sobald Netzwerk und Akku es erlauben.';
+
+  @override
+  String get settingsBgUploading => 'Android lädt verschlüsselte Kopien hoch.';
+
+  @override
+  String get settingsBgTransferred =>
+      'Der letzte Hintergrunddurchlauf ist abgeschlossen. Die vollständige Backup-Prüfung erfolgt separat.';
+
+  @override
+  String get settingsBgReconcile =>
+      'Öffnen Sie den Tresor und synchronisieren Sie, um dieses Backup zu prüfen, bevor Hintergrund-Uploads fortgesetzt werden.';
+
+  @override
+  String get settingsBgPending =>
+      'Hintergrund-Backup ausstehend. Android versucht es erneut.';
+
+  @override
+  String get settingsBgOff =>
+      'Das Hintergrund-Backup ist aus oder wartet auf die erste erfolgreiche Synchronisierung.';
+
+  @override
+  String get settingsBgUnavailable =>
+      'Planer nicht verfügbar. Die Synchronisierung im Vordergrund bleibt verfügbar.';
+
+  @override
+  String get settingsSave => 'Backup-Einstellungen speichern';
+
+  @override
+  String get settingsTest => 'Verbindung testen';
+
+  @override
+  String get settingsTesting => 'Verbindung wird getestet …';
+
+  @override
+  String settingsConnected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Dateien',
+      one: '1 Datei',
+    );
+    return 'Verbunden · $_temp0';
+  }
+
+  @override
+  String settingsErrHttp(int status) {
+    return 'Verbindung fehlgeschlagen (HTTP $status). Prüfen Sie Ordner-URL, Benutzername und Passwort.';
+  }
+
+  @override
+  String get settingsErrReach =>
+      'NAS nicht erreichbar. Prüfen Sie die URL und das WLAN.';
+
+  @override
+  String get settingsErrGeneric =>
+      'Verbindung fehlgeschlagen. Prüfen Sie die gespeicherten Angaben und versuchen Sie es erneut.';
+
+  @override
+  String get settingsSaveFirst =>
+      'Speichern Sie Verbindungsänderungen, bevor Sie das Backup prüfen.';
+
+  @override
+  String get settingsEnterDetails =>
+      'Geben Sie eine Ordner-URL, einen Benutzernamen und ein Passwort ein';
+
+  @override
+  String get settingsSaveFailed =>
+      'Verbindungsdaten konnten nicht gespeichert werden. Versuchen Sie es erneut.';
+
+  @override
+  String get settingsDisconnectFailed =>
+      'NAS-Backup konnte nicht getrennt werden. Versuchen Sie es erneut.';
+
+  @override
+  String get settingsWrongPasscode => 'Falscher Code. Versuchen Sie es erneut.';
+
+  @override
+  String get settingsRecoveryReadFailed =>
+      'Der Wiederherstellungsschlüssel konnte nicht gelesen werden. Versuchen Sie es erneut.';
+
+  @override
+  String get settingsDisconnectTitle => 'NAS-Backup trennen?';
+
+  @override
+  String get settingsClearTitle => 'Gespeicherte NAS-Angaben löschen?';
+
+  @override
+  String get settingsDisconnectBody =>
+      'Beendet das automatische Backup und entfernt die gespeicherten Verbindungsdaten. Aufnahmen bleiben auf Ihrem Telefon und dem NAS. Ausstehende NAS-Löschungen werden erst abgeschlossen, wenn Sie dieses Backup erneut verbinden.';
+
+  @override
+  String get settingsDisconnectAction => 'Trennen';
+
+  @override
+  String get settingsClearAction => 'Angaben löschen';
+
+  @override
+  String get settingsDisconnectButton => 'NAS-Backup trennen';
+
+  @override
+  String get settingsClearButton => 'Gespeicherte NAS-Angaben löschen';
+
+  @override
+  String get settingsRecoverySection => 'Wiederherstellung & Export';
+
+  @override
+  String get settingsShowRecovery => 'Wiederherstellungsschlüssel anzeigen';
+
+  @override
+  String get settingsNasPassTitle => 'Passphrase für das NAS-Backup';
+
+  @override
+  String get settingsNasPassBody =>
+      'Wiederherstellung ohne Ihren Wiederherstellungsschlüssel aktivieren, ändern oder deaktivieren';
+
+  @override
+  String get settingsPortableTitle => 'Portables verschlüsseltes Backup';
+
+  @override
+  String get settingsPortableBody =>
+      'Speichern Sie mit Ihrem Wiederherstellungsschlüssel eine ZIP-Datei in Dateien';
+
+  @override
+  String get settingsCameraSection => 'Kamera';
+
+  @override
+  String get settingsBurstLabel => 'Fotos pro Serie';
+
+  @override
+  String get settingsBurstHelp => 'Auslöser gedrückt halten.';
+
+  @override
+  String settingsBurstChoice(int count) {
+    return '$count Fotos';
+  }
+
+  @override
+  String get settingsStorageSection => 'Speicher';
+
+  @override
+  String get settingsStorageUnreadable =>
+      'Speicher konnte nicht gelesen werden.';
+
+  @override
+  String get settingsStorageCounting => 'Aufnahmen werden gezählt …';
+
+  @override
+  String get settingsStorageNone => 'Noch keine Aufnahmen auf diesem Telefon.';
+
+  @override
+  String settingsStorageSummary(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aufnahmen',
+      one: '1 Aufnahme',
+    );
+    return '$_temp0, $size verschlüsselt auf diesem Telefon.';
+  }
+
+  @override
+  String settingsStorageTrashed(int count, int days) {
+    return '$count in Zuletzt gelöscht, werden nach $days Tagen endgültig entfernt.';
+  }
+
+  @override
+  String settingsSizeBytes(int value) {
+    return '$value Bytes';
+  }
+
+  @override
+  String settingsSizeKb(String value) {
+    return '$value KB';
+  }
+
+  @override
+  String settingsSizeMb(String value) {
+    return '$value MB';
+  }
+
+  @override
+  String get settingsKeepDeleted => 'Gelöschte Aufnahmen 30 Tage aufbewahren';
+
+  @override
+  String get settingsKeepDeletedBody =>
+      'Löschen verschiebt eine Aufnahme zunächst nach Zuletzt gelöscht. Sie bleibt verschlüsselt.';
+
+  @override
+  String get settingsLicenses => 'Lizenzen';
+
+  @override
+  String get settingsShow => 'Anzeigen';
 }

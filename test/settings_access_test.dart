@@ -9,6 +9,7 @@ import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/backup/portable_screen.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/privacy/privacy_controller.dart';
 import 'package:quietake/privacy/privacy_policy_screen.dart';
@@ -68,6 +69,7 @@ void main() {
       username: 'u',
       password: 'p',
     ),
+    Locale? locale,
   }) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
@@ -108,6 +110,9 @@ void main() {
     });
     await tester.pumpWidget(
       MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) =>
             PrivacyScope(controller: privacy, child: child!),
         home: Builder(
@@ -168,6 +173,18 @@ void main() {
     expect(text, startsWith('2 captures, '));
     expect(text, endsWith(' encrypted on this phone.'));
     expect(text, matches(RegExp(r'^2 captures, \d+(\.\d)? (bytes|KB|MB) enc')));
+  });
+
+  testWidgets('Settings follow the device language', (tester) async {
+    await open(tester, captures: 2, locale: const Locale('fr'));
+    await until(tester, find.textContaining('sur ce téléphone'));
+    expect(find.text('Réglages'), findsOneWidget);
+    expect(find.text('Confidentialité et accès'), findsOneWidget);
+    expect(find.text('Tester la connexion'), findsOneWidget);
+    final text = tester.widget<Text>(find.byKey(Keys.settingsStorage)).data!;
+    expect(text, startsWith('2 captures, '));
+    expect(text, endsWith(' chiffrés sur ce téléphone.'));
+    expect(find.text('Settings'), findsNothing);
   });
 
   testWidgets('choosing an idle timeout saves it', (tester) async {
