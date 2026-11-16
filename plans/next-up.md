@@ -16,10 +16,10 @@
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
 - Next: continue `lib/` bug review. Read so far with no defect found:
-  `media_server.dart`, `capture_store.dart` (atomic `encryptFile` protects the
+  `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
+  `capture_store.dart` (atomic `encryptFile` protects the
   prepared-video overwrite), `privacy_controller.dart`. Still to read:
-  `lock_screen.dart`, `main.dart` lifecycle, `master_key_store.dart`,
-  `sync/`, `restore_transaction.dart`. Add a failing test per bug found.
+  `main.dart` lifecycle, `master_key_store.dart`, `sync/`. Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop; no NAS run has
   happened yet. Keep to synthetic data and the development application ID.
 
