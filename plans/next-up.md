@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host tests (`master_key_store_test.dart`) now cover restore-journal tampering: wrong version, oversized journal, prepared keyfile that differs from the fingerprint, and a target vault that gained media. `resume` throws and preserves the prepared pair in each case. No defect. Only that file was run (28 pass).
 - Bug fixed: Gallery Settings button threw an unhandled error and did nothing when the saved NAS details could not be read (keystore failure). It now shows "Could not read saved NAS details. Try again." (red/green in `gallery_selection_test.dart`). Host suite 547 passed, analyzer clean, iOS `backup_test.dart` passed (4 cases, 56.7 s). Android not rerun. Corrupt-JSON blobs fail the same way and now get the same message; sync still reports pending.
 - Bug fixed: after a failed session open from first-run Setup or restore, `_hasKeyfile` stayed
   false, so Setup reappeared with no reason although the keyfile was committed. `_start` now sets

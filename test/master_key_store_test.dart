@@ -222,6 +222,55 @@ void main() {
     }
   });
 
+  final tamperings = <String, Future<void> Function(Directory dir)>{
+    'a journal from another version': (dir) =>
+        File('${dir.path}/.portable-restore/ready')
+            .writeAsString('{"version":2,"keyfile":"x"}'),
+    'an oversized journal': (dir) =>
+        File('${dir.path}/.portable-restore/ready').writeAsString('x' * 5000),
+    'a prepared keyfile that differs from the journal': (dir) =>
+        File('${dir.path}/.portable-restore/vault.keyfile.json')
+            .writeAsString('{"tampered":true}'),
+    'a target vault that gained media': (dir) async {
+      await Directory('${dir.path}/vault').create();
+      await File('${dir.path}/vault/other.bin').writeAsBytes([9]);
+    },
+  };
+  for (final entry in tamperings.entries) {
+    test('resume preserves everything when it finds ${entry.key}', () async {
+      final key = sodium.crypto.secretBox.keygen();
+      try {
+        final stage = await restoreStage(key);
+        await expectLater(
+          RestoreTransaction(store).commit(
+            stage,
+            key,
+            'restored passcode',
+            onProgress: (phase) {
+              if (phase == 'Saving restored vault') {
+                throw StateError('Synthetic process interruption');
+              }
+            },
+          ),
+          throwsStateError,
+        );
+        await entry.value(dir);
+        await expectLater(
+          RestoreTransaction(store).resume(),
+          throwsA(isA<FormatException>()),
+        );
+        expect(await store.hasKeyfile, isFalse);
+        expect(
+          await Directory('${dir.path}/.portable-restore').exists(),
+          isTrue,
+          reason: 'the prepared pair stays for inspection',
+        );
+      } finally {
+        key.dispose();
+      }
+    });
+  }
+
   test('resume never adopts credentials when the prepared media is gone', () async {
     final key = sodium.crypto.secretBox.keygen();
     try {
