@@ -151,4 +151,138 @@ void main() {
     expect(find.byKey(Keys.setupSubmit), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  Future<void> pumpSetup(
+    WidgetTester tester,
+    MasterKeyStore store, {
+    void Function(SecureKey)? onUnlocked,
+  }) {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    return tester.pumpWidget(
+      MaterialApp(
+        home: SetupScreen(
+          store: store,
+          onUnlocked: onUnlocked ?? (_) => fail('unlocked'),
+        ),
+      ),
+    );
+  }
+
+  testWidgets('a short or mismatched passcode is rejected before any work', (
+    tester,
+  ) async {
+    final store = MasterKeyStore(sodium, dir);
+    await pumpSetup(tester, store);
+    await tester.enterText(find.byKey(Keys.setupPasscode), 'short');
+    await tester.enterText(find.byKey(Keys.setupConfirm), 'short');
+    await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    expect(find.text(MasterKeyStore.passcodeTooShort), findsOneWidget);
+    await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
+    await tester.enterText(find.byKey(Keys.setupConfirm), 'other-passcode');
+    await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    expect(find.text('Passcodes do not match'), findsOneWidget);
+    expect(find.byKey(Keys.recoveryKeyText), findsNothing);
+  });
+
+  testWidgets('the restore toggle switches forms and back', (tester) async {
+    final store = MasterKeyStore(sodium, dir);
+    await pumpSetup(tester, store);
+    expect(find.byKey(Keys.setupRecoveryKey), findsNothing);
+    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await tester.pump();
+    expect(find.byKey(Keys.setupRecoveryKey), findsOneWidget);
+    expect(find.text('Restore'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await tester.pump();
+    expect(find.byKey(Keys.setupRecoveryKey), findsNothing);
+    expect(find.text('Create vault'), findsOneWidget);
+  });
+
+  testWidgets('a malformed recovery key shows an error and stays open', (
+    tester,
+  ) async {
+    final store = MasterKeyStore(sodium, dir);
+    await pumpSetup(tester, store);
+    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await tester.pump();
+    await tester.enterText(find.byKey(Keys.setupRecoveryKey), 'not a key');
+    await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
+    await tester.enterText(find.byKey(Keys.setupConfirm), 'test-passcode');
+    await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.setupError), findsOneWidget);
+    expect(find.byKey(Keys.setupSubmit), findsOneWidget);
+    await tester.runAsync(() async => expect(await store.hasKeyfile, isFalse));
+  });
+
+  group('restoring into an empty vault asks for fingerprint confirmation', () {
+    Future<String> recoveryKey(WidgetTester tester, MasterKeyStore store) =>
+        tester
+            .runAsync(() async {
+              final key = await store.prepareKey();
+              final r = store.exportRecovery(key);
+              key.dispose();
+              return r;
+            })
+            .then((r) => r!);
+
+    Future<void> restore(WidgetTester tester, String recovery) async {
+      await tester.tap(find.byKey(Keys.setupToggleRestore));
+      await tester.pump();
+      await tester.enterText(find.byKey(Keys.setupRecoveryKey), recovery);
+      await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
+      await tester.enterText(find.byKey(Keys.setupConfirm), 'test-passcode');
+      await tester.tap(find.byKey(Keys.setupSubmit));
+      await tester.runAsync(() async {
+        for (var i = 0; i < 100; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          await tester.pump();
+          if (find.byKey(Keys.setupFingerprint).evaluate().isNotEmpty) break;
+        }
+      });
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    testWidgets('rejecting the fingerprint saves nothing', (tester) async {
+      final store = MasterKeyStore(sodium, dir);
+      await pumpSetup(tester, store);
+      await restore(tester, await recoveryKey(tester, store));
+      expect(find.byKey(Keys.setupFingerprint), findsOneWidget);
+      await tester.tap(find.byKey(Keys.setupFingerprintReject));
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      });
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(Keys.setupFingerprint), findsNothing);
+      expect(find.byKey(Keys.setupError), findsOneWidget);
+      await tester.runAsync(
+        () async => expect(await store.hasKeyfile, isFalse),
+      );
+    });
+
+    testWidgets('confirming the fingerprint unlocks and persists', (
+      tester,
+    ) async {
+      final store = MasterKeyStore(sodium, dir);
+      SecureKey? unlocked;
+      await pumpSetup(tester, store, onUnlocked: (k) => unlocked = k);
+      await restore(tester, await recoveryKey(tester, store));
+      await tester.tap(find.byKey(Keys.setupFingerprintConfirm));
+      await tester.runAsync(() async {
+        for (var i = 0; i < 100 && unlocked == null; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          await tester.pump();
+        }
+        expect(unlocked, isNotNull);
+        expect(await store.hasKeyfile, isTrue);
+        unlocked!.dispose();
+      });
+    });
+  });
 }

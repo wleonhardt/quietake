@@ -15,7 +15,7 @@
   separate empty targets. Source CI is not signed-artifact or store evidence.
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
-- Coverage run (`flutter test --coverage`, 486 tests) lowest files: `import_screen.dart`
+- Coverage run (`flutter test --coverage`, 507 tests, 87.9% total) lowest files: `import_screen.dart`
   22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51% (connection test paths now covered by
   `settings_connection_test.dart`; passcode/recovery/background rows remain),
   `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
@@ -26,7 +26,7 @@
   prepared-video overwrite), `privacy_controller.dart`, `master_key_store.dart`, `webdav_client.dart` and the
   push path of `sync_service.dart`. Store-level passcode minimum is enforced
   only at UI/NAS entry points (tests rely on short ones). Still to read:
-  `main.dart` lifecycle, rest of `sync/`. Add a failing test per bug found.
+  rest of `sync/`. `main.dart` lifecycle and `sync_service.dart` pull path read, no defect. Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop. The home NAS needs
   WebDAV credentials that live in HubnerDocs `.secrets`, which this loop must
   not read. A real-NAS run needs a test credential and an empty test folder
@@ -40,7 +40,7 @@
   with a FormatException (red/green test). Full host suite passed: 486 tests,
   analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
   test, 111 s build, loopback WebDAV). Android not rerun; no UI or vault code changed.
-- Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
+- Host tests now cover `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
 - A widget test that ran the full export (isolate worker plus file IO) under
