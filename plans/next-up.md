@@ -20,6 +20,12 @@
   `settings_connection_test.dart`; idle timeout, recovery prompt and disconnect now covered by `settings_access_test.dart`; change-passcode screen and Android-only background rows remain),
   `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
   `nas_restore_validation_test.dart`; change-mode validation in `nas_change_validation_test.dart`; the committed change/disable success flows still need a locking server). Take these next.
+- Open finding: a host test that completes first-run Setup while `Session.start` fails (documents
+  path is a file) segfaults the flutter_tester process after the recovery key is confirmed; with a
+  working path it passes. After such a failure `_hasKeyfile` stays false, so Setup reappears with no
+  message although the keyfile is committed. Next experiment: find the native crash (key use after
+  `Session.start` disposes it?), then make `_start` set `_hasKeyfile = true` on failure so the lock
+  screen shows the reason. Not fixed; reproduction not committed.
 - Next: continue `lib/` bug review. Read so far with no defect found (incl. `sync_controller.dart`, well covered):
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
