@@ -37,6 +37,7 @@ class _SlowStartCamera extends ControlledCamera {
 class _FlipCamera extends _SlowStartCamera {
   _FlipCamera(super.directory) {
     streamsAtStart = true;
+    empty = false;
   }
 
   @override
@@ -64,6 +65,12 @@ class _FlipCamera extends _SlowStartCamera {
       throw CameraException('switch', 'unavailable');
     }
     return super.createCamera(description, preset, enableAudio: enableAudio);
+  }
+
+  @override
+  Future<XFile> takePicture(int id) {
+    if (disposed.contains(id)) throw CameraException('disposed', 'camera $id');
+    return super.takePicture(id);
   }
 
   // The controller disposes the old camera for the switch and again on release.
@@ -209,6 +216,20 @@ void main() {
             .text('Could not switch camera. Try again.')
             .evaluate()
             .isNotEmpty,
+      );
+      // The old camera was closed for the switch; the screen must reopen one.
+      await _settle(tester, const Duration(milliseconds: 300));
+      await tester.runAsync(() => tester.tap(find.byKey(Keys.shutter)));
+      for (
+        var i = 0;
+        i < 300 && !directory.listSync().any((f) => f.path.endsWith('.shtr'));
+        i++
+      ) {
+        await _settle(tester, const Duration(milliseconds: 20));
+      }
+      expect(
+        directory.listSync().where((f) => f.path.endsWith('.shtr')),
+        hasLength(1),
       );
       expect(tester.takeException(), isNull);
     } finally {

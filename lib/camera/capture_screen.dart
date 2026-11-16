@@ -477,6 +477,13 @@ class _CaptureScreenState extends State<CaptureScreen>
         await c.lockCaptureOrientation(DeviceOrientation.landscapeLeft);
       }
     } catch (_) {
+      // The switch closed the working camera before it failed to open the new
+      // one, so replace the dead controller with one on the unchanged lens.
+      if (mounted) setState(() => _controller = null);
+      try {
+        await c.dispose();
+      } catch (_) {}
+      await _init(recover: false);
       if (mounted) {
         setState(() => _status = 'Could not switch camera. Try again.');
       }
