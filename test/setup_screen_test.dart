@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/backup/portable_screen.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/lock/setup_screen.dart';
+import 'package:quietake/sync/nas_recovery_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -314,5 +316,35 @@ void main() {
         unlocked!.dispose();
       });
     });
+  });
+
+  testWidgets('restore entry points open the ZIP and NAS restore screens', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = MasterKeyStore(sodium, dir);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SetupScreen(
+          store: store,
+          onUnlocked: (_) => fail('unlocked'),
+          onRestored: () => fail('restored'),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(Keys.portableRestoreOpen));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(PortableScreen), findsOneWidget);
+    Navigator.of(tester.element(find.byType(PortableScreen))).pop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.byKey(Keys.nasRestoreOpen));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(NasRecoveryScreen), findsOneWidget);
   });
 }
