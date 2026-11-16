@@ -3,6 +3,7 @@ import 'package:sodium/sodium_sumo.dart';
 
 import '../auth/authenticator.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../form_body.dart';
 import '../brand.dart';
 import '../vault/master_key_store.dart';
@@ -40,12 +41,15 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   bool _prompting = false;
   bool _resumePrompt = false;
   int _attempt = 0;
-  String? _error;
+  String Function(AppLocalizations)? _error;
+
+  static String Function(AppLocalizations)? _text(String? message) =>
+      message == null ? null : (_) => message;
 
   @override
   void initState() {
     super.initState();
-    _error = widget.message;
+    _error = _text(widget.message);
     WidgetsBinding.instance.addObserver(this);
     _probe();
   }
@@ -54,7 +58,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   void didUpdateWidget(covariant LockScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     // The app reports a failed vault open through the same, still-mounted screen.
-    if (widget.message != oldWidget.message) _error = widget.message;
+    if (widget.message != oldWidget.message) _error = _text(widget.message);
     if (oldWidget.autoPrompt && !widget.autoPrompt) {
       _attempt++;
       _resumePrompt = false;
@@ -138,16 +142,17 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     }
     _resumePrompt = false;
     final attempt = ++_attempt;
+    final reason = context.l10n.lockUnlockReason;
     setState(() {
       _prompting = true;
       _error = null;
     });
     try {
-      final ok = await widget.auth.authenticate('Unlock Quietake');
+      final ok = await widget.auth.authenticate(reason);
       if (!mounted || attempt != _attempt) return;
       if (!ok) {
         final why = widget.auth.lastError;
-        if (why != null) setState(() => _error = why);
+        if (why != null) setState(() => _error = _text(why));
         return;
       }
       SecureKey? key;
@@ -161,7 +166,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
         if (mounted && attempt == _attempt) {
           setState(() {
             _biometric = false;
-            _error = 'Biometric unlock is unavailable. Use your passcode.';
+            _error = (l10n) => l10n.lockBiometricUnavailable;
           });
         }
       } else if (mounted && attempt == _attempt) {
@@ -190,14 +195,11 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
       }
     } on WrongPasscodeException catch (e) {
       if (mounted && attempt == _attempt) {
-        setState(() => _error = e.toString());
+        setState(() => _error = (_) => e.toString());
       }
     } catch (_) {
       if (mounted && attempt == _attempt) {
-        setState(
-          () =>
-              _error = 'Could not unlock. Try again or use your recovery key.',
-        );
+        setState(() => _error = (l10n) => l10n.lockFailed);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -206,30 +208,31 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: FormBody(
         centered: true,
         children: [
-          const BrandHeader(message: 'Unlock your private vault.'),
+          BrandHeader(message: l10n.lockMessage),
           TextField(
             key: Keys.lockPasscode,
             controller: _pass,
             obscureText: true,
             autofocus: !_biometric,
             onSubmitted: (_) => _usePasscode(),
-            decoration: const InputDecoration(labelText: 'Passcode'),
+            decoration: InputDecoration(labelText: l10n.passcodeLabel),
           ),
           const SizedBox(height: 16),
           FilledButton(
             key: Keys.lockUnlock,
             onPressed: _busy || _prompting ? null : _usePasscode,
-            child: const Text('Unlock'),
+            child: Text(l10n.lockUnlock),
           ),
           if (_biometric)
             TextButton.icon(
               key: Keys.lockBiometric,
               icon: const Icon(Icons.fingerprint),
-              label: const Text('Use biometrics'),
+              label: Text(l10n.lockUseBiometrics),
               onPressed: _busy || _prompting ? null : _useBiometric,
             ),
           TextButton(
@@ -249,13 +252,13 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
-            child: const Text('Forgot passcode?'),
+            child: Text(l10n.lockForgot),
           ),
           if (_error != null)
             Semantics(
               liveRegion: true,
               child: Text(
-                _error!,
+                _error!(l10n),
                 key: Keys.lockError,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),

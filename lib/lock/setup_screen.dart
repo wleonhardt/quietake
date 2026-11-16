@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/privacy_policy_screen.dart';
 import '../form_body.dart';
 import '../brand.dart';
@@ -39,7 +40,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
   late bool _restoring = widget.restoringOnly;
   bool _busy = false;
   int _attempt = 0;
-  String? _error;
+  String Function(AppLocalizations)? _error;
 
   @override
   void initState() {
@@ -65,11 +66,11 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
   Future<void> _submit() async {
     if (_busy) return;
     if (_pass.text.length < MasterKeyStore.minPasscodeLength) {
-      setState(() => _error = MasterKeyStore.passcodeTooShort);
+      setState(() => _error = (_) => MasterKeyStore.passcodeTooShort);
       return;
     }
     if (_pass.text != _confirm.text) {
-      setState(() => _error = 'Passcodes do not match');
+      setState(() => _error = (l10n) => l10n.passcodesDoNotMatch);
       return;
     }
     final attempt = ++_attempt;
@@ -130,13 +131,13 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
       }
       widget.onUnlocked(key);
     } on BadRecoveryKeyException catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = (_) => e.toString());
     } catch (_) {
       if (mounted) {
         setState(
           () => _error = _restoring
-              ? 'Could not restore the vault. Check storage and try again.'
-              : 'Could not create the vault. Check storage and try again.',
+              ? (l10n) => l10n.setupRestoreFailed
+              : (l10n) => l10n.setupCreateFailed,
         );
       }
     } finally {
@@ -151,16 +152,12 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm recovery key'),
+        title: Text(ctx.l10n.setupConfirmKeyTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'This phone has no captures yet, so the key cannot be checked '
-              'against them. Compare this fingerprint with the one saved '
-              'next to your recovery key.',
-            ),
+            Text(ctx.l10n.setupConfirmKeyBody),
             const SizedBox(height: 16),
             Text(
               fingerprint,
@@ -173,12 +170,12 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
           TextButton(
             key: Keys.setupFingerprintReject,
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Not mine'),
+            child: Text(ctx.l10n.setupNotMine),
           ),
           FilledButton(
             key: Keys.setupFingerprintConfirm,
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Matches'),
+            child: Text(ctx.l10n.setupMatches),
           ),
         ],
       ),
@@ -188,16 +185,17 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_restoring ? 'Restore vault' : 'Set a passcode'),
+        title: Text(
+          _restoring ? l10n.setupRestoreTitle : l10n.setupCreateTitle,
+        ),
       ),
       body: FormBody(
         children: [
           BrandHeader(
-            message: _restoring
-                ? 'Unlock your encrypted files with your saved recovery key.'
-                : 'Your camera. Your captures. Your control.',
+            message: _restoring ? l10n.setupRestoreMessage : l10n.setupTagline,
           ),
           if (_restoring)
             TextField(
@@ -206,7 +204,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
               enableSuggestions: false,
               controller: _recovery,
               autocorrect: false,
-              decoration: const InputDecoration(labelText: 'Recovery key'),
+              decoration: InputDecoration(labelText: l10n.recoveryKeyLabel),
             ),
           if (_restoring) const SizedBox(height: 16),
           TextField(
@@ -216,9 +214,12 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
             enabled: !_busy,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
-              labelText: _restoring ? 'New passcode' : 'Passcode',
-              helperText:
-                  'At least ${MasterKeyStore.minPasscodeLength} characters',
+              labelText: _restoring
+                  ? l10n.newPasscodeLabel
+                  : l10n.passcodeLabel,
+              helperText: l10n.setupPasscodeHelper(
+                MasterKeyStore.minPasscodeLength,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -229,13 +230,13 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
             enabled: !_busy,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _submit(),
-            decoration: const InputDecoration(labelText: 'Confirm passcode'),
+            decoration: InputDecoration(labelText: l10n.confirmPasscodeLabel),
           ),
           const SizedBox(height: 24),
           FilledButton(
             key: Keys.setupSubmit,
             onPressed: _busy ? null : _submit,
-            child: Text(_restoring ? 'Restore' : 'Create vault'),
+            child: Text(_restoring ? l10n.restore : l10n.setupCreateVault),
           ),
           if (!widget.restoringOnly)
             TextButton(
@@ -243,11 +244,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
               onPressed: _busy
                   ? null
                   : () => setState(() => _restoring = !_restoring),
-              child: Text(
-                _restoring
-                    ? 'Start a new vault instead'
-                    : 'I have a recovery key',
-              ),
+              child: Text(_restoring ? l10n.setupStartNew : l10n.setupHaveKey),
             ),
           if (!widget.restoringOnly && widget.onRestored != null)
             TextButton(
@@ -266,7 +263,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-              child: const Text('Restore an encrypted ZIP'),
+              child: Text(l10n.setupRestoreZip),
             ),
           if (!widget.restoringOnly && widget.onRestored != null)
             TextButton(
@@ -285,18 +282,18 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
                         ),
                       ),
                     ),
-              child: const Text('Restore from NAS with backup passphrase'),
+              child: Text(l10n.setupRestoreNas),
             ),
           TextButton(
             key: Keys.setupPrivacyPolicy,
             onPressed: _busy ? null : () => showPrivacyPolicy(context),
-            child: const Text('Privacy policy'),
+            child: Text(l10n.privacyPolicy),
           ),
           if (_error != null)
             Semantics(
               liveRegion: true,
               child: Text(
-                _error!,
+                _error!(l10n),
                 key: Keys.setupError,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),

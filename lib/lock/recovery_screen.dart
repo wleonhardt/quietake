@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../form_body.dart';
 
 /// Shows the recovery key once. The key stays on screen and selectable but
@@ -20,21 +21,17 @@ class RecoveryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return PopScope(
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Recovery key'),
+          title: Text(l10n.recoveryKeyLabel),
           automaticallyImplyLeading: false,
         ),
         body: FormBody(
           children: [
-            const Text(
-              'Keep this key in your password manager, separately from your '
-              'encrypted files. You need both to recover your captures if you '
-              'forget the passcode or lose this device. A NAS backup passphrase '
-              'is another recovery option only if you have enabled it.',
-            ),
+            Text(l10n.recoveryKeyIntro),
             const SizedBox(height: 24),
             SelectableText(
               recoveryKey,
@@ -43,21 +40,18 @@ class RecoveryScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Fingerprint $fingerprint',
+              l10n.recoveryFingerprint(fingerprint),
               key: Keys.recoveryFingerprint,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            const Text(
-              'Save the fingerprint with the key. A new phone shows it so you '
-              'can check the key you typed.',
-            ),
+            Text(l10n.recoveryFingerprintNote),
             const SizedBox(height: 24),
             FilledButton(
               key: Keys.recoveryDone,
               onPressed: onDone,
-              child: const Text('I saved it'),
+              child: Text(l10n.recoverySaved),
             ),
           ],
         ),

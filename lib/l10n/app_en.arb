@@ -38,5 +38,60 @@
   "recentlyDeletedAllNow": "Delete all now",
   "recentlyDeletedRestoreFailed": "Could not restore. Please retry.",
   "recentlyDeletedDeleteFailed": "Could not finish deleting. Please retry.",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "lockUnlockReason": "Unlock Quietake",
+  "lockBiometricUnavailable": "Biometric unlock is unavailable. Use your passcode.",
+  "lockFailed": "Could not unlock. Try again or use your recovery key.",
+  "lockMessage": "Unlock your private vault.",
+  "passcodeLabel": "Passcode",
+  "lockUnlock": "Unlock",
+  "lockUseBiometrics": "Use biometrics",
+  "lockForgot": "Forgot passcode?",
+  "recoveryKeyLabel": "Recovery key",
+  "recoveryKeyIntro": "Keep this key in your password manager, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A NAS backup passphrase is another recovery option only if you have enabled it.",
+  "recoveryFingerprint": "Fingerprint {fingerprint}",
+  "@recoveryFingerprint": {
+    "placeholders": {
+      "fingerprint": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryFingerprintNote": "Save the fingerprint with the key. A new phone shows it so you can check the key you typed.",
+  "recoverySaved": "I saved it",
+  "changePasscodeTitle": "Change passcode",
+  "changePasscodeNote": "Your captures and recovery key stay the same.",
+  "currentPasscodeLabel": "Current passcode",
+  "newPasscodeLabel": "New passcode",
+  "confirmNewPasscodeLabel": "Confirm new passcode",
+  "passcodesDoNotMatch": "Passcodes do not match",
+  "currentPasscodeIncorrect": "Current passcode is incorrect",
+  "changePasscodeFailed": "Could not change passcode. Try again.",
+  "changePasscodeBusy": "Changing…",
+  "setupConfirmKeyTitle": "Confirm recovery key",
+  "setupConfirmKeyBody": "This phone has no captures yet, so the key cannot be checked against them. Compare this fingerprint with the one saved next to your recovery key.",
+  "setupNotMine": "Not mine",
+  "setupMatches": "Matches",
+  "setupCreateFailed": "Could not create the vault. Check storage and try again.",
+  "setupRestoreFailed": "Could not restore the vault. Check storage and try again.",
+  "setupRestoreTitle": "Restore vault",
+  "setupCreateTitle": "Set a passcode",
+  "setupRestoreMessage": "Unlock your encrypted files with your saved recovery key.",
+  "setupTagline": "Your camera. Your captures. Your control.",
+  "setupPasscodeHelper": "At least {count} characters",
+  "@setupPasscodeHelper": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmPasscodeLabel": "Confirm passcode",
+  "restore": "Restore",
+  "setupCreateVault": "Create vault",
+  "setupStartNew": "Start a new vault instead",
+  "setupHaveKey": "I have a recovery key",
+  "setupRestoreZip": "Restore an encrypted ZIP",
+  "setupRestoreNas": "Restore from NAS with backup passphrase",
+  "privacyPolicy": "Privacy policy"
 }

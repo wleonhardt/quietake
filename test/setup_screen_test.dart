@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/backup/portable_screen.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/sync/nas_recovery_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -91,6 +92,30 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
   }
+
+  testWidgets('setup and recovery key screens follow the device language', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SetupScreen(
+          store: MasterKeyStore(sodium, dir),
+          onUnlocked: (_) => fail('unlocked'),
+        ),
+      ),
+    );
+    expect(find.text('Establece un código de acceso'), findsOneWidget);
+    expect(find.text('Al menos 6 caracteres'), findsOneWidget);
+    await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
+    await tester.enterText(find.byKey(Keys.setupConfirm), 'otro-codigo');
+    await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    expect(find.text('Los códigos de acceso no coinciden'), findsOneWidget);
+    expect(find.text('Set a passcode'), findsNothing);
+  });
 
   testWidgets('privacy policy is readable before creating a vault', (
     tester,

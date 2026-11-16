@@ -76,4 +76,143 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cancel => 'Cancelar';
+
+  @override
+  String get lockUnlockReason => 'Desbloquear Quietake';
+
+  @override
+  String get lockBiometricUnavailable =>
+      'El desbloqueo biométrico no está disponible. Usa tu código de acceso.';
+
+  @override
+  String get lockFailed =>
+      'No se pudo desbloquear. Inténtalo de nuevo o usa tu clave de recuperación.';
+
+  @override
+  String get lockMessage => 'Desbloquea tu bóveda privada.';
+
+  @override
+  String get passcodeLabel => 'Código de acceso';
+
+  @override
+  String get lockUnlock => 'Desbloquear';
+
+  @override
+  String get lockUseBiometrics => 'Usar biometría';
+
+  @override
+  String get lockForgot => '¿Olvidaste tu código de acceso?';
+
+  @override
+  String get recoveryKeyLabel => 'Clave de recuperación';
+
+  @override
+  String get recoveryKeyIntro =>
+      'Guarda esta clave en tu gestor de contraseñas, separada de tus archivos cifrados. Necesitas ambos para recuperar tus capturas si olvidas el código de acceso o pierdes este dispositivo. Una frase de contraseña de copia en el NAS es otra opción de recuperación solo si la has activado.';
+
+  @override
+  String recoveryFingerprint(String fingerprint) {
+    return 'Huella $fingerprint';
+  }
+
+  @override
+  String get recoveryFingerprintNote =>
+      'Guarda la huella junto con la clave. Un teléfono nuevo la muestra para que puedas comprobar la clave que escribiste.';
+
+  @override
+  String get recoverySaved => 'Ya la guardé';
+
+  @override
+  String get changePasscodeTitle => 'Cambiar código de acceso';
+
+  @override
+  String get changePasscodeNote =>
+      'Tus capturas y tu clave de recuperación no cambian.';
+
+  @override
+  String get currentPasscodeLabel => 'Código de acceso actual';
+
+  @override
+  String get newPasscodeLabel => 'Nuevo código de acceso';
+
+  @override
+  String get confirmNewPasscodeLabel => 'Confirmar nuevo código de acceso';
+
+  @override
+  String get passcodesDoNotMatch => 'Los códigos de acceso no coinciden';
+
+  @override
+  String get currentPasscodeIncorrect =>
+      'El código de acceso actual es incorrecto';
+
+  @override
+  String get changePasscodeFailed =>
+      'No se pudo cambiar el código de acceso. Inténtalo de nuevo.';
+
+  @override
+  String get changePasscodeBusy => 'Cambiando…';
+
+  @override
+  String get setupConfirmKeyTitle => 'Confirmar clave de recuperación';
+
+  @override
+  String get setupConfirmKeyBody =>
+      'Este teléfono aún no tiene capturas, por lo que la clave no se puede comprobar con ellas. Compara esta huella con la guardada junto a tu clave de recuperación.';
+
+  @override
+  String get setupNotMine => 'No es mía';
+
+  @override
+  String get setupMatches => 'Coincide';
+
+  @override
+  String get setupCreateFailed =>
+      'No se pudo crear la bóveda. Revisa el almacenamiento e inténtalo de nuevo.';
+
+  @override
+  String get setupRestoreFailed =>
+      'No se pudo restaurar la bóveda. Revisa el almacenamiento e inténtalo de nuevo.';
+
+  @override
+  String get setupRestoreTitle => 'Restaurar bóveda';
+
+  @override
+  String get setupCreateTitle => 'Establece un código de acceso';
+
+  @override
+  String get setupRestoreMessage =>
+      'Desbloquea tus archivos cifrados con tu clave de recuperación guardada.';
+
+  @override
+  String get setupTagline => 'Tu cámara. Tus capturas. Tu control.';
+
+  @override
+  String setupPasscodeHelper(int count) {
+    return 'Al menos $count caracteres';
+  }
+
+  @override
+  String get confirmPasscodeLabel => 'Confirmar código de acceso';
+
+  @override
+  String get restore => 'Restaurar';
+
+  @override
+  String get setupCreateVault => 'Crear bóveda';
+
+  @override
+  String get setupStartNew => 'Empezar una bóveda nueva';
+
+  @override
+  String get setupHaveKey => 'Tengo una clave de recuperación';
+
+  @override
+  String get setupRestoreZip => 'Restaurar un ZIP cifrado';
+
+  @override
+  String get setupRestoreNas =>
+      'Restaurar desde el NAS con la frase de contraseña de la copia';
+
+  @override
+  String get privacyPolicy => 'Política de privacidad';
 }

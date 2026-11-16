@@ -32,7 +32,9 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
 ## Slices
 
 1. Setup, `context.l10n`, and the Recently deleted screen (done).
-2. Lock screen, Setup and recovery key screens.
+2. Lock screen, Setup, recovery key and Change passcode screens (done). Messages
+   raised by the vault layer, such as a wrong passcode or a too-short passcode,
+   stay English until the exception types carry codes.
 3. Camera and capture screens.
 4. Library, Tags, Moments, viewer, share and import.
 5. Settings, backup and NAS screens, and snackbar errors.
