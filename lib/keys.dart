@@ -113,6 +113,16 @@ abstract final class Keys {
   static const albumCreate = Key('album.create');
   static const albumCreateFirst = Key('album.createFirst');
   static const albumSort = Key('album.sort');
+  static const recentlyDeletedOpen = Key('recentlyDeleted.open');
+  static const recentlyDeletedScreen = Key('recentlyDeleted.screen');
+  static const recentlyDeletedEmpty = Key('recentlyDeleted.empty');
+  static const recentlyDeletedConfirm = Key('recentlyDeleted.confirm');
+  static Key recentlyDeletedItem(String name) =>
+      Key('recentlyDeleted.item.$name');
+  static Key recentlyDeletedRestore(String name) =>
+      Key('recentlyDeleted.restore.$name');
+  static Key recentlyDeletedNow(String name) =>
+      Key('recentlyDeleted.now.$name');
   static const momentsOpen = Key('moments.open');
   static const momentsScreen = Key('moments.screen');
   static Key momentMonth(String month) => Key('moments.month.$month');
@@ -223,6 +233,7 @@ abstract final class Keys {
   static const viewerSlideshow = Key('viewer.slideshow');
   static const viewerInfoDialog = Key('viewer.info.dialog');
   static const viewerDelete = Key('viewer.delete');
+  static const deleteTrash = Key('delete.trash');
   static const deleteDialog = Key('delete.dialog');
   static const deleteConfirm = Key('delete.confirm');
   static const deleteCancel = Key('delete.cancel');

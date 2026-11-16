@@ -95,7 +95,7 @@ void main() {
           );
           await tester.pump(const Duration(milliseconds: 500));
           expect(tester.takeException(), isNull);
-          if (delete) expect(find.text('Delete from this phone?'), findsOneWidget);
+          if (delete) expect(find.text('Delete this photo?'), findsOneWidget);
           final cancel = find.byKey(
             delete ? Keys.deleteCancel : Keys.shareCancel,
           );

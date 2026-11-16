@@ -45,7 +45,7 @@
 
 Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
 
-- Recently deleted: decision 015 accepted (default on, 30 days, Delete now skips trash). Slice 1 done: vault trash markers, purge, sync hold. Next: slice 2 (Delete moves to trash, Recently deleted screen), slice 3 (startup purge, Settings text), slice 4 (policy wording for owner review).
+- Recently deleted: decision 015 accepted (default on, 30 days, Delete now skips trash). Slices 1 and 2 done: vault trash markers, sync hold, viewer dialog with Recently deleted, Recently deleted screen on the Tags screen (iOS e2e passed; Android not run). Next: slice 3 (startup purge via `purgeTrash`, Settings toggle and Storage text), slice 4 (policy wording for owner review). Limit: widget test cannot confirm Delete now (Session.close hangs); `recently_deleted_test.dart` covers it on device.
 - Capture options are done (grid, tap-to-focus, focus/exposure lock, self timer, burst). Possible follow-ups: a burst size choice, a real-device capture pass.
 - Albums: cover choice (the Moments month view is done).
 - Viewer: keep the screen awake during the slideshow only while the vault is unlocked (needs a plugin decision; the slideshow itself is done).

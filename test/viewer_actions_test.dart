@@ -189,7 +189,7 @@ void main() {
       tester,
       () => find.byKey(Keys.deleteDialog).evaluate().isNotEmpty,
     );
-    expect(find.text('Delete from this phone?'), findsOneWidget);
+    expect(find.text('Delete this photo?'), findsOneWidget);
     await tester.tap(find.byKey(Keys.deleteCancel));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -215,6 +215,36 @@ void main() {
     await until(tester, () => !items[0].file.existsSync());
     await tester.pump(const Duration(milliseconds: 500));
     expect(items[1].file.existsSync(), isTrue);
+    expect(find.byKey(Keys.viewerPager), findsOneWidget);
+  });
+
+  testWidgets('Recently deleted hides the capture but keeps its bytes', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.tap(find.byKey(Keys.viewerDelete));
+    await until(
+      tester,
+      () => find.byKey(Keys.deleteDialog).evaluate().isNotEmpty,
+    );
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(Keys.deleteTrash));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    });
+    await until(tester, () => find.byKey(Keys.deleteDialog).evaluate().isEmpty);
+    await tester.pump(const Duration(milliseconds: 500));
+    final vault = session.vault;
+    var trashed = <String, DateTime>{};
+    for (var i = 0; i < 100 && trashed.isEmpty; i++) {
+      trashed = await tester.runAsync(vault.trashedAt) ?? trashed;
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    await tester.runAsync(() async {
+      expect(items[0].file.existsSync(), isTrue);
+      expect((await vault.trashedAt()).keys, [items[0].name]);
+      expect(await vault.deletedNames(), isEmpty);
+      expect((await vault.list()).map((f) => f.path), [items[1].file.path]);
+    });
     expect(find.byKey(Keys.viewerPager), findsOneWidget);
   });
 

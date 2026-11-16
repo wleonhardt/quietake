@@ -18,6 +18,8 @@ import 'item.dart';
 import 'preview.dart';
 import 'share_dialog.dart';
 
+enum _DeleteChoice { now, trash }
+
 class ViewerScreen extends StatefulWidget {
   const ViewerScreen({
     super.key,
@@ -181,44 +183,50 @@ class _ViewerScreenState extends State<ViewerScreen> {
     try {
       final configured = (await SyncSettings.load()).isConfigured;
       if (!mounted || !_isActive) return;
-      final confirmed = await showDialog<bool>(
+      final choice = await showDialog<_DeleteChoice>(
         context: context,
         builder: (context) => AlertDialog(
           key: Keys.deleteDialog,
-          title: Text(
-            configured
-                ? 'Delete from phone and NAS?'
-                : 'Delete from this phone?',
-          ),
+          title: Text('Delete this ${item.isVideo ? 'video' : 'photo'}?'),
           content: Text(
-            'This ${item.isVideo ? 'video' : 'photo'} will be permanently removed '
-            'from this phone${configured ? ' and your configured NAS' : ''}. '
+            'Recently deleted keeps it on this phone, encrypted, for '
+            '${Vault.trashKeep.inDays} days so you can restore it'
+            '${configured ? '. Your NAS copy stays until then' : ''}. '
+            'Delete now removes it from this phone'
+            '${configured ? ' and your configured NAS' : ''} permanently. '
             '${configured ? 'If the NAS is unavailable, deletion finishes when sync succeeds. ' : 'Pending deletions apply if you reconnect a NAS backup. '}'
-            'Other backups and shared '
-            'copies are unaffected. Active casting will stop.',
+            'Other backups and shared copies are unaffected. Active casting will stop.',
           ),
           actions: [
             TextButton(
               key: Keys.deleteCancel,
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
-            FilledButton(
+            TextButton(
               key: Keys.deleteConfirm,
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              onPressed: () => Navigator.pop(context, _DeleteChoice.now),
+              child: const Text('Delete now'),
+            ),
+            FilledButton(
+              key: Keys.deleteTrash,
+              onPressed: () => Navigator.pop(context, _DeleteChoice.trash),
+              child: const Text('Recently deleted'),
             ),
           ],
         ),
       );
-      if (confirmed != true || !_isActive) return;
+      if (choice == null || !_isActive) return;
       final cast = widget.session.cast;
       if (cast.isCasting || cast.isConnecting) await cast.stop();
-      await widget.session.sync.delete(item.file);
+      if (choice == _DeleteChoice.trash) {
+        await widget.session.sync.trash(item.file);
+      } else {
+        await widget.session.sync.delete(item.file);
+      }
       widget.session.previews.evict(item.name);
       if (!mounted) return;
       if (_items.length == 1) {

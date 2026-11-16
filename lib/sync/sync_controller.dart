@@ -73,6 +73,12 @@ class SyncController extends ChangeNotifier {
     SyncState.pending => 'NAS update pending',
   };
 
+  /// Hides [file] in Recently deleted. Nothing is journaled, so the NAS copy stays.
+  Future<void> trash(File file) async {
+    if (_closed) throw StateError('Vault session closed');
+    await vault.trash(file);
+  }
+
   Future<void> delete(File file) async {
     if (_closed) throw StateError('Vault session closed');
     await vault.delete(file);

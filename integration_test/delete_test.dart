@@ -93,7 +93,7 @@ void main() {
       );
       expect(find.byKey(delete), findsOneWidget);
       await tap(tester, delete);
-      expect(find.text('Delete from phone and NAS?'), findsOneWidget);
+      expect(find.text('Delete this photo?'), findsOneWidget);
       await tap(tester, cancel);
       expect(await app.vault.list(), hasLength(2));
       expect(mediaOnNas(), hasLength(2));
