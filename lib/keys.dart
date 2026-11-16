@@ -31,6 +31,8 @@ abstract final class Keys {
   static const shutter = Key('capture.shutter');
   static const videoToggle = Key('capture.videoToggle');
   static const cameraFlip = Key('capture.flip');
+  static const cameraGrid = Key('capture.grid');
+  static const cameraGridOverlay = Key('capture.gridOverlay');
   static const tagSearch = Key('tags.search');
   static const tagMerge = Key('tags.merge');
   static const tagMergeConfirm = Key('tags.merge.confirm');

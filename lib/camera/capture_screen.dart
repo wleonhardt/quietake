@@ -54,6 +54,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   List<CameraDescription> _cameras = const [];
   CameraLensDirection _lens = CameraLensDirection.back;
   bool _recording = false;
+  bool _grid = false;
   Set<String> _tagIds = {};
   Set<String> _recordingTagIds = {};
   bool _choosingAlbum = false;
@@ -636,6 +637,14 @@ class _CaptureScreenState extends State<CaptureScreen>
         fit: StackFit.expand,
         children: [
           if (c != null) Center(key: Keys.preview, child: CameraPreview(c)),
+          if (c != null && _grid)
+            const IgnorePointer(
+              child: CustomPaint(
+                key: Keys.cameraGridOverlay,
+                size: Size.infinite,
+                painter: _GridPainter(),
+              ),
+            ),
           // Edge cues: a white flash after a capture, a red frame while recording.
           if (_flash || _recordStarted != null)
             IgnorePointer(
@@ -827,6 +836,17 @@ class _CaptureScreenState extends State<CaptureScreen>
                           ),
                         ),
                         const SizedBox(width: 8),
+                        IconButton.filledTonal(
+                          key: Keys.cameraGrid,
+                          style: IconButton.styleFrom(
+                            backgroundColor: cameraCanvas,
+                            foregroundColor: onMediaCanvas,
+                          ),
+                          tooltip: _grid ? 'Hide grid' : 'Show grid',
+                          onPressed: () => setState(() => _grid = !_grid),
+                          icon: Icon(_grid ? Icons.grid_off : Icons.grid_on),
+                        ),
+                        const SizedBox(width: 8),
                         if (canFlip)
                           IconButton.filledTonal(
                             key: Keys.cameraFlip,
@@ -955,4 +975,25 @@ class _RecordingStartException implements Exception {
 
 class _RecordingStopException implements Exception {
   const _RecordingStopException();
+}
+
+/// Rule-of-thirds lines over the preview. They are never part of a capture.
+class _GridPainter extends CustomPainter {
+  const _GridPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x99ffffff)
+      ..strokeWidth = 1;
+    for (var i = 1; i <= 2; i++) {
+      final x = size.width * i / 3;
+      final y = size.height * i / 3;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GridPainter oldDelegate) => false;
 }
