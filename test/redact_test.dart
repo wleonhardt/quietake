@@ -89,4 +89,28 @@ void main() {
       throwsA(anything),
     );
   });
+
+  test('a region smaller than one block becomes a single flat block', () async {
+    final source = await gradientPng();
+    final out = await redactToPng(source, [
+      const ui.Rect.fromLTRB(0.5, 0.5, 0.6, 0.6),
+    ]);
+    final after = await _pixels(out);
+    final before = await _pixels(source);
+    // 0.5..0.6 of 64 px is pixels 32 to 38: one flat block.
+    expect(_at(after, 32, 32), _at(after, 37, 37));
+    expect(_at(after, 32, 32), isNot(_at(before, 32, 32)));
+    expect(_at(after, 31, 31), _at(before, 31, 31));
+  });
+
+  test('a tiny image is fully hidden by a whole-image region', () async {
+    final source = await gradientPng(size: 8);
+    final out = await redactToPng(source, [const ui.Rect.fromLTRB(0, 0, 1, 1)]);
+    final codec = await ui.instantiateImageCodec(out);
+    final image = (await codec.getNextFrame()).image;
+    final px = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!
+        .buffer
+        .asUint8List();
+    expect(px.sublist(0, 4), px.sublist(px.length - 4));
+  });
 }

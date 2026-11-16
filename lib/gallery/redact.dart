@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -48,7 +49,8 @@ void _pixelate(Uint8List px, int width, int height, ui.Rect region) {
   final w = right - left, h = bottom - top;
   if (w <= 0 || h <= 0) return;
   final longer = w > h ? w : h;
-  final block = (longer / 4).ceil().clamp(16, longer);
+  // At most 4 blocks across, at least 16 px, never larger than the region.
+  final block = min(max(16, (longer / 4).ceil()), longer);
   for (var by = top; by < bottom; by += block) {
     for (var bx = left; bx < right; bx += block) {
       final ex = bx + block < right ? bx + block : right;
