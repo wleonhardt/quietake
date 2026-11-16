@@ -40,6 +40,17 @@ class _MemStorage extends FlutterSecureStoragePlatform {
   }) async => Map.of(map);
 }
 
+class _BrokenRestoreStore extends MasterKeyStore {
+  _BrokenRestoreStore(super.sodium, super.dir);
+  @override
+  Future<SecureKey> restoreFromRecovery(
+    String recovery,
+    String passcode, {
+    bool Function(SecureKey key)? acceptsKey,
+    Future<bool> Function(String fingerprint)? confirmFingerprint,
+  }) async => throw const FileSystemException('disk full');
+}
+
 class _BrokenStore extends MasterKeyStore {
   _BrokenStore(super.sodium, super.dir);
   @override
@@ -218,6 +229,25 @@ void main() {
     expect(find.byKey(Keys.setupError), findsOneWidget);
     expect(find.byKey(Keys.setupSubmit), findsOneWidget);
     await tester.runAsync(() async => expect(await store.hasKeyfile, isFalse));
+  });
+
+  testWidgets('a storage failure while restoring shows a retry message', (
+    tester,
+  ) async {
+    await pumpSetup(tester, _BrokenRestoreStore(sodium, dir));
+    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await tester.pump();
+    await tester.enterText(find.byKey(Keys.setupRecoveryKey), 'any key');
+    await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
+    await tester.enterText(find.byKey(Keys.setupConfirm), 'test-passcode');
+    await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(
+      find.text('Could not restore the vault. Check storage and try again.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(Keys.setupSubmit), findsOneWidget);
   });
 
   group('restoring into an empty vault asks for fingerprint confirmation', () {
