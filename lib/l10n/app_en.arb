@@ -93,5 +93,102 @@
   "setupHaveKey": "I have a recovery key",
   "setupRestoreZip": "Restore an encrypted ZIP",
   "setupRestoreNas": "Restore from NAS with backup passphrase",
-  "privacyPolicy": "Privacy policy"
+  "privacyPolicy": "Privacy policy",
+  "camUnavailable": "Camera unavailable. Check camera permission in Settings.",
+  "camTagsOpenFailed": "Could not open private tags. Retry from Library.",
+  "camOrientationFailed": "Could not update camera orientation.",
+  "camPendingSave": "Capture waiting for secure save. Free storage, then lock and unlock to retry.",
+  "camRecovered": "Recovered {count, plural, =1{1 capture} other{{count} captures}}.",
+  "@camRecovered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "camRecoveredVideoNote": "Interrupted videos may be incomplete or may not play on a TV.",
+  "camPendingCheckFailed": "Could not check pending captures. Free storage and reopen the camera.",
+  "camNone": "No camera",
+  "camFocusLockFailed": "Could not lock focus and exposure on this camera.",
+  "camRecordStartFailed": "Could not start recording. Try again.",
+  "camRecordStopFailed": "Could not stop recording. Try again.",
+  "camNoFrames": "No video frames were recorded. Try again.",
+  "camPendingNoTags": "Capture waiting for secure save. Tags were not applied; check Library after recovery.",
+  "camSaveFailed": "Could not save capture. Try again.",
+  "camSavedPhotos": "Saved {count} photos securely",
+  "@camSavedPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "camSwitchFailed": "Could not switch camera. Try again.",
+  "camMicDenied": "Allow microphone access in Settings to record video. Photos are still available.",
+  "camVideoStartFailed": "Could not start video. Check camera and microphone permissions in Settings.",
+  "camSaving": "Saving securely…",
+  "camSaved": "Saved securely",
+  "camTagsNotApplied": "Tags were not applied; organize in Library.",
+  "camNotCastReady": "This video may not play on your TV.",
+  "camPreview": "Camera preview",
+  "camPreviewHint": "Tap to focus. Press and hold to lock focus and exposure.",
+  "camFocusLocked": "Focus and exposure locked",
+  "camRecTimer": "REC {time}",
+  "@camRecTimer": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "camStartingVideo": "Starting video…",
+  "camCastFailed": "Could not cast. Try again.",
+  "camCasting": "Casting to {device}",
+  "@camCasting": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "camChooseTags": "Choose tags for new captures",
+  "camTags": "Tags",
+  "camTagCount": "{count} tags",
+  "@camTagCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "camTimerOff": "Timer off",
+  "camTimerSeconds": "Timer {seconds} seconds",
+  "@camTimerSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "camGridHide": "Hide grid",
+  "camGridShow": "Show grid",
+  "camSwitchRear": "Switch to rear camera",
+  "camSwitchFront": "Switch to front camera",
+  "camStopRecording": "Stop recording",
+  "camRecordVideo": "Record video",
+  "camStop": "Stop",
+  "camVideo": "Video",
+  "camTakePhoto": "Take photo",
+  "camCancelTimer": "Cancel timer",
+  "camPhoto": "Photo",
+  "camOpenLibrary": "Open Library",
+  "camLibrary": "Library",
+  "camTakeBurst": "Take {count} photos",
+  "@camTakeBurst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

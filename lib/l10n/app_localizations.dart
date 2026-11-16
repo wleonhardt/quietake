@@ -437,6 +437,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get privacyPolicy;
+
+  /// No description provided for @camUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable. Check camera permission in Settings.'**
+  String get camUnavailable;
+
+  /// No description provided for @camTagsOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open private tags. Retry from Library.'**
+  String get camTagsOpenFailed;
+
+  /// No description provided for @camOrientationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update camera orientation.'**
+  String get camOrientationFailed;
+
+  /// No description provided for @camPendingSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture waiting for secure save. Free storage, then lock and unlock to retry.'**
+  String get camPendingSave;
+
+  /// No description provided for @camRecovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovered {count, plural, =1{1 capture} other{{count} captures}}.'**
+  String camRecovered(int count);
+
+  /// No description provided for @camRecoveredVideoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Interrupted videos may be incomplete or may not play on a TV.'**
+  String get camRecoveredVideoNote;
+
+  /// No description provided for @camPendingCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check pending captures. Free storage and reopen the camera.'**
+  String get camPendingCheckFailed;
+
+  /// No description provided for @camNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera'**
+  String get camNone;
+
+  /// No description provided for @camFocusLockFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not lock focus and exposure on this camera.'**
+  String get camFocusLockFailed;
+
+  /// No description provided for @camRecordStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start recording. Try again.'**
+  String get camRecordStartFailed;
+
+  /// No description provided for @camRecordStopFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not stop recording. Try again.'**
+  String get camRecordStopFailed;
+
+  /// No description provided for @camNoFrames.
+  ///
+  /// In en, this message translates to:
+  /// **'No video frames were recorded. Try again.'**
+  String get camNoFrames;
+
+  /// No description provided for @camPendingNoTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Capture waiting for secure save. Tags were not applied; check Library after recovery.'**
+  String get camPendingNoTags;
+
+  /// No description provided for @camSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save capture. Try again.'**
+  String get camSaveFailed;
+
+  /// No description provided for @camSavedPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} photos securely'**
+  String camSavedPhotos(int count);
+
+  /// No description provided for @camSwitchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not switch camera. Try again.'**
+  String get camSwitchFailed;
+
+  /// No description provided for @camMicDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow microphone access in Settings to record video. Photos are still available.'**
+  String get camMicDenied;
+
+  /// No description provided for @camVideoStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start video. Check camera and microphone permissions in Settings.'**
+  String get camVideoStartFailed;
+
+  /// No description provided for @camSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving securely…'**
+  String get camSaving;
+
+  /// No description provided for @camSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved securely'**
+  String get camSaved;
+
+  /// No description provided for @camTagsNotApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags were not applied; organize in Library.'**
+  String get camTagsNotApplied;
+
+  /// No description provided for @camNotCastReady.
+  ///
+  /// In en, this message translates to:
+  /// **'This video may not play on your TV.'**
+  String get camNotCastReady;
+
+  /// No description provided for @camPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera preview'**
+  String get camPreview;
+
+  /// No description provided for @camPreviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to focus. Press and hold to lock focus and exposure.'**
+  String get camPreviewHint;
+
+  /// No description provided for @camFocusLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Focus and exposure locked'**
+  String get camFocusLocked;
+
+  /// No description provided for @camRecTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'REC {time}'**
+  String camRecTimer(String time);
+
+  /// No description provided for @camStartingVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting video…'**
+  String get camStartingVideo;
+
+  /// No description provided for @camCastFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not cast. Try again.'**
+  String get camCastFailed;
+
+  /// No description provided for @camCasting.
+  ///
+  /// In en, this message translates to:
+  /// **'Casting to {device}'**
+  String camCasting(String device);
+
+  /// No description provided for @camChooseTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose tags for new captures'**
+  String get camChooseTags;
+
+  /// No description provided for @camTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get camTags;
+
+  /// No description provided for @camTagCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tags'**
+  String camTagCount(int count);
+
+  /// No description provided for @camTimerOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer off'**
+  String get camTimerOff;
+
+  /// No description provided for @camTimerSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer {seconds} seconds'**
+  String camTimerSeconds(int seconds);
+
+  /// No description provided for @camGridHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide grid'**
+  String get camGridHide;
+
+  /// No description provided for @camGridShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show grid'**
+  String get camGridShow;
+
+  /// No description provided for @camSwitchRear.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to rear camera'**
+  String get camSwitchRear;
+
+  /// No description provided for @camSwitchFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to front camera'**
+  String get camSwitchFront;
+
+  /// No description provided for @camStopRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop recording'**
+  String get camStopRecording;
+
+  /// No description provided for @camRecordVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Record video'**
+  String get camRecordVideo;
+
+  /// No description provided for @camStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get camStop;
+
+  /// No description provided for @camVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get camVideo;
+
+  /// No description provided for @camTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get camTakePhoto;
+
+  /// No description provided for @camCancelTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel timer'**
+  String get camCancelTimer;
+
+  /// No description provided for @camPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get camPhoto;
+
+  /// No description provided for @camOpenLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Library'**
+  String get camOpenLibrary;
+
+  /// No description provided for @camLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get camLibrary;
+
+  /// No description provided for @camTakeBurst.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {count} photos'**
+  String camTakeBurst(int count);
 }
 
 class _AppLocalizationsDelegate

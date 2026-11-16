@@ -217,4 +217,186 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get privacyPolicy => 'Politique de confidentialité';
+
+  @override
+  String get camUnavailable =>
+      'Appareil photo indisponible. Vérifiez l\'autorisation de l\'appareil photo dans les Réglages.';
+
+  @override
+  String get camTagsOpenFailed =>
+      'Impossible d\'ouvrir les étiquettes privées. Réessayez depuis la Bibliothèque.';
+
+  @override
+  String get camOrientationFailed =>
+      'Impossible de mettre à jour l\'orientation de l\'appareil photo.';
+
+  @override
+  String get camPendingSave =>
+      'Capture en attente d\'enregistrement sécurisé. Libérez de l\'espace, puis verrouillez et déverrouillez pour réessayer.';
+
+  @override
+  String camRecovered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures récupérées',
+      one: '1 capture récupérée',
+    );
+    return '$_temp0.';
+  }
+
+  @override
+  String get camRecoveredVideoNote =>
+      'Les vidéos interrompues peuvent être incomplètes ou ne pas se lire sur un téléviseur.';
+
+  @override
+  String get camPendingCheckFailed =>
+      'Impossible de vérifier les captures en attente. Libérez de l\'espace et rouvrez l\'appareil photo.';
+
+  @override
+  String get camNone => 'Aucun appareil photo';
+
+  @override
+  String get camFocusLockFailed =>
+      'Impossible de verrouiller la mise au point et l\'exposition sur cet appareil photo.';
+
+  @override
+  String get camRecordStartFailed =>
+      'Impossible de démarrer l\'enregistrement. Réessayez.';
+
+  @override
+  String get camRecordStopFailed =>
+      'Impossible d\'arrêter l\'enregistrement. Réessayez.';
+
+  @override
+  String get camNoFrames =>
+      'Aucune image vidéo n\'a été enregistrée. Réessayez.';
+
+  @override
+  String get camPendingNoTags =>
+      'Capture en attente d\'enregistrement sécurisé. Les étiquettes n\'ont pas été appliquées ; vérifiez la Bibliothèque après la récupération.';
+
+  @override
+  String get camSaveFailed =>
+      'Impossible d\'enregistrer la capture. Réessayez.';
+
+  @override
+  String camSavedPhotos(int count) {
+    return '$count photos enregistrées en toute sécurité';
+  }
+
+  @override
+  String get camSwitchFailed =>
+      'Impossible de changer d\'appareil photo. Réessayez.';
+
+  @override
+  String get camMicDenied =>
+      'Autorisez l\'accès au microphone dans les Réglages pour enregistrer des vidéos. Les photos restent disponibles.';
+
+  @override
+  String get camVideoStartFailed =>
+      'Impossible de démarrer la vidéo. Vérifiez les autorisations de l\'appareil photo et du microphone dans les Réglages.';
+
+  @override
+  String get camSaving => 'Enregistrement sécurisé…';
+
+  @override
+  String get camSaved => 'Enregistré en toute sécurité';
+
+  @override
+  String get camTagsNotApplied =>
+      'Les étiquettes n\'ont pas été appliquées ; organisez-les dans la Bibliothèque.';
+
+  @override
+  String get camNotCastReady =>
+      'Cette vidéo peut ne pas se lire sur votre téléviseur.';
+
+  @override
+  String get camPreview => 'Aperçu de l\'appareil photo';
+
+  @override
+  String get camPreviewHint =>
+      'Touchez pour faire la mise au point. Maintenez pour verrouiller la mise au point et l\'exposition.';
+
+  @override
+  String get camFocusLocked => 'Mise au point et exposition verrouillées';
+
+  @override
+  String camRecTimer(String time) {
+    return 'REC $time';
+  }
+
+  @override
+  String get camStartingVideo => 'Démarrage de la vidéo…';
+
+  @override
+  String get camCastFailed => 'Impossible de diffuser. Réessayez.';
+
+  @override
+  String camCasting(String device) {
+    return 'Diffusion vers $device';
+  }
+
+  @override
+  String get camChooseTags => 'Choisir les étiquettes des nouvelles captures';
+
+  @override
+  String get camTags => 'Étiquettes';
+
+  @override
+  String camTagCount(int count) {
+    return '$count étiquettes';
+  }
+
+  @override
+  String get camTimerOff => 'Minuteur désactivé';
+
+  @override
+  String camTimerSeconds(int seconds) {
+    return 'Minuteur de $seconds secondes';
+  }
+
+  @override
+  String get camGridHide => 'Masquer la grille';
+
+  @override
+  String get camGridShow => 'Afficher la grille';
+
+  @override
+  String get camSwitchRear => 'Passer à l\'appareil photo arrière';
+
+  @override
+  String get camSwitchFront => 'Passer à l\'appareil photo avant';
+
+  @override
+  String get camStopRecording => 'Arrêter l\'enregistrement';
+
+  @override
+  String get camRecordVideo => 'Enregistrer une vidéo';
+
+  @override
+  String get camStop => 'Arrêter';
+
+  @override
+  String get camVideo => 'Vidéo';
+
+  @override
+  String get camTakePhoto => 'Prendre une photo';
+
+  @override
+  String get camCancelTimer => 'Annuler le minuteur';
+
+  @override
+  String get camPhoto => 'Photo';
+
+  @override
+  String get camOpenLibrary => 'Ouvrir la Bibliothèque';
+
+  @override
+  String get camLibrary => 'Bibliothèque';
+
+  @override
+  String camTakeBurst(int count) {
+    return 'Prendre $count photos';
+  }
 }

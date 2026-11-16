@@ -211,4 +211,178 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String get camUnavailable =>
+      'Camera unavailable. Check camera permission in Settings.';
+
+  @override
+  String get camTagsOpenFailed =>
+      'Could not open private tags. Retry from Library.';
+
+  @override
+  String get camOrientationFailed => 'Could not update camera orientation.';
+
+  @override
+  String get camPendingSave =>
+      'Capture waiting for secure save. Free storage, then lock and unlock to retry.';
+
+  @override
+  String camRecovered(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return 'Recovered $_temp0.';
+  }
+
+  @override
+  String get camRecoveredVideoNote =>
+      'Interrupted videos may be incomplete or may not play on a TV.';
+
+  @override
+  String get camPendingCheckFailed =>
+      'Could not check pending captures. Free storage and reopen the camera.';
+
+  @override
+  String get camNone => 'No camera';
+
+  @override
+  String get camFocusLockFailed =>
+      'Could not lock focus and exposure on this camera.';
+
+  @override
+  String get camRecordStartFailed => 'Could not start recording. Try again.';
+
+  @override
+  String get camRecordStopFailed => 'Could not stop recording. Try again.';
+
+  @override
+  String get camNoFrames => 'No video frames were recorded. Try again.';
+
+  @override
+  String get camPendingNoTags =>
+      'Capture waiting for secure save. Tags were not applied; check Library after recovery.';
+
+  @override
+  String get camSaveFailed => 'Could not save capture. Try again.';
+
+  @override
+  String camSavedPhotos(int count) {
+    return 'Saved $count photos securely';
+  }
+
+  @override
+  String get camSwitchFailed => 'Could not switch camera. Try again.';
+
+  @override
+  String get camMicDenied =>
+      'Allow microphone access in Settings to record video. Photos are still available.';
+
+  @override
+  String get camVideoStartFailed =>
+      'Could not start video. Check camera and microphone permissions in Settings.';
+
+  @override
+  String get camSaving => 'Saving securely…';
+
+  @override
+  String get camSaved => 'Saved securely';
+
+  @override
+  String get camTagsNotApplied => 'Tags were not applied; organize in Library.';
+
+  @override
+  String get camNotCastReady => 'This video may not play on your TV.';
+
+  @override
+  String get camPreview => 'Camera preview';
+
+  @override
+  String get camPreviewHint =>
+      'Tap to focus. Press and hold to lock focus and exposure.';
+
+  @override
+  String get camFocusLocked => 'Focus and exposure locked';
+
+  @override
+  String camRecTimer(String time) {
+    return 'REC $time';
+  }
+
+  @override
+  String get camStartingVideo => 'Starting video…';
+
+  @override
+  String get camCastFailed => 'Could not cast. Try again.';
+
+  @override
+  String camCasting(String device) {
+    return 'Casting to $device';
+  }
+
+  @override
+  String get camChooseTags => 'Choose tags for new captures';
+
+  @override
+  String get camTags => 'Tags';
+
+  @override
+  String camTagCount(int count) {
+    return '$count tags';
+  }
+
+  @override
+  String get camTimerOff => 'Timer off';
+
+  @override
+  String camTimerSeconds(int seconds) {
+    return 'Timer $seconds seconds';
+  }
+
+  @override
+  String get camGridHide => 'Hide grid';
+
+  @override
+  String get camGridShow => 'Show grid';
+
+  @override
+  String get camSwitchRear => 'Switch to rear camera';
+
+  @override
+  String get camSwitchFront => 'Switch to front camera';
+
+  @override
+  String get camStopRecording => 'Stop recording';
+
+  @override
+  String get camRecordVideo => 'Record video';
+
+  @override
+  String get camStop => 'Stop';
+
+  @override
+  String get camVideo => 'Video';
+
+  @override
+  String get camTakePhoto => 'Take photo';
+
+  @override
+  String get camCancelTimer => 'Cancel timer';
+
+  @override
+  String get camPhoto => 'Photo';
+
+  @override
+  String get camOpenLibrary => 'Open Library';
+
+  @override
+  String get camLibrary => 'Library';
+
+  @override
+  String camTakeBurst(int count) {
+    return 'Take $count photos';
+  }
 }

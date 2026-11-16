@@ -11,6 +11,7 @@ import 'package:quietake/camera/capture_screen.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -69,8 +70,9 @@ typedef _Booted = ({
 /// Opens the capture screen on [makeCamera] with a cast session available.
 Future<_Booted> _boot(
   WidgetTester tester,
-  ControlledCamera Function(Directory) makeCamera,
-) async {
+  ControlledCamera Function(Directory) makeCamera, {
+  Locale? locale,
+}) async {
   FlutterSecureStorage.setMockInitialValues({});
   late Directory root;
   late Session session;
@@ -109,7 +111,14 @@ Future<_Booted> _boot(
     });
   });
   await tester.runAsync(
-    () => tester.pumpWidget(MaterialApp(home: CaptureScreen(session: session))),
+    () => tester.pumpWidget(
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: CaptureScreen(session: session),
+      ),
+    ),
   );
   Future<void> until(bool Function() done) async {
     for (var i = 0; i < 150 && !done(); i++) {
@@ -131,6 +140,14 @@ Future<_Booted> _boot(
 }
 
 void main() {
+  testWidgets('camera controls follow the device language', (tester) async {
+    await _boot(tester, _CastCamera.new, locale: const Locale('es'));
+    expect(find.byTooltip('Mostrar cuadrícula'), findsOneWidget);
+    expect(find.byTooltip('Hacer foto'), findsOneWidget);
+    expect(find.text('Biblioteca'), findsOneWidget);
+    expect(find.byTooltip('Show grid'), findsNothing);
+  });
+
   testWidgets('the grid button shows and hides thirds lines over the preview', (
     tester,
   ) async {

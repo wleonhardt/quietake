@@ -14,6 +14,7 @@ import '../cast/device_picker.dart';
 import '../gallery/gallery_screen.dart';
 import '../gallery/item.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../brand.dart';
 import '../privacy/privacy_controller.dart';
 import '../privacy/privacy_scope.dart';
@@ -42,8 +43,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     with WidgetsBindingObserver {
   // CameraX shares native preview state across controllers. A replacement
   // screen must wait for the previous screen's asynchronous shutdown.
-  static const _cameraUnavailable =
-      'Camera unavailable. Check camera permission in Settings.';
+  AppLocalizations get _l10n => context.l10n;
 
   /// How long a stop waits for the first recorded data. CameraX reached
   /// streaming 2.5 s after Start on the Galaxy S25 when the session was
@@ -159,9 +159,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       setState(() => _tagIds = ids.where(catalog.albums.containsKey).toSet());
     } on Exception {
       if (mounted && _foreground && widget.active && epoch == _cameraEpoch) {
-        setState(
-          () => _status = 'Could not open private tags. Retry from Library.',
-        );
+        setState(() => _status = _l10n.camTagsOpenFailed);
       }
     } finally {
       _choosingAlbum = false;
@@ -205,7 +203,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         }
       } on Exception {
         if (mounted) {
-          setState(() => _status = 'Could not update camera orientation.');
+          setState(() => _status = _l10n.camOrientationFailed);
         }
       }
       if (mounted) setState(() {});
@@ -248,17 +246,16 @@ class _CaptureScreenState extends State<CaptureScreen>
             prepare: videoPreparer(widget.session.vault),
           );
           if (recovery.pending > 0) {
-            _status = 'Capture waiting for secure save. Free storage, then lock and unlock to retry.';
+            _status = _l10n.camPendingSave;
           } else if (recovery.recovered > 0) {
             _status = [
-              'Recovered ${recovery.recovered} capture(s).',
-              if (recovery.unnormalized > 0)
-                'Interrupted videos may be incomplete or may not play on a TV.',
+              _l10n.camRecovered(recovery.recovered),
+              if (recovery.unnormalized > 0) _l10n.camRecoveredVideoNote,
             ].join(' ');
             unawaited(widget.session.sync.sync());
           }
         } catch (_) {
-          _status = 'Could not check pending captures. Free storage and reopen the camera.';
+          _status = _l10n.camPendingCheckFailed;
         }
         if (!mounted ||
             !_foreground ||
@@ -272,7 +269,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         return;
       }
       if (cameras.isEmpty) {
-        setState(() => _status = 'No camera');
+        setState(() => _status = _l10n.camNone);
         return;
       }
       _cameras = cameras;
@@ -302,14 +299,14 @@ class _CaptureScreenState extends State<CaptureScreen>
       setState(() {
         _controller = controller;
         _lens = selected.lensDirection;
-        if (_status == _cameraUnavailable || _status == 'No camera') {
+        if (_status == _l10n.camUnavailable || _status == _l10n.camNone) {
           _status = null;
         }
       });
     } catch (_) {
       await controller?.dispose();
       if (mounted && _foreground) {
-        setState(() => _status = _cameraUnavailable);
+        setState(() => _status = _l10n.camUnavailable);
       }
     }
   }
@@ -493,7 +490,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       setState(() {
         _focusRing = null;
         _lockedController = null;
-        _status = 'Could not lock focus and exposure on this camera.';
+        _status = _l10n.camFocusLockFailed;
       });
     }
   }
@@ -525,13 +522,12 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   String _saveError(Object error) => switch (error) {
-    _RecordingStartException() => 'Could not start recording. Try again.',
-    _RecordingStopException() => 'Could not stop recording. Try again.',
-    EmptyCaptureException(extension: 'mp4') =>
-      'No video frames were recorded. Try again.',
-    PendingCaptureException(albumApplied: false) => 'Capture waiting for secure save. Tags were not applied; check Library after recovery.',
-    PendingCaptureException() => 'Capture waiting for secure save. Free storage, then lock and unlock to retry.',
-    _ => 'Could not save capture. Try again.',
+    _RecordingStartException() => _l10n.camRecordStartFailed,
+    _RecordingStopException() => _l10n.camRecordStopFailed,
+    EmptyCaptureException(extension: 'mp4') => _l10n.camNoFrames,
+    PendingCaptureException(albumApplied: false) => _l10n.camPendingNoTags,
+    PendingCaptureException() => _l10n.camPendingSave,
+    _ => _l10n.camSaveFailed,
   };
 
   void _stopCountdown() {
@@ -581,7 +577,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         saved++;
       }
       if (mounted && saved > 1) {
-        setState(() => _status = 'Saved $saved photos securely');
+        setState(() => _status = _l10n.camSavedPhotos(saved));
       }
     });
   }
@@ -622,7 +618,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       } catch (_) {}
       await _init(recover: false);
       if (mounted) {
-        setState(() => _status = 'Could not switch camera. Try again.');
+        setState(() => _status = _l10n.camSwitchFailed);
       }
     }
   });
@@ -670,9 +666,7 @@ class _CaptureScreenState extends State<CaptureScreen>
             .invokeMethod<bool>('requestMicrophone');
         if (!mounted || !_foreground || !widget.active) return;
         if (granted != true) {
-          setState(
-            () => _status = 'Allow microphone access in Settings to record video. Photos are still available.',
-          );
+          setState(() => _status = _l10n.camMicDenied);
           return;
         }
         if (!c.enableAudio) {
@@ -685,9 +679,7 @@ class _CaptureScreenState extends State<CaptureScreen>
           if (c == null) {
             await _init();
             if (mounted && _controller != null) {
-              setState(
-                () => _status = 'Could not start video. Check camera and microphone permissions in Settings.',
-              );
+              setState(() => _status = _l10n.camVideoStartFailed);
             }
             return;
           }
@@ -729,7 +721,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   }
 
   Future<void> _ingest(File plain, String ext, Set<String> tagIds) async {
-    if (mounted) setState(() => _status = 'Saving securely…');
+    if (mounted) setState(() => _status = _l10n.camSaving);
     final saved = ext == 'mp4'
         ? await ingestVideo(widget.session.vault, plain, tagIds: tagIds)
         : await CaptureStore(widget.session.vault)
@@ -741,10 +733,9 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (mounted) {
       setState(
         () => _status = [
-          'Saved securely',
-          if (!saved.albumApplied)
-            'Tags were not applied; organize in Library.',
-          if (!saved.castReady) 'This video may not play on your TV.',
+          _l10n.camSaved,
+          if (!saved.albumApplied) _l10n.camTagsNotApplied,
+          if (!saved.castReady) _l10n.camNotCastReady,
         ].join('. '),
       );
     }
@@ -757,6 +748,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   );
 
   Widget _buildCamera(BuildContext context) {
+    final l10n = context.l10n;
     final c = _controller;
     final busy =
         _busy || _choosingAlbum || _releasing != null || _initializing != null;
@@ -777,8 +769,8 @@ class _CaptureScreenState extends State<CaptureScreen>
               key: Keys.preview,
               child: Builder(
                 builder: (box) => Semantics(
-                  label: 'Camera preview',
-                  hint: 'Tap to focus. Press and hold to lock focus and exposure.',
+                  label: l10n.camPreview,
+                  hint: l10n.camPreviewHint,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (tap) => _focusAt(box, tap, c),
@@ -824,8 +816,8 @@ class _CaptureScreenState extends State<CaptureScreen>
                       ),
                     ),
                     if (_lockedController != null)
-                      const Text(
-                        'Focus and exposure locked',
+                      Text(
+                        l10n.camFocusLocked,
                         key: Keys.captureLock,
                         style: TextStyle(
                           color: onMediaCanvas,
@@ -943,7 +935,9 @@ class _CaptureScreenState extends State<CaptureScreen>
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      'REC ${DateTime.now().difference(_recordStarted!).inMinutes}:${(DateTime.now().difference(_recordStarted!).inSeconds % 60).toString().padLeft(2, '0')}',
+                                      l10n.camRecTimer(
+                                        '${DateTime.now().difference(_recordStarted!).inMinutes}:${(DateTime.now().difference(_recordStarted!).inSeconds % 60).toString().padLeft(2, '0')}',
+                                      ),
                                       key: Keys.captureTimer,
                                       style: const TextStyle(
                                         color: recordAccent,
@@ -957,7 +951,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                                     child: Semantics(
                                       liveRegion: true,
                                       child: Text(
-                                        'Starting video…',
+                                        l10n.camStartingVideo,
                                         key: Keys.captureStarting,
                                         style: const TextStyle(
                                           color: recordAccent,
@@ -979,8 +973,8 @@ class _CaptureScreenState extends State<CaptureScreen>
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
                                       cast.error != null
-                                          ? 'Could not cast. Try again.'
-                                          : 'Casting to ${cast.device!.name}',
+                                          ? l10n.camCastFailed
+                                          : l10n.camCasting(cast.device!.name),
                                       key: Keys.captureCastState,
                                     ),
                                   ),
@@ -996,7 +990,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Tooltip(
-                              message: 'Choose tags for new captures',
+                              message: l10n.camChooseTags,
                               child: TextButton.icon(
                                 key: Keys.captureAlbum,
                                 style: TextButton.styleFrom(
@@ -1018,15 +1012,15 @@ class _CaptureScreenState extends State<CaptureScreen>
                                 icon: const Icon(Icons.sell_outlined, size: 20),
                                 label: Text(
                                   _tagIds.isEmpty
-                                      ? 'Tags'
+                                      ? l10n.camTags
                                       : _tagIds.length == 1
                                       ? widget
                                                 .session
                                                 .vault
                                                 .catalog
                                                 .albums[_tagIds.single] ??
-                                            'Tags'
-                                      : '${_tagIds.length} tags',
+                                            l10n.camTags
+                                      : l10n.camTagCount(_tagIds.length),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -1042,8 +1036,8 @@ class _CaptureScreenState extends State<CaptureScreen>
                             foregroundColor: onMediaCanvas,
                           ),
                           tooltip: _delay == 0
-                              ? 'Timer off'
-                              : 'Timer $_delay seconds',
+                              ? l10n.camTimerOff
+                              : l10n.camTimerSeconds(_delay),
                           onPressed: _recording || _countdown != null
                               ? null
                               : () => setState(
@@ -1066,7 +1060,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                             backgroundColor: cameraCanvas,
                             foregroundColor: onMediaCanvas,
                           ),
-                          tooltip: _grid ? 'Hide grid' : 'Show grid',
+                          tooltip: _grid ? l10n.camGridHide : l10n.camGridShow,
                           onPressed: () => setState(() => _grid = !_grid),
                           icon: Icon(_grid ? Icons.grid_off : Icons.grid_on),
                         ),
@@ -1079,8 +1073,8 @@ class _CaptureScreenState extends State<CaptureScreen>
                               foregroundColor: onMediaCanvas,
                             ),
                             tooltip: _lens == CameraLensDirection.front
-                                ? 'Switch to rear camera'
-                                : 'Switch to front camera',
+                                ? l10n.camSwitchRear
+                                : l10n.camSwitchFront,
                             onPressed:
                                 c == null ||
                                     _recording ||
@@ -1117,10 +1111,10 @@ class _CaptureScreenState extends State<CaptureScreen>
                                   ? null
                                   : _toggleVideo,
                               tooltip: _recording
-                                  ? 'Stop recording'
-                                  : 'Record video',
+                                  ? l10n.camStopRecording
+                                  : l10n.camRecordVideo,
                             ),
-                            _recording ? 'Stop' : 'Video',
+                            _recording ? l10n.camStop : l10n.camVideo,
                           ),
                           _labeledControl(
                             _burstGesture(
@@ -1143,12 +1137,12 @@ class _CaptureScreenState extends State<CaptureScreen>
                                       ? null
                                       : _onShutter,
                                   tooltip: _countdown == null
-                                      ? 'Take photo'
-                                      : 'Cancel timer',
+                                      ? l10n.camTakePhoto
+                                      : l10n.camCancelTimer,
                                 ),
                               ),
                             ),
-                            'Photo',
+                            l10n.camPhoto,
                           ),
                           _labeledControl(
                             IconButton(
@@ -1156,7 +1150,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                               iconSize: 36,
                               color: onMediaCanvas,
                               icon: const Icon(Icons.photo_library_outlined),
-                              tooltip: 'Open Library',
+                              tooltip: l10n.camOpenLibrary,
                               onPressed:
                                   _recording ||
                                       _busy ||
@@ -1166,7 +1160,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                                   ? null
                                   : _openGallery,
                             ),
-                            'Library',
+                            l10n.camLibrary,
                           ),
                         ],
                       ),
@@ -1199,21 +1193,22 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   /// Press and hold the shutter for a burst. A custom action offers the same
   /// to screen readers, since the gesture has no button of its own.
-  Widget _burstGesture({
-    required bool enabled,
-    required Widget child,
-  }) => MergeSemantics(
-    child: Semantics(
-      customSemanticsActions: enabled
-          ? {CustomSemanticsAction(label: 'Take $_burstSize photos'): _burst}
-          : null,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onLongPress: enabled ? _burst : null,
-        child: child,
-      ),
-    ),
-  );
+  Widget _burstGesture({required bool enabled, required Widget child}) =>
+      MergeSemantics(
+        child: Semantics(
+          customSemanticsActions: enabled
+              ? {
+                  CustomSemanticsAction(label: _l10n.camTakeBurst(_burstSize)):
+                      _burst,
+                }
+              : null,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onLongPress: enabled ? _burst : null,
+            child: child,
+          ),
+        ),
+      );
 
   Widget _labeledControl(Widget button, String label) => Expanded(
     child: Column(

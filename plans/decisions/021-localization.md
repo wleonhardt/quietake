@@ -35,7 +35,9 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
 2. Lock screen, Setup, recovery key and Change passcode screens (done). Messages
    raised by the vault layer, such as a wrong passcode or a too-short passcode,
    stay English until the exception types carry codes.
-3. Camera and capture screens.
+3. Camera and capture screen (done). Status text is stored already translated, so a
+   language change shows the old text until the next status; acceptable for a
+   transient message.
 4. Library, Tags, Moments, viewer, share and import.
 5. Settings, backup and NAS screens, and snackbar errors.
 Strings built in code, such as month names in Moments, move to `intl` date
