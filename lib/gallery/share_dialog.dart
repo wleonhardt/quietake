@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/privacy_controller.dart';
 import '../privacy/privacy_scope.dart';
 import '../vault/vault.dart';
@@ -39,7 +40,7 @@ class _ShareDialogState extends State<_ShareDialog> {
   bool _cancelled = false;
   int _prepared = 0;
   bool _stripLocation = true;
-  String? _error;
+  String Function(AppLocalizations)? _error;
   PrivacyController? _privacy;
 
   void _onPrivacy() {
@@ -89,15 +90,13 @@ class _ShareDialogState extends State<_ShareDialog> {
           ? ''
           : widget.vault.catalog.details(item.name).title;
       setState(
-        () => _error = item == null
+        () => _error = (_) => item == null
             ? error.message
             : '${title.isEmpty ? item.name : title}: ${error.message}',
       );
     } catch (_) {
       if (_active) {
-        setState(
-          () => _error = 'Could not share. Another share may still be finishing. Try again.',
-        );
+        setState(() => _error = (l10n) => l10n.shareFailed);
       }
     } finally {
       if (_cancelled && mounted && ModalRoute.of(context)!.isCurrent) {
@@ -108,71 +107,73 @@ class _ShareDialogState extends State<_ShareDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    key: Keys.shareDialog,
-    scrollable: true,
-    title: Text(
-      widget.items.length == 1
-          ? 'Share a copy?'
-          : 'Share ${widget.items.length} copies?',
-    ),
-    content: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'The app you choose receives unencrypted copies and may keep them.',
-        ),
-        CheckboxListTile(
-          key: Keys.shareStripLocation,
-          contentPadding: EdgeInsets.zero,
-          value: _stripLocation,
-          onChanged: _busy
-              ? null
-              : (value) => setState(() => _stripLocation = value ?? true),
-          title: const Text('Remove metadata from JPEG photo copies'),
-          subtitle: Text(
-            _stripLocation
-                ? 'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.'
-                : 'Copies keep all original metadata, including location if present.',
-          ),
-        ),
-        if (widget.items.length > 1)
-          const Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: Text(
-              'Up to $maxShareItems captures and ${maxShareBatchBytes ~/ (1024 * 1024)} MiB per batch.',
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      key: Keys.shareDialog,
+      scrollable: true,
+      title: Text(
+        widget.items.length == 1
+            ? l10n.shareTitleOne
+            : l10n.shareTitleMany(widget.items.length),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.shareWarning),
+          CheckboxListTile(
+            key: Keys.shareStripLocation,
+            contentPadding: EdgeInsets.zero,
+            value: _stripLocation,
+            onChanged: _busy
+                ? null
+                : (value) => setState(() => _stripLocation = value ?? true),
+            title: Text(l10n.shareStripTitle),
+            subtitle: Text(
+              _stripLocation ? l10n.shareStripOn : l10n.shareStripOff,
             ),
           ),
-        if (_busy) ...[
-          const SizedBox(height: 16),
-          const LinearProgressIndicator(),
-          Text(
-            'Preparing $_prepared of ${widget.items.length}',
-            key: Keys.shareProgress,
-          ),
+          if (widget.items.length > 1)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                l10n.shareLimits(
+                  maxShareItems,
+                  maxShareBatchBytes ~/ (1024 * 1024),
+                ),
+              ),
+            ),
+          if (_busy) ...[
+            const SizedBox(height: 16),
+            const LinearProgressIndicator(),
+            Text(
+              l10n.shareProgress(_prepared, widget.items.length),
+              key: Keys.shareProgress,
+            ),
+          ],
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(_error!(l10n), key: Keys.shareError),
+            ),
         ],
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(_error!, key: Keys.shareError),
-          ),
+      ),
+      actions: [
+        TextButton(
+          key: Keys.shareCancel,
+          onPressed: () {
+            _cancelled = true;
+            Navigator.pop(context);
+          },
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          key: Keys.shareConfirm,
+          onPressed: _busy ? null : _share,
+          child: Text(l10n.shareChooseApp),
+        ),
       ],
-    ),
-    actions: [
-      TextButton(
-        key: Keys.shareCancel,
-        onPressed: () {
-          _cancelled = true;
-          Navigator.pop(context);
-        },
-        child: const Text('Cancel'),
-      ),
-      FilledButton(
-        key: Keys.shareConfirm,
-        onPressed: _busy ? null : _share,
-        child: const Text('Choose app'),
-      ),
-    ],
-  );
+    );
+  }
 }

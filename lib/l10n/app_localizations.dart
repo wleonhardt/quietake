@@ -1505,6 +1505,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{summary}. Choose the same folder again to continue.'**
   String importSummaryContinue(String summary);
+
+  /// No description provided for @shareTitleOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a copy?'**
+  String get shareTitleOne;
+
+  /// No description provided for @shareTitleMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Share {count} copies?'**
+  String shareTitleMany(int count);
+
+  /// No description provided for @shareWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The app you choose receives unencrypted copies and may keep them.'**
+  String get shareWarning;
+
+  /// No description provided for @shareStripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove metadata from JPEG photo copies'**
+  String get shareStripTitle;
+
+  /// No description provided for @shareStripOn.
+  ///
+  /// In en, this message translates to:
+  /// **'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.'**
+  String get shareStripOn;
+
+  /// No description provided for @shareStripOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies keep all original metadata, including location if present.'**
+  String get shareStripOff;
+
+  /// No description provided for @shareLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {items} captures and {mib} MiB per batch.'**
+  String shareLimits(int items, int mib);
+
+  /// No description provided for @shareProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing {prepared} of {total}'**
+  String shareProgress(int prepared, int total);
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share. Another share may still be finishing. Try again.'**
+  String get shareFailed;
+
+  /// No description provided for @shareChooseApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose app'**
+  String get shareChooseApp;
 }
 
 class _AppLocalizationsDelegate

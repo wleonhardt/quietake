@@ -874,4 +874,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String importSummaryContinue(String summary) {
     return '$summary. Choose the same folder again to continue.';
   }
+
+  @override
+  String get shareTitleOne => 'Share a copy?';
+
+  @override
+  String shareTitleMany(int count) {
+    return 'Share $count copies?';
+  }
+
+  @override
+  String get shareWarning =>
+      'The app you choose receives unencrypted copies and may keep them.';
+
+  @override
+  String get shareStripTitle => 'Remove metadata from JPEG photo copies';
+
+  @override
+  String get shareStripOn =>
+      'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.';
+
+  @override
+  String get shareStripOff =>
+      'Copies keep all original metadata, including location if present.';
+
+  @override
+  String shareLimits(int items, int mib) {
+    return 'Up to $items captures and $mib MiB per batch.';
+  }
+
+  @override
+  String shareProgress(int prepared, int total) {
+    return 'Preparing $prepared of $total';
+  }
+
+  @override
+  String get shareFailed =>
+      'Could not share. Another share may still be finishing. Try again.';
+
+  @override
+  String get shareChooseApp => 'Choose app';
 }

@@ -7,6 +7,7 @@ import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/item.dart';
 import 'package:quietake/gallery/share_dialog.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -50,9 +51,12 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  Future<void> open(WidgetTester tester) async {
+  Future<void> open(WidgetTester tester, {Locale? locale}) async {
     await tester.pumpWidget(
       MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Builder(
           builder: (context) => TextButton(
             key: const Key('open'),
@@ -92,6 +96,14 @@ void main() {
     await tester.tap(find.byKey(Keys.shareStripLocation));
     await tester.pump();
     expect(find.textContaining('keep all original metadata'), findsOneWidget);
+  });
+
+  testWidgets('the dialog follows the device language', (tester) async {
+    await open(tester, locale: const Locale('es'));
+    expect(find.text('¿Compartir una copia?'), findsOneWidget);
+    expect(find.textContaining('copias sin cifrar'), findsOneWidget);
+    expect(find.text('Elegir app'), findsOneWidget);
+    expect(find.text('Share a copy?'), findsNothing);
   });
 
   testWidgets('cancel closes without preparing or sharing', (tester) async {

@@ -233,5 +233,15 @@
   "importFailedCount": "{count} con error",
   "importNotStarted": "{count} sin empezar",
   "importSummaryEnd": "{summary}.",
-  "importSummaryContinue": "{summary}. Elige la misma carpeta de nuevo para continuar."
+  "importSummaryContinue": "{summary}. Elige la misma carpeta de nuevo para continuar.",
+  "shareTitleOne": "¿Compartir una copia?",
+  "shareTitleMany": "¿Compartir {count} copias?",
+  "shareWarning": "La app que elijas recibe copias sin cifrar y puede conservarlas.",
+  "shareStripTitle": "Quitar los metadatos de las copias de fotos JPEG",
+  "shareStripOn": "Las copias JPEG conservan solo su orientación: se eliminan la ubicación, la cámara, la hora, los comentarios y las miniaturas. Las copias PNG y de vídeo no cambian.",
+  "shareStripOff": "Las copias conservan todos los metadatos originales, incluida la ubicación si existe.",
+  "shareLimits": "Hasta {items} capturas y {mib} MiB por lote.",
+  "shareProgress": "Preparando {prepared} de {total}",
+  "shareFailed": "No se pudo compartir. Puede que otro uso compartido aún esté terminando. Inténtalo de nuevo.",
+  "shareChooseApp": "Elegir app"
 }

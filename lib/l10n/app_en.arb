@@ -496,5 +496,42 @@
         "type": "String"
       }
     }
-  }
+  },
+  "shareTitleOne": "Share a copy?",
+  "shareTitleMany": "Share {count} copies?",
+  "@shareTitleMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareWarning": "The app you choose receives unencrypted copies and may keep them.",
+  "shareStripTitle": "Remove metadata from JPEG photo copies",
+  "shareStripOn": "JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.",
+  "shareStripOff": "Copies keep all original metadata, including location if present.",
+  "shareLimits": "Up to {items} captures and {mib} MiB per batch.",
+  "@shareLimits": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "mib": {
+        "type": "int"
+      }
+    }
+  },
+  "shareProgress": "Preparing {prepared} of {total}",
+  "@shareProgress": {
+    "placeholders": {
+      "prepared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "shareFailed": "Could not share. Another share may still be finishing. Try again.",
+  "shareChooseApp": "Choose app"
 }

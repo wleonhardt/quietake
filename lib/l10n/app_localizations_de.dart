@@ -896,4 +896,44 @@ class AppLocalizationsDe extends AppLocalizations {
   String importSummaryContinue(String summary) {
     return '$summary. Wählen Sie denselben Ordner erneut, um fortzufahren.';
   }
+
+  @override
+  String get shareTitleOne => 'Eine Kopie teilen?';
+
+  @override
+  String shareTitleMany(int count) {
+    return '$count Kopien teilen?';
+  }
+
+  @override
+  String get shareWarning =>
+      'Die von Ihnen gewählte App erhält unverschlüsselte Kopien und kann sie behalten.';
+
+  @override
+  String get shareStripTitle => 'Metadaten aus JPEG-Fotokopien entfernen';
+
+  @override
+  String get shareStripOn =>
+      'JPEG-Kopien behalten nur ihre Ausrichtung: Standort, Kamera, Zeit, Kommentare und Vorschaubilder werden entfernt. PNG- und Videokopien bleiben unverändert.';
+
+  @override
+  String get shareStripOff =>
+      'Kopien behalten alle ursprünglichen Metadaten, einschließlich des Standorts, falls vorhanden.';
+
+  @override
+  String shareLimits(int items, int mib) {
+    return 'Bis zu $items Aufnahmen und $mib MiB pro Stapel.';
+  }
+
+  @override
+  String shareProgress(int prepared, int total) {
+    return '$prepared von $total werden vorbereitet';
+  }
+
+  @override
+  String get shareFailed =>
+      'Teilen nicht möglich. Möglicherweise wird noch eine andere Freigabe beendet. Versuchen Sie es erneut.';
+
+  @override
+  String get shareChooseApp => 'App auswählen';
 }
