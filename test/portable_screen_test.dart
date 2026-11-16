@@ -5,9 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/backup/portable_screen.dart';
+import 'package:quietake/cast/cast_controller.dart';
+import 'package:quietake/crypto/vault_crypto.dart';
+import 'package:quietake/media/media_server.dart';
+import 'package:quietake/session.dart';
+import 'package:quietake/vault/vault.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
+
+import '../test_support/fake_cast_backend.dart';
 
 class _MemStorage extends FlutterSecureStoragePlatform {
   final map = <String, String>{};
@@ -166,5 +173,78 @@ void main() {
       tester.widget<FilledButton>(find.byKey(Keys.portableStart)).onPressed,
       isNotNull,
     );
+  });
+
+  group('export', () {
+    late Session session;
+    Future<void> openExport(WidgetTester tester) async {
+      await tester.runAsync(() async {
+        final key = await store.createWithPasscode('abcdef');
+        final vault = Vault(
+          VaultCrypto(sodium),
+          key,
+          Directory('${dir.path}/vault')..createSync(),
+        );
+        final plain = await File('${dir.path}/in').writeAsBytes([1, 2, 3]);
+        await vault.ingestAs(plain, 'photo.jpg');
+        session = Session(
+          vault: vault,
+          server: await MediaServer.start(vault),
+          cast: CastController(vault, FakeCastBackend()),
+          store: store,
+        );
+      });
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox());
+        await tester.runAsync(session.close);
+      });
+      binding.defaultBinaryMessenger
+        ..setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/path_provider'),
+          (_) async => dir.path,
+        )
+        ..setMockMethodCallHandler(portableChannel, (call) async {
+          calls.add(call.method);
+          return null;
+        });
+      addTearDown(
+        () => binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/path_provider'),
+          null,
+        ),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PortableScreen(store: store, session: session),
+        ),
+      );
+      await tester.pump();
+    }
+
+    Future<void> run(WidgetTester tester, String passcode, String done) async {
+      await tester.enterText(find.byKey(Keys.portablePasscode), passcode);
+      await start(tester);
+      for (var i = 0; i < 150 && !result(tester).contains(done); i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      expect(result(tester), contains(done));
+    }
+
+    testWidgets('has no restore-only fields', (tester) async {
+      await openExport(tester);
+      expect(find.text('Portable backup'), findsOneWidget);
+      expect(find.byKey(Keys.portablePick), findsNothing);
+      expect(find.byKey(Keys.portableRecovery), findsNothing);
+      expect(find.byKey(Keys.portableConfirm), findsNothing);
+    });
+
+    testWidgets('wrong passcode saves nothing', (tester) async {
+      await openExport(tester);
+      await run(tester, 'wrong-pass', 'Wrong passcode');
+      expect(calls, isNot(contains('save')));
+    });
   });
 }
