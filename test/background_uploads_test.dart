@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
+import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/sync/background_uploads.dart';
 import 'package:quietake/sync/sync_settings.dart';
+import 'package:quietake/vault/vault.dart';
+import 'package:sodium/sodium_sumo.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -90,4 +95,136 @@ void main() {
       }
     },
   );
+
+  group('native scheduler channel', () {
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    late List<MethodCall> calls;
+    late Vault vault;
+    late Directory root;
+    Object? status;
+
+    setUp(() async {
+      calls = [];
+      status = 'scheduled';
+      messenger.setMockMethodCallHandler(BackgroundUploads.channel, (
+        call,
+      ) async {
+        calls.add(call);
+        return switch (call.method) {
+          'begin' => 'lease-fixture',
+          'status' => status,
+          _ => null,
+        };
+      });
+      final sodium = await SodiumSumoInit.init();
+      root = await Directory.systemTemp.createTemp('quietake-background');
+      vault = Vault(
+        VaultCrypto(sodium),
+        sodium.crypto.secretBox.keygen(),
+        Directory('${root.path}/vault')..createSync(),
+      );
+    });
+    tearDown(() async {
+      messenger.setMockMethodCallHandler(BackgroundUploads.channel, null);
+      vault.dispose();
+      await root.delete(recursive: true);
+    });
+
+    const settings = SyncSettings(
+      url: 'https://nas.example/vault/',
+      username: 'fixture',
+      password: 'synthetic',
+      backgroundUploads: true,
+      mobileData: true,
+    );
+
+    test('disabled uploads never touch the channel', () async {
+      final background = BackgroundUploads(enabled: false);
+      expect(await background.foreground(() async => 3), 3);
+      await background.configure(settings, vault, 'proof', {'a'});
+      await background.reset();
+      await background.request();
+      expect(await background.status(), 'disabled');
+      expect(calls, isEmpty);
+    });
+
+    test('a missing lease stops foreground work before it starts', () async {
+      messenger.setMockMethodCallHandler(
+        BackgroundUploads.channel,
+        (_) async => null,
+      );
+      var ran = false;
+      await expectLater(
+        BackgroundUploads(enabled: true).foreground(() async => ran = true),
+        throwsStateError,
+      );
+      expect(ran, isFalse);
+    });
+
+    test(
+      'configure sends the lease, paths and confirmed media, no key',
+      () async {
+        final background = BackgroundUploads(enabled: true);
+        await background.foreground(
+          () => background.configure(settings, vault, 'proof', {'a', 'b'}),
+        );
+        final sent =
+            calls.singleWhere((c) => c.method == 'configure').arguments as Map;
+        expect(sent['lease'], 'lease-fixture');
+        final config = sent['config'] as Map;
+        expect(config['url'], settings.url);
+        expect(config['ownership'], 'proof');
+        expect(config['mobileData'], isTrue);
+        expect(config['vault'], vault.dir.path);
+        expect(config['keyfile'], '${root.path}/vault.keyfile.json');
+        expect(config['confirmed'], unorderedEquals(['a', 'b']));
+        expect(
+          config.keys,
+          isNot(anyOf(contains('key'), contains('masterKey'))),
+          reason: 'no media key crosses this channel',
+        );
+      },
+    );
+
+    test(
+      'configure is skipped without proof or when the user opted out',
+      () async {
+        final background = BackgroundUploads(enabled: true);
+        await background.configure(settings, vault, null, {'a'});
+        await background.configure(
+          const SyncSettings(
+            url: 'https://nas.example/vault/',
+            username: 'fixture',
+            password: 'synthetic',
+          ),
+          vault,
+          'proof',
+          {'a'},
+        );
+        expect(calls, isEmpty);
+      },
+    );
+
+    test('at most 100000 confirmed names are sent', () async {
+      final background = BackgroundUploads(enabled: true);
+      await background.configure(settings, vault, 'proof', {
+        for (var i = 0; i < 100001; i++) 'n$i',
+      });
+      final config = (calls.single.arguments as Map)['config'] as Map;
+      expect(config['confirmed'], hasLength(100000));
+    });
+
+    test(
+      'reset and status reach the platform; status defaults to disabled',
+      () async {
+        final background = BackgroundUploads(enabled: true);
+        await background.reset();
+        expect(await background.status(), 'scheduled');
+        status = null;
+        expect(await background.status(), 'disabled');
+        expect(calls.map((c) => c.method), ['reset', 'status', 'status']);
+      },
+    );
+  });
 }
