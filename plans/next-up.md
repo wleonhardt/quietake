@@ -43,6 +43,7 @@
 
 ## Done
 
+- Lesson (iteration 112): reading a disposed `SecureKey` (`extractBytes`) segfaults flutter_tester, so a test cannot assert disposal by reading the key. The same native crash may explain the open Setup-failure segfault above: some path may read a key after dispose. No test added; app code unchanged.
 - Full host suite at iteration 111: 604 passed, analyzer clean (supersedes the iteration 104 count).
 - Host test (`lock_unlock_failure_test.dart`): a wrong passcode submitted with the keyboard action shows "wrong passcode" (the `onSubmitted` path was untested).
 - Host test (`lock_unlock_failure_test.dart`): a refused biometric prompt shows the authenticator's reason and keeps the biometric button.
