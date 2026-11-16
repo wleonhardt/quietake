@@ -18,9 +18,11 @@ void main() {
   late Vault vault;
   late VaultItem item;
   var shareCalls = 0;
+  var shareFails = false;
 
   setUp(() async {
     shareCalls = 0;
+    shareFails = false;
     root = await Directory.systemTemp.createTemp('quietake-share-dialog');
     final sodium = await SodiumSumoInit.init();
     vault = Vault(
@@ -35,6 +37,7 @@ void main() {
       ..setMockMethodCallHandler(paths, (_) async => root.path)
       ..setMockMethodCallHandler(share, (_) async {
         shareCalls++;
+        if (shareFails) throw PlatformException(code: 'unavailable');
         return '';
       });
   });
@@ -134,5 +137,30 @@ void main() {
       tester.widget<FilledButton>(find.byKey(Keys.shareConfirm)).onPressed,
       isNotNull,
     );
+  });
+
+  testWidgets('a failing chooser shows a retry message and keeps the dialog', (
+    tester,
+  ) async {
+    shareFails = true;
+    await open(tester);
+    await tester.tap(find.byKey(Keys.shareConfirm));
+    await settleReal(
+      tester,
+      () => find.byKey(Keys.shareError).evaluate().isNotEmpty,
+    );
+    expect(
+      tester.widget<Text>(find.byKey(Keys.shareError)).data,
+      'Could not share. Another share may still be finishing. Try again.',
+    );
+    expect(find.byKey(Keys.shareDialog), findsOneWidget);
+    shareFails = false;
+    await tester.tap(find.byKey(Keys.shareConfirm));
+    await settleReal(
+      tester,
+      () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(Keys.shareDialog), findsNothing);
   });
 }
