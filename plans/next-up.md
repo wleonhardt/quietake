@@ -19,7 +19,7 @@
   22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51% (connection test paths now covered by
   `settings_connection_test.dart`; idle timeout, recovery prompt and disconnect now covered by `settings_access_test.dart`; change-passcode screen and Android-only background rows remain),
   `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
-  `nas_restore_validation_test.dart`; change/disable flows still need a locking server). Take these next.
+  `nas_restore_validation_test.dart`; change-mode validation in `nas_change_validation_test.dart`; the committed change/disable success flows still need a locking server). Take these next.
 - Next: continue `lib/` bug review. Read so far with no defect found (incl. `sync_controller.dart`, well covered):
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
@@ -40,7 +40,7 @@
   with a FormatException (red/green test). Full host suite passed: 486 tests,
   analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
   test, 111 s build, loopback WebDAV). Android not rerun; no UI or vault code changed.
-- Host tests now cover Albums screen empty state, search and delete-cancel, camera-open recovery of an interrupted photo, viewer favorite and delete (cancel, delete one of two), gallery selection (select, favorite, name, tags, unreadable catalog, open viewer), `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
+- Host tests now cover NAS recovery change-mode validation and confirm-cancel, Albums screen empty state, search and delete-cancel, camera-open recovery of an interrupted photo, viewer favorite and delete (cancel, delete one of two), gallery selection (select, favorite, name, tags, unreadable catalog, open viewer), `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
 - A widget test that ran the full export (isolate worker plus file IO) under
