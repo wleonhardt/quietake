@@ -378,4 +378,34 @@ void main() {
     await catalog.createAlbum('Local remains usable');
     expect(catalog.albums.values, ['Local remains usable']);
   });
+
+  test(
+    'a library too large to save is refused and leaves state unchanged',
+    () async {
+      await catalog.load();
+      final names = {
+        for (var i = 0; i < 12000; i++) 'capture-${'x' * 30}-$i.shtr',
+      };
+      await expectLater(
+        catalog.organize(names, favorite: true),
+        throwsA(isA<FormatException>()),
+      );
+      expect(catalog.items, isEmpty);
+      expect(await catalog.file.exists(), isFalse);
+    },
+  );
+
+  test('a catalog larger than the size limit is refused on load', () async {
+    final padding = 'x' * (PrivateCatalog.maxBytes + 1);
+    await vault.writeMetadata(
+      catalog.file,
+      utf8.encode(
+        jsonEncode({'version': 1, 'albums': {}, 'items': {}, 'pad': padding}),
+      ),
+    );
+    await expectLater(
+      PrivateCatalog(vault).load(),
+      throwsA(isA<FormatException>()),
+    );
+  });
 }

@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host tests (`private_catalog_test.dart`): a library too large to save is refused with state unchanged, and an oversized catalog is refused on load. `private_catalog.dart` and `cast_controller.dart` re-read, no defect. Both limits were untested before.
 - Host tests (`idle_lock_test.dart`): an idle session locks after the app's timeout, and hardware key presses and touches keep it unlocked (first host coverage of `QuietakeApp` idle locking; `idleTimeout` is the test hook).
 - Host test (`app_start_failure_test.dart`): after a restore completes, the app shows the lock screen, not Setup. Other short text entry points (names, tags, search) still do not reset the idle timer; they are short, so left unchanged.
 - Bug fixed: typing in the NAS recovery and portable backup fields (soft keyboard sends no pointer or hardware key events) did not reset the idle-lock timer, so a 1-minute timeout could lock mid-entry and clear the NAS draft. Their fields now call `PrivacyScope.activity()` like Settings and Change passcode (red/green `typing_activity_test.dart`). Host suite 560 passed, analyzer clean, iOS `portable_test.dart` (5 cases, 73.8 s) and `nas_recovery_test.dart` (6 cases, 146.5 s) passed. Android not rerun. Other fields not changed: name/tag/search entries are short; Setup has no session timer.
