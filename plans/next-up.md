@@ -40,7 +40,7 @@
   with a FormatException (red/green test). Full host suite passed: 486 tests,
   analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
   test, 111 s build, loopback WebDAV). Android not rerun; no UI or vault code changed.
-- Host tests now cover `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
+- Host tests now cover gallery selection (select, favorite, name, tags), `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
 - A widget test that ran the full export (isolate worker plus file IO) under
@@ -50,7 +50,7 @@
 - `testWidgets` swaps in a mock HTTP client that answers 400 to everything. A widget
   test that talks to the loopback `FakeWebDavServer` must set
   `HttpOverrides.global = null` first.
-- Widget tests that touch real files must wrap that IO in `tester.runAsync`;
+- Widget tests that touch real files must start that IO inside `tester.runAsync` (also a tap whose handler writes);
   bare file IO inside `testWidgets` never completes (share dialog test hang).
 - The 1.0.0+4 source passed both protected checks and complete hosted Android
   acceptance. Offline policy access, native notices and the published policy match.
