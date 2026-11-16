@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host test (`camera_cast_orientation_test.dart`): the capture screen requests landscape when a cast starts and frees orientation when it stops (skipped on a host with no LAN address). Remaining `capture_screen.dart` gaps: tag choice errors (146-149), recording paths (447-481), controls (542-603).
 - Host tests (`gallery_selection_test.dart`, iterations 86-87): Reset view restores a view narrowed to Favorites, with backup unconfigured the sync button (tooltip "Set up backup") opens Settings, and a vault folder that cannot be listed shows "Could not open vault. Retry" and Retry recovers once the folder returns; returning from the viewer reloads the list; Retry on an unreadable catalog unlocks selection after repair.
 - Full host suite at iteration 85: 585 passed, analyzer clean, after the gallery, cast picker, Settings and Setup coverage tests. No app code changed since the recovery-prompt fix, so the iOS lock result still applies.
 - Host test (`viewer_actions_test.dart`): swiping the real viewer moves to the next capture and back (the page-change handler was uncovered), double tap zooms a photo while Reset to fit restores it, and a too-large photo shows its size message (`viewer_test.dart`), and backgrounding pauses video playback while foregrounding resumes it, and a paused video with hidden controls offers a play overlay (`viewer_video_test.dart`). Coverage at iteration 70: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 72%, `viewer_screen.dart` 82%.
