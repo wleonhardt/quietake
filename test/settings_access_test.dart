@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -19,6 +21,37 @@ import 'package:sodium/sodium_sumo.dart';
 import '../test_support/fake_cast_backend.dart';
 
 const _passcode = 'test-passcode';
+
+class _FailingStorage extends FlutterSecureStoragePlatform {
+  @override
+  Future<void> write({
+    required String key,
+    required String value,
+    required Map<String, String> options,
+  }) async => throw PlatformException(code: 'unavailable');
+  @override
+  Future<String?> read({
+    required String key,
+    required Map<String, String> options,
+  }) async => throw PlatformException(code: 'unavailable');
+  @override
+  Future<bool> containsKey({
+    required String key,
+    required Map<String, String> options,
+  }) async => throw PlatformException(code: 'unavailable');
+  @override
+  Future<void> delete({
+    required String key,
+    required Map<String, String> options,
+  }) async => throw PlatformException(code: 'unavailable');
+  @override
+  Future<void> deleteAll({required Map<String, String> options}) async =>
+      throw PlatformException(code: 'unavailable');
+  @override
+  Future<Map<String, String>> readAll({
+    required Map<String, String> options,
+  }) async => throw PlatformException(code: 'unavailable');
+}
 
 void main() {
   late Directory dir;
@@ -166,5 +199,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(Keys.settingsChangePasscode), findsNothing);
     expect(find.byKey(const Key('test.open')), findsOneWidget);
+  });
+
+  void failSecureStorage() {
+    FlutterSecureStoragePlatform.instance = _FailingStorage();
+  }
+
+  testWidgets('a failed save reports it and keeps the screen open', (
+    tester,
+  ) async {
+    await open(tester);
+    failSecureStorage();
+    await tester.ensureVisible(find.byKey(Keys.settingsSave));
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.settingsSave)));
+    await until(
+      tester,
+      find.text('Could not save connection details. Try again.'),
+    );
+    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
+  });
+
+  testWidgets('a failed disconnect reports it and keeps the screen open', (
+    tester,
+  ) async {
+    await open(tester);
+    failSecureStorage();
+    await tester.ensureVisible(find.byKey(Keys.settingsDisconnect));
+    await tester.tap(find.byKey(Keys.settingsDisconnect));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.disconnectConfirm)));
+    await until(
+      tester,
+      find.text('Could not disconnect NAS backup. Try again.'),
+    );
+    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
   });
 }
