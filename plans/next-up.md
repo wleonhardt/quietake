@@ -33,7 +33,8 @@
   branch at its current source; nothing crypto/recovery changed.
 - `WebDavClient.list` now rejects a listing entry with no href or no file name
   with a FormatException (red/green test). Full host suite passed: 486 tests,
-  analyzer clean. Not rerun on devices; no UI or vault code changed.
+  analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
+  test, 111 s build, loopback WebDAV). Android not rerun; no UI or vault code changed.
 - Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
