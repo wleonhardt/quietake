@@ -676,11 +676,25 @@ class _PasscodePrompt extends StatefulWidget {
   State<_PasscodePrompt> createState() => _PasscodePromptState();
 }
 
-class _PasscodePromptState extends State<_PasscodePrompt> {
+class _PasscodePromptState extends State<_PasscodePrompt>
+    with WidgetsBindingObserver {
   final _pass = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// The content stays alive behind the lock screen, so a typed passcode must not.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) _pass.clear();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pass.dispose();
     super.dispose();
   }

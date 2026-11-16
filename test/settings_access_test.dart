@@ -210,6 +210,31 @@ void main() {
     expect(find.byKey(Keys.recoveryKeyText), findsNothing);
   });
 
+  testWidgets(
+    'the passcode prompt clears the typed passcode when the app pauses',
+    (tester) async {
+      await open(tester);
+      await tester.ensureVisible(find.text('Show recovery key'));
+      await tester.tap(find.text('Show recovery key'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(Keys.recoveryPrompt), 'secret value');
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      expect(
+        tester
+            .widget<TextField>(find.byKey(Keys.recoveryPrompt))
+            .controller!
+            .text,
+        '',
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    },
+  );
+
   Future<void> openRecoveryCheck(WidgetTester tester) async {
     await tester.ensureVisible(find.byKey(Keys.settingsRecoveryCheck));
     await tester.tap(find.byKey(Keys.settingsRecoveryCheck));
