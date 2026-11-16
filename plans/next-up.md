@@ -15,9 +15,16 @@
   separate empty targets. Source CI is not signed-artifact or store evidence.
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
+- Candidate gaps from lib review (no direct unit tests yet): `share_dialog.dart`,
+  `name_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, `portable_screen.dart`.
+  Cover through behavior-based widget tests with stable keys.
+- NAS and simulator checks are authorized for the dev loop; no NAS run has
+  happened yet. Keep to synthetic data and the development application ID.
 
 ## Done
 
+- Direct tests now cover `checkedFileName` and `sortedTags` (host `flutter analyze`
+  clean; new file passes; full suite reused from baseline 444 passing tests).
 - The 1.0.0+4 source passed both protected checks and complete hosted Android
   acceptance. Offline policy access, native notices and the published policy match.
 - Source uses MPL 2.0 with independent recovery contracts and synthetic tests.
