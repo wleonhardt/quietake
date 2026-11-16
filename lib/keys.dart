@@ -133,6 +133,11 @@ abstract final class Keys {
   static const albumDeleteConfirm = Key('album.deleteConfirm');
   static Key albumMenu(String id) => Key('album.menu.$id');
   static Key albumChoose(String id) => Key('album.choose.$id');
+  static const tagCoverSet = Key('tag.coverSet');
+  static const tagCoverClear = Key('tag.coverClear');
+  static const tagCoverGrid = Key('tag.coverGrid');
+  static Key tagCoverPick(String name) => Key('tag.coverPick.$name');
+  static Key tagCoverThumb(String id) => Key('tag.coverThumb.$id');
   static const viewerFavorite = Key('viewer.favorite');
 
   static const galleryVideoDuration = Key('gallery.videoDuration');

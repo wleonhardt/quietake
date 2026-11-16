@@ -197,4 +197,16 @@ void main() {
     await tester.pump();
     expect(top('Alpha') < top('Mid') && top('Mid') < top('Zulu'), isTrue);
   });
+
+  testWidgets(
+    'Set cover with no tagged captures explains and Cancel keeps it',
+    (tester) async {
+      await open(tester, tags: ['Empty']);
+      await menu(tester, ids[0], 'Set cover');
+      expect(find.textContaining('Tag some captures first'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(session.vault.catalog.covers, isEmpty);
+    },
+  );
 }

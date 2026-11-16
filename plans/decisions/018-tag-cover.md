@@ -24,5 +24,10 @@ null, clears it.
 ## Slices
 
 1. Data layer, docs and tests (this record).
-2. Tags screen: show the cover thumbnail and add a "Set cover" action that picks
-   from the tag's captures, plus a viewer action to use the current capture.
+2. Tags screen (done): the tag row shows the cover thumbnail through the session
+   preview cache, a menu action "Set cover" opens a grid of up to 60 of the tag's
+   newest captures, and "Clear cover" appears when one is set. A cover that is
+   missing from the library shows the plain tag icon. Covered by the device test
+   `integration_test/library_test.dart`; the host test covers only the empty
+   picker because a catalog write from a widget test hangs `Session.close`.
+3. Viewer shortcut to use the current capture: not built; add only if asked.

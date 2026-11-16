@@ -276,6 +276,24 @@ void main() {
       await tap(Keys.libraryMatchAll);
       expect(count(), 1);
       await tap(Keys.libraryAlbums);
+      await tap(Keys.albumMenu(id));
+      await tap(Keys.tagCoverSet);
+      await tester.tap(
+        find
+            .descendant(
+              of: find.byKey(Keys.tagCoverGrid),
+              matching: find.byType(InkWell),
+            )
+            .first,
+      );
+      await until(() => app.vault.catalog.covers.containsKey(id));
+      await until(
+        () => find.byKey(Keys.tagCoverThumb(id)).evaluate().isNotEmpty,
+      );
+      checkpoint('tag-cover-set');
+      await tap(Keys.albumMenu(id));
+      await tap(Keys.tagCoverClear);
+      await until(() => app.vault.catalog.covers.isEmpty);
       await tap(Keys.albumMenu(action));
       await tap(Keys.tagMerge);
       await tap(Keys.tagMergeTarget(id));

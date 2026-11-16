@@ -11,6 +11,7 @@ import 'moments_screen.dart';
 import 'recently_deleted_screen.dart';
 import 'name_dialog.dart';
 import 'private_catalog.dart';
+import 'tag_cover.dart';
 
 /// The historical class name does not change schema-one album identities.
 class AlbumsScreen extends StatefulWidget {
@@ -119,6 +120,21 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     }
   }
 
+  Future<void> _setCover(String id, Set<String> available) async {
+    final epoch = _privacyEpoch;
+    final names = [
+      for (final name in available)
+        if (_catalog.details(name).albums.contains(id)) name,
+    ]..sort((a, b) => b.compareTo(a));
+    final pick = await chooseTagCover(
+      context,
+      widget.session,
+      names.take(60).toList(),
+    );
+    if (pick == null || !mounted || epoch != _privacyEpoch) return;
+    await updateLibrary(context, () => _catalog.setCover(id, pick));
+  }
+
   Future<void> _merge(String source) async {
     final epoch = _privacyEpoch;
     final target = await chooseMergeTarget(context, _catalog, source);
@@ -157,6 +173,22 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     if (confirmed == true && mounted && epoch == _privacyEpoch) {
       await updateLibrary(context, () => _catalog.mergeTags(source, target));
     }
+  }
+
+  Widget _leading(String id, Set<String> available) {
+    const icon = Icon(Icons.sell_outlined);
+    final cover = _catalog.covers[id];
+    if (cover == null || !available.contains(cover)) return icon;
+    // The inner key makes a new cover replace the old thumbnail's state.
+    return KeyedSubtree(
+      key: Keys.tagCoverThumb(id),
+      child: CaptureThumb(
+        key: ValueKey(cover),
+        session: widget.session,
+        name: cover,
+        fallback: icon,
+      ),
+    );
   }
 
   Future<void> _create(BuildContext context) => editLibraryName(
@@ -336,7 +368,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                       final entry = entries[index - 2];
                       return ListTile(
                         key: Keys.tagBrowse(entry.key),
-                        leading: const Icon(Icons.sell_outlined),
+                        leading: _leading(entry.key, names),
                         title: Text(entry.value),
                         subtitle: Text(count(counts[entry.key] ?? 0)),
                         onTap: () => _browse(tag: entry.key),
@@ -353,6 +385,13 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                                   save: (name) =>
                                       _catalog.renameAlbum(entry.key, name),
                                 );
+                              case 'cover':
+                                _setCover(entry.key, names);
+                              case 'uncover':
+                                updateLibrary(
+                                  context,
+                                  () => _catalog.setCover(entry.key, null),
+                                );
                               case 'merge':
                                 _merge(entry.key);
                               case 'delete':
@@ -365,6 +404,17 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                               key: Keys.albumRename,
                               child: Text('Rename'),
                             ),
+                            const PopupMenuItem(
+                              value: 'cover',
+                              key: Keys.tagCoverSet,
+                              child: Text('Set cover'),
+                            ),
+                            if (_catalog.covers.containsKey(entry.key))
+                              const PopupMenuItem(
+                                value: 'uncover',
+                                key: Keys.tagCoverClear,
+                                child: Text('Clear cover'),
+                              ),
                             PopupMenuItem(
                               value: 'merge',
                               key: Keys.tagMerge,
