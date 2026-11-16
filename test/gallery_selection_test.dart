@@ -284,6 +284,26 @@ void main() {
     expect(find.byKey(Keys.libraryCloseSearch), findsOneWidget);
   });
 
+  testWidgets('submitting a search keeps its text as a removable chip', (
+    tester,
+  ) async {
+    await open(tester);
+    await revealLibraryControl(tester, Keys.libraryUntagged);
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(Keys.libraryUntagged));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    });
+    await tester.tap(find.byKey(Keys.libraryOpenSearch));
+    await tester.pump();
+    await tester.enterText(find.byKey(Keys.librarySearch), 'garden');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(find.text('Edit search'), findsOneWidget);
+    expect(find.widgetWithText(InputChip, 'garden'), findsOneWidget);
+    expect(find.widgetWithText(InputChip, 'Untagged'), findsOneWidget);
+  });
+
   testWidgets('Reset view clears a narrowed view and lists everything again', (
     tester,
   ) async {
@@ -337,7 +357,9 @@ void main() {
     final retry = find.text('Could not open vault. Retry');
     await until(tester, () => retry.evaluate().isNotEmpty);
     // The folder comes back, then Retry lists the captures again.
-    await tester.runAsync(() => Directory('${dir.path}-moved').rename(dir.path));
+    await tester.runAsync(
+      () => Directory('${dir.path}-moved').rename(dir.path),
+    );
     await tester.runAsync(() => tester.tap(retry));
     await until(
       tester,
@@ -376,10 +398,7 @@ void main() {
       () => File('${dir.path}/${PrivateCatalog.fileName}').delete(),
     );
     await tester.runAsync(() => tester.tap(find.byKey(Keys.libraryRetry)));
-    await until(
-      tester,
-      () => find.byKey(Keys.libraryRetry).evaluate().isEmpty,
-    );
+    await until(tester, () => find.byKey(Keys.libraryRetry).evaluate().isEmpty);
     expect(
       tester.widget<IconButton>(find.byKey(Keys.librarySelectMode)).onPressed,
       isNotNull,

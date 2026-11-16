@@ -43,6 +43,7 @@
 
 ## Done
 
+- Coverage refresh at iteration 118: 94.0% total, 607 tests passing. Lowest: `nas_recovery_screen.dart`, `portable_screen.dart`, `viewer_screen.dart` (delete path; widget delete tests risk the catalog teardown hang), `gallery_screen.dart`, Android-only `settings_screen.dart` rows. Host test (`gallery_selection_test.dart`): submitting a search with the keyboard keeps its text as a removable chip and shows Edit search (red when `_composing` is not cleared).
 - Host test (`setup_screen_test.dart`): a recovery restore that finishes after the app was paused is discarded and never handed to the app (fails with the `attempt` guard removed). Lesson: `fail()` inside a callback called from an async handler is swallowed by the handler's catch, so count calls and assert afterwards.
 - Host test (`setup_screen_test.dart`): a finished ZIP or NAS restore pops its screen and calls Setup's `onRestored`. `setup_screen.dart` still lacks the pause-cancels-submit hook and a few create-path branches (lines about 89-128).
 - Host test (`albums_screen_test.dart`): an unlistable vault shows "Could not count captures. Retry" and Retry recovers once the folder returns.
