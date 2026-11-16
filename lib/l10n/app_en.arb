@@ -1,0 +1,42 @@
+{
+  "@@locale": "en",
+  "recentlyDeletedTitle": "Recently deleted",
+  "recentlyDeletedEmpty": "Nothing recently deleted",
+  "recentlyDeletedNote": "Deleted captures stay encrypted on this phone for {days} days, then are removed for good.",
+  "@recentlyDeletedNote": {
+    "description": "Explains how long deleted captures are kept.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "recentlyDeletedLoadFailed": "Could not read deleted captures. Retry",
+  "recentlyDeletedDaysLeft": "{count, plural, =1{1 day left} other{{count} days left}}",
+  "@recentlyDeletedDaysLeft": {
+    "description": "Days before a deleted capture is removed for good.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recentlyDeletedRestore": "Restore",
+  "recentlyDeletedDeleteNow": "Delete now",
+  "recentlyDeletedDeleteNowTitle": "Delete now?",
+  "recentlyDeletedDeleteNowBody": "This capture is permanently removed from this phone and your configured NAS. It cannot be restored.",
+  "recentlyDeletedAllTitle": "Delete all now?",
+  "recentlyDeletedAllBody": "{count, plural, =1{1 capture is permanently removed from this phone and your configured NAS. It cannot be restored.} other{{count} captures are permanently removed from this phone and your configured NAS. They cannot be restored.}}",
+  "@recentlyDeletedAllBody": {
+    "description": "Confirmation for permanently deleting every capture in Recently deleted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recentlyDeletedAllNow": "Delete all now",
+  "recentlyDeletedRestoreFailed": "Could not restore. Please retry.",
+  "recentlyDeletedDeleteFailed": "Could not finish deleting. Please retry.",
+  "cancel": "Cancel"
+}

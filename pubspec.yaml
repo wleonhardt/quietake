@@ -15,7 +15,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_chrome_cast: ^2.0.0
+  flutter_localizations:
+    sdk: flutter
   flutter_secure_storage: ^11.2.0
+  intl: ^0.20.3
   local_auth: ^3.0.2
   path_provider: ^2.1.6
   share_plus: ^13.3.1
@@ -32,6 +35,7 @@ dev_dependencies:
   video_player_platform_interface: ^6.9.0
 
 flutter:
+  generate: true
   uses-material-design: true
   # flutter_chrome_cast's Swift package pins iOS 15.0 while the GoogleCast SPM
   # package it resolves needs 16.0; the CocoaPods path works.

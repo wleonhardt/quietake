@@ -1,0 +1,18 @@
+{
+  "@@locale": "de",
+  "recentlyDeletedTitle": "Zuletzt gelöscht",
+  "recentlyDeletedEmpty": "Nichts kürzlich gelöscht",
+  "recentlyDeletedNote": "Gelöschte Aufnahmen bleiben {days} Tage verschlüsselt auf diesem Telefon und werden dann endgültig entfernt.",
+  "recentlyDeletedLoadFailed": "Gelöschte Aufnahmen konnten nicht gelesen werden. Erneut versuchen",
+  "recentlyDeletedDaysLeft": "{count, plural, one{Noch {count} Tag} other{Noch {count} Tage}}",
+  "recentlyDeletedRestore": "Wiederherstellen",
+  "recentlyDeletedDeleteNow": "Jetzt löschen",
+  "recentlyDeletedDeleteNowTitle": "Jetzt löschen?",
+  "recentlyDeletedDeleteNowBody": "Diese Aufnahme wird dauerhaft von diesem Telefon und von Ihrem eingerichteten NAS entfernt. Sie kann nicht wiederhergestellt werden.",
+  "recentlyDeletedAllTitle": "Alle jetzt löschen?",
+  "recentlyDeletedAllBody": "{count, plural, one{{count} Aufnahme wird dauerhaft von diesem Telefon und von Ihrem eingerichteten NAS entfernt. Sie kann nicht wiederhergestellt werden.} other{{count} Aufnahmen werden dauerhaft von diesem Telefon und von Ihrem eingerichteten NAS entfernt. Sie können nicht wiederhergestellt werden.}}",
+  "recentlyDeletedAllNow": "Alle jetzt löschen",
+  "recentlyDeletedRestoreFailed": "Wiederherstellung fehlgeschlagen. Bitte erneut versuchen.",
+  "recentlyDeletedDeleteFailed": "Löschen konnte nicht abgeschlossen werden. Bitte erneut versuchen.",
+  "cancel": "Abbrechen"
+}

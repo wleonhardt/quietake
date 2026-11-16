@@ -1,3 +1,5 @@
+import 'l10n/app_localizations.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -280,6 +282,8 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
     }
     return MaterialApp(
       title: 'Quietake',
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       onNavigationNotification: (notification) {
         _contentCanHandlePop = notification.canHandlePop;
         _updateBackHandling();

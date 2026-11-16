@@ -49,7 +49,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 2. Albums (tags) cover choice: DONE (decision 018): optional `covers` field plus Tags screen thumbnail, Set cover and Clear cover. Viewer shortcut not built. Host test covers the empty picker only; pick and clear run in `library_test.dart` on devices.
 3. Share EXIF strip: DONE (decision 019): JPEG share copies keep only orientation; XMP, IPTC, comments and MPF go too; policy and website wording updated and awaits owner review. Video metadata removal is a later item (meaning unconfirmed).
 4. Folder import (decision 020): DONE. `FolderImport` pipeline with encrypted resume ledger, native pickers (`quietake/folder`, Android SAF tree, iOS folder picker), and the Choose folder button with progress and resume. Subfolders not walked. Policy and website sentence added, awaits owner review. Device tests mock the picker channel over real files; the real system folder picker was never driven on a device.
-5. Localization: Spanish, French and German via Flutter gen-l10n; policy text stays English until the owner reviews translations.
+5. Localization (decision 021): slice 1 DONE (gen-l10n setup, `context.l10n`, Recently deleted screen in es/fr/de, ARB consistency test). Remaining slices by screen group are listed in the decision. Translations need native review; policy text stays English.
 6. Storage view: owner said "whatever is best": drop cache prune (previews are memory only) and pending-upload count; no work planned.
 7. NAS restore dry run: owner says the test credentials are in bw-cli. Needs the vault unlocked by the owner (a master password is never typed by the agent); see Queue note.
 8. Recently deleted is finished (decision 015, policy wording approved and applied).

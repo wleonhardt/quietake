@@ -1,0 +1,18 @@
+{
+  "@@locale": "fr",
+  "recentlyDeletedTitle": "Supprimés récemment",
+  "recentlyDeletedEmpty": "Rien de supprimé récemment",
+  "recentlyDeletedNote": "Les captures supprimées restent chiffrées sur ce téléphone pendant {days} jours, puis sont supprimées définitivement.",
+  "recentlyDeletedLoadFailed": "Impossible de lire les captures supprimées. Réessayer",
+  "recentlyDeletedDaysLeft": "{count, plural, one{{count} jour restant} other{{count} jours restants}}",
+  "recentlyDeletedRestore": "Restaurer",
+  "recentlyDeletedDeleteNow": "Supprimer maintenant",
+  "recentlyDeletedDeleteNowTitle": "Supprimer maintenant ?",
+  "recentlyDeletedDeleteNowBody": "Cette capture est supprimée définitivement de ce téléphone et de votre NAS configuré. Elle ne peut pas être restaurée.",
+  "recentlyDeletedAllTitle": "Tout supprimer maintenant ?",
+  "recentlyDeletedAllBody": "{count, plural, one{{count} capture est supprimée définitivement de ce téléphone et de votre NAS configuré. Elle ne peut pas être restaurée.} other{{count} captures sont supprimées définitivement de ce téléphone et de votre NAS configuré. Elles ne peuvent pas être restaurées.}}",
+  "recentlyDeletedAllNow": "Tout supprimer maintenant",
+  "recentlyDeletedRestoreFailed": "Impossible de restaurer. Veuillez réessayer.",
+  "recentlyDeletedDeleteFailed": "Impossible de terminer la suppression. Veuillez réessayer.",
+  "cancel": "Annuler"
+}

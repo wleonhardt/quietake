@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/library/recently_deleted_screen.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
@@ -23,6 +24,7 @@ void main() {
     WidgetTester tester,
     List<String> names, {
     DateTime? now,
+    Locale? locale,
   }) async {
     FlutterSecureStorage.setMockInitialValues({});
     await tester.runAsync(() async {
@@ -61,6 +63,9 @@ void main() {
     await tester.runAsync(
       () => tester.pumpWidget(
         MaterialApp(
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: RecentlyDeletedScreen(
             session: session,
             clock: () => now ?? DateTime.utc(2026, 12, 11),
@@ -102,6 +107,18 @@ void main() {
       expect(find.text('20 days left'), findsOneWidget);
     },
   );
+
+  testWidgets('the screen follows the device language', (tester) async {
+    await open(tester, [base], locale: const Locale('es'));
+    await until(
+      tester,
+      () => find.byKey(Keys.recentlyDeletedItem(a)).evaluate().isNotEmpty,
+    );
+    expect(find.text('Eliminados recientemente'), findsOneWidget);
+    expect(find.text('Quedan 20 días'), findsOneWidget);
+    expect(find.byTooltip('Restaurar'), findsOneWidget);
+    expect(find.text('Recently deleted'), findsNothing);
+  });
 
   testWidgets('Restore returns the capture to the library', (tester) async {
     await open(tester, [base]);

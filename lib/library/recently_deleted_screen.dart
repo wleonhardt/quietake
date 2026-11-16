@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../gallery/item.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/privacy_scope.dart';
 import '../session.dart';
 import '../vault/vault.dart';
@@ -44,7 +45,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     try {
       await _vault.restore(_file(name));
     } catch (_) {
-      _say('Could not restore. Please retry.');
+      _say((l10n) => l10n.recentlyDeletedRestoreFailed);
     }
     _reload();
   }
@@ -53,20 +54,17 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete now?'),
-        content: const Text(
-          'This capture is permanently removed from this phone and your '
-          'configured NAS. It cannot be restored.',
-        ),
+        title: Text(context.l10n.recentlyDeletedDeleteNowTitle),
+        content: Text(context.l10n.recentlyDeletedDeleteNowBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             key: Keys.recentlyDeletedConfirm,
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete now'),
+            child: Text(context.l10n.recentlyDeletedDeleteNow),
           ),
         ],
       ),
@@ -76,7 +74,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
       await widget.session.sync.delete(_file(name));
       widget.session.previews.evict(name);
     } catch (_) {
-      _say('Could not finish deleting. Please retry.');
+      _say((l10n) => l10n.recentlyDeletedDeleteFailed);
     }
     _reload();
   }
@@ -85,21 +83,17 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete all now?'),
-        content: Text(
-          '${names.length} ${names.length == 1 ? 'capture is' : 'captures are'} '
-          'permanently removed from this phone and your configured NAS. '
-          'They cannot be restored.',
-        ),
+        title: Text(context.l10n.recentlyDeletedAllTitle),
+        content: Text(context.l10n.recentlyDeletedAllBody(names.length)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             key: Keys.recentlyDeletedAllConfirm,
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete all now'),
+            child: Text(context.l10n.recentlyDeletedAllNow),
           ),
         ],
       ),
@@ -111,14 +105,15 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
         widget.session.previews.evict(name);
       }
     } catch (_) {
-      _say('Could not finish deleting. Please retry.');
+      _say((l10n) => l10n.recentlyDeletedDeleteFailed);
     }
     _reload();
   }
 
-  void _say(String text) {
+  void _say(String Function(AppLocalizations) text) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(text(context.l10n))));
     }
   }
 
@@ -126,7 +121,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
   Widget build(BuildContext context) => Scaffold(
     key: Keys.recentlyDeletedScreen,
     appBar: AppBar(
-      title: const Text('Recently deleted'),
+      title: Text(context.l10n.recentlyDeletedTitle),
       actions: const [LockButton()],
     ),
     body: FutureBuilder<Map<String, DateTime>>(
@@ -136,7 +131,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
           return Center(
             child: TextButton(
               onPressed: _reload,
-              child: const Text('Could not read deleted captures. Retry'),
+              child: Text(context.l10n.recentlyDeletedLoadFailed),
             ),
           );
         }
@@ -145,9 +140,9 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (items.isEmpty) {
-          return const Center(
+          return Center(
             key: Keys.recentlyDeletedEmpty,
-            child: Text('Nothing recently deleted'),
+            child: Text(context.l10n.recentlyDeletedEmpty),
           );
         }
         final now = (widget.clock ?? DateTime.now)();
@@ -158,8 +153,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Deleted captures stay encrypted on this phone for '
-                '${Vault.trashKeep.inDays} days, then are removed for good.',
+                context.l10n.recentlyDeletedNote(Vault.trashKeep.inDays),
               ),
             ),
             Align(
@@ -170,7 +164,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
                   key: Keys.recentlyDeletedAll,
                   onPressed: () => _deleteAll(names),
                   icon: const Icon(Icons.delete_forever_outlined),
-                  label: const Text('Delete all now'),
+                  label: Text(context.l10n.recentlyDeletedAllNow),
                 ),
               ),
             ),
@@ -191,19 +185,19 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
         item.isVideo ? Icons.videocam_outlined : Icons.photo_outlined,
       ),
       title: Text(taken == null ? name : monthLabel(taken)),
-      subtitle: Text('$left ${left == 1 ? 'day' : 'days'} left'),
+      subtitle: Text(context.l10n.recentlyDeletedDaysLeft(left)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
             key: Keys.recentlyDeletedRestore(name),
-            tooltip: 'Restore',
+            tooltip: context.l10n.recentlyDeletedRestore,
             icon: const Icon(Icons.restore),
             onPressed: () => _restore(name),
           ),
           IconButton(
             key: Keys.recentlyDeletedNow(name),
-            tooltip: 'Delete now',
+            tooltip: context.l10n.recentlyDeletedDeleteNow,
             icon: const Icon(Icons.delete_forever_outlined),
             onPressed: () => _deleteNow(name),
           ),
