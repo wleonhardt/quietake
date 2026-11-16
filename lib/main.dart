@@ -233,9 +233,13 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
       _updateIdle();
       s.sync.sync();
     } catch (_) {
-      // Session.start disposed the key. Stay on the lock screen with a reason.
+      // Session.start disposed the key. Setup and restore commit the keyfile
+      // before they call _start, so the lock screen is the right place to retry.
       if (mounted) {
-        setState(() => _startError = 'Could not open the vault. Try again.');
+        setState(() {
+          _hasKeyfile = true;
+          _startError = 'Could not open the vault. Try again.';
+        });
       }
     } finally {
       _openingKey = null;

@@ -20,12 +20,10 @@
   `settings_connection_test.dart`; idle timeout, recovery prompt and disconnect now covered by `settings_access_test.dart`; change-passcode screen and Android-only background rows remain),
   `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
   `nas_restore_validation_test.dart`; change-mode validation in `nas_change_validation_test.dart`; the committed change/disable success flows still need a locking server). Take these next.
-- Open finding: a host test that completes first-run Setup while `Session.start` fails (documents
-  path is a file) segfaults the flutter_tester process after the recovery key is confirmed; with a
-  working path it passes. After such a failure `_hasKeyfile` stays false, so Setup reappears with no
-  message although the keyfile is committed. Next experiment: find the native crash (key use after
-  `Session.start` disposes it?), then make `_start` set `_hasKeyfile = true` on failure so the lock
-  screen shows the reason. Not fixed; reproduction not committed.
+- Open: a host test that drives real first-run Setup through the recovery screen while
+  `Session.start` fails (documents path is a file) segfaults flutter_tester. Calling
+  `SetupScreen.onUnlocked` directly after writing the keyfile does not. Cause unfound; the
+  crash may be a test-process artifact, but a native key-use-after-dispose is unproven either way.
 - Next: continue `lib/` bug review. Read so far with no defect found (incl. `sync_controller.dart`, well covered):
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
@@ -40,6 +38,10 @@
 
 ## Done
 
+- Bug fixed: after a failed session open from first-run Setup or restore, `_hasKeyfile` stayed
+  false, so Setup reappeared with no reason although the keyfile was committed. `_start` now sets
+  it, so the lock screen shows the message (red/green `app_start_failure_test.dart`, firstRun case).
+  Host suite 536 passed, analyzer clean, iOS `lock_test.dart` passed (7 cases, 75.0 s).
 - Bug fixed: `LockScreen` copied `message` only in `initState`, so the "Could not open the vault"
   reason never showed after a failed session open (red/green `app_start_failure_test.dart`).
   Host suite 535 passed, analyzer clean, iOS simulator `integration_test/lock_test.dart` passed
