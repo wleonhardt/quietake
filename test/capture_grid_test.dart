@@ -26,6 +26,17 @@ class _CastCamera extends ControlledCamera {
   final focus = <Point<double>?>[];
   final exposure = <Point<double>?>[];
   bool refuse = false;
+  final modes = <Object>[];
+
+  @override
+  Future<void> setFocusMode(int cameraId, FocusMode mode) async {
+    modes.add(mode);
+  }
+
+  @override
+  Future<void> setExposureMode(int cameraId, ExposureMode mode) async {
+    modes.add(mode);
+  }
 
   @override
   Future<void> setFocusPoint(int cameraId, Point<double>? point) async {
@@ -174,5 +185,54 @@ void main() {
     expect(booted.camera.focus, hasLength(1));
     expect(tester.takeException(), isNull);
     expect(find.byKey(Keys.preview), findsOneWidget);
+  });
+
+  testWidgets('a long press locks focus and exposure until the next tap', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final booted = await _boot(tester, _CastCamera.new);
+    final preview = tester.getRect(find.byType(CameraPreview));
+    final at = preview.center + Offset(0, preview.height / 4);
+
+    await tester.longPressAt(at);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(Keys.captureLock), findsOneWidget);
+    expect(booted.camera.modes, [FocusMode.locked, ExposureMode.locked]);
+    // The lock does not fade like a plain focus ring.
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.byKey(Keys.captureLock), findsOneWidget);
+
+    await tester.tapAt(at);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(Keys.captureLock), findsNothing);
+    expect(booted.camera.modes.skip(2), [FocusMode.auto, ExposureMode.auto]);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byKey(Keys.captureFocusRing), findsNothing);
+  });
+
+  testWidgets('a camera that cannot lock explains and shows no lock', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final booted = await _boot(tester, _CastCamera.new);
+    booted.camera.refuse = true;
+    final preview = tester.getRect(find.byType(CameraPreview));
+    await tester.longPressAt(preview.center + Offset(0, preview.height / 4));
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(Keys.captureLock), findsNothing);
+    expect(
+      find.text('Could not lock focus and exposure on this camera.'),
+      findsOneWidget,
+    );
   });
 }

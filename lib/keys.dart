@@ -35,6 +35,7 @@ abstract final class Keys {
   static const captureDelay = Key('capture.delay');
   static const captureCountdown = Key('capture.countdown');
   static const captureFocusRing = Key('capture.focusRing');
+  static const captureLock = Key('capture.lock');
   static const cameraGridOverlay = Key('capture.gridOverlay');
   static const tagSearch = Key('tags.search');
   static const tagMerge = Key('tags.merge');

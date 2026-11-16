@@ -60,6 +60,9 @@ class _CaptureScreenState extends State<CaptureScreen>
   Timer? _countdownTimer;
   Offset? _focusRing;
   Timer? _focusRingTimer;
+
+  /// The camera whose focus and exposure the user locked, if any.
+  CameraController? _lockedController;
   Set<String> _tagIds = {};
   Set<String> _recordingTagIds = {};
   bool _choosingAlbum = false;
@@ -435,16 +438,58 @@ class _CaptureScreenState extends State<CaptureScreen>
       (tap.localPosition.dx / size.width).clamp(0.0, 1.0),
       (tap.localPosition.dy / size.height).clamp(0.0, 1.0),
     );
+    final wasLocked = identical(_lockedController, controller);
     _focusRingTimer?.cancel();
-    setState(() => _focusRing = tap.globalPosition);
+    setState(() {
+      _focusRing = tap.globalPosition;
+      _lockedController = null;
+    });
     _focusRingTimer = Timer(const Duration(milliseconds: 800), () {
-      if (mounted) setState(() => _focusRing = null);
+      if (mounted && _lockedController == null) {
+        setState(() => _focusRing = null);
+      }
     });
     try {
+      if (wasLocked) {
+        await controller.setFocusMode(FocusMode.auto);
+        await controller.setExposureMode(ExposureMode.auto);
+      }
       await controller.setFocusPoint(point);
       await controller.setExposurePoint(point);
     } catch (_) {
       // Best effort: no manual focus on this camera.
+    }
+  }
+
+  /// Long press: focus and meter at the point, then hold both until the next
+  /// tap on the preview.
+  Future<void> _lockAt(
+    BuildContext box,
+    LongPressStartDetails press,
+    CameraController controller,
+  ) async {
+    final size = (box.findRenderObject() as RenderBox).size;
+    final point = Offset(
+      (press.localPosition.dx / size.width).clamp(0.0, 1.0),
+      (press.localPosition.dy / size.height).clamp(0.0, 1.0),
+    );
+    _focusRingTimer?.cancel();
+    setState(() {
+      _focusRing = press.globalPosition;
+      _lockedController = controller;
+    });
+    try {
+      await controller.setFocusPoint(point);
+      await controller.setExposurePoint(point);
+      await controller.setFocusMode(FocusMode.locked);
+      await controller.setExposureMode(ExposureMode.locked);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _focusRing = null;
+        _lockedController = null;
+        _status = 'Could not lock focus and exposure on this camera.';
+      });
     }
   }
 
@@ -705,10 +750,11 @@ class _CaptureScreenState extends State<CaptureScreen>
               child: Builder(
                 builder: (box) => Semantics(
                   label: 'Camera preview',
-                  hint: 'Tap to focus',
+                  hint: 'Tap to focus. Press and hold to lock focus and exposure.',
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (tap) => _focusAt(box, tap, c),
+                    onLongPressStart: (press) => _lockAt(box, press, c),
                     child: CameraPreview(c),
                   ),
                 ),
@@ -732,19 +778,33 @@ class _CaptureScreenState extends State<CaptureScreen>
                 ),
               ),
             ),
-          if (_focusRing != null)
+          if (_focusRing != null &&
+              (_lockedController == null || identical(_lockedController, c)))
             Positioned(
               left: _focusRing!.dx - 32,
               top: _focusRing!.dy - 32,
               child: IgnorePointer(
-                child: Container(
-                  key: Keys.captureFocusRing,
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: flashRing, width: 2),
-                  ),
+                child: Column(
+                  children: [
+                    Container(
+                      key: Keys.captureFocusRing,
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: flashRing, width: 2),
+                      ),
+                    ),
+                    if (_lockedController != null)
+                      const Text(
+                        'Focus and exposure locked',
+                        key: Keys.captureLock,
+                        style: TextStyle(
+                          color: onMediaCanvas,
+                          shadows: [Shadow(blurRadius: 8)],
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
