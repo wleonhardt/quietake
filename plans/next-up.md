@@ -67,7 +67,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 - Feature from the ideas list: viewer slideshow (decision `008-viewer-slideshow.md`), 4 s per photo, stops at a video or the last capture, no keep-awake; tests in `viewer_actions_test.dart`, iOS `delete_test.dart` passed.
 - Feature from the ideas list: Tags screen sort by capture count (decision `007-tags-sort-by-count.md`), session-only; test in `albums_screen_test.dart`. Host suite 629 passed, analyzer clean, iOS `library_test.dart` passed (1 case, 164.3 s). Android not run.
 - Feature from the ideas list: capture grid overlay (decision `006-capture-grid.md`), a Show/Hide grid button drawing thirds over the preview, session-only, never in captured media. Test `capture_grid_test.dart`. Host suite 628 passed, analyzer clean, iOS `capture_test.dart` passed (1 case, 2 skipped, 48.4 s). Android and narrow-screen layout of the extra button not checked.
-- Iteration 100 sanity run: Go recovery checks and `dart run tool/check_interop.dart` pass. Full host suite at iteration 104: 599 passed, analyzer clean.
+- Sanity run (iteration 150): Go recovery checks and `dart run tool/check_interop.dart` pass (nothing under `recover/` or crypto changed since). `docs/portable-backup.md` now describes Check backup only; no other doc drift found for the new camera, viewer, Moments or Tags features (README and website do not list them).
 - Bug fixed: a failed camera lens switch left a dead controller (`CameraController.setDescription` closes the old camera before opening the new one), so the preview and shutter stopped working. `_flipCamera` now reopens the camera on the same lens and still shows "Could not switch camera. Try again." (red/green in `camera_recording_start_test.dart` with a fake that rejects a closed camera). Host suite 594 passed, analyzer clean, iOS `camera_lifecycle_test.dart` passed (2 cases, 35.1 s). Android not rerun; a real failing switch was not tried on a device. Same file also covers a denied microphone and a camera that cannot open with audio ("Could not start video", photo preview returns). `camera_cast_orientation_test.dart` covers landscape while casting; `camera_album_test.dart` covers the unreadable tag list message. Remaining `capture_screen.dart` gaps: recording paths and some controls.
 - Host test (`camera_cast_orientation_test.dart`): landscape follows a cast session, a refused lock shows "Could not update camera orientation.", a photo while casting loads on the TV (skipped without a LAN address). Remaining `capture_screen.dart` gaps: recording paths and some controls.
 - Host tests, iterations 55-87, all passing and no defect: gallery Reset view, Set up backup, vault Retry, viewer return and catalog Retry (`gallery_selection_test.dart`); viewer swipe, zoom, oversize photo and video pause/resume (`viewer_actions_test.dart`, `viewer_test.dart`, `viewer_video_test.dart`); cast picker connect, Settings subscreens, share retry, Setup restore entries; catalog size limits (`private_catalog_test.dart`); idle lock (`idle_lock_test.dart`); post-restore lock screen (`app_start_failure_test.dart`). Lessons: tap handlers whose continuation does file IO must run inside `tester.runAsync`, and pushed screens that start file IO need pumping inside `runAsync`.
@@ -85,11 +85,8 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
   so the catalog is not stuck; this is a widget-test zone artifact. Success paths stay covered by
   `private_catalog_test.dart` and device e2e; widget success tests are omitted until the zone
   cause is found.
-- `testWidgets` swaps in a mock HTTP client that answers 400 to everything. A widget
-  test that talks to the loopback `FakeWebDavServer` must set
-  `HttpOverrides.global = null` first.
-- Widget tests that touch real files must start that IO inside `tester.runAsync` (also a tap whose handler writes);
-  bare file IO inside `testWidgets` never completes (share dialog test hang).
+- `testWidgets` swaps in a mock HTTP client answering 400; loopback `FakeWebDavServer` tests set `HttpOverrides.global = null` first.
+- Widget tests that touch real files must start that IO inside `tester.runAsync` (also a tap whose handler writes); bare file IO in `testWidgets` never completes.
 - The 1.0.0+4 source passed both protected checks and complete hosted Android
   acceptance. Offline policy access, native notices and the published policy match.
 - Source uses MPL 2.0 with independent recovery contracts and synthetic tests.

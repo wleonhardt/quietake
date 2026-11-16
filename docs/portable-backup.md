@@ -12,6 +12,11 @@ catalog or deletion journal. Existing vaults cannot merge or replace identities.
 After restoration, unlock with the new passcode. That first unlock enables the
 optional biometric cache. The recovery identity remains unchanged.
 
+Check backup only on the same screen runs the validation step without a new
+passcode and commits nothing: no credentials, captures or catalog are written and
+the staged copy is deleted. The chosen copy is cleared afterwards, so select it
+again to restore.
+
 A ZIP is a snapshot of the current local library, not proof that the NAS is
 current. Pending NAS deletions remain with the original installation because
 this archive carries no deletion authority. Finish that installation's NAS sync
