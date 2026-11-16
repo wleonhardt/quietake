@@ -172,4 +172,16 @@ void main() {
       expect(values(await SyncSettings.load()), values(old));
     },
   );
+
+  test(
+    'the last check date belongs to its share and goes on disconnect',
+    () async {
+      final at = DateTime.utc(2026, 10, 1, 8);
+      await old.saveVerified(at);
+      expect(await old.loadVerified(), at);
+      expect(await next.loadVerified(), isNull);
+      await SyncSettings.clear();
+      expect(await old.loadVerified(), isNull);
+    },
+  );
 }

@@ -154,6 +154,7 @@ abstract final class Keys {
   static const backupVerify = Key('backup.verify');
   static const backupCancel = Key('backup.cancel');
   static const backupResult = Key('backup.result');
+  static const backupStale = Key('backup.stale');
   static const backupTime = Key('backup.time');
   static const portableExportOpen = Key('portable.exportOpen');
   static const portableRestoreOpen = Key('portable.restoreOpen');

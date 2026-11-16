@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/library/private_catalog.dart';
@@ -330,4 +331,42 @@ void main() {
       }
     },
   );
+
+  test('a finished check is remembered and goes stale after 30 days', () async {
+    FlutterSecureStorage.setMockInitialValues({});
+    await local('one.jpg');
+    await SyncService(vault, client).sync();
+    var now = DateTime.now();
+    final settings = SyncSettings(
+      url: server.url.toString(),
+      username: server.username,
+      password: server.password,
+    );
+    final first = SyncController(
+      vault,
+      loadSettings: () async => settings,
+      clock: () => now,
+    );
+    try {
+      await first.verify();
+      expect(first.verificationStale, isFalse);
+      now = now.add(const Duration(days: 31));
+      expect(first.verificationStale, isTrue);
+    } finally {
+      await first.close();
+    }
+    // A new app run reads the date back when it next talks to the share.
+    final second = SyncController(
+      vault,
+      loadSettings: () async => settings,
+      clock: () => now,
+    );
+    try {
+      await second.sync();
+      expect(second.lastVerifiedAt, isNotNull);
+      expect(second.verificationStale, isTrue);
+    } finally {
+      await second.close();
+    }
+  });
 }

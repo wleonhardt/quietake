@@ -11,6 +11,7 @@ import 'package:quietake/privacy/privacy_controller.dart';
 import 'package:quietake/privacy/privacy_scope.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/sync/backup_screen.dart';
+import 'package:quietake/sync/sync_controller.dart';
 import 'package:quietake/sync/sync_service.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
@@ -88,8 +89,32 @@ void main() {
       expect(text, startsWith('Checked '));
       expect(
         text,
-        endsWith(current ? 'Nothing changed since' : 'Changed since; check again'),
+        endsWith(
+          current ? 'Nothing changed since' : 'Changed since; check again',
+        ),
       );
     });
   }
+
+  testWidgets('a configured backup not checked for 30 days gets a reminder', (
+    tester,
+  ) async {
+    await open(tester);
+    await show(tester);
+    expect(find.byKey(Keys.backupStale), findsNothing);
+    session.sync.state = SyncState.synced;
+    session.sync.lastVerifiedAt = DateTime.now().subtract(
+      const Duration(days: 45),
+    );
+    session.sync.notifyListeners();
+    await tester.pump();
+    expect(
+      tester.widget<Text>(find.byKey(Keys.backupStale)).data,
+      contains('45 days ago'),
+    );
+    session.sync.lastVerifiedAt = DateTime.now();
+    session.sync.notifyListeners();
+    await tester.pump();
+    expect(find.byKey(Keys.backupStale), findsNothing);
+  });
 }

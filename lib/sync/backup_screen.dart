@@ -33,6 +33,16 @@ class BackupScreen extends StatelessWidget {
               liveRegion: true,
               child: Text(sync.verificationResult, key: Keys.backupResult),
             ),
+            if (sync.verificationStale && !sync.isVerifying)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  sync.lastVerifiedAt == null
+                      ? 'This backup has never been fully checked. Check it to confirm your copies can be read.'
+                      : 'The last full check was ${DateTime.now().difference(sync.lastVerifiedAt!).inDays} days ago. Check again to confirm your copies can still be read.',
+                  key: Keys.backupStale,
+                ),
+              ),
             const SizedBox(height: 16),
             if (sync.isVerifying || sync.isVerificationQueued)
               OutlinedButton.icon(

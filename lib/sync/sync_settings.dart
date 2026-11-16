@@ -29,6 +29,7 @@ class SyncSettings {
   static const _kUrl = 'sync.url';
   static const _kUser = 'sync.username';
   static const _kPass = 'sync.password';
+  static const _kVerified = 'sync.verified';
 
   static Future<SyncSettings> load() async {
     final saved = await _store.read(key: _kSettings);
@@ -60,11 +61,34 @@ class SyncSettings {
     }),
   );
 
+  /// Remembers when this backup was last fully checked, for this share only.
+  Future<void> saveVerified(DateTime at) => _store.write(
+    key: _kVerified,
+    value: jsonEncode({
+      'url': url,
+      'username': username,
+      'at': at.toUtc().toIso8601String(),
+    }),
+  );
+
+  /// The last full check of this share, or null if none or for another share.
+  Future<DateTime?> loadVerified() async {
+    final saved = await _store.read(key: _kVerified);
+    if (saved == null) return null;
+    try {
+      final value = jsonDecode(saved) as Map<String, dynamic>;
+      if (value['url'] != url || value['username'] != username) return null;
+      return DateTime.parse(value['at'] as String);
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<void> clear() async {
     // Publish the disconnected state before removing legacy fields, so a load
     // cannot fall back to partially erased credentials, even if cleanup fails.
     await const SyncSettings(url: '', username: '', password: '').save();
-    for (final key in [_kUrl, _kUser, _kPass]) {
+    for (final key in [_kUrl, _kUser, _kPass, _kVerified]) {
       await _store.delete(key: key);
     }
   }

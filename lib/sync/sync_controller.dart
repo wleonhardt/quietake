@@ -19,12 +19,17 @@ class SyncController extends ChangeNotifier {
     this.vault, {
     Future<SyncSettings> Function()? loadSettings,
     BackgroundUploads? background,
-  }) : _loadSettings = loadSettings ?? SyncSettings.load,
+    DateTime Function() clock = DateTime.now,
+  }) : // A named parameter cannot be private.
+       // ignore: prefer_initializing_formals
+       _clock = clock,
+       _loadSettings = loadSettings ?? SyncSettings.load,
        _background = background ?? BackgroundUploads();
 
   final Vault vault;
   final Future<SyncSettings> Function() _loadSettings;
   final BackgroundUploads _background;
+  final DateTime Function() _clock;
   Future<String> backgroundStatus() => _background.status();
   SyncState state = SyncState.idle;
   String? result;
@@ -37,6 +42,17 @@ class SyncController extends ChangeNotifier {
   (String, String)? _target;
   BackupVerificationReport? lastVerification;
   bool verificationCurrent = false;
+
+  /// When the saved backup was last fully checked, kept across app restarts.
+  DateTime? lastVerifiedAt;
+  static const verificationStaleAfter = Duration(days: 30);
+
+  /// True when a configured backup was never fully checked or not for 30 days.
+  bool get verificationStale =>
+      state != SyncState.unconfigured &&
+      state != SyncState.idle &&
+      (lastVerifiedAt == null ||
+          _clock().difference(lastVerifiedAt!) > verificationStaleAfter);
   String verificationResult = 'No full backup check yet.';
   bool get isVerifying => _verifying;
   bool get isVerificationQueued => _verifyAgain;
@@ -115,12 +131,18 @@ class SyncController extends ChangeNotifier {
         final target = (settings.url, settings.username);
         if (_target != target) {
           lastVerification = null;
+          lastVerifiedAt = null;
           verificationCurrent = false;
           if (!checking) {
             verificationResult = 'No full check for this saved backup.';
           }
         }
         _target = target;
+        if (settings.isConfigured && lastVerifiedAt == null) {
+          lastVerifiedAt = await settings.loadVerified().catchError(
+            (_) => null,
+          );
+        }
         if (!settings.isConfigured) {
           state = SyncState.unconfigured;
           result = 'NAS sync not configured. Open Settings to connect.';
@@ -153,6 +175,12 @@ class SyncController extends ChangeNotifier {
                 throw StateError('Backup operation cancelled');
               }
               lastVerification = report;
+              lastVerifiedAt = report.checkedAt;
+              try {
+                await settings.saveVerified(report.checkedAt);
+              } catch (_) {
+                // The check result stands; only the reminder date is lost.
+              }
               verificationCurrent = !_again && !_verifyAgain && !_cancelled;
               verificationResult = verificationCurrent
                   ? 'Verified ${report.media} ${report.media == 1 ? 'capture' : 'captures'}${report.catalog ? ' and organization' : ''}. Keep your recovery key separately.'
@@ -243,6 +271,7 @@ class SyncController extends ChangeNotifier {
       state = SyncState.unconfigured;
       result = 'NAS backup disconnected. Captures kept on phone and NAS.';
       lastVerification = null;
+      lastVerifiedAt = null;
       verificationCurrent = false;
       verificationResult = 'NAS backup disconnected.';
       _target = null;
