@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host test (`albums_screen_test.dart`): an unlistable vault shows "Could not count captures. Retry" and Retry recovers once the folder returns.
 - Review (iteration 113): `Setup._submit` (restore and create paths), `QuietakeApp._start` and `Session.start` read for a key use after dispose; each key has one owner and one disposal, so the Setup segfault theory stays unproven. No code changed.
 - Lesson (iteration 112): reading a disposed `SecureKey` (`extractBytes`) segfaults flutter_tester, so a test cannot assert disposal by reading the key. The same native crash may explain the open Setup-failure segfault above: some path may read a key after dispose. No test added; app code unchanged.
 - Full host suite at iteration 111: 604 passed, analyzer clean (supersedes the iteration 104 count).

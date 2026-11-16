@@ -30,7 +30,11 @@ void main() {
     expect(done(), isTrue, reason: 'condition never became true');
   }
 
-  Future<void> open(WidgetTester tester, {List<String> tags = const []}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    List<String> tags = const [],
+    bool vaultMissing = false,
+  }) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -61,11 +65,15 @@ void main() {
         await dir.delete(recursive: true);
       });
     });
+    if (vaultMissing) {
+      await tester.runAsync(() => dir.rename('${dir.path}-moved'));
+    }
     await tester.runAsync(() async {
       await tester.pumpWidget(
         MaterialApp(home: AlbumsScreen(session: session)),
       );
     });
+    if (vaultMissing) return;
     await until(
       tester,
       () => find.byKey(Keys.libraryUntagged).evaluate().isNotEmpty,
@@ -80,6 +88,23 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
   }
+
+  testWidgets('a vault that cannot be counted offers Retry and recovers', (
+    tester,
+  ) async {
+    await open(tester, tags: ['Trips'], vaultMissing: true);
+    final retry = find.text('Could not count captures. Retry');
+    await until(tester, () => retry.evaluate().isNotEmpty);
+    await tester.runAsync(
+      () => Directory('${dir.path}-moved').rename(dir.path),
+    );
+    await tester.runAsync(() => tester.tap(retry));
+    await until(
+      tester,
+      () => find.byKey(Keys.libraryUntagged).evaluate().isNotEmpty,
+    );
+    expect(retry, findsNothing);
+  });
 
   testWidgets('an empty library offers to create the first tag', (
     tester,
