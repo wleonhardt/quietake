@@ -48,10 +48,11 @@
   Not diagnosed further; export success/save paths stay covered by
   `portable_backup_test.dart` and `integration_test/portable_test.dart`.
 - Widget tests that delete the last capture, delete a tag or merge tags pass their body, then
-  `session.close()` hangs: `catalog.load()` never completes, so `PrivateCatalog._tail` stays
-  pending after the edit (seen in the viewer and Albums screen tests; not diagnosed beyond that,
-  time-boxed twice). Only the success paths were removed; cancel paths are covered. Next
-  experiment: log which `_serial` action never finishes, test-side only.
+  `session.close()` hangs because `catalog.load()` never completes in the widget zone. A plain
+  `test()` running create, merge, delete, load and close on `PrivateCatalog` finishes at once,
+  so the catalog is not stuck; this is a widget-test zone artifact. Success paths stay covered by
+  `private_catalog_test.dart` and device e2e; widget success tests are omitted until the zone
+  cause is found.
 - `testWidgets` swaps in a mock HTTP client that answers 400 to everything. A widget
   test that talks to the loopback `FakeWebDavServer` must set
   `HttpOverrides.global = null` first.
