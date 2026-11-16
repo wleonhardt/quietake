@@ -44,8 +44,8 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
    four localized sentences joined with spaces. Share preparation errors from the share layer stay English. Per-file import messages from the import layer stay English. Tile accessibility labels join localized parts with a comma. `monthLabel` now takes a context and uses
    `intl` `yMMMM`.
 5. Settings, backup and NAS screens, and snackbar errors. Check backup screen,
-   Cast picker, Lock now, the brand tagline and the Settings screen are done;
-   portable backup and NAS recovery remain. The sync layer's result text stays
+   Cast picker, Lock now, the brand tagline, the Settings screen and the portable
+   backup screen are done; NAS recovery remains. The sync layer's result text stays
    English. Settings keeps outcome text as a selector, so it follows the
    language at build time; storage sizes use `intl` number formatting.
 Strings built in code, such as month names in Moments, move to `intl` date

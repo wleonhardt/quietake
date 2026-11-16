@@ -2393,6 +2393,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show'**
   String get settingsShow;
+
+  /// No description provided for @portableTitleRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore encrypted backup'**
+  String get portableTitleRestore;
+
+  /// No description provided for @portableTitleExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Portable backup'**
+  String get portableTitleExport;
+
+  /// No description provided for @portableIntroRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore only into a fresh empty vault. Your recovery key opens the ZIP and encrypted captures. Existing libraries cannot be merged.'**
+  String get portableIntroRestore;
+
+  /// No description provided for @portableIntroExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Save an encrypted ZIP of captures and organization. Your existing recovery key opens it; keep that key separately. No credentials or keyfiles are included.'**
+  String get portableIntroExport;
+
+  /// No description provided for @portableChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose backup ZIP'**
+  String get portableChoose;
+
+  /// No description provided for @portableCheckOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Check backup only'**
+  String get portableCheckOnly;
+
+  /// No description provided for @portableRestoreButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore empty vault'**
+  String get portableRestoreButton;
+
+  /// No description provided for @portableCreateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create encrypted ZIP'**
+  String get portableCreateButton;
+
+  /// No description provided for @portableLimitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup limits and storage'**
+  String get portableLimitsTitle;
+
+  /// No description provided for @portableLimitsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 10,000 captures and 2 GiB per ZIP. Preparation needs private temporary storage. Vault originals stay unchanged. No credentials or keyfiles are included.'**
+  String get portableLimitsBody;
+
+  /// No description provided for @portableCancelPrep.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel preparation'**
+  String get portableCancelPrep;
+
+  /// No description provided for @portablePicking.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an encrypted ZIP in Files.'**
+  String get portablePicking;
+
+  /// No description provided for @portablePickCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Selection cancelled.'**
+  String get portablePickCancelled;
+
+  /// No description provided for @portablePicked.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup selected. Enter its recovery key and a new passcode.'**
+  String get portablePicked;
+
+  /// No description provided for @portableCopyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not copy backup. Check storage and try again.'**
+  String get portableCopyFailed;
+
+  /// No description provided for @portableStillFinishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous backup is finishing. Try again shortly.'**
+  String get portableStillFinishing;
+
+  /// No description provided for @portableNeedKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a backup and enter its recovery key.'**
+  String get portableNeedKey;
+
+  /// No description provided for @portableNeedPasscode.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a backup and confirm a passcode of at least six characters.'**
+  String get portableNeedPasscode;
+
+  /// No description provided for @portablePreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing encrypted backup…'**
+  String get portablePreparing;
+
+  /// No description provided for @portableChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking encrypted files: {done} of {total}…'**
+  String portableChecking(int done, int total);
+
+  /// No description provided for @portableChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup checked: every encrypted file and the catalog authenticate with this key. Nothing was restored. Choose the file again to restore it.'**
+  String get portableChecked;
+
+  /// No description provided for @portableRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Vault restored. Use your new passcode once to enable biometric unlock.'**
+  String get portableRestored;
+
+  /// No description provided for @portableExporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing encrypted files: {done} of {total}…'**
+  String portableExporting(int done, int total);
+
+  /// No description provided for @portableSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted backup saved. Keep its recovery key separately.'**
+  String get portableSaved;
+
+  /// No description provided for @portableSaveCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Save cancelled. Vault originals kept.'**
+  String get portableSaveCancelled;
+
+  /// No description provided for @portableBadKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the recovery key saved for this backup.'**
+  String get portableBadKey;
+
+  /// No description provided for @portableCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. Vault originals kept.'**
+  String get portableCancelled;
+
+  /// No description provided for @portableFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.'**
+  String get portableFailed;
 }
 
 class _AppLocalizationsDelegate

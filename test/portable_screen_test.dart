@@ -12,6 +12,7 @@ import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -83,8 +84,15 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  Future<void> open(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: PortableScreen(store: store)));
+  Future<void> open(WidgetTester tester, {Locale? locale}) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PortableScreen(store: store),
+      ),
+    );
     await tester.pump();
   }
 
@@ -105,6 +113,18 @@ void main() {
     await start(tester);
     expect(result(tester), contains('Choose a backup'));
     expect(calls, isEmpty);
+  });
+
+  testWidgets('the restore screen follows the device language', (tester) async {
+    await open(tester, locale: const Locale('es'));
+    expect(find.text('Restaurar copia cifrada'), findsOneWidget);
+    expect(find.text('Elegir ZIP de copia'), findsOneWidget);
+    await start(tester);
+    expect(
+      result(tester),
+      'Elige una copia y confirma un código de al menos seis caracteres.',
+    );
+    expect(find.text('Restore encrypted backup'), findsNothing);
   });
 
   testWidgets('Check backup only also needs a backup and its recovery key', (

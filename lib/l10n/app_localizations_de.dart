@@ -1453,4 +1453,108 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsShow => 'Anzeigen';
+
+  @override
+  String get portableTitleRestore => 'Verschlüsseltes Backup wiederherstellen';
+
+  @override
+  String get portableTitleExport => 'Portables Backup';
+
+  @override
+  String get portableIntroRestore =>
+      'Stellen Sie nur in einem neuen, leeren Tresor wieder her. Ihr Wiederherstellungsschlüssel öffnet das ZIP und die verschlüsselten Aufnahmen. Bestehende Bibliotheken lassen sich nicht zusammenführen.';
+
+  @override
+  String get portableIntroExport =>
+      'Speichern Sie ein verschlüsseltes ZIP Ihrer Aufnahmen und ihrer Organisation. Ihr vorhandener Wiederherstellungsschlüssel öffnet es; bewahren Sie ihn getrennt auf. Zugangsdaten und Schlüsseldateien sind nicht enthalten.';
+
+  @override
+  String get portableChoose => 'Backup-ZIP auswählen';
+
+  @override
+  String get portableCheckOnly => 'Backup nur prüfen';
+
+  @override
+  String get portableRestoreButton => 'Leeren Tresor wiederherstellen';
+
+  @override
+  String get portableCreateButton => 'Verschlüsseltes ZIP erstellen';
+
+  @override
+  String get portableLimitsTitle => 'Backup-Grenzen und Speicher';
+
+  @override
+  String get portableLimitsBody =>
+      'Bis zu 10.000 Aufnahmen und 2 GiB pro ZIP. Die Vorbereitung benötigt privaten temporären Speicher. Die Originale im Tresor bleiben unverändert. Zugangsdaten und Schlüsseldateien sind nicht enthalten.';
+
+  @override
+  String get portableCancelPrep => 'Vorbereitung abbrechen';
+
+  @override
+  String get portablePicking =>
+      'Wählen Sie in Dateien ein verschlüsseltes ZIP aus.';
+
+  @override
+  String get portablePickCancelled => 'Auswahl abgebrochen.';
+
+  @override
+  String get portablePicked =>
+      'Backup ausgewählt. Geben Sie den Wiederherstellungsschlüssel und einen neuen Code ein.';
+
+  @override
+  String get portableCopyFailed =>
+      'Backup konnte nicht kopiert werden. Prüfen Sie den Speicher und versuchen Sie es erneut.';
+
+  @override
+  String get portableStillFinishing =>
+      'Das vorherige Backup wird noch abgeschlossen. Versuchen Sie es gleich erneut.';
+
+  @override
+  String get portableNeedKey =>
+      'Wählen Sie ein Backup und geben Sie dessen Wiederherstellungsschlüssel ein.';
+
+  @override
+  String get portableNeedPasscode =>
+      'Wählen Sie ein Backup und bestätigen Sie einen Code mit mindestens sechs Zeichen.';
+
+  @override
+  String get portablePreparing => 'Verschlüsseltes Backup wird vorbereitet …';
+
+  @override
+  String portableChecking(int done, int total) {
+    return 'Verschlüsselte Dateien werden geprüft: $done von $total …';
+  }
+
+  @override
+  String get portableChecked =>
+      'Backup geprüft: Jede verschlüsselte Datei und der Katalog werden mit diesem Schlüssel authentifiziert. Es wurde nichts wiederhergestellt. Wählen Sie die Datei erneut aus, um sie wiederherzustellen.';
+
+  @override
+  String get portableRestored =>
+      'Tresor wiederhergestellt. Verwenden Sie Ihren neuen Code einmal, um die biometrische Entsperrung zu aktivieren.';
+
+  @override
+  String portableExporting(int done, int total) {
+    return 'Verschlüsselte Dateien werden vorbereitet: $done von $total …';
+  }
+
+  @override
+  String get portableSaved =>
+      'Verschlüsseltes Backup gespeichert. Bewahren Sie den Wiederherstellungsschlüssel getrennt auf.';
+
+  @override
+  String get portableSaveCancelled =>
+      'Speichern abgebrochen. Die Originale im Tresor bleiben erhalten.';
+
+  @override
+  String get portableBadKey =>
+      'Geben Sie den für dieses Backup gespeicherten Wiederherstellungsschlüssel ein.';
+
+  @override
+  String get portableCancelled =>
+      'Abgebrochen. Die Originale im Tresor bleiben erhalten.';
+
+  @override
+  String get portableFailed =>
+      'Backup konnte nicht wiederhergestellt oder gespeichert werden. Prüfen Sie Schlüssel, Datei, verfügbaren Speicher und die Voraussetzung eines leeren Tresors.';
 }

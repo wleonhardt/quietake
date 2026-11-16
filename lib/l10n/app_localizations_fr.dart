@@ -1451,4 +1451,107 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsShow => 'Afficher';
+
+  @override
+  String get portableTitleRestore => 'Restaurer une sauvegarde chiffrée';
+
+  @override
+  String get portableTitleExport => 'Sauvegarde portable';
+
+  @override
+  String get portableIntroRestore =>
+      'Restaurez uniquement dans un coffre neuf et vide. Votre clé de récupération ouvre le ZIP et les captures chiffrées. Les bibliothèques existantes ne peuvent pas être fusionnées.';
+
+  @override
+  String get portableIntroExport =>
+      'Enregistrez un ZIP chiffré de vos captures et de leur organisation. Votre clé de récupération actuelle l\'ouvre ; conservez-la séparément. Aucun identifiant ni fichier de clé n\'est inclus.';
+
+  @override
+  String get portableChoose => 'Choisir le ZIP de sauvegarde';
+
+  @override
+  String get portableCheckOnly => 'Vérifier la sauvegarde uniquement';
+
+  @override
+  String get portableRestoreButton => 'Restaurer le coffre vide';
+
+  @override
+  String get portableCreateButton => 'Créer un ZIP chiffré';
+
+  @override
+  String get portableLimitsTitle => 'Limites et stockage de la sauvegarde';
+
+  @override
+  String get portableLimitsBody =>
+      'Jusqu\'à 10 000 captures et 2 Gio par ZIP. La préparation nécessite un stockage temporaire privé. Les originaux du coffre restent inchangés. Aucun identifiant ni fichier de clé n\'est inclus.';
+
+  @override
+  String get portableCancelPrep => 'Annuler la préparation';
+
+  @override
+  String get portablePicking => 'Choisissez un ZIP chiffré dans Fichiers.';
+
+  @override
+  String get portablePickCancelled => 'Sélection annulée.';
+
+  @override
+  String get portablePicked =>
+      'Sauvegarde sélectionnée. Saisissez sa clé de récupération et un nouveau code.';
+
+  @override
+  String get portableCopyFailed =>
+      'Impossible de copier la sauvegarde. Vérifiez le stockage et réessayez.';
+
+  @override
+  String get portableStillFinishing =>
+      'La sauvegarde précédente se termine. Réessayez dans un instant.';
+
+  @override
+  String get portableNeedKey =>
+      'Choisissez une sauvegarde et saisissez sa clé de récupération.';
+
+  @override
+  String get portableNeedPasscode =>
+      'Choisissez une sauvegarde et confirmez un code d\'au moins six caractères.';
+
+  @override
+  String get portablePreparing => 'Préparation de la sauvegarde chiffrée…';
+
+  @override
+  String portableChecking(int done, int total) {
+    return 'Vérification des fichiers chiffrés : $done sur $total…';
+  }
+
+  @override
+  String get portableChecked =>
+      'Sauvegarde vérifiée : chaque fichier chiffré et le catalogue s\'authentifient avec cette clé. Rien n\'a été restauré. Choisissez à nouveau le fichier pour le restaurer.';
+
+  @override
+  String get portableRestored =>
+      'Coffre restauré. Utilisez votre nouveau code une fois pour activer le déverrouillage biométrique.';
+
+  @override
+  String portableExporting(int done, int total) {
+    return 'Préparation des fichiers chiffrés : $done sur $total…';
+  }
+
+  @override
+  String get portableSaved =>
+      'Sauvegarde chiffrée enregistrée. Conservez sa clé de récupération séparément.';
+
+  @override
+  String get portableSaveCancelled =>
+      'Enregistrement annulé. Les originaux du coffre sont conservés.';
+
+  @override
+  String get portableBadKey =>
+      'Saisissez la clé de récupération enregistrée pour cette sauvegarde.';
+
+  @override
+  String get portableCancelled =>
+      'Annulé. Les originaux du coffre sont conservés.';
+
+  @override
+  String get portableFailed =>
+      'Impossible de restaurer ou d\'enregistrer la sauvegarde. Vérifiez sa clé, le fichier, le stockage disponible et l\'exigence d\'un coffre vide.';
 }

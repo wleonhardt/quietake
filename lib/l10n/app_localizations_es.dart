@@ -1449,4 +1449,107 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsShow => 'Mostrar';
+
+  @override
+  String get portableTitleRestore => 'Restaurar copia cifrada';
+
+  @override
+  String get portableTitleExport => 'Copia portátil';
+
+  @override
+  String get portableIntroRestore =>
+      'Restaura solo en una bóveda nueva y vacía. Tu clave de recuperación abre el ZIP y las capturas cifradas. No se pueden combinar bibliotecas existentes.';
+
+  @override
+  String get portableIntroExport =>
+      'Guarda un ZIP cifrado con tus capturas y su organización. Tu clave de recuperación actual lo abre; guárdala por separado. No se incluyen credenciales ni archivos de clave.';
+
+  @override
+  String get portableChoose => 'Elegir ZIP de copia';
+
+  @override
+  String get portableCheckOnly => 'Solo comprobar la copia';
+
+  @override
+  String get portableRestoreButton => 'Restaurar bóveda vacía';
+
+  @override
+  String get portableCreateButton => 'Crear ZIP cifrado';
+
+  @override
+  String get portableLimitsTitle => 'Límites y almacenamiento de la copia';
+
+  @override
+  String get portableLimitsBody =>
+      'Hasta 10 000 capturas y 2 GiB por ZIP. La preparación necesita almacenamiento temporal privado. Los originales de la bóveda no se modifican. No se incluyen credenciales ni archivos de clave.';
+
+  @override
+  String get portableCancelPrep => 'Cancelar preparación';
+
+  @override
+  String get portablePicking => 'Elige un ZIP cifrado en Archivos.';
+
+  @override
+  String get portablePickCancelled => 'Selección cancelada.';
+
+  @override
+  String get portablePicked =>
+      'Copia seleccionada. Introduce su clave de recuperación y un código nuevo.';
+
+  @override
+  String get portableCopyFailed =>
+      'No se pudo copiar la copia. Revisa el almacenamiento e inténtalo de nuevo.';
+
+  @override
+  String get portableStillFinishing =>
+      'La copia anterior está terminando. Inténtalo de nuevo en breve.';
+
+  @override
+  String get portableNeedKey =>
+      'Elige una copia e introduce su clave de recuperación.';
+
+  @override
+  String get portableNeedPasscode =>
+      'Elige una copia y confirma un código de al menos seis caracteres.';
+
+  @override
+  String get portablePreparing => 'Preparando la copia cifrada…';
+
+  @override
+  String portableChecking(int done, int total) {
+    return 'Comprobando archivos cifrados: $done de $total…';
+  }
+
+  @override
+  String get portableChecked =>
+      'Copia comprobada: cada archivo cifrado y el catálogo se autentican con esta clave. No se restauró nada. Elige el archivo de nuevo para restaurarlo.';
+
+  @override
+  String get portableRestored =>
+      'Bóveda restaurada. Usa tu código nuevo una vez para activar el desbloqueo biométrico.';
+
+  @override
+  String portableExporting(int done, int total) {
+    return 'Preparando archivos cifrados: $done de $total…';
+  }
+
+  @override
+  String get portableSaved =>
+      'Copia cifrada guardada. Guarda su clave de recuperación por separado.';
+
+  @override
+  String get portableSaveCancelled =>
+      'Guardado cancelado. Se conservan los originales de la bóveda.';
+
+  @override
+  String get portableBadKey =>
+      'Introduce la clave de recuperación guardada para esta copia.';
+
+  @override
+  String get portableCancelled =>
+      'Cancelado. Se conservan los originales de la bóveda.';
+
+  @override
+  String get portableFailed =>
+      'No se pudo restaurar ni guardar la copia. Revisa su clave, el archivo, el almacenamiento disponible y el requisito de bóveda vacía.';
 }

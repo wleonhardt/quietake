@@ -1426,4 +1426,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsShow => 'Show';
+
+  @override
+  String get portableTitleRestore => 'Restore encrypted backup';
+
+  @override
+  String get portableTitleExport => 'Portable backup';
+
+  @override
+  String get portableIntroRestore =>
+      'Restore only into a fresh empty vault. Your recovery key opens the ZIP and encrypted captures. Existing libraries cannot be merged.';
+
+  @override
+  String get portableIntroExport =>
+      'Save an encrypted ZIP of captures and organization. Your existing recovery key opens it; keep that key separately. No credentials or keyfiles are included.';
+
+  @override
+  String get portableChoose => 'Choose backup ZIP';
+
+  @override
+  String get portableCheckOnly => 'Check backup only';
+
+  @override
+  String get portableRestoreButton => 'Restore empty vault';
+
+  @override
+  String get portableCreateButton => 'Create encrypted ZIP';
+
+  @override
+  String get portableLimitsTitle => 'Backup limits and storage';
+
+  @override
+  String get portableLimitsBody =>
+      'Up to 10,000 captures and 2 GiB per ZIP. Preparation needs private temporary storage. Vault originals stay unchanged. No credentials or keyfiles are included.';
+
+  @override
+  String get portableCancelPrep => 'Cancel preparation';
+
+  @override
+  String get portablePicking => 'Choose an encrypted ZIP in Files.';
+
+  @override
+  String get portablePickCancelled => 'Selection cancelled.';
+
+  @override
+  String get portablePicked =>
+      'Backup selected. Enter its recovery key and a new passcode.';
+
+  @override
+  String get portableCopyFailed =>
+      'Could not copy backup. Check storage and try again.';
+
+  @override
+  String get portableStillFinishing =>
+      'Previous backup is finishing. Try again shortly.';
+
+  @override
+  String get portableNeedKey => 'Choose a backup and enter its recovery key.';
+
+  @override
+  String get portableNeedPasscode =>
+      'Choose a backup and confirm a passcode of at least six characters.';
+
+  @override
+  String get portablePreparing => 'Preparing encrypted backup…';
+
+  @override
+  String portableChecking(int done, int total) {
+    return 'Checking encrypted files: $done of $total…';
+  }
+
+  @override
+  String get portableChecked =>
+      'Backup checked: every encrypted file and the catalog authenticate with this key. Nothing was restored. Choose the file again to restore it.';
+
+  @override
+  String get portableRestored =>
+      'Vault restored. Use your new passcode once to enable biometric unlock.';
+
+  @override
+  String portableExporting(int done, int total) {
+    return 'Preparing encrypted files: $done of $total…';
+  }
+
+  @override
+  String get portableSaved =>
+      'Encrypted backup saved. Keep its recovery key separately.';
+
+  @override
+  String get portableSaveCancelled => 'Save cancelled. Vault originals kept.';
+
+  @override
+  String get portableBadKey => 'Enter the recovery key saved for this backup.';
+
+  @override
+  String get portableCancelled => 'Cancelled. Vault originals kept.';
+
+  @override
+  String get portableFailed =>
+      'Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.';
 }
