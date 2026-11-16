@@ -1789,4 +1789,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get shareRedactNote =>
       'Die geteilte Kopie wird ein PNG mit verpixelten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert.';
+
+  @override
+  String redactCell(int row, int column) {
+    return 'Zeile $row, Spalte $column';
+  }
+
+  @override
+  String get redactSections => 'Oder einen Abschnitt des Fotos verbergen';
 }

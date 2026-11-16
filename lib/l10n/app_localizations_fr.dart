@@ -1787,4 +1787,12 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get shareRedactNote =>
       'La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L\'original reste inchangé dans votre coffre.';
+
+  @override
+  String redactCell(int row, int column) {
+    return 'Ligne $row, colonne $column';
+  }
+
+  @override
+  String get redactSections => 'Ou masquez une section de la photo';
 }

@@ -473,5 +473,7 @@
   "redactFailed": "No se pudo abrir esta foto para editarla.",
   "shareRedactButton": "Ocultar partes de esta foto…",
   "shareRedactEdit": "Zonas ocultas: {count}. Cambiar…",
-  "shareRedactNote": "La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda."
+  "shareRedactNote": "La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda.",
+  "redactCell": "Fila {row}, columna {column}",
+  "redactSections": "O oculta una sección de la foto"
 }

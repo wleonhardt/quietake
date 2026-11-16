@@ -158,8 +158,50 @@ class _RedactScreenState extends State<RedactScreen> {
               ),
             ),
           ),
+          // The same areas without dragging, for keyboard and screen reader use.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.redactSections),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (var row = 0; row < 3; row++)
+                      for (var column = 0; column < 3; column++)
+                        _cell(l10n, row, column),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _cell(AppLocalizations l10n, int row, int column) {
+    final area = Rect.fromLTRB(
+      column / 3,
+      row / 3,
+      (column + 1) / 3,
+      (row + 1) / 3,
+    );
+    final chosen = _regions.contains(area);
+    return FilterChip(
+      key: Keys.redactCell(row, column),
+      label: Text(l10n.redactCell(row + 1, column + 1)),
+      selected: chosen,
+      onSelected: (_) => setState(() {
+        if (chosen) {
+          _regions.remove(area);
+        } else {
+          _regions.add(area);
+        }
+      }),
     );
   }
 }

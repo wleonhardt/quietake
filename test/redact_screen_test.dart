@@ -130,4 +130,40 @@ void main() {
     );
     expect(find.text('Listo'), findsOneWidget);
   });
+  testWidgets('section buttons add and remove thirds without dragging', (
+    tester,
+  ) async {
+    final bytes = (await tester.runAsync(gradientPng))!;
+    final result = await open(tester, bytes);
+    await show(tester);
+    await tester.ensureVisible(find.byKey(Keys.redactCell(0, 0)));
+    await tester.tap(find.byKey(Keys.redactCell(0, 0)));
+    await tester.tap(find.byKey(Keys.redactCell(1, 2)));
+    await tester.pump();
+    expect(find.text('2 areas will be hidden.'), findsOneWidget);
+    expect(
+      tester.widget<FilterChip>(find.byKey(Keys.redactCell(0, 0))).selected,
+      isTrue,
+    );
+    await tester.tap(find.byKey(Keys.redactCell(0, 0)));
+    await tester.pump();
+    expect(find.text('1 area will be hidden.'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.redactDone));
+    await tester.pumpAndSettle();
+    final rects = (await result())!;
+    expect(rects, hasLength(1));
+    expect(rects.single.left, closeTo(2 / 3, 1e-9));
+    expect(rects.single.top, closeTo(1 / 3, 1e-9));
+    expect(rects.single.width, closeTo(1 / 3, 1e-9));
+    expect(rects.single.height, closeTo(1 / 3, 1e-9));
+  });
+
+  testWidgets('section buttons are labeled for screen readers', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final bytes = (await tester.runAsync(gradientPng))!;
+    await open(tester, bytes);
+    await show(tester);
+    expect(find.bySemanticsLabel('Row 2, column 3'), findsOneWidget);
+    semantics.dispose();
+  });
 }

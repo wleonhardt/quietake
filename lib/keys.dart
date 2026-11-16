@@ -265,6 +265,7 @@ abstract final class Keys {
   static const redactCanvas = Key('redact.canvas');
   static const redactUndo = Key('redact.undo');
   static const redactDone = Key('redact.done');
+  static Key redactCell(int row, int column) => Key('redact.cell.$row.$column');
   static const shareCancel = Key('share.cancel');
   static const viewerPager = Key('viewer.pager');
   static const viewerPhoto = Key('viewer.photo');

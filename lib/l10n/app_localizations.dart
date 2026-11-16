@@ -2945,6 +2945,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.'**
   String get shareRedactNote;
+
+  /// No description provided for @redactCell.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}, column {column}'**
+  String redactCell(int row, int column);
+
+  /// No description provided for @redactSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Or hide a section of the photo'**
+  String get redactSections;
 }
 
 class _AppLocalizationsDelegate

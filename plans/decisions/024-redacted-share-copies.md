@@ -38,7 +38,9 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
 - With areas chosen, the dialog hides the metadata switch (a PNG has none) and says the
   copy becomes a PNG with those areas pixelated. `shareMediaCopies` takes
   `redactions` keyed by capture name and shares `photo-<id>.png` as `image/png`.
-- Drawing is pointer only: there is no keyboard or screen-reader way to place an
-  area yet. Owner should weigh that before release.
+- Drawing needs a pointer, so the screen also offers nine labeled section chips
+  ("Row 2, column 3") that toggle one third of the photo each. They work with a
+  keyboard or screen reader and share the same list of areas as dragging. Finer
+  placement for assistive technology is not built.
 - Tests: `redact_screen_test.dart`, `share_media_test.dart`, `share_dialog_test.dart`.
   No device test drives the editor; `sharing_test.dart` still passes on both devices.

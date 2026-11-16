@@ -1748,4 +1748,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shareRedactNote =>
       'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.';
+
+  @override
+  String redactCell(int row, int column) {
+    return 'Row $row, column $column';
+  }
+
+  @override
+  String get redactSections => 'Or hide a section of the photo';
 }

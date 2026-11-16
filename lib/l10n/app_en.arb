@@ -949,5 +949,17 @@
       }
     }
   },
-  "shareRedactNote": "The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault."
+  "shareRedactNote": "The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.",
+  "redactCell": "Row {row}, column {column}",
+  "@redactCell": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "column": {
+        "type": "int"
+      }
+    }
+  },
+  "redactSections": "Or hide a section of the photo"
 }

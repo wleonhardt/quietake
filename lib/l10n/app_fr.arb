@@ -473,5 +473,7 @@
   "redactFailed": "Impossible d'ouvrir cette photo pour la modifier.",
   "shareRedactButton": "Masquer des parties de cette photo…",
   "shareRedactEdit": "Zones masquées : {count}. Modifier…",
-  "shareRedactNote": "La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L'original reste inchangé dans votre coffre."
+  "shareRedactNote": "La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L'original reste inchangé dans votre coffre.",
+  "redactCell": "Ligne {row}, colonne {column}",
+  "redactSections": "Ou masquez une section de la photo"
 }
