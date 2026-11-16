@@ -44,4 +44,28 @@ void main() {
     expect(find.text('Could not change passcode. Try again.'), findsOneWidget);
     expect(find.byKey(Keys.changePasscodeSubmit), findsOneWidget);
   });
+
+  testWidgets('a locked passcode shows the wait, not just "incorrect"', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final store = _FailingStore(sodium)
+      ..failure = PasscodeLockedException(const Duration(seconds: 60));
+    await tester.pumpWidget(
+      MaterialApp(home: ChangePasscodeScreen(store: store)),
+    );
+    await tester.enterText(find.byKey(Keys.currentPasscode), 'current');
+    await tester.enterText(find.byKey(Keys.newPasscode), 'new-passcode');
+    await tester.enterText(find.byKey(Keys.confirmPasscode), 'new-passcode');
+    await tester.tap(find.byKey(Keys.changePasscodeSubmit));
+    await tester.pump();
+    await tester.pump();
+    expect(
+      find.text('Too many wrong passcodes. Try again in 1 minute.'),
+      findsOneWidget,
+    );
+  });
 }

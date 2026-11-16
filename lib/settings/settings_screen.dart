@@ -182,6 +182,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       );
+    } on PasscodeLockedException catch (e) {
+      if (mounted) setState(() => _result = e.toString());
     } on WrongPasscodeException {
       if (mounted) setState(() => _result = 'Wrong passcode. Try again.');
     } catch (_) {

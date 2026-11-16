@@ -299,6 +299,8 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
           disable ? 'Passphrase recovery disabled. Captures kept.' : 'Backup passphrase saved. Keep it and your recovery key separately.',
         );
       }
+    } on PasscodeLockedException catch (e) {
+      _status(e.toString());
     } on WrongPasscodeException {
       _status('Wrong current passcode. Try again.');
     } catch (_) {

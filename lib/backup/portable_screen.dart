@@ -223,6 +223,8 @@ class _PortableScreenState extends State<PortableScreen>
               : 'Save cancelled. Vault originals kept.',
         );
       }
+    } on PasscodeLockedException catch (e) {
+      _status(e.toString());
     } on WrongPasscodeException {
       _status('Wrong passcode. Try again.');
     } on BadRecoveryKeyException {

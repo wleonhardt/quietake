@@ -40,6 +40,8 @@ class _ChangePasscodeScreenState extends State<ChangePasscodeScreen> {
     try {
       await widget.store.changePasscode(_current.text, _next.text);
       if (mounted) Navigator.of(context).pop(true);
+    } on PasscodeLockedException catch (e) {
+      if (mounted) setState(() => _error = e.toString());
     } on WrongPasscodeException {
       if (mounted) setState(() => _error = 'Current passcode is incorrect');
     } on FormatException catch (error) {

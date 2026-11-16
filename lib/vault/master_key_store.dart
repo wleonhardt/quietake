@@ -22,8 +22,13 @@ class PasscodeLockedException extends WrongPasscodeException {
   final Duration retryAfter;
   @override
   String toString() {
-    final seconds = retryAfter.inSeconds + 1;
-    return 'Too many wrong passcodes. Try again in ${seconds < 60 ? '$seconds seconds' : '${(seconds / 60).ceil()} minutes'}.';
+    final seconds = (retryAfter.inMilliseconds / 1000).ceil();
+    final wait = seconds < 60
+        ? '$seconds seconds'
+        : seconds < 120
+        ? '1 minute'
+        : '${(seconds / 60).ceil()} minutes';
+    return 'Too many wrong passcodes. Try again in $wait.';
   }
 }
 

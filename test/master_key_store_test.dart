@@ -473,6 +473,17 @@ void main() {
         ),
       );
     });
+
+    test('the message names the wait in seconds or minutes', () {
+      String say(Duration d) => PasscodeLockedException(d).toString();
+      expect(
+        say(const Duration(seconds: 29, milliseconds: 500)),
+        'Too many wrong passcodes. Try again in 30 seconds.',
+      );
+      expect(say(const Duration(seconds: 59)), contains('59 seconds.'));
+      expect(say(const Duration(seconds: 60)), contains('1 minute.'));
+      expect(say(const Duration(minutes: 15)), contains('15 minutes.'));
+    });
   });
 
   test('recovery export round-trips and sets a new passcode', () async {
