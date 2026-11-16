@@ -7,9 +7,11 @@ import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
+import 'package:quietake/backup/portable_screen.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/privacy/privacy_controller.dart';
+import 'package:quietake/privacy/privacy_policy_screen.dart';
 import 'package:quietake/privacy/privacy_scope.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/settings/settings_screen.dart';
@@ -319,4 +321,20 @@ void main() {
     );
     expect(find.byKey(Keys.recoveryKeyText), findsNothing);
   });
+
+  for (final entry in {
+    'Portable encrypted backup': () => find.byType(PortableScreen),
+    'Privacy policy': () => find.byType(PrivacyPolicyScreen),
+    'Licenses': () => find.byType(LicensePage),
+  }.entries) {
+    testWidgets('${entry.key} opens from Settings', (tester) async {
+      await open(tester);
+      final row = find.text(entry.key);
+      await tester.ensureVisible(row);
+      await tester.tap(row);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(entry.value(), findsOneWidget);
+    });
+  }
 }
