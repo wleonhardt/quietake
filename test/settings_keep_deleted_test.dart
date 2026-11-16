@@ -109,4 +109,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(await tester.runAsync(BurstSetting.load), 10);
   });
+
+  testWidgets('Settings opens Recently deleted', (tester) async {
+    await open(tester, trashOne: true);
+    await tester.ensureVisible(find.byKey(Keys.settingsRecentlyDeleted));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Keys.settingsRecentlyDeleted));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.recentlyDeletedScreen), findsOneWidget);
+    for (var i = 0; i < 100; i++) {
+      if (find.textContaining('days left').evaluate().isNotEmpty) break;
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(find.textContaining('days left'), findsOneWidget);
+  });
 }

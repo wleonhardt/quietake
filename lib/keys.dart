@@ -163,6 +163,7 @@ abstract final class Keys {
   static const settingsLicenses = Key('settings.licenses');
   static const settingsStorage = Key('settings.storage');
   static const settingsCameraSection = Key('settings.cameraSection');
+  static const settingsRecentlyDeleted = Key('settings.recentlyDeleted');
   static const settingsBurstSize = Key('settings.burstSize');
   static const settingsKeepDeleted = Key('settings.keepDeleted');
   static const settingsStorageSection = Key('settings.storageSection');

@@ -18,6 +18,7 @@ import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
 import '../vault/master_key_store.dart';
 import '../camera/burst_setting.dart';
+import '../library/recently_deleted_screen.dart';
 import '../vault/trash_setting.dart';
 import '../vault/vault.dart';
 import '../sync/webdav_client.dart';
@@ -604,6 +605,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         : 'Counting captures…',
                     key: Keys.settingsStorage,
                   ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: Keys.settingsRecentlyDeleted,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      RecentlyDeletedScreen(session: widget.session),
+                ),
+              ),
+              icon: const Icon(Icons.delete_outline),
+              label: const Text('Recently deleted'),
+            ),
           ),
           SwitchListTile(
             key: Keys.settingsKeepDeleted,
