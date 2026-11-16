@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -126,6 +127,24 @@ void main() {
     await tester.tap(find.byKey(Keys.portablePick));
     await tester.pumpAndSettle();
     expect(result(tester), contains('Could not copy backup'));
+  });
+
+  testWidgets('a pick that finishes after leaving discards its private copy', (
+    tester,
+  ) async {
+    final picked = Completer<String?>();
+    pickResult = picked.future;
+    await open(tester);
+    await tester.tap(find.byKey(Keys.portablePick));
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox());
+    // Leaving mid-pick cancels it; a copy that still arrives is discarded.
+    expect(calls, ['pick', 'cancel']);
+    picked.complete('/private/late.zip');
+    await tester.pump();
+    await tester.pump();
+    expect(calls, ['pick', 'cancel', 'clear']);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('short or mismatched new passcodes are rejected', (tester) async {
