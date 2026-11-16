@@ -53,6 +53,32 @@ void main() {
     return encrypted;
   }
 
+  test('saving settings stores them and then starts a sync', () async {
+    await capture('a.jpg');
+    await controller.saveSettings(settings);
+    expect((await SyncSettings.load()).url, settings.url);
+    for (var i = 0; i < 100 && server.files.isEmpty; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+    expect(server.files.keys, contains('a.jpg.shtr'));
+  });
+
+  test('saving settings reports busy during recovery', () async {
+    final entered = Completer<void>(), release = Completer<void>();
+    final operation = controller.recoveryOperation((_) async {
+      entered.complete();
+      await release.future;
+    });
+    await entered.future;
+    try {
+      await expectLater(controller.saveSettings(settings), throwsStateError);
+      expect((await SyncSettings.load()).isConfigured, isFalse);
+    } finally {
+      release.complete();
+      await operation;
+    }
+  });
+
   test('disconnect reports busy during recovery and can be retried', () async {
     await settings.save();
     final entered = Completer<void>(), release = Completer<void>();

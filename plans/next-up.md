@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host tests (`sync_controller_test.dart`): `saveSettings` persists settings then starts a sync, and reports busy during recovery without saving. Full host suite at iteration 52: 554 passed, analyzer clean (before these two tests). No defect.
 - Host test (`delete_sync_test.dart`): a catalog-less legacy remote copy of a locally deleted capture is downloaded, authenticated and discarded, never restored (covers the `sync_service.dart` discard branch). No defect.
 - Host tests (`webdav_client_test.dart`) now cover the 16 MiB-style listing limit (FormatException) and a non-207 PROPFIND (WebDavException with status, no credentials in its text). No defect. File run: 26 pass.
 - Host tests (`master_key_store_test.dart`) now cover restore-journal tampering: wrong version, oversized journal, prepared keyfile that differs from the fingerprint, and a target vault that gained media. `resume` throws and preserves the prepared pair in each case. No defect. Only that file was run (28 pass).
