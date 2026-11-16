@@ -94,6 +94,48 @@ class _ViewerScreenState extends State<ViewerScreen> {
     }
   }
 
+  void _showDetails() {
+    final item = _current;
+    final catalog = widget.session.vault.catalog;
+    final tags = [
+      for (final id in catalog.details(item.name).albums)
+        if (catalog.albums[id] != null) catalog.albums[id]!,
+    ]..sort();
+    final at = item.capturedAt?.toLocal();
+    String two(int v) => v.toString().padLeft(2, '0');
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: Keys.viewerInfoDialog,
+        title: const Text('Details'),
+        content: FutureBuilder<int>(
+          future: item.file.length(),
+          builder: (context, size) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Type: ${item.isVideo ? 'Video' : 'Photo'}'),
+              Text(
+                'Captured: ${at == null ? 'Unknown' : '${at.year}-${two(at.month)}-${two(at.day)} ${two(at.hour)}:${two(at.minute)}'}',
+              ),
+              Text('Tags: ${tags.isEmpty ? 'None' : tags.join(', ')}'),
+              if (size.hasData)
+                Text('Encrypted size: ${size.data} bytes')
+              else if (size.hasError)
+                const Text('Encrypted size: unavailable'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _delete() async {
     if (_sharing || _deleting) return;
     final item = _current;
@@ -198,6 +240,12 @@ class _ViewerScreenState extends State<ViewerScreen> {
                 },
         );
       },
+    ),
+    IconButton(
+      key: Keys.viewerInfo,
+      tooltip: 'Details',
+      onPressed: _showDetails,
+      icon: const Icon(Icons.info_outline),
     ),
     Builder(
       builder: (buttonContext) => IconButton(

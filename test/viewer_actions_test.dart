@@ -108,6 +108,32 @@ void main() {
     expect(find.byTooltip('Remove favorite'), findsOneWidget);
   });
 
+  testWidgets('Details lists type, tags and encrypted size', (tester) async {
+    await open(tester);
+    await tester.runAsync(() async {
+      final catalog = session.vault.catalog;
+      final tag = await catalog.createAlbum('Trips');
+      await catalog.organize({items[0].name}, tagIds: {tag});
+    });
+    await tester.tap(find.byKey(Keys.viewerInfo));
+    await until(
+      tester,
+      () => find.byKey(Keys.viewerInfoDialog).evaluate().isNotEmpty,
+    );
+    await until(
+      tester,
+      () => find.textContaining('Encrypted size: ').evaluate().isNotEmpty,
+    );
+    expect(find.text('Type: Photo'), findsOneWidget);
+    expect(find.text('Tags: Trips'), findsOneWidget);
+    final bytes = await tester.runAsync(() => items[0].file.length());
+    expect(find.textContaining('Encrypted size: $bytes bytes'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.viewerInfoDialog), findsNothing);
+  });
+
   testWidgets('cancelling delete keeps the capture', (tester) async {
     await open(tester);
     await tester.tap(find.byKey(Keys.viewerDelete));

@@ -48,7 +48,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 - Recently deleted: keep deleted captures encrypted for 30 days and offer restore. Backup sync must still never infer deletion from absence.
 - Capture options: timer, grid overlay, tap-to-focus and exposure lock, and a burst mode that stays inside private staging.
 - Albums: cover choice, sort by tag, and a "Moments" view that groups captures by date from the vault catalog, with no cloud index.
-- Viewer: slideshow with the screen kept awake only while the vault is unlocked, and a metadata panel with size, date and tags.
+- Viewer: slideshow with the screen kept awake only while the vault is unlocked.
 - Share: per-share option to strip all EXIF fields, not only GPS; video location strip is a separate, larger item.
 - Backup: scheduled backup health reminder when the last verified check is older than a set age; a restore dry run that checks without writing.
 - Storage view: show vault size and what is pending upload, with a safe prune of re-creatable caches only.
@@ -58,6 +58,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 
 ## Done
 
+- Feature from the ideas list: viewer Details dialog (decision `002-viewer-details.md`) with type, capture time, tags and encrypted size, from the file name, catalog and container size only. Test in `viewer_actions_test.dart`; host suite 616 passed, analyzer clean, iOS `delete_test.dart` (5 cases) and `library_layout_test.dart` passed. Android not run; narrow-width app bar fit with the extra icon is only checked by those iOS runs.
 - Feature built from the ideas list: unlock throttling (decision `plans/decisions/001-unlock-throttling.md`). Five wrong passcodes in one app process lock further tries for 30 s, doubling to 15 min; success resets; the lock screen shows the wait. Store-level, in-memory, so Settings, change passcode, NAS and portable share it; restart clears it. Tests in `master_key_store_test.dart` and `lock_unlock_failure_test.dart`. Host suite 615 passed, analyzer clean, iOS `lock_test.dart` passed (7 cases, 75.1 s). Android e2e not run; the other callers still show their fixed wrong-passcode text while locked (unchanged copy, could name the wait).
 - Host tests (`sync_controller_test.dart`): a backup check with a rejected password shows "Could not check NAS (HTTP 401)…" and one against a closed server shows "Could not reach NAS…"; both leave state pending.
 - Host test (`sync_controller_test.dart`): checking an unconfigured backup sets state unconfigured, shows "Connect a saved NAS backup before checking." and sends no request.
