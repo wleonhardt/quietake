@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/cast/cast_controller.dart';
+import 'package:quietake/gallery/exif_strip.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart';
 import 'package:quietake/media/media_server.dart';
@@ -92,7 +93,7 @@ void main() {
     }
   }
 
-  testWidgets('JPEG GPS values are erased only in selected share copies', (
+  testWidgets('JPEG metadata except orientation is removed only in selected share copies', (
     tester,
   ) async {
     final app = await TestApp.unlocked();
@@ -125,18 +126,18 @@ void main() {
       await tap(tester, Keys.librarySelect);
       await tap(tester, Keys.librarySelectAll);
       await tap(tester, Keys.libraryShare);
-      expect(find.text('Remove GPS from JPEG photo copies'), findsOneWidget);
+      expect(find.text('Remove metadata from JPEG photo copies'), findsOneWidget);
       await tap(tester, Keys.shareConfirm);
       await until(
         tester,
         () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
       );
-      expect(sent.single.sublist(12 + 38, 12 + 92), everyElement(0));
-      expect(sent.single.sublist(12 + 92), jpegWithGps().sublist(12 + 92));
-      expect(
-        sent.single.sublist(0, 12 + 38),
-        jpegWithGps().sublist(0, 12 + 38),
-      );
+      // One EXIF entry remains: orientation 6. GPS directory and values are gone.
+      final copy = ByteData.sublistView(sent.single);
+      expect(copy.getUint16(12 + 8), 1);
+      expect(copy.getUint16(12 + 10), 0x0112);
+      expect(copy.getUint16(12 + 18), 6);
+      expect(sent.single.length, lessThan(jpegWithGps().length - 40));
       await tap(tester, Keys.libraryShare);
       await tap(tester, Keys.shareStripLocation);
       await tap(tester, Keys.shareConfirm);
@@ -165,7 +166,7 @@ void main() {
   });
 
   testWidgets(
-    'filtered selection shares only chosen copies, mixed batch stays byte-identical',
+    'filtered selection shares only chosen copies, videos and PNGs stay byte-identical',
     (tester) async {
       final app = await TestApp.unlocked();
       await seed(app);
@@ -186,7 +187,11 @@ void main() {
             'image/png' => 'wide.png',
             _ => 'tiny.jpg',
           };
-          expect(await File(paths[i]).readAsBytes(), fixtureBytes(fixture));
+          // Videos and PNGs are byte-identical; a JPEG loses its encoder comment.
+          final expected = mimes[i] == 'image/jpeg'
+              ? withoutMetadata(fixtureBytes(fixture))
+              : fixtureBytes(fixture);
+          expect(await File(paths[i]).readAsBytes(), expected);
         }
         sent.add(mimes);
         return '';

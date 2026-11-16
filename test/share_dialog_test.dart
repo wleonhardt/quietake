@@ -77,7 +77,7 @@ void main() {
     }
   }
 
-  testWidgets('warns about unencrypted copies and strips GPS by default', (
+  testWidgets('warns about unencrypted copies and strips metadata by default', (
     tester,
   ) async {
     await open(tester);

@@ -47,7 +47,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 
 1. Slideshow keep-awake: DONE (decision 017). Own `quietake/screen` channel; host test with mocked channel; iOS and Android emulator viewer tests pass; the actual dimming is not observable in them.
 2. Albums (tags) cover choice: DONE (decision 018): optional `covers` field plus Tags screen thumbnail, Set cover and Clear cover. Viewer shortcut not built. Host test covers the empty picker only; pick and clear run in `library_test.dart` on devices.
-3. Share: strip every EXIF field except orientation from JPEG share copies. Video metadata removal is a separate, later item (owner wrote "T-shirt video EXIF removal", read as a later small-to-medium item; confirm if unsure).
+3. Share EXIF strip: DONE (decision 019): JPEG share copies keep only orientation; XMP, IPTC, comments and MPF go too; policy and website wording updated and awaits owner review. Video metadata removal is a later item (meaning unconfirmed).
 4. Import: folder import with progress and resume after interruption, existing 10,000-file limits.
 5. Localization: Spanish, French and German via Flutter gen-l10n; policy text stays English until the owner reviews translations.
 6. Storage view: owner said "whatever is best": drop cache prune (previews are memory only) and pending-upload count; no work planned.

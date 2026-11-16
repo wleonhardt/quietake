@@ -305,7 +305,7 @@ void main() {
   );
 
   test(
-    'photo copies lose their GPS directory unless the caller keeps it',
+    'photo copies keep only orientation unless the caller keeps everything',
     () async {
       final photo = VaultItem(
         await vault.ingestAs(
@@ -328,9 +328,12 @@ void main() {
         origin: origin,
         isActive: () => true,
       );
-      expect(gpsEntryCount(Uint8List.fromList(sent.single)), 0);
-      expect(sent.single.sublist(12 + 38, 12 + 92), everyElement(0));
-      expect(sent.single.length, jpegWithGps().length);
+      final copy = Uint8List.fromList(sent.single);
+      expect(copy.length, lessThan(jpegWithGps().length - 40));
+      // The rebuilt EXIF segment holds one entry: orientation 6.
+      expect(ByteData.sublistView(copy).getUint16(12 + 8), 1);
+      expect(ByteData.sublistView(copy).getUint16(12 + 10), 0x0112);
+      expect(ByteData.sublistView(copy).getUint16(12 + 18), 6);
       await shareMediaCopies(
         vault,
         [photo],
@@ -344,10 +347,10 @@ void main() {
   );
 
   test(
-    'unsafe GPS metadata aborts the entire batch and clears prepared copies',
+    'unsafe metadata aborts the entire batch and clears prepared copies',
     () async {
       final malformed = jpegWithGps();
-      ByteData.sublistView(malformed).setUint32(12 + 60, 8, Endian.little);
+      ByteData.sublistView(malformed).setUint32(12 + 4, 5000, Endian.little);
       final photo = VaultItem(
         await vault.ingestAs(
           await File('${root.path}/unsafe.jpg').writeAsBytes(malformed),

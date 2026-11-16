@@ -130,10 +130,10 @@ class _ShareDialogState extends State<_ShareDialog> {
           onChanged: _busy
               ? null
               : (value) => setState(() => _stripLocation = value ?? true),
-          title: const Text('Remove GPS from JPEG photo copies'),
+          title: const Text('Remove metadata from JPEG photo copies'),
           subtitle: Text(
             _stripLocation
-                ? 'JPEG EXIF GPS is removed. Other metadata and PNG/video copies stay unchanged.'
+                ? 'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.'
                 : 'Copies keep all original metadata, including location if present.',
           ),
         ),

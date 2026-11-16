@@ -7,7 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../crypto/random_token.dart';
 import '../vault/vault.dart';
-import 'exif_location.dart';
+import 'exif_strip.dart';
 import 'item.dart';
 
 bool _sharing = false;
@@ -106,7 +106,7 @@ Future<void> shareMediaCopies(
             );
           }
           if (!isActive()) throw _ShareCancelled();
-          await file.writeAsBytes(withoutLocation(plain), flush: true);
+          await file.writeAsBytes(withoutMetadata(plain), flush: true);
         } else {
           await vault
               .read(item.file)

@@ -28,8 +28,9 @@ first release target; iOS development is ongoing.
   30 days and still on the NAS. Delete now and expiry remove it for good. A
   Settings switch turns this off.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
-  copies erase EXIF GPS directory contents and referenced values by default.
-  Other metadata and PNG/video copies remain unchanged; this is not complete metadata anonymization.
+  copies keep only their orientation by default: all other EXIF fields, XMP,
+  Photoshop data and comments are removed. PNG and video copies remain
+  unchanged, so this is not complete metadata anonymization.
 - Casting sends decrypted media over local HTTP to the selected receiver. It is
   not end-to-end encrypted. Locking stops casting and clears decrypted caches.
 - Android blocks screenshots through platform protection. iOS hides inactive
