@@ -43,6 +43,8 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
    viewer are done (slice 4 complete). The viewer delete explanation is built from
    four localized sentences joined with spaces. Share preparation errors from the share layer stay English. Per-file import messages from the import layer stay English. Tile accessibility labels join localized parts with a comma. `monthLabel` now takes a context and uses
    `intl` `yMMMM`.
-5. Settings, backup and NAS screens, and snackbar errors.
+5. Settings, backup and NAS screens, and snackbar errors. Check backup screen,
+   Cast picker, Lock now and the brand tagline are done; Settings, portable
+   backup and NAS recovery remain. The sync layer's result text stays English.
 Strings built in code, such as month names in Moments, move to `intl` date
 formatting in slice 4.

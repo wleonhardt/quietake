@@ -1079,4 +1079,103 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get viewerUnmute => 'Réactiver le son de la vidéo';
+
+  @override
+  String get lockNow => 'Verrouiller maintenant';
+
+  @override
+  String get brandTagline => 'Appareil photo privé';
+
+  @override
+  String get backupTitle => 'Vérifier la sauvegarde';
+
+  @override
+  String get backupIntro =>
+      'Vérifie chaque fichier chiffré de votre sauvegarde NAS enregistrée avec la clé de ce coffre. Les grandes bibliothèques demandent du temps, des données et de l\'espace temporaire. Cette vérification ne modifie pas les originaux.';
+
+  @override
+  String get backupNeverChecked =>
+      'Cette sauvegarde n\'a jamais été entièrement vérifiée. Vérifiez-la pour confirmer que vos copies sont lisibles.';
+
+  @override
+  String backupStale(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days jours',
+      one: '1 jour',
+    );
+    return 'La dernière vérification complète date d\'il y a $_temp0. Vérifiez à nouveau pour confirmer que vos copies sont toujours lisibles.';
+  }
+
+  @override
+  String get backupCancelCheck => 'Annuler la vérification';
+
+  @override
+  String get backupCancelQueued => 'Annuler la vérification en attente';
+
+  @override
+  String get backupCheckSaved => 'Vérifier la sauvegarde enregistrée';
+
+  @override
+  String backupCheckedAt(String date, String time, String state) {
+    return 'Vérifiée le $date à $time · $state';
+  }
+
+  @override
+  String get backupUnchanged => 'Rien n\'a changé depuis';
+
+  @override
+  String get backupChanged => 'Modifiée depuis ; vérifiez à nouveau';
+
+  @override
+  String get backupKeepKey =>
+      'Conservez votre clé de récupération séparément. Une vérification réussie ne teste pas la copie de la clé que vous avez enregistrée ailleurs.';
+
+  @override
+  String get backupLeaveNote =>
+      'Vous pouvez quitter cet écran pendant la vérification. Les envois de captures attendent la fin de la vérification. Les vérifications s\'arrêtent si le processus de l\'app se ferme.';
+
+  @override
+  String get castSearchFailed =>
+      'Impossible de rechercher des téléviseurs. Vérifiez le Wi-Fi et réessayez.';
+
+  @override
+  String castConnected(String device) {
+    return 'Connecté à $device. Ouvrez une capture pour la diffuser.';
+  }
+
+  @override
+  String get castTitle => 'Diffuser sur un téléviseur';
+
+  @override
+  String get castClose => 'Fermer le sélecteur de diffusion';
+
+  @override
+  String get castUnencrypted =>
+      'Les médias sélectionnés sont diffusés sans chiffrement sur votre réseau local pendant la diffusion.';
+
+  @override
+  String get castLooking => 'Recherche de téléviseurs sur ce réseau';
+
+  @override
+  String get castNoneFound => 'Aucun téléviseur trouvé';
+
+  @override
+  String get castSameWifi =>
+      'Le téléviseur est-il sur le même Wi-Fi que ce téléphone ?';
+
+  @override
+  String get castRetry => 'Réessayer';
+
+  @override
+  String castStop(String device) {
+    return 'Arrêter la diffusion vers $device';
+  }
+
+  @override
+  String get castCancelConnection => 'Annuler la connexion';
+
+  @override
+  String get castToTv => 'Diffuser sur le téléviseur';
 }

@@ -1059,4 +1059,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewerUnmute => 'Unmute video';
+
+  @override
+  String get lockNow => 'Lock now';
+
+  @override
+  String get brandTagline => 'Private camera';
+
+  @override
+  String get backupTitle => 'Check backup';
+
+  @override
+  String get backupIntro =>
+      'Checks every encrypted file in your saved NAS backup using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.';
+
+  @override
+  String get backupNeverChecked =>
+      'This backup has never been fully checked. Check it to confirm your copies can be read.';
+
+  @override
+  String backupStale(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return 'The last full check was $_temp0 ago. Check again to confirm your copies can still be read.';
+  }
+
+  @override
+  String get backupCancelCheck => 'Cancel check';
+
+  @override
+  String get backupCancelQueued => 'Cancel queued check';
+
+  @override
+  String get backupCheckSaved => 'Check saved backup';
+
+  @override
+  String backupCheckedAt(String date, String time, String state) {
+    return 'Checked $date at $time · $state';
+  }
+
+  @override
+  String get backupUnchanged => 'Nothing changed since';
+
+  @override
+  String get backupChanged => 'Changed since; check again';
+
+  @override
+  String get backupKeepKey =>
+      'Keep your recovery key separately. A successful check does not test the copy of the key you saved elsewhere.';
+
+  @override
+  String get backupLeaveNote =>
+      'You can leave this screen while checking. Capture uploads wait for the check to finish. Checks stop if the app process closes.';
+
+  @override
+  String get castSearchFailed =>
+      'Could not search for TVs. Check Wi-Fi and try again.';
+
+  @override
+  String castConnected(String device) {
+    return 'Connected to $device. Open a capture to cast it.';
+  }
+
+  @override
+  String get castTitle => 'Cast to a TV';
+
+  @override
+  String get castClose => 'Close Cast picker';
+
+  @override
+  String get castUnencrypted =>
+      'Selected media streams unencrypted over your local network while casting.';
+
+  @override
+  String get castLooking => 'Looking for TVs on this network';
+
+  @override
+  String get castNoneFound => 'No TVs found';
+
+  @override
+  String get castSameWifi => 'Is the TV on the same Wi-Fi as this phone?';
+
+  @override
+  String get castRetry => 'Retry';
+
+  @override
+  String castStop(String device) {
+    return 'Stop casting to $device';
+  }
+
+  @override
+  String get castCancelConnection => 'Cancel connection';
+
+  @override
+  String get castToTv => 'Cast to TV';
 }

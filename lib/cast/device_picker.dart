@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../gallery/item.dart';
 import 'cast_backend.dart';
 import 'cast_controller.dart';
@@ -15,11 +16,9 @@ Future<void> _connectCastDevice(
 ) async {
   if (!await cast.startDiscovery()) {
     if (context.mounted) {
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        const SnackBar(
-          content: Text('Could not search for TVs. Check Wi-Fi and try again.'),
-        ),
-      );
+      ScaffoldMessenger.maybeOf(
+        context,
+      )?.showSnackBar(SnackBar(content: Text(context.l10n.castSearchFailed)));
     }
     return;
   }
@@ -34,11 +33,7 @@ Future<void> _connectCastDevice(
       if (item == null && cast.isCasting && context.mounted) {
         // From the Library nothing is showing yet; say what happens next.
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(
-            content: Text(
-              'Connected to ${device.name}. Open a capture to cast it.',
-            ),
-          ),
+          SnackBar(content: Text(context.l10n.castConnected(device.name))),
         );
       }
     }
@@ -105,45 +100,38 @@ class _DevicePickerState extends State<_DevicePicker> {
                     child: Semantics(
                       header: true,
                       child: Text(
-                        'Cast to a TV',
+                        context.l10n.castTitle,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
                   ),
                   IconButton(
                     key: Keys.castClose,
-                    tooltip: 'Close Cast picker',
+                    tooltip: context.l10n.castClose,
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
                   ),
                 ],
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'Selected media streams unencrypted over your local network while casting.',
-                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(context.l10n.castUnencrypted),
               ),
               if (list.isEmpty && !_waitedLong)
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Looking for TVs on this network',
-                    key: Keys.castEmpty,
-                  ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(context.l10n.castLooking, key: Keys.castEmpty),
                 ),
               if (list.isEmpty && _waitedLong)
                 ListTile(
                   key: Keys.castEmpty,
                   leading: const Icon(Icons.tv_off_outlined),
-                  title: const Text('No TVs found'),
-                  subtitle: const Text(
-                    'Is the TV on the same Wi-Fi as this phone?',
-                  ),
+                  title: Text(context.l10n.castNoneFound),
+                  subtitle: Text(context.l10n.castSameWifi),
                   trailing: TextButton(
                     key: Keys.castRetry,
                     onPressed: _retry,
-                    child: const Text('Retry'),
+                    child: Text(context.l10n.castRetry),
                   ),
                 ),
               for (var i = 0; i < list.length; i++)
@@ -192,10 +180,10 @@ class _CastButtonState extends State<CastButton> {
     listenable: widget.cast,
     builder: (context, _) => IconButton(
       tooltip: widget.cast.isCasting
-          ? 'Stop casting to ${widget.cast.device!.name}'
+          ? context.l10n.castStop(widget.cast.device!.name)
           : widget.cast.isConnecting
-          ? 'Cancel connection'
-          : 'Cast to TV',
+          ? context.l10n.castCancelConnection
+          : context.l10n.castToTv,
       icon: Icon(widget.cast.isCasting ? Icons.cast_connected : Icons.cast),
       color: widget.cast.isCasting
           ? Theme.of(context).colorScheme.primary

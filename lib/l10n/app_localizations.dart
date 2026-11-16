@@ -1817,6 +1817,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unmute video'**
   String get viewerUnmute;
+
+  /// No description provided for @lockNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock now'**
+  String get lockNow;
+
+  /// No description provided for @brandTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Private camera'**
+  String get brandTagline;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check backup'**
+  String get backupTitle;
+
+  /// No description provided for @backupIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks every encrypted file in your saved NAS backup using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.'**
+  String get backupIntro;
+
+  /// No description provided for @backupNeverChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup has never been fully checked. Check it to confirm your copies can be read.'**
+  String get backupNeverChecked;
+
+  /// No description provided for @backupStale.
+  ///
+  /// In en, this message translates to:
+  /// **'The last full check was {days, plural, =1{1 day} other{{days} days}} ago. Check again to confirm your copies can still be read.'**
+  String backupStale(int days);
+
+  /// No description provided for @backupCancelCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel check'**
+  String get backupCancelCheck;
+
+  /// No description provided for @backupCancelQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel queued check'**
+  String get backupCancelQueued;
+
+  /// No description provided for @backupCheckSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Check saved backup'**
+  String get backupCheckSaved;
+
+  /// No description provided for @backupCheckedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {date} at {time} · {state}'**
+  String backupCheckedAt(String date, String time, String state);
+
+  /// No description provided for @backupUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changed since'**
+  String get backupUnchanged;
+
+  /// No description provided for @backupChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed since; check again'**
+  String get backupChanged;
+
+  /// No description provided for @backupKeepKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your recovery key separately. A successful check does not test the copy of the key you saved elsewhere.'**
+  String get backupKeepKey;
+
+  /// No description provided for @backupLeaveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can leave this screen while checking. Capture uploads wait for the check to finish. Checks stop if the app process closes.'**
+  String get backupLeaveNote;
+
+  /// No description provided for @castSearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not search for TVs. Check Wi-Fi and try again.'**
+  String get castSearchFailed;
+
+  /// No description provided for @castConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to {device}. Open a capture to cast it.'**
+  String castConnected(String device);
+
+  /// No description provided for @castTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast to a TV'**
+  String get castTitle;
+
+  /// No description provided for @castClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Cast picker'**
+  String get castClose;
+
+  /// No description provided for @castUnencrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected media streams unencrypted over your local network while casting.'**
+  String get castUnencrypted;
+
+  /// No description provided for @castLooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for TVs on this network'**
+  String get castLooking;
+
+  /// No description provided for @castNoneFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No TVs found'**
+  String get castNoneFound;
+
+  /// No description provided for @castSameWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Is the TV on the same Wi-Fi as this phone?'**
+  String get castSameWifi;
+
+  /// No description provided for @castRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get castRetry;
+
+  /// No description provided for @castStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop casting to {device}'**
+  String castStop(String device);
+
+  /// No description provided for @castCancelConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel connection'**
+  String get castCancelConnection;
+
+  /// No description provided for @castToTv.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast to TV'**
+  String get castToTv;
 }
 
 class _AppLocalizationsDelegate

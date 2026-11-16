@@ -624,5 +624,65 @@
   "viewerBack10": "Back 10 seconds",
   "viewerForward10": "Forward 10 seconds",
   "viewerMute": "Mute video",
-  "viewerUnmute": "Unmute video"
+  "viewerUnmute": "Unmute video",
+  "lockNow": "Lock now",
+  "brandTagline": "Private camera",
+  "backupTitle": "Check backup",
+  "backupIntro": "Checks every encrypted file in your saved NAS backup using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.",
+  "backupNeverChecked": "This backup has never been fully checked. Check it to confirm your copies can be read.",
+  "backupStale": "The last full check was {days, plural, =1{1 day} other{{days} days}} ago. Check again to confirm your copies can still be read.",
+  "@backupStale": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCancelCheck": "Cancel check",
+  "backupCancelQueued": "Cancel queued check",
+  "backupCheckSaved": "Check saved backup",
+  "backupCheckedAt": "Checked {date} at {time} · {state}",
+  "@backupCheckedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "backupUnchanged": "Nothing changed since",
+  "backupChanged": "Changed since; check again",
+  "backupKeepKey": "Keep your recovery key separately. A successful check does not test the copy of the key you saved elsewhere.",
+  "backupLeaveNote": "You can leave this screen while checking. Capture uploads wait for the check to finish. Checks stop if the app process closes.",
+  "castSearchFailed": "Could not search for TVs. Check Wi-Fi and try again.",
+  "castConnected": "Connected to {device}. Open a capture to cast it.",
+  "@castConnected": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "castTitle": "Cast to a TV",
+  "castClose": "Close Cast picker",
+  "castUnencrypted": "Selected media streams unencrypted over your local network while casting.",
+  "castLooking": "Looking for TVs on this network",
+  "castNoneFound": "No TVs found",
+  "castSameWifi": "Is the TV on the same Wi-Fi as this phone?",
+  "castRetry": "Retry",
+  "castStop": "Stop casting to {device}",
+  "@castStop": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "castCancelConnection": "Cancel connection",
+  "castToTv": "Cast to TV"
 }

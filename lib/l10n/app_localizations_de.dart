@@ -1083,4 +1083,103 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get viewerUnmute => 'Videoton einschalten';
+
+  @override
+  String get lockNow => 'Jetzt sperren';
+
+  @override
+  String get brandTagline => 'Private Kamera';
+
+  @override
+  String get backupTitle => 'Backup prüfen';
+
+  @override
+  String get backupIntro =>
+      'Prüft jede verschlüsselte Datei in Ihrem gespeicherten NAS-Backup mit dem Schlüssel dieses Tresors. Große Bibliotheken benötigen Zeit, Daten und temporären Speicherplatz. Diese Prüfung verändert die Originale nicht.';
+
+  @override
+  String get backupNeverChecked =>
+      'Dieses Backup wurde noch nie vollständig geprüft. Prüfen Sie es, um sicherzustellen, dass Ihre Kopien lesbar sind.';
+
+  @override
+  String backupStale(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days Tagen',
+      one: '1 Tag',
+    );
+    return 'Die letzte vollständige Prüfung war vor $_temp0. Prüfen Sie erneut, um sicherzustellen, dass Ihre Kopien noch lesbar sind.';
+  }
+
+  @override
+  String get backupCancelCheck => 'Prüfung abbrechen';
+
+  @override
+  String get backupCancelQueued => 'Wartende Prüfung abbrechen';
+
+  @override
+  String get backupCheckSaved => 'Gespeichertes Backup prüfen';
+
+  @override
+  String backupCheckedAt(String date, String time, String state) {
+    return 'Geprüft am $date um $time · $state';
+  }
+
+  @override
+  String get backupUnchanged => 'Seitdem unverändert';
+
+  @override
+  String get backupChanged => 'Seitdem geändert; erneut prüfen';
+
+  @override
+  String get backupKeepKey =>
+      'Bewahren Sie Ihren Wiederherstellungsschlüssel getrennt auf. Eine erfolgreiche Prüfung testet nicht die Kopie des Schlüssels, die Sie anderswo gespeichert haben.';
+
+  @override
+  String get backupLeaveNote =>
+      'Sie können diesen Bildschirm während der Prüfung verlassen. Aufnahme-Uploads warten, bis die Prüfung beendet ist. Prüfungen werden beendet, wenn der App-Prozess geschlossen wird.';
+
+  @override
+  String get castSearchFailed =>
+      'Fernseher konnten nicht gesucht werden. Prüfen Sie das WLAN und versuchen Sie es erneut.';
+
+  @override
+  String castConnected(String device) {
+    return 'Mit $device verbunden. Öffnen Sie eine Aufnahme, um sie zu übertragen.';
+  }
+
+  @override
+  String get castTitle => 'Auf einen Fernseher übertragen';
+
+  @override
+  String get castClose => 'Auswahl für Übertragung schließen';
+
+  @override
+  String get castUnencrypted =>
+      'Ausgewählte Medien werden während der Übertragung unverschlüsselt über Ihr lokales Netzwerk gestreamt.';
+
+  @override
+  String get castLooking => 'Suche nach Fernsehern in diesem Netzwerk';
+
+  @override
+  String get castNoneFound => 'Keine Fernseher gefunden';
+
+  @override
+  String get castSameWifi =>
+      'Ist der Fernseher im selben WLAN wie dieses Telefon?';
+
+  @override
+  String get castRetry => 'Erneut versuchen';
+
+  @override
+  String castStop(String device) {
+    return 'Übertragung auf $device beenden';
+  }
+
+  @override
+  String get castCancelConnection => 'Verbindung abbrechen';
+
+  @override
+  String get castToTv => 'Auf Fernseher übertragen';
 }

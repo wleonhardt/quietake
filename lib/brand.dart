@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'l10n/l10n.dart';
+
 /// Brand palette per brightness. Containers rise in tone monotonically from
 /// surface, so dialogs and sheets never land on the wrong side of the page.
 class _Palette {
@@ -245,7 +247,7 @@ class BrandHeader extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.8),
         ),
         Text(
-          'Private camera',
+          context.l10n.brandTagline,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
             letterSpacing: .5,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import 'privacy_controller.dart';
 
 class PrivacyScope extends InheritedNotifier<PrivacyController> {
@@ -22,7 +23,7 @@ class LockButton extends StatelessWidget {
     if (privacy == null || !privacy.enabled) return const SizedBox.shrink();
     return IconButton(
       key: Keys.lockNow,
-      tooltip: 'Lock now',
+      tooltip: context.l10n.lockNow,
       onPressed: privacy.lock,
       icon: const Icon(Icons.lock_outline),
     );

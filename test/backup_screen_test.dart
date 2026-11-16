@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/privacy/privacy_controller.dart';
 import 'package:quietake/privacy/privacy_scope.dart';
@@ -55,13 +56,32 @@ void main() {
     });
   }
 
-  Future<void> show(WidgetTester tester) => tester.pumpWidget(
+  Future<void> show(WidgetTester tester, {Locale? locale}) => tester.pumpWidget(
     MaterialApp(
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) =>
           PrivacyScope(controller: privacy, child: child!),
       home: BackupScreen(session: session),
     ),
   );
+
+  testWidgets('the screen follows the device language', (tester) async {
+    await open(tester);
+    session.sync.lastVerification = BackupVerificationReport(
+      media: 2,
+      catalog: true,
+      checkedAt: DateTime(2026, 11, 1, 9, 30),
+    );
+    session.sync.verificationCurrent = true;
+    await show(tester, locale: const Locale('fr'));
+    expect(find.text('Vérifier la sauvegarde'), findsOneWidget);
+    expect(find.text('Vérifier la sauvegarde enregistrée'), findsOneWidget);
+    final time = tester.widget<Text>(find.byKey(Keys.backupTime)).data!;
+    expect(time, startsWith('Vérifiée le '));
+    expect(time, endsWith('Rien n\'a changé depuis'));
+  });
 
   testWidgets('a fresh screen offers a check and shows no check time', (
     tester,

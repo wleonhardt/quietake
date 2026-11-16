@@ -1079,4 +1079,103 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get viewerUnmute => 'Activar sonido del vídeo';
+
+  @override
+  String get lockNow => 'Bloquear ahora';
+
+  @override
+  String get brandTagline => 'Cámara privada';
+
+  @override
+  String get backupTitle => 'Comprobar copia de seguridad';
+
+  @override
+  String get backupIntro =>
+      'Comprueba cada archivo cifrado de tu copia de seguridad guardada en el NAS con la clave de esta bóveda. Las bibliotecas grandes necesitan tiempo, datos y espacio temporal. Esta comprobación no modifica los originales.';
+
+  @override
+  String get backupNeverChecked =>
+      'Esta copia de seguridad nunca se ha comprobado por completo. Compruébala para confirmar que tus copias se pueden leer.';
+
+  @override
+  String backupStale(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days días',
+      one: '1 día',
+    );
+    return 'La última comprobación completa fue hace $_temp0. Vuelve a comprobar para confirmar que tus copias aún se pueden leer.';
+  }
+
+  @override
+  String get backupCancelCheck => 'Cancelar comprobación';
+
+  @override
+  String get backupCancelQueued => 'Cancelar comprobación en cola';
+
+  @override
+  String get backupCheckSaved => 'Comprobar copia guardada';
+
+  @override
+  String backupCheckedAt(String date, String time, String state) {
+    return 'Comprobada el $date a las $time · $state';
+  }
+
+  @override
+  String get backupUnchanged => 'Nada ha cambiado desde entonces';
+
+  @override
+  String get backupChanged => 'Ha cambiado desde entonces; vuelve a comprobar';
+
+  @override
+  String get backupKeepKey =>
+      'Guarda tu clave de recuperación por separado. Una comprobación correcta no prueba la copia de la clave que guardaste en otro sitio.';
+
+  @override
+  String get backupLeaveNote =>
+      'Puedes salir de esta pantalla mientras se comprueba. Las subidas de capturas esperan a que termine la comprobación. Las comprobaciones se detienen si se cierra el proceso de la app.';
+
+  @override
+  String get castSearchFailed =>
+      'No se pudo buscar televisores. Revisa el Wi-Fi e inténtalo de nuevo.';
+
+  @override
+  String castConnected(String device) {
+    return 'Conectado a $device. Abre una captura para transmitirla.';
+  }
+
+  @override
+  String get castTitle => 'Transmitir a un televisor';
+
+  @override
+  String get castClose => 'Cerrar selector de transmisión';
+
+  @override
+  String get castUnencrypted =>
+      'Los archivos seleccionados se transmiten sin cifrar por tu red local mientras dura la transmisión.';
+
+  @override
+  String get castLooking => 'Buscando televisores en esta red';
+
+  @override
+  String get castNoneFound => 'No se encontró ningún televisor';
+
+  @override
+  String get castSameWifi =>
+      '¿Está el televisor en el mismo Wi-Fi que este teléfono?';
+
+  @override
+  String get castRetry => 'Reintentar';
+
+  @override
+  String castStop(String device) {
+    return 'Dejar de transmitir a $device';
+  }
+
+  @override
+  String get castCancelConnection => 'Cancelar conexión';
+
+  @override
+  String get castToTv => 'Transmitir al televisor';
 }
