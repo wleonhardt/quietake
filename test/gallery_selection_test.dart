@@ -345,4 +345,44 @@ void main() {
     );
     expect(retry, findsNothing);
   });
+
+  testWidgets('returning from the viewer lists the captures again', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.galleryTile(0))));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(ViewerScreen), findsOneWidget);
+    await tester.runAsync(() async {
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    });
+    await until(
+      tester,
+      () =>
+          find.byType(ViewerScreen).evaluate().isEmpty &&
+          find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
+    );
+  });
+
+  testWidgets('Retry on an unreadable catalog tries the load again', (
+    tester,
+  ) async {
+    await open(tester, corruptCatalog: true);
+    // Repair the catalog, then Retry unlocks selection.
+    await tester.runAsync(
+      () => File('${dir.path}/${PrivateCatalog.fileName}').delete(),
+    );
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.libraryRetry)));
+    await until(
+      tester,
+      () => find.byKey(Keys.libraryRetry).evaluate().isEmpty,
+    );
+    expect(
+      tester.widget<IconButton>(find.byKey(Keys.librarySelectMode)).onPressed,
+      isNotNull,
+    );
+  });
 }
