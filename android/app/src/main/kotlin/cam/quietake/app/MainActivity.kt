@@ -94,6 +94,7 @@ class MainActivity : FlutterFragmentActivity() {
             }
         val privacy = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/privacy")
         privacyChannel = privacy
+        LockBridge.channel = privacy
         privacy.setMethodCallHandler { call, result ->
             when (call.method) {
                 "status" -> result.success(mapOf(
@@ -147,6 +148,7 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     override fun onDestroy() {
+        if (LockBridge.channel === privacyChannel) LockBridge.channel = null
         backgroundUploads.close()
         privateImport.close()
         folderImport.close()

@@ -80,6 +80,7 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
   late final _screenPrivacy = ScreenPrivacy(
     _captureChanged,
     onBackground: _backgroundLock,
+    onLockNow: () => _privacy.lock(),
   );
   bool _captured = false;
   bool _autoPrompt = true;
