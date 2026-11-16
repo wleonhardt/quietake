@@ -70,6 +70,16 @@ class MainActivity : FlutterFragmentActivity() {
                     requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), microphoneRequestCode)
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/screen")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "keepAwake") { result.notImplemented(); return@setMethodCallHandler }
+                if (call.arguments == true) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+                result.success(null)
+            }
         val privacy = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/privacy")
         privacyChannel = privacy
         privacy.setMethodCallHandler { call, result ->

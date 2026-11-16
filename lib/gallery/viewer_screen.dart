@@ -16,6 +16,7 @@ import '../sync/sync_settings.dart';
 import '../vault/trash_setting.dart';
 import '../vault/vault.dart';
 import 'item.dart';
+import 'keep_awake.dart';
 import 'preview.dart';
 import 'share_dialog.dart';
 
@@ -74,6 +75,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
       _stopSlideshow();
       return;
     }
+    KeepAwake.set(true);
     setState(() {
       _slideshow = Timer.periodic(widget.slideshowInterval, (_) {
         final next = _index + 1;
@@ -95,6 +97,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
   }
 
   void _stopSlideshow() {
+    if (_slideshow != null) KeepAwake.set(false);
     _slideshow?.cancel();
     if (mounted && _slideshow != null) setState(() => _slideshow = null);
     _slideshow = null;
@@ -102,6 +105,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
 
   @override
   void dispose() {
+    if (_slideshow != null) KeepAwake.set(false);
     _slideshow?.cancel();
     _controller.dispose();
     super.dispose();

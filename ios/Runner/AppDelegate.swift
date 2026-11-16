@@ -54,6 +54,15 @@ import AVFoundation
         DispatchQueue.main.async { result(granted) }
       }
     }
+    let screen = FlutterMethodChannel(name: "quietake/screen", binaryMessenger: registrar.messenger())
+    screen.setMethodCallHandler { call, result in
+      guard call.method == "keepAwake" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      UIApplication.shared.isIdleTimerDisabled = (call.arguments as? Bool) == true
+      result(nil)
+    }
     let privacy = FlutterMethodChannel(name: "quietake/privacy", binaryMessenger: registrar.messenger())
     SceneDelegate.privacyChannel = privacy
     privacy.setMethodCallHandler { call, result in

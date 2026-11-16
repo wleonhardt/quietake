@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_backend.dart';
@@ -311,6 +312,39 @@ void main() {
       tester,
       () => find.text('casting to Living Room TV').evaluate().isNotEmpty,
     );
+  });
+
+  testWidgets('a running slideshow keeps the screen awake and releases it', (
+    tester,
+  ) async {
+    final calls = <Object?>[];
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(const MethodChannel('quietake/screen'), (
+      call,
+    ) async {
+      if (call.method == 'keepAwake') calls.add(call.arguments);
+      return null;
+    });
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(
+        const MethodChannel('quietake/screen'),
+        null,
+      ),
+    );
+    await open(tester);
+    await tester.tap(find.byKey(Keys.viewerSlideshow));
+    await tester.pump();
+    expect(calls, [true]);
+    await tester.tap(find.byKey(Keys.viewerSlideshow));
+    await tester.pump();
+    expect(calls, [true, false]);
+    await tester.tap(find.byKey(Keys.viewerSlideshow));
+    await tester.pump();
+    expect(calls, [true, false, true]);
+    // Leaving the viewer while it runs also releases the screen.
+    await tester.pumpWidget(const SizedBox());
+    expect(calls, [true, false, true, false]);
   });
 
   testWidgets('a slideshow advances to the next photo and stops at the last', (

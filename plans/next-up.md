@@ -45,7 +45,7 @@
 
 Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record first.
 
-1. Slideshow keep-awake: approved, small own platform channel (no plugin), only while the vault is unlocked and the slideshow runs.
+1. Slideshow keep-awake: DONE (decision 017). Own `quietake/screen` channel; host test with mocked channel; iOS and Android emulator viewer tests pass; the actual dimming is not observable in them.
 2. Albums (tags) cover choice: approved, add an optional field to catalog schema 1; update `docs/private-catalog.md`, keep older files readable, test round trip.
 3. Share: strip every EXIF field except orientation from JPEG share copies. Video metadata removal is a separate, later item (owner wrote "T-shirt video EXIF removal", read as a later small-to-medium item; confirm if unsure).
 4. Import: folder import with progress and resume after interruption, existing 10,000-file limits.
