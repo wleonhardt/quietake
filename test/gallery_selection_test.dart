@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -240,5 +241,37 @@ void main() {
       () => catalog.items.values.every((d) => !d.albums.contains(tag)),
     );
     expect(catalog.items, isNotEmpty);
+  });
+
+  testWidgets('Settings opens with readable saved NAS details', (tester) async {
+    FlutterSecureStorage.setMockInitialValues({});
+    await open(tester);
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.gallerySettings)));
+    for (
+      var i = 0;
+      i < 50 && find.byType(SettingsScreen).evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('Untagged in the actions sheet opens a filtered search', (
+    tester,
+  ) async {
+    await open(tester);
+    await revealLibraryControl(tester, Keys.libraryUntagged);
+    // The new screen starts its own file IO while building, so pump in the real zone.
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(Keys.libraryUntagged));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    });
+    expect(find.byKey(Keys.libraryCloseSearch), findsOneWidget);
   });
 }
