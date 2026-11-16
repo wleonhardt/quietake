@@ -115,6 +115,41 @@ void main() {
     expect(find.text('Checking saved NAS recovery…'), findsNothing);
   });
 
+  testWidgets('Disable asks for confirmation and Cancel makes no change', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.enterText(find.byKey(Keys.nasPin), 'local-passcode');
+    await tester.ensureVisible(find.byKey(Keys.nasDisable));
+    await tester.tap(find.byKey(Keys.nasDisable));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Disable passphrase recovery?'), findsOneWidget);
+    expect(find.byKey(Keys.nasDisableConfirm), findsOneWidget);
+    expect(find.byKey(Keys.nasChangeConfirm), findsNothing);
+    await tester.tap(find.text('Cancel'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.nasDisableConfirm), findsNothing);
+    expect(find.text('Checking saved NAS recovery…'), findsNothing);
+  });
+
+  testWidgets('the show button reveals and hides the typed passphrase', (
+    tester,
+  ) async {
+    await open(tester);
+    bool hidden() =>
+        tester.widget<TextField>(find.byKey(Keys.nasPhrase)).obscureText;
+    expect(hidden(), isTrue);
+    await tester.ensureVisible(find.byKey(Keys.nasVisibility));
+    await tester.tap(find.byKey(Keys.nasVisibility));
+    await tester.pump();
+    expect(hidden(), isFalse);
+    await tester.tap(find.byKey(Keys.nasVisibility));
+    await tester.pump();
+    expect(hidden(), isTrue);
+  });
+
   testWidgets('Generate fills a new backup passphrase and clears its confirm', (
     tester,
   ) async {
