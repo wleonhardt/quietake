@@ -27,6 +27,10 @@ class PrivateCatalog extends ChangeNotifier {
   File get file => File('${vault.dir.path}/$fileName');
   Map<String, String> _albums = {};
   Map<String, CaptureDetails> _items = {};
+  Map<String, String> _covers = {};
+
+  /// Optional cover capture per tag ID. A cover may name media that is gone.
+  Map<String, String> get covers => UnmodifiableMapView(_covers);
   Map<String, String> get albums => UnmodifiableMapView(_albums);
   Map<String, CaptureDetails> get items => UnmodifiableMapView(_items);
   CaptureDetails details(String name) => _items[name] ?? const CaptureDetails();
@@ -72,15 +76,17 @@ class PrivateCatalog extends ChangeNotifier {
     }
     final state = await file.exists()
         ? await _decode(file)
-        : (<String, String>{}, <String, CaptureDetails>{});
+        : (<String, String>{}, <String, CaptureDetails>{}, <String, String>{});
     _albums = state.$1;
     _items = state.$2;
+    _covers = state.$3;
     _loaded = true;
   }
 
-  Future<(Map<String, String>, Map<String, CaptureDetails>)> _decode(
-    File source,
-  ) async {
+  Future<
+    (Map<String, String>, Map<String, CaptureDetails>, Map<String, String>)
+  >
+  _decode(File source) async {
     final bytes = <int>[];
     await for (final chunk in vault.read(source)) {
       if (bytes.length + chunk.length > maxBytes) {
@@ -126,7 +132,21 @@ class PrivateCatalog extends ChangeNotifier {
         albums: Set.unmodifiable(memberships),
       );
     }
-    return (albums, items);
+    final covers = <String, String>{};
+    final rawCovers = value['covers'];
+    if (rawCovers != null) {
+      if (rawCovers is! Map<String, dynamic>) {
+        throw const FormatException('Invalid tag covers');
+      }
+      for (final entry in rawCovers.entries) {
+        if (!albums.containsKey(entry.key) || entry.value is! String) {
+          throw const FormatException('Invalid tag cover');
+        }
+        _mediaName(entry.value as String);
+        covers[entry.key] = entry.value as String;
+      }
+    }
+    return (albums, items, covers);
   }
 
   static String _name(String value, {bool empty = false}) {
@@ -146,12 +166,19 @@ class PrivateCatalog extends ChangeNotifier {
 
   Future<void> _save(
     Map<String, String> albums,
-    Map<String, CaptureDetails> items,
-  ) async {
+    Map<String, CaptureDetails> items, {
+    Map<String, String>? covers,
+  }) async {
+    // A cover never outlives its tag.
+    final kept = {
+      for (final e in (covers ?? _covers).entries)
+        if (albums.containsKey(e.key)) e.key: e.value,
+    };
     final bytes = utf8.encode(
       jsonEncode({
         'version': 1,
         'albums': albums,
+        if (kept.isNotEmpty) 'covers': kept,
         'items': {
           for (final entry in items.entries)
             entry.key: {
@@ -168,6 +195,7 @@ class PrivateCatalog extends ChangeNotifier {
     await vault.writeMetadata(file, bytes);
     _albums = albums;
     _items = items;
+    _covers = kept;
     _loaded = true;
     _revision++;
     notifyListeners();
@@ -288,15 +316,38 @@ class PrivateCatalog extends ChangeNotifier {
               }),
             ),
         };
-        await _save({..._albums}..remove(source), items);
+        final covers = {..._covers};
+        final moved = covers.remove(source);
+        if (moved != null) covers.putIfAbsent(destination, () => moved);
+        await _save({..._albums}..remove(source), items, covers: covers);
       });
+
+  /// Sets or, with a null [name], clears the cover capture of a tag.
+  Future<void> setCover(String id, String? name) => _serial(() async {
+    await _ensure();
+    if (!_albums.containsKey(id)) {
+      throw const FormatException('Tag no longer exists');
+    }
+    final covers = {..._covers};
+    if (name == null) {
+      covers.remove(id);
+    } else {
+      _mediaName(name);
+      covers[id] = name;
+    }
+    await _save({..._albums}, {..._items}, covers: covers);
+  });
 
   /// Only the local deletion journal authorizes metadata cleanup.
   Future<void> forgetDeleted() => _serial(() async {
     await _ensure();
     final deleted = await vault.deletedNames();
     final items = {..._items}..removeWhere((name, _) => deleted.contains(name));
-    if (items.length != _items.length) await _save({..._albums}, items);
+    final covers = {..._covers}
+      ..removeWhere((_, name) => deleted.contains(name));
+    if (items.length != _items.length || covers.length != _covers.length) {
+      await _save({..._albums}, items, covers: covers);
+    }
   });
 
   /// Read-only authentication and schema validation for an incoming backup.
@@ -330,6 +381,7 @@ class PrivateCatalog extends ChangeNotifier {
     await incoming.rename(file.path);
     _albums = state.$1;
     _items = state.$2;
+    _covers = state.$3;
     _loaded = true;
     notifyListeners();
     return true;

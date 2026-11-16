@@ -422,9 +422,116 @@ void main() {
     expect(catalog.items, isEmpty);
   });
 
+  group('tag covers', () {
+    const cover = 'one.jpg.shtr';
+
+    test(
+      'a cover survives reopen and a file without covers still loads',
+      () async {
+        await catalog.load();
+        final tag = await catalog.createAlbum('Trips');
+        expect(catalog.covers, isEmpty);
+        final plain = jsonDecode(
+          utf8.decode(await _plain(vault, catalog.file)),
+        );
+        expect(plain.containsKey('covers'), isFalse);
+
+        await catalog.setCover(tag, cover);
+        final reopened = PrivateCatalog(vault);
+        await reopened.load();
+        expect(reopened.covers, {tag: cover});
+        await reopened.close();
+
+        await catalog.setCover(tag, null);
+        expect(catalog.covers, isEmpty);
+      },
+    );
+
+    test('older schema-one files without covers decode unchanged', () async {
+      await vault.writeMetadata(
+        catalog.file,
+        utf8.encode('{"version":1,"albums":{"a":"Old"},"items":{}}'),
+      );
+      await catalog.load();
+      expect(catalog.albums, {'a': 'Old'});
+      expect(catalog.covers, isEmpty);
+    });
+
+    test('invalid covers are rejected before adoption', () async {
+      for (final covers in [
+        '{"unknown":"$cover"}',
+        '{"a":"../x.shtr"}',
+        '{"a":"photo.jpg"}',
+        '{"a":3}',
+        '[]',
+      ]) {
+        await vault.writeMetadata(
+          catalog.file,
+          utf8.encode(
+            '{"version":1,"albums":{"a":"Old"},"items":{},"covers":$covers}',
+          ),
+        );
+        await expectLater(
+          PrivateCatalog(vault).load(),
+          throwsA(isA<FormatException>()),
+          reason: covers,
+        );
+      }
+    });
+
+    test('setCover refuses a missing tag and a bad name', () async {
+      await catalog.load();
+      await expectLater(catalog.setCover('nope', cover), throwsFormatException);
+      final tag = await catalog.createAlbum('Trips');
+      await expectLater(catalog.setCover(tag, 'x.jpg'), throwsFormatException);
+      expect(catalog.covers, isEmpty);
+    });
+
+    test(
+      'deleting a tag, deleting the media and merging keep covers consistent',
+      () async {
+        await catalog.load();
+        final a = await catalog.createAlbum('A');
+        final b = await catalog.createAlbum('B');
+        final c = await catalog.createAlbum('C');
+        await catalog.setCover(a, cover);
+        await catalog.setCover(b, 'two.jpg.shtr');
+        await catalog.setCover(c, 'three.jpg.shtr');
+
+        await catalog.mergeTags(a, b);
+        // The destination keeps its own cover; the source cover is dropped.
+        expect(catalog.covers, {b: 'two.jpg.shtr', c: 'three.jpg.shtr'});
+
+        await catalog.deleteAlbum(c);
+        expect(catalog.covers, {b: 'two.jpg.shtr'});
+
+        await File('${dir.path}/two.jpg.shtr').writeAsBytes([1]);
+        await vault.delete(File('${dir.path}/two.jpg.shtr'));
+        await catalog.forgetDeleted();
+        expect(catalog.covers, isEmpty);
+      },
+    );
+
+    test(
+      'merging gives the destination the source cover when it has none',
+      () async {
+        await catalog.load();
+        final a = await catalog.createAlbum('A');
+        final b = await catalog.createAlbum('B');
+        await catalog.setCover(a, cover);
+        await catalog.mergeTags(a, b);
+        expect(catalog.covers, {b: cover});
+      },
+    );
+  });
+
   test('a closed catalog refuses edits', () async {
     await catalog.load();
     await catalog.close();
     await expectLater(catalog.createAlbum('Late'), throwsStateError);
   });
 }
+
+Future<List<int>> _plain(Vault vault, File file) async => [
+  for (final chunk in await vault.read(file).toList()) ...chunk,
+];

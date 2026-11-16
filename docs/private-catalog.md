@@ -20,6 +20,7 @@ Decrypted UTF-8 JSON has this shape:
 {
   "version": 1,
   "albums": {"opaque-album-id": "Album name"},
+  "covers": {"opaque-album-id": "2026-10-26T12-30-00.000Z.jpg.shtr"},
   "items": {
     "2026-10-26T12-30-00.000Z.jpg.shtr": {
       "title": "Optional display name",
@@ -29,6 +30,16 @@ Decrypted UTF-8 JSON has this shape:
   }
 }
 ```
+
+`covers` is optional and names one capture per tag as its cover. Keys must be
+existing album IDs and values direct-child `.shtr` names, otherwise the file is
+rejected. A cover may name media that no longer exists; clients then show no
+cover. The key is omitted when no tag has a cover, so such files are identical
+to earlier ones. Merging keeps the destination cover or takes the source cover
+when it has none; deleting a tag or confirmed media removal drops the matching
+cover. Clients from before this field read the file and ignore `covers`, but
+their next save drops it. The Go recovery CLI treats the catalog as opaque and
+exports it unchanged. See decision 018.
 
 Names are trimmed and limited to 120 characters. Empty capture titles use the
 immutable filename for name sorting. Album names are nonempty and unique ignoring
