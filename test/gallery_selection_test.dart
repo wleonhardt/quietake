@@ -7,6 +7,8 @@ import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/gallery_screen.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/library/albums_screen.dart';
+import 'package:quietake/library/private_catalog.dart';
+import 'package:quietake/gallery/viewer_screen.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -31,7 +33,7 @@ void main() {
     fail('Gallery did not settle');
   }
 
-  Future<void> open(WidgetTester tester) async {
+  Future<void> open(WidgetTester tester, {bool corruptCatalog = false}) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -48,6 +50,10 @@ void main() {
         final input = await File('test_fixtures/tiny.jpg')
             .copy('${dir.path}/in-$name');
         await vault.ingestAs(input, name);
+      }
+      if (corruptCatalog) {
+        await File('${dir.path}/${PrivateCatalog.fileName}')
+            .writeAsBytes([1, 2, 3]);
       }
       session = Session(
         vault: vault,
@@ -131,5 +137,26 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.libraryAlbums), findsNothing);
     expect(find.byType(AlbumsScreen), findsOneWidget);
+  });
+
+  testWidgets('an unreadable catalog offers retry and disables selection', (
+    tester,
+  ) async {
+    await open(tester, corruptCatalog: true);
+    expect(find.byKey(Keys.libraryRetry), findsOneWidget);
+    expect(
+      tester.widget<IconButton>(find.byKey(Keys.librarySelectMode)).onPressed,
+      isNull,
+    );
+    // Originals stay listed.
+    expect(find.byKey(Keys.galleryTile(0)), findsOneWidget);
+  });
+
+  testWidgets('tapping a tile opens the viewer', (tester) async {
+    await open(tester);
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.galleryTile(0))));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(ViewerScreen), findsOneWidget);
   });
 }
