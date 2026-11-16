@@ -651,4 +651,163 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get galleryActions => 'Acciones de la biblioteca';
+
+  @override
+  String get galleryActionsClose => 'Cerrar acciones de la biblioteca';
+
+  @override
+  String get gallerySelectCaptures => 'Seleccionar capturas';
+
+  @override
+  String get gallerySearchEdit => 'Editar búsqueda';
+
+  @override
+  String get gallerySearchHint => 'Buscar nombres y etiquetas';
+
+  @override
+  String get galleryRemovedTag => 'Etiqueta eliminada';
+
+  @override
+  String get galleryScopeAny => 'Toda la biblioteca · Cualquier etiqueta';
+
+  @override
+  String get galleryScopeAll => 'Toda la biblioteca · Todas las etiquetas';
+
+  @override
+  String get gallerySortNewest => 'Capturas más recientes';
+
+  @override
+  String get gallerySortOldest => 'Capturas más antiguas';
+
+  @override
+  String get gallerySortName => 'Orden por nombre';
+
+  @override
+  String get galleryTagMatching => 'Coincidencia de etiquetas';
+
+  @override
+  String get galleryMatchAll => 'Todas las etiquetas';
+
+  @override
+  String get galleryMatchAny => 'Cualquier etiqueta';
+
+  @override
+  String get galleryFavorites => 'Favoritos';
+
+  @override
+  String get galleryResetView => 'Restablecer vista';
+
+  @override
+  String get galleryAddTag => 'Añade una etiqueta';
+
+  @override
+  String get galleryAddTagHint =>
+      'Elige etiquetas existentes o busca nombres con el texto de arriba.';
+
+  @override
+  String get galleryCancelSelection => 'Cancelar selección';
+
+  @override
+  String gallerySelectedCount(int count) {
+    return '$count seleccionadas';
+  }
+
+  @override
+  String get gallerySelectAll => 'Seleccionar todos los resultados';
+
+  @override
+  String get galleryShareCopies => 'Compartir copias';
+
+  @override
+  String get galleryUnfavorite => 'Quitar de favoritos';
+
+  @override
+  String get galleryFavorite => 'Favorito';
+
+  @override
+  String get galleryNameCapture => 'Poner nombre a la captura';
+
+  @override
+  String get galleryNasReadFailed =>
+      'No se pudieron leer los datos guardados del NAS. Inténtalo de nuevo.';
+
+  @override
+  String get galleryImportTooltip => 'Importar copias desde Archivos';
+
+  @override
+  String get gallerySyncCancel => 'Cancelar sincronización';
+
+  @override
+  String get gallerySyncSetup => 'Configurar copia de seguridad';
+
+  @override
+  String get gallerySyncNow => 'Sincronizar con el NAS';
+
+  @override
+  String get galleryCloseSearch => 'Cerrar búsqueda';
+
+  @override
+  String get gallerySearchTitle => 'Buscar';
+
+  @override
+  String get gallerySettings => 'Ajustes';
+
+  @override
+  String get galleryOrgUnavailable =>
+      'Organización no disponible. Los originales están a salvo. Reintentar';
+
+  @override
+  String get galleryOpenFailed => 'No se pudo abrir la bóveda. Reintentar';
+
+  @override
+  String get galleryEmptyTitle => 'Tu biblioteca empieza aquí';
+
+  @override
+  String get galleryEmptyMessage =>
+      'Haz una foto o importa copias desde Archivos.';
+
+  @override
+  String get galleryOpenCamera => 'Abrir cámara';
+
+  @override
+  String get galleryImportCopies => 'Importar copias';
+
+  @override
+  String get galleryNoMatchTitle => 'Ninguna captura coincide';
+
+  @override
+  String get galleryNoMatchMessage =>
+      'Borra la búsqueda y los filtros para ver todas las capturas.';
+
+  @override
+  String get galleryClearFilters => 'Borrar búsqueda y filtros';
+
+  @override
+  String galleryTileSelect(String label) {
+    return 'Seleccionar $label';
+  }
+
+  @override
+  String galleryTileOpen(String label) {
+    return 'Abrir $label';
+  }
+
+  @override
+  String get galleryTileFavorite => 'favorito';
+
+  @override
+  String galleryTilePosition(int position, int total) {
+    return '$position de $total';
+  }
+
+  @override
+  String galleryTileDuration(String time) {
+    return 'duración $time';
+  }
+
+  @override
+  String get galleryPreviewUnavailable => 'Vista previa no disponible';
 }

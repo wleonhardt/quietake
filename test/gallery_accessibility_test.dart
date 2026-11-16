@@ -10,6 +10,7 @@ import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/gallery_screen.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -19,6 +20,71 @@ import 'package:sodium/sodium_sumo.dart';
 import '../test_support/fake_cast_backend.dart';
 
 void main() {
+  testWidgets('gallery labels and tools follow the device language', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    late Directory dir;
+    late Session session;
+    await tester.runAsync(() async {
+      final sodium = await SodiumSumoInit.init();
+      dir = await Directory.systemTemp.createTemp('quietake-gallery-fr');
+      final vault = Vault(
+        VaultCrypto(sodium),
+        sodium.crypto.secretBox.keygen(),
+        dir,
+      );
+      final plain = await File('${dir.path}/input').writeAsBytes([1, 2, 3]);
+      await vault.ingestAs(plain, '2026-10-27T12-00-01.002Z.jpg');
+      session = Session(
+        vault: vault,
+        server: await MediaServer.start(vault),
+        cast: CastController(vault, FakeCastBackend()),
+        store: MasterKeyStore(sodium, dir),
+      );
+    });
+    try {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: quietakeTheme(),
+            locale: const Locale('fr'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: GalleryScreen(session: session),
+          ),
+        );
+      });
+      for (
+        var i = 0;
+        i < 100 && find.byKey(Keys.galleryTile(0)).evaluate().isEmpty;
+        i++
+      ) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      final label = tester.getSemantics(find.byKey(Keys.galleryTile(0))).label;
+      expect(label, startsWith('Ouvrir Photo'));
+      expect(label, contains('1 sur 1'));
+      expect(find.text('Bibliothèque'), findsWidgets);
+      expect(
+        find.text('Rechercher des noms et des étiquettes'),
+        findsOneWidget,
+      );
+      expect(find.text('Library'), findsNothing);
+    } finally {
+      semantics.dispose();
+      await tester.pumpWidget(const SizedBox());
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+        await session.close();
+        await dir.delete(recursive: true);
+      });
+    }
+  });
+
   testWidgets(
     'gallery identifies simultaneous photos, duration and failed previews',
     (tester) async {

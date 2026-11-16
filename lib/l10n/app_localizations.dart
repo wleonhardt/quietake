@@ -1097,6 +1097,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Remove 1 tag} other{Remove {count} tags}}'**
   String pickerRemoveCount(int count);
+
+  /// No description provided for @galleryActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Library actions'**
+  String get galleryActions;
+
+  /// No description provided for @galleryActionsClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Library actions'**
+  String get galleryActionsClose;
+
+  /// No description provided for @gallerySelectCaptures.
+  ///
+  /// In en, this message translates to:
+  /// **'Select captures'**
+  String get gallerySelectCaptures;
+
+  /// No description provided for @gallerySearchEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit search'**
+  String get gallerySearchEdit;
+
+  /// No description provided for @gallerySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search names and tags'**
+  String get gallerySearchHint;
+
+  /// No description provided for @galleryRemovedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed tag'**
+  String get galleryRemovedTag;
+
+  /// No description provided for @galleryScopeAny.
+  ///
+  /// In en, this message translates to:
+  /// **'All Library · Match any tag'**
+  String get galleryScopeAny;
+
+  /// No description provided for @galleryScopeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All Library · Match all tags'**
+  String get galleryScopeAll;
+
+  /// No description provided for @gallerySortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest captures'**
+  String get gallerySortNewest;
+
+  /// No description provided for @gallerySortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest captures'**
+  String get gallerySortOldest;
+
+  /// No description provided for @gallerySortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name order'**
+  String get gallerySortName;
+
+  /// No description provided for @galleryTagMatching.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag matching'**
+  String get galleryTagMatching;
+
+  /// No description provided for @galleryMatchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Match all tags'**
+  String get galleryMatchAll;
+
+  /// No description provided for @galleryMatchAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Match any tag'**
+  String get galleryMatchAny;
+
+  /// No description provided for @galleryFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get galleryFavorites;
+
+  /// No description provided for @galleryResetView.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset view'**
+  String get galleryResetView;
+
+  /// No description provided for @galleryAddTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag'**
+  String get galleryAddTag;
+
+  /// No description provided for @galleryAddTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose existing tags, or search names with the text above.'**
+  String get galleryAddTagHint;
+
+  /// No description provided for @galleryCancelSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel selection'**
+  String get galleryCancelSelection;
+
+  /// No description provided for @gallerySelectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String gallerySelectedCount(int count);
+
+  /// No description provided for @gallerySelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all results'**
+  String get gallerySelectAll;
+
+  /// No description provided for @galleryShareCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Share copies'**
+  String get galleryShareCopies;
+
+  /// No description provided for @galleryUnfavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfavorite'**
+  String get galleryUnfavorite;
+
+  /// No description provided for @galleryFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get galleryFavorite;
+
+  /// No description provided for @galleryNameCapture.
+  ///
+  /// In en, this message translates to:
+  /// **'Name capture'**
+  String get galleryNameCapture;
+
+  /// No description provided for @galleryNasReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read saved NAS details. Try again.'**
+  String get galleryNasReadFailed;
+
+  /// No description provided for @galleryImportTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Import copies from Files'**
+  String get galleryImportTooltip;
+
+  /// No description provided for @gallerySyncCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel sync'**
+  String get gallerySyncCancel;
+
+  /// No description provided for @gallerySyncSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up backup'**
+  String get gallerySyncSetup;
+
+  /// No description provided for @gallerySyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync with NAS'**
+  String get gallerySyncNow;
+
+  /// No description provided for @galleryCloseSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Close search'**
+  String get galleryCloseSearch;
+
+  /// No description provided for @gallerySearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get gallerySearchTitle;
+
+  /// No description provided for @gallerySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get gallerySettings;
+
+  /// No description provided for @galleryOrgUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization unavailable. Originals are safe. Retry'**
+  String get galleryOrgUnavailable;
+
+  /// No description provided for @galleryOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open vault. Retry'**
+  String get galleryOpenFailed;
+
+  /// No description provided for @galleryEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your library starts here'**
+  String get galleryEmptyTitle;
+
+  /// No description provided for @galleryEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo or import copies from Files.'**
+  String get galleryEmptyMessage;
+
+  /// No description provided for @galleryOpenCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Open camera'**
+  String get galleryOpenCamera;
+
+  /// No description provided for @galleryImportCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Import copies'**
+  String get galleryImportCopies;
+
+  /// No description provided for @galleryNoMatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No captures match'**
+  String get galleryNoMatchTitle;
+
+  /// No description provided for @galleryNoMatchMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear your search and filters to see all captures.'**
+  String get galleryNoMatchMessage;
+
+  /// No description provided for @galleryClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search and filters'**
+  String get galleryClearFilters;
+
+  /// No description provided for @galleryTileSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {label}'**
+  String galleryTileSelect(String label);
+
+  /// No description provided for @galleryTileOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {label}'**
+  String galleryTileOpen(String label);
+
+  /// No description provided for @galleryTileFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'favorite'**
+  String get galleryTileFavorite;
+
+  /// No description provided for @galleryTilePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'{position} of {total}'**
+  String galleryTilePosition(int position, int total);
+
+  /// No description provided for @galleryTileDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'duration {time}'**
+  String galleryTileDuration(String time);
+
+  /// No description provided for @galleryPreviewUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview unavailable'**
+  String get galleryPreviewUnavailable;
 }
 
 class _AppLocalizationsDelegate

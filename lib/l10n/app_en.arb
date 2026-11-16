@@ -331,5 +331,91 @@
         "type": "int"
       }
     }
-  }
+  },
+  "galleryActions": "Library actions",
+  "galleryActionsClose": "Close Library actions",
+  "gallerySelectCaptures": "Select captures",
+  "gallerySearchEdit": "Edit search",
+  "gallerySearchHint": "Search names and tags",
+  "galleryRemovedTag": "Removed tag",
+  "galleryScopeAny": "All Library · Match any tag",
+  "galleryScopeAll": "All Library · Match all tags",
+  "gallerySortNewest": "Newest captures",
+  "gallerySortOldest": "Oldest captures",
+  "gallerySortName": "Name order",
+  "galleryTagMatching": "Tag matching",
+  "galleryMatchAll": "Match all tags",
+  "galleryMatchAny": "Match any tag",
+  "galleryFavorites": "Favorites",
+  "galleryResetView": "Reset view",
+  "galleryAddTag": "Add a tag",
+  "galleryAddTagHint": "Choose existing tags, or search names with the text above.",
+  "galleryCancelSelection": "Cancel selection",
+  "gallerySelectedCount": "{count} selected",
+  "@gallerySelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gallerySelectAll": "Select all results",
+  "galleryShareCopies": "Share copies",
+  "galleryUnfavorite": "Unfavorite",
+  "galleryFavorite": "Favorite",
+  "galleryNameCapture": "Name capture",
+  "galleryNasReadFailed": "Could not read saved NAS details. Try again.",
+  "galleryImportTooltip": "Import copies from Files",
+  "gallerySyncCancel": "Cancel sync",
+  "gallerySyncSetup": "Set up backup",
+  "gallerySyncNow": "Sync with NAS",
+  "galleryCloseSearch": "Close search",
+  "gallerySearchTitle": "Search",
+  "gallerySettings": "Settings",
+  "galleryOrgUnavailable": "Organization unavailable. Originals are safe. Retry",
+  "galleryOpenFailed": "Could not open vault. Retry",
+  "galleryEmptyTitle": "Your library starts here",
+  "galleryEmptyMessage": "Take a photo or import copies from Files.",
+  "galleryOpenCamera": "Open camera",
+  "galleryImportCopies": "Import copies",
+  "galleryNoMatchTitle": "No captures match",
+  "galleryNoMatchMessage": "Clear your search and filters to see all captures.",
+  "galleryClearFilters": "Clear search and filters",
+  "galleryTileSelect": "Select {label}",
+  "@galleryTileSelect": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryTileOpen": "Open {label}",
+  "@galleryTileOpen": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryTileFavorite": "favorite",
+  "galleryTilePosition": "{position} of {total}",
+  "@galleryTilePosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryTileDuration": "duration {time}",
+  "@galleryTileDuration": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryPreviewUnavailable": "Preview unavailable"
 }

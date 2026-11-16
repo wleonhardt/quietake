@@ -633,4 +633,162 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get galleryActions => 'Library actions';
+
+  @override
+  String get galleryActionsClose => 'Close Library actions';
+
+  @override
+  String get gallerySelectCaptures => 'Select captures';
+
+  @override
+  String get gallerySearchEdit => 'Edit search';
+
+  @override
+  String get gallerySearchHint => 'Search names and tags';
+
+  @override
+  String get galleryRemovedTag => 'Removed tag';
+
+  @override
+  String get galleryScopeAny => 'All Library · Match any tag';
+
+  @override
+  String get galleryScopeAll => 'All Library · Match all tags';
+
+  @override
+  String get gallerySortNewest => 'Newest captures';
+
+  @override
+  String get gallerySortOldest => 'Oldest captures';
+
+  @override
+  String get gallerySortName => 'Name order';
+
+  @override
+  String get galleryTagMatching => 'Tag matching';
+
+  @override
+  String get galleryMatchAll => 'Match all tags';
+
+  @override
+  String get galleryMatchAny => 'Match any tag';
+
+  @override
+  String get galleryFavorites => 'Favorites';
+
+  @override
+  String get galleryResetView => 'Reset view';
+
+  @override
+  String get galleryAddTag => 'Add a tag';
+
+  @override
+  String get galleryAddTagHint =>
+      'Choose existing tags, or search names with the text above.';
+
+  @override
+  String get galleryCancelSelection => 'Cancel selection';
+
+  @override
+  String gallerySelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get gallerySelectAll => 'Select all results';
+
+  @override
+  String get galleryShareCopies => 'Share copies';
+
+  @override
+  String get galleryUnfavorite => 'Unfavorite';
+
+  @override
+  String get galleryFavorite => 'Favorite';
+
+  @override
+  String get galleryNameCapture => 'Name capture';
+
+  @override
+  String get galleryNasReadFailed =>
+      'Could not read saved NAS details. Try again.';
+
+  @override
+  String get galleryImportTooltip => 'Import copies from Files';
+
+  @override
+  String get gallerySyncCancel => 'Cancel sync';
+
+  @override
+  String get gallerySyncSetup => 'Set up backup';
+
+  @override
+  String get gallerySyncNow => 'Sync with NAS';
+
+  @override
+  String get galleryCloseSearch => 'Close search';
+
+  @override
+  String get gallerySearchTitle => 'Search';
+
+  @override
+  String get gallerySettings => 'Settings';
+
+  @override
+  String get galleryOrgUnavailable =>
+      'Organization unavailable. Originals are safe. Retry';
+
+  @override
+  String get galleryOpenFailed => 'Could not open vault. Retry';
+
+  @override
+  String get galleryEmptyTitle => 'Your library starts here';
+
+  @override
+  String get galleryEmptyMessage => 'Take a photo or import copies from Files.';
+
+  @override
+  String get galleryOpenCamera => 'Open camera';
+
+  @override
+  String get galleryImportCopies => 'Import copies';
+
+  @override
+  String get galleryNoMatchTitle => 'No captures match';
+
+  @override
+  String get galleryNoMatchMessage =>
+      'Clear your search and filters to see all captures.';
+
+  @override
+  String get galleryClearFilters => 'Clear search and filters';
+
+  @override
+  String galleryTileSelect(String label) {
+    return 'Select $label';
+  }
+
+  @override
+  String galleryTileOpen(String label) {
+    return 'Open $label';
+  }
+
+  @override
+  String get galleryTileFavorite => 'favorite';
+
+  @override
+  String galleryTilePosition(int position, int total) {
+    return '$position of $total';
+  }
+
+  @override
+  String galleryTileDuration(String time) {
+    return 'duration $time';
+  }
+
+  @override
+  String get galleryPreviewUnavailable => 'Preview unavailable';
 }

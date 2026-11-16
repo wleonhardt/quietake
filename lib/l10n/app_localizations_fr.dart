@@ -650,4 +650,164 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get galleryActions => 'Actions de la bibliothèque';
+
+  @override
+  String get galleryActionsClose => 'Fermer les actions de la bibliothèque';
+
+  @override
+  String get gallerySelectCaptures => 'Sélectionner des captures';
+
+  @override
+  String get gallerySearchEdit => 'Modifier la recherche';
+
+  @override
+  String get gallerySearchHint => 'Rechercher des noms et des étiquettes';
+
+  @override
+  String get galleryRemovedTag => 'Étiquette supprimée';
+
+  @override
+  String get galleryScopeAny =>
+      'Toute la bibliothèque · N\'importe quelle étiquette';
+
+  @override
+  String get galleryScopeAll => 'Toute la bibliothèque · Toutes les étiquettes';
+
+  @override
+  String get gallerySortNewest => 'Captures les plus récentes';
+
+  @override
+  String get gallerySortOldest => 'Captures les plus anciennes';
+
+  @override
+  String get gallerySortName => 'Ordre par nom';
+
+  @override
+  String get galleryTagMatching => 'Correspondance des étiquettes';
+
+  @override
+  String get galleryMatchAll => 'Toutes les étiquettes';
+
+  @override
+  String get galleryMatchAny => 'N\'importe quelle étiquette';
+
+  @override
+  String get galleryFavorites => 'Favoris';
+
+  @override
+  String get galleryResetView => 'Réinitialiser l\'affichage';
+
+  @override
+  String get galleryAddTag => 'Ajoutez une étiquette';
+
+  @override
+  String get galleryAddTagHint =>
+      'Choisissez des étiquettes existantes ou recherchez des noms avec le texte ci-dessus.';
+
+  @override
+  String get galleryCancelSelection => 'Annuler la sélection';
+
+  @override
+  String gallerySelectedCount(int count) {
+    return '$count sélectionnées';
+  }
+
+  @override
+  String get gallerySelectAll => 'Sélectionner tous les résultats';
+
+  @override
+  String get galleryShareCopies => 'Partager des copies';
+
+  @override
+  String get galleryUnfavorite => 'Retirer des favoris';
+
+  @override
+  String get galleryFavorite => 'Favori';
+
+  @override
+  String get galleryNameCapture => 'Nommer la capture';
+
+  @override
+  String get galleryNasReadFailed =>
+      'Impossible de lire les informations NAS enregistrées. Réessayez.';
+
+  @override
+  String get galleryImportTooltip => 'Importer des copies depuis Fichiers';
+
+  @override
+  String get gallerySyncCancel => 'Annuler la synchronisation';
+
+  @override
+  String get gallerySyncSetup => 'Configurer la sauvegarde';
+
+  @override
+  String get gallerySyncNow => 'Synchroniser avec le NAS';
+
+  @override
+  String get galleryCloseSearch => 'Fermer la recherche';
+
+  @override
+  String get gallerySearchTitle => 'Recherche';
+
+  @override
+  String get gallerySettings => 'Réglages';
+
+  @override
+  String get galleryOrgUnavailable =>
+      'Organisation indisponible. Les originaux sont en sécurité. Réessayer';
+
+  @override
+  String get galleryOpenFailed => 'Impossible d\'ouvrir le coffre. Réessayer';
+
+  @override
+  String get galleryEmptyTitle => 'Votre bibliothèque commence ici';
+
+  @override
+  String get galleryEmptyMessage =>
+      'Prenez une photo ou importez des copies depuis Fichiers.';
+
+  @override
+  String get galleryOpenCamera => 'Ouvrir l\'appareil photo';
+
+  @override
+  String get galleryImportCopies => 'Importer des copies';
+
+  @override
+  String get galleryNoMatchTitle => 'Aucune capture ne correspond';
+
+  @override
+  String get galleryNoMatchMessage =>
+      'Effacez la recherche et les filtres pour voir toutes les captures.';
+
+  @override
+  String get galleryClearFilters => 'Effacer la recherche et les filtres';
+
+  @override
+  String galleryTileSelect(String label) {
+    return 'Sélectionner $label';
+  }
+
+  @override
+  String galleryTileOpen(String label) {
+    return 'Ouvrir $label';
+  }
+
+  @override
+  String get galleryTileFavorite => 'favori';
+
+  @override
+  String galleryTilePosition(int position, int total) {
+    return '$position sur $total';
+  }
+
+  @override
+  String galleryTileDuration(String time) {
+    return 'durée $time';
+  }
+
+  @override
+  String get galleryPreviewUnavailable => 'Aperçu indisponible';
 }
