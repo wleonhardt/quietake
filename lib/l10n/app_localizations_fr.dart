@@ -1554,4 +1554,155 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get portableFailed =>
       'Impossible de restaurer ou d\'enregistrer la sauvegarde. Vérifiez sa clé, le fichier, le stockage disponible et l\'exigence d\'un coffre vide.';
+
+  @override
+  String get nasTitleRestore => 'Restaurer depuis le NAS';
+
+  @override
+  String get nasTitleManage => 'Phrase secrète de la sauvegarde';
+
+  @override
+  String get nasIntroRestore =>
+      'Utilisez la phrase secrète de sauvegarde distincte activée précédemment sur votre NAS. Le code court du téléphone ne peut pas récupérer cette sauvegarde. La restauration authentifie tous les fichiers dans un coffre vide, sans fusion. Votre NAS reste en lecture seule.';
+
+  @override
+  String get nasIntroManage =>
+      'Protégez la récupération sur le NAS avec une phrase secrète forte et distincte. Toute personne disposant du fichier chiffré peut tenter des essais hors ligne. Préférez six mots aléatoires ; la longueur seule ne garantit pas la robustesse. Terminez d\'abord une synchronisation avec le NAS enregistré. Le NAS doit prendre en charge le verrouillage sûr des fichiers ; sinon, rien n\'est écrit.';
+
+  @override
+  String get nasUrlLabel => 'URL du dossier WebDAV HTTPS';
+
+  @override
+  String get nasUserLabel => 'Nom d\'utilisateur du NAS';
+
+  @override
+  String get nasPasswordLabel => 'Mot de passe du NAS';
+
+  @override
+  String get nasPinNew => 'Nouveau code local';
+
+  @override
+  String get nasPinCurrent => 'Code local actuel';
+
+  @override
+  String get nasPinConfirm => 'Confirmer le nouveau code local';
+
+  @override
+  String get nasPhraseLabel => 'Phrase secrète de la sauvegarde';
+
+  @override
+  String get nasPhraseConfirm => 'Confirmer la phrase secrète de la sauvegarde';
+
+  @override
+  String get nasGenerate => 'Générer six mots';
+
+  @override
+  String get nasHide => 'Masquer la phrase secrète';
+
+  @override
+  String get nasShow => 'Afficher la phrase secrète';
+
+  @override
+  String get nasWordsCredit =>
+      'Mots : Electronic Frontier Foundation · CC BY 4.0';
+
+  @override
+  String get nasWordLicenses => 'Licences de la liste de mots';
+
+  @override
+  String get nasEnableButton => 'Activer ou modifier la phrase secrète';
+
+  @override
+  String get nasDisableButton =>
+      'Désactiver la récupération par phrase secrète';
+
+  @override
+  String get nasFootRestore =>
+      'Jusqu\'à 10 000 captures. Un espace temporaire privé est nécessaire. Déverrouillez ensuite avec votre nouveau code. L\'envoi en arrière-plan reste désactivé.';
+
+  @override
+  String get nasFootManage =>
+      'Cela ne modifie que la protection de récupération. Cela ne change jamais le code du téléphone et ne rechiffre pas les captures. Supprimer la récupération actuelle ne révoque pas les anciens instantanés du serveur.';
+
+  @override
+  String get nasGenerateFailed =>
+      'Impossible de générer une phrase secrète. Réessayez.';
+
+  @override
+  String get nasConfirmDisableTitle =>
+      'Désactiver la récupération par phrase secrète ?';
+
+  @override
+  String get nasConfirmSaveTitle =>
+      'Enregistrer la phrase secrète de la sauvegarde ?';
+
+  @override
+  String get nasConfirmDisableBody =>
+      'Supprime le fichier de récupération actuel du dossier NAS enregistré. Les captures restent. D\'anciens instantanés du serveur peuvent encore accepter une phrase secrète antérieure. Conservez votre clé de récupération indépendante.';
+
+  @override
+  String get nasConfirmSaveBody =>
+      'Crée ou remplace la récupération dans le dossier NAS enregistré. Conservez la nouvelle phrase secrète séparément. D\'anciens instantanés du serveur peuvent encore accepter une phrase antérieure ; cela ne renouvelle pas la clé de votre coffre.';
+
+  @override
+  String get nasDisableAction => 'Désactiver la récupération';
+
+  @override
+  String get nasSaveAction => 'Enregistrer la phrase secrète';
+
+  @override
+  String get nasSeparatePhrase =>
+      'Utilisez une phrase secrète de sauvegarde distincte, pas votre code local.';
+
+  @override
+  String get nasNeedPasscode =>
+      'Choisissez et confirmez un nouveau code d\'au moins six caractères.';
+
+  @override
+  String get nasNeedDetails =>
+      'Saisissez le dossier, le nom d\'utilisateur et le mot de passe NAS enregistrés.';
+
+  @override
+  String get nasMismatch =>
+      'Les phrases secrètes de sauvegarde ne correspondent pas.';
+
+  @override
+  String get nasCheckingRestore =>
+      'Vérification de la sauvegarde NAS chiffrée…';
+
+  @override
+  String get nasCheckingSaved =>
+      'Vérification de la récupération NAS enregistrée…';
+
+  @override
+  String get nasRestoredTitle => 'Coffre restauré';
+
+  @override
+  String get nasRestoredUnsaved =>
+      'La connexion au NAS n\'a pas pu être enregistrée. Vos captures sont restaurées ; ajoutez de nouveau la connexion dans Réglages pour reprendre les sauvegardes.';
+
+  @override
+  String get nasContinue => 'Continuer';
+
+  @override
+  String get nasDisabledDone =>
+      'Récupération par phrase secrète désactivée. Captures conservées.';
+
+  @override
+  String get nasSavedDone =>
+      'Phrase secrète de sauvegarde enregistrée. Conservez-la séparément, ainsi que votre clé de récupération.';
+
+  @override
+  String get nasWrongCurrent => 'Code actuel incorrect. Réessayez.';
+
+  @override
+  String get nasCancelled => 'Annulé. Originaux conservés.';
+
+  @override
+  String get nasRestoreFailed =>
+      'Impossible de restaurer. Vérifiez la connexion au NAS, la phrase secrète de sauvegarde et l\'exigence d\'un coffre vide. Originaux conservés.';
+
+  @override
+  String get nasChangeFailed =>
+      'Impossible de modifier la récupération. Vérifiez la sauvegarde NAS enregistrée, le fichier de récupération pris en charge et la compatibilité du serveur. Synchronisez d\'abord, puis réessayez. Originaux conservés.';
 }

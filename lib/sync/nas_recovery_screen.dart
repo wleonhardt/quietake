@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../licenses.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
@@ -36,7 +37,8 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
   final _phrase = TextEditingController(),
       _phraseConfirm = TextEditingController();
   bool _busy = false, _cancelled = false, _committing = false, _visible = false;
-  String _result = '';
+  // Kept as a selector so the text follows the language at build time.
+  String Function(AppLocalizations)? _result;
   int _phraseEpoch = 0, _operationEpoch = 0;
   bool _confirming = false;
   PrivacyController? _privacy;
@@ -116,7 +118,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
     super.dispose();
   }
 
-  void _status(String value) {
+  void _status(String Function(AppLocalizations) value) {
     if (mounted) setState(() => _result = value);
   }
 
@@ -132,7 +134,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
         });
       }
     } catch (_) {
-      _status('Could not generate a passphrase. Try again.');
+      _status((l10n) => l10n.nasGenerateFailed);
     }
   }
 
@@ -143,8 +145,8 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
           scrollable: true,
           title: Text(
             disable
-                ? 'Disable passphrase recovery?'
-                : 'Save backup passphrase?',
+                ? ctx.l10n.nasConfirmDisableTitle
+                : ctx.l10n.nasConfirmSaveTitle,
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -152,8 +154,8 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
             children: [
               Text(
                 disable
-                    ? 'Removes the current recovery file from the saved NAS folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.'
-                    : 'Creates or replaces recovery in the saved NAS folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.',
+                    ? ctx.l10n.nasConfirmDisableBody
+                    : ctx.l10n.nasConfirmSaveBody,
               ),
               const SizedBox(height: 16),
               Wrap(
@@ -162,7 +164,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
-                    child: const Text('Cancel'),
+                    child: Text(ctx.l10n.cancel),
                   ),
                   FilledButton(
                     key: disable
@@ -170,7 +172,9 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
                         : Keys.nasChangeConfirm,
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(
-                      disable ? 'Disable recovery' : 'Save passphrase',
+                      disable
+                          ? ctx.l10n.nasDisableAction
+                          : ctx.l10n.nasSaveAction,
                     ),
                   ),
                 ],
@@ -197,33 +201,31 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
       try {
         BackupPassphrase.validate(phrase);
       } on FormatException catch (e) {
-        _status(e.message);
+        _status((_) => e.message);
         return;
       }
       if (phrase == pin) {
-        _status('Use a separate backup passphrase, not your local passcode.');
+        _status((l10n) => l10n.nasSeparatePhrase);
         return;
       }
       if (_restoring) {
         if (pin.length < MasterKeyStore.minPasscodeLength ||
             pin != _pinConfirm.text) {
-          _status(
-            'Choose and confirm a new passcode of at least six characters.',
-          );
+          _status((l10n) => l10n.nasNeedPasscode);
           return;
         }
         if (!settings.isConfigured) {
-          _status('Enter your saved NAS folder, username and password.');
+          _status((l10n) => l10n.nasNeedDetails);
           return;
         }
         try {
           settings.client().close(); // The URL rule lives in the client.
         } on FormatException catch (e) {
-          _status(e.message);
+          _status((_) => e.message);
           return;
         }
       } else if (phrase != _phraseConfirm.text) {
-        _status('Backup passphrases do not match.');
+        _status((l10n) => l10n.nasMismatch);
         return;
       }
     }
@@ -241,8 +243,8 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
       _cancelled = false;
       _visible = false;
       _result = _restoring
-          ? 'Checking encrypted NAS backup…'
-          : 'Checking saved NAS recovery…';
+          ? (l10n) => l10n.nasCheckingRestore
+          : (l10n) => l10n.nasCheckingSaved;
     });
     try {
       if (_restoring) {
@@ -255,7 +257,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
         ).restore(
           phrase,
           pin,
-          onProgress: (phase) => _status('$phase…'),
+          onProgress: (phase) => _status((_) => '$phase…'),
           onCommitting: () => _committing = true,
         );
         // Recovery is already committed. A protected connection-save failure must
@@ -268,17 +270,13 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
             await showDialog<void>(
               context: context,
               builder: (ctx) => AlertDialog(
-                title: const Text('Vault restored'),
-                content: const Text(
-                  'The NAS connection could not be saved. Your captures are '
-                  'restored; add the connection again in Settings to resume '
-                  'backups.',
-                ),
+                title: Text(ctx.l10n.nasRestoredTitle),
+                content: Text(ctx.l10n.nasRestoredUnsaved),
                 actions: [
                   FilledButton(
                     key: Keys.nasRestoreUnsavedOk,
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Continue'),
+                    child: Text(ctx.l10n.nasContinue),
                   ),
                 ],
               ),
@@ -296,20 +294,22 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
           ).change(session.vault, pin, disable ? null : phrase),
         );
         _status(
-          disable ? 'Passphrase recovery disabled. Captures kept.' : 'Backup passphrase saved. Keep it and your recovery key separately.',
+          disable
+              ? (l10n) => l10n.nasDisabledDone
+              : (l10n) => l10n.nasSavedDone,
         );
       }
     } on PasscodeLockedException catch (e) {
-      _status(e.toString());
+      _status((_) => e.toString());
     } on WrongPasscodeException {
-      _status('Wrong current passcode. Try again.');
+      _status((l10n) => l10n.nasWrongCurrent);
     } catch (_) {
       _status(
         _cancelled
-            ? 'Cancelled. Originals kept.'
+            ? (l10n) => l10n.nasCancelled
             : _restoring
-            ? 'Could not restore. Check the NAS connection, backup passphrase and empty-vault requirement. Originals kept.'
-            : 'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.',
+            ? (l10n) => l10n.nasRestoreFailed
+            : (l10n) => l10n.nasChangeFailed,
       );
     } finally {
       _client?.close();
@@ -350,118 +350,107 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
     ),
   );
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: !_committing,
-    child: Scaffold(
-      appBar: AppBar(
-        title: Text(_restoring ? 'Restore from NAS' : 'Backup passphrase'),
-        actions: const [LockButton()],
-      ),
-      body: FormBody(
-        children: [
-          Text(
-            _restoring
-                ? 'Use the separate backup passphrase previously enabled on your NAS. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your NAS stays read-only.'
-                : 'Protect NAS recovery with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a saved NAS sync first. The NAS must support safe file locking; otherwise nothing is written.',
-          ),
-          const SizedBox(height: 16),
-          if (_restoring) ...[
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return PopScope(
+      canPop: !_committing,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_restoring ? l10n.nasTitleRestore : l10n.nasTitleManage),
+          actions: const [LockButton()],
+        ),
+        body: FormBody(
+          children: [
+            Text(_restoring ? l10n.nasIntroRestore : l10n.nasIntroManage),
+            const SizedBox(height: 16),
+            if (_restoring) ...[
+              _field(
+                Keys.nasUrl,
+                _url,
+                l10n.nasUrlLabel,
+                secret: false,
+                keyboardType: TextInputType.url,
+              ),
+              _field(Keys.nasUser, _user, l10n.nasUserLabel, secret: false),
+              _field(Keys.nasPassword, _password, l10n.nasPasswordLabel),
+            ],
             _field(
-              Keys.nasUrl,
-              _url,
-              'HTTPS WebDAV folder URL',
-              secret: false,
-              keyboardType: TextInputType.url,
+              Keys.nasPin,
+              _pin,
+              _restoring ? l10n.nasPinNew : l10n.nasPinCurrent,
             ),
-            _field(Keys.nasUser, _user, 'NAS username', secret: false),
-            _field(Keys.nasPassword, _password, 'NAS password'),
-          ],
-          _field(
-            Keys.nasPin,
-            _pin,
-            _restoring ? 'New local passcode' : 'Current local passcode',
-          ),
-          if (_restoring)
+            if (_restoring)
+              _field(Keys.nasPinConfirm, _pinConfirm, l10n.nasPinConfirm),
             _field(
-              Keys.nasPinConfirm,
-              _pinConfirm,
-              'Confirm new local passcode',
+              Keys.nasPhrase,
+              _phrase,
+              l10n.nasPhraseLabel,
+              secret: !_visible,
             ),
-          _field(
-            Keys.nasPhrase,
-            _phrase,
-            'Backup passphrase',
-            secret: !_visible,
-          ),
-          if (!_restoring) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    key: Keys.nasGenerate,
-                    onPressed: _busy ? null : _generate,
-                    child: const Text('Generate six words'),
+            if (!_restoring) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      key: Keys.nasGenerate,
+                      onPressed: _busy ? null : _generate,
+                      child: Text(l10n.nasGenerate),
+                    ),
                   ),
-                ),
-                IconButton(
-                  key: Keys.nasVisibility,
-                  tooltip: _visible ? 'Hide passphrase' : 'Show passphrase',
-                  onPressed: _busy
-                      ? null
-                      : () => setState(() => _visible = !_visible),
-                  icon: Icon(
-                    _visible ? Icons.visibility_off : Icons.visibility,
+                  IconButton(
+                    key: Keys.nasVisibility,
+                    tooltip: _visible ? l10n.nasHide : l10n.nasShow,
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() => _visible = !_visible),
+                    icon: Icon(
+                      _visible ? Icons.visibility_off : Icons.visibility,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              _field(
+                Keys.nasPhraseConfirm,
+                _phraseConfirm,
+                l10n.nasPhraseConfirm,
+              ),
+              Text(l10n.nasWordsCredit),
+              TextButton(
+                onPressed: _busy ? null : () => showAppLicenses(context),
+                child: Text(l10n.nasWordLicenses),
+              ),
+            ],
+            const SizedBox(height: 16),
+            if (_busy) const LinearProgressIndicator(),
+            Semantics(
+              liveRegion: true,
+              child: Text(_result?.call(l10n) ?? '', key: Keys.nasResult),
             ),
-            _field(
-              Keys.nasPhraseConfirm,
-              _phraseConfirm,
-              'Confirm backup passphrase',
+            const SizedBox(height: 12),
+            FilledButton(
+              key: _restoring ? Keys.nasStartRestore : Keys.nasSave,
+              onPressed: _busy ? null : () => _run(),
+              child: Text(
+                _restoring ? l10n.portableRestoreButton : l10n.nasEnableButton,
+              ),
             ),
-            const Text('Words: Electronic Frontier Foundation · CC BY 4.0'),
-            TextButton(
-              onPressed: _busy ? null : () => showAppLicenses(context),
-              child: const Text('Word-list licenses'),
-            ),
+            if (!_restoring)
+              OutlinedButton(
+                key: Keys.nasDisable,
+                onPressed: _busy ? null : () => _run(disable: true),
+                child: Text(l10n.nasDisableButton),
+              ),
+            if (_busy)
+              TextButton(
+                key: Keys.nasCancel,
+                onPressed: _committing ? null : _cancel,
+                child: Text(l10n.cancel),
+              ),
+            const SizedBox(height: 12),
+            Text(_restoring ? l10n.nasFootRestore : l10n.nasFootManage),
           ],
-          const SizedBox(height: 16),
-          if (_busy) const LinearProgressIndicator(),
-          Semantics(
-            liveRegion: true,
-            child: Text(_result, key: Keys.nasResult),
-          ),
-          const SizedBox(height: 12),
-          FilledButton(
-            key: _restoring ? Keys.nasStartRestore : Keys.nasSave,
-            onPressed: _busy ? null : () => _run(),
-            child: Text(
-              _restoring
-                  ? 'Restore empty vault'
-                  : 'Enable or change passphrase',
-            ),
-          ),
-          if (!_restoring)
-            OutlinedButton(
-              key: Keys.nasDisable,
-              onPressed: _busy ? null : () => _run(disable: true),
-              child: const Text('Disable passphrase recovery'),
-            ),
-          if (_busy)
-            TextButton(
-              key: Keys.nasCancel,
-              onPressed: _committing ? null : _cancel,
-              child: const Text('Cancel'),
-            ),
-          const SizedBox(height: 12),
-          Text(
-            _restoring
-                ? 'Up to 10,000 captures. Private temporary space is needed. Unlock with your new passcode afterward. Background upload stays off.'
-                : 'This changes recovery protection only. It never changes your phone passcode or re-encrypts captures. Removing current recovery does not revoke old server snapshots.',
-          ),
-        ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

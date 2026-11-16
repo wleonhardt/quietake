@@ -2561,6 +2561,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.'**
   String get portableFailed;
+
+  /// No description provided for @nasTitleRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from NAS'**
+  String get nasTitleRestore;
+
+  /// No description provided for @nasTitleManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup passphrase'**
+  String get nasTitleManage;
+
+  /// No description provided for @nasIntroRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the separate backup passphrase previously enabled on your NAS. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your NAS stays read-only.'**
+  String get nasIntroRestore;
+
+  /// No description provided for @nasIntroManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect NAS recovery with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a saved NAS sync first. The NAS must support safe file locking; otherwise nothing is written.'**
+  String get nasIntroManage;
+
+  /// No description provided for @nasUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTPS WebDAV folder URL'**
+  String get nasUrlLabel;
+
+  /// No description provided for @nasUserLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NAS username'**
+  String get nasUserLabel;
+
+  /// No description provided for @nasPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NAS password'**
+  String get nasPasswordLabel;
+
+  /// No description provided for @nasPinNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New local passcode'**
+  String get nasPinNew;
+
+  /// No description provided for @nasPinCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current local passcode'**
+  String get nasPinCurrent;
+
+  /// No description provided for @nasPinConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new local passcode'**
+  String get nasPinConfirm;
+
+  /// No description provided for @nasPhraseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup passphrase'**
+  String get nasPhraseLabel;
+
+  /// No description provided for @nasPhraseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm backup passphrase'**
+  String get nasPhraseConfirm;
+
+  /// No description provided for @nasGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate six words'**
+  String get nasGenerate;
+
+  /// No description provided for @nasHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide passphrase'**
+  String get nasHide;
+
+  /// No description provided for @nasShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show passphrase'**
+  String get nasShow;
+
+  /// No description provided for @nasWordsCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Words: Electronic Frontier Foundation · CC BY 4.0'**
+  String get nasWordsCredit;
+
+  /// No description provided for @nasWordLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Word-list licenses'**
+  String get nasWordLicenses;
+
+  /// No description provided for @nasEnableButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable or change passphrase'**
+  String get nasEnableButton;
+
+  /// No description provided for @nasDisableButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable passphrase recovery'**
+  String get nasDisableButton;
+
+  /// No description provided for @nasFootRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 10,000 captures. Private temporary space is needed. Unlock with your new passcode afterward. Background upload stays off.'**
+  String get nasFootRestore;
+
+  /// No description provided for @nasFootManage.
+  ///
+  /// In en, this message translates to:
+  /// **'This changes recovery protection only. It never changes your phone passcode or re-encrypts captures. Removing current recovery does not revoke old server snapshots.'**
+  String get nasFootManage;
+
+  /// No description provided for @nasGenerateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate a passphrase. Try again.'**
+  String get nasGenerateFailed;
+
+  /// No description provided for @nasConfirmDisableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable passphrase recovery?'**
+  String get nasConfirmDisableTitle;
+
+  /// No description provided for @nasConfirmSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save backup passphrase?'**
+  String get nasConfirmSaveTitle;
+
+  /// No description provided for @nasConfirmDisableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes the current recovery file from the saved NAS folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.'**
+  String get nasConfirmDisableBody;
+
+  /// No description provided for @nasConfirmSaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates or replaces recovery in the saved NAS folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.'**
+  String get nasConfirmSaveBody;
+
+  /// No description provided for @nasDisableAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable recovery'**
+  String get nasDisableAction;
+
+  /// No description provided for @nasSaveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save passphrase'**
+  String get nasSaveAction;
+
+  /// No description provided for @nasSeparatePhrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a separate backup passphrase, not your local passcode.'**
+  String get nasSeparatePhrase;
+
+  /// No description provided for @nasNeedPasscode.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose and confirm a new passcode of at least six characters.'**
+  String get nasNeedPasscode;
+
+  /// No description provided for @nasNeedDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your saved NAS folder, username and password.'**
+  String get nasNeedDetails;
+
+  /// No description provided for @nasMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup passphrases do not match.'**
+  String get nasMismatch;
+
+  /// No description provided for @nasCheckingRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking encrypted NAS backup…'**
+  String get nasCheckingRestore;
+
+  /// No description provided for @nasCheckingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking saved NAS recovery…'**
+  String get nasCheckingSaved;
+
+  /// No description provided for @nasRestoredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vault restored'**
+  String get nasRestoredTitle;
+
+  /// No description provided for @nasRestoredUnsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'The NAS connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.'**
+  String get nasRestoredUnsaved;
+
+  /// No description provided for @nasContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get nasContinue;
+
+  /// No description provided for @nasDisabledDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase recovery disabled. Captures kept.'**
+  String get nasDisabledDone;
+
+  /// No description provided for @nasSavedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup passphrase saved. Keep it and your recovery key separately.'**
+  String get nasSavedDone;
+
+  /// No description provided for @nasWrongCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong current passcode. Try again.'**
+  String get nasWrongCurrent;
+
+  /// No description provided for @nasCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. Originals kept.'**
+  String get nasCancelled;
+
+  /// No description provided for @nasRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not restore. Check the NAS connection, backup passphrase and empty-vault requirement. Originals kept.'**
+  String get nasRestoreFailed;
+
+  /// No description provided for @nasChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.'**
+  String get nasChangeFailed;
 }
 
 class _AppLocalizationsDelegate

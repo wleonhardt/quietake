@@ -1525,4 +1525,147 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get portableFailed =>
       'Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.';
+
+  @override
+  String get nasTitleRestore => 'Restore from NAS';
+
+  @override
+  String get nasTitleManage => 'Backup passphrase';
+
+  @override
+  String get nasIntroRestore =>
+      'Use the separate backup passphrase previously enabled on your NAS. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your NAS stays read-only.';
+
+  @override
+  String get nasIntroManage =>
+      'Protect NAS recovery with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a saved NAS sync first. The NAS must support safe file locking; otherwise nothing is written.';
+
+  @override
+  String get nasUrlLabel => 'HTTPS WebDAV folder URL';
+
+  @override
+  String get nasUserLabel => 'NAS username';
+
+  @override
+  String get nasPasswordLabel => 'NAS password';
+
+  @override
+  String get nasPinNew => 'New local passcode';
+
+  @override
+  String get nasPinCurrent => 'Current local passcode';
+
+  @override
+  String get nasPinConfirm => 'Confirm new local passcode';
+
+  @override
+  String get nasPhraseLabel => 'Backup passphrase';
+
+  @override
+  String get nasPhraseConfirm => 'Confirm backup passphrase';
+
+  @override
+  String get nasGenerate => 'Generate six words';
+
+  @override
+  String get nasHide => 'Hide passphrase';
+
+  @override
+  String get nasShow => 'Show passphrase';
+
+  @override
+  String get nasWordsCredit =>
+      'Words: Electronic Frontier Foundation · CC BY 4.0';
+
+  @override
+  String get nasWordLicenses => 'Word-list licenses';
+
+  @override
+  String get nasEnableButton => 'Enable or change passphrase';
+
+  @override
+  String get nasDisableButton => 'Disable passphrase recovery';
+
+  @override
+  String get nasFootRestore =>
+      'Up to 10,000 captures. Private temporary space is needed. Unlock with your new passcode afterward. Background upload stays off.';
+
+  @override
+  String get nasFootManage =>
+      'This changes recovery protection only. It never changes your phone passcode or re-encrypts captures. Removing current recovery does not revoke old server snapshots.';
+
+  @override
+  String get nasGenerateFailed => 'Could not generate a passphrase. Try again.';
+
+  @override
+  String get nasConfirmDisableTitle => 'Disable passphrase recovery?';
+
+  @override
+  String get nasConfirmSaveTitle => 'Save backup passphrase?';
+
+  @override
+  String get nasConfirmDisableBody =>
+      'Removes the current recovery file from the saved NAS folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.';
+
+  @override
+  String get nasConfirmSaveBody =>
+      'Creates or replaces recovery in the saved NAS folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.';
+
+  @override
+  String get nasDisableAction => 'Disable recovery';
+
+  @override
+  String get nasSaveAction => 'Save passphrase';
+
+  @override
+  String get nasSeparatePhrase =>
+      'Use a separate backup passphrase, not your local passcode.';
+
+  @override
+  String get nasNeedPasscode =>
+      'Choose and confirm a new passcode of at least six characters.';
+
+  @override
+  String get nasNeedDetails =>
+      'Enter your saved NAS folder, username and password.';
+
+  @override
+  String get nasMismatch => 'Backup passphrases do not match.';
+
+  @override
+  String get nasCheckingRestore => 'Checking encrypted NAS backup…';
+
+  @override
+  String get nasCheckingSaved => 'Checking saved NAS recovery…';
+
+  @override
+  String get nasRestoredTitle => 'Vault restored';
+
+  @override
+  String get nasRestoredUnsaved =>
+      'The NAS connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.';
+
+  @override
+  String get nasContinue => 'Continue';
+
+  @override
+  String get nasDisabledDone => 'Passphrase recovery disabled. Captures kept.';
+
+  @override
+  String get nasSavedDone =>
+      'Backup passphrase saved. Keep it and your recovery key separately.';
+
+  @override
+  String get nasWrongCurrent => 'Wrong current passcode. Try again.';
+
+  @override
+  String get nasCancelled => 'Cancelled. Originals kept.';
+
+  @override
+  String get nasRestoreFailed =>
+      'Could not restore. Check the NAS connection, backup passphrase and empty-vault requirement. Originals kept.';
+
+  @override
+  String get nasChangeFailed =>
+      'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.';
 }

@@ -1552,4 +1552,154 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get portableFailed =>
       'No se pudo restaurar ni guardar la copia. Revisa su clave, el archivo, el almacenamiento disponible y el requisito de bóveda vacía.';
+
+  @override
+  String get nasTitleRestore => 'Restaurar desde el NAS';
+
+  @override
+  String get nasTitleManage => 'Frase de contraseña de la copia';
+
+  @override
+  String get nasIntroRestore =>
+      'Usa la frase de contraseña de copia que activaste antes en tu NAS. El código corto del teléfono no puede recuperar esta copia. La restauración autentica todos los archivos en una bóveda vacía; no se combina nada. Tu NAS permanece en solo lectura.';
+
+  @override
+  String get nasIntroManage =>
+      'Protege la recuperación en el NAS con una frase de contraseña fuerte y distinta. Cualquiera que tenga el archivo cifrado puede probar combinaciones sin conexión. Prefiere seis palabras aleatorias; la longitud por sí sola no garantiza la fortaleza. Completa antes una sincronización con el NAS guardado. El NAS debe admitir bloqueo seguro de archivos; de lo contrario no se escribe nada.';
+
+  @override
+  String get nasUrlLabel => 'URL de la carpeta WebDAV HTTPS';
+
+  @override
+  String get nasUserLabel => 'Usuario del NAS';
+
+  @override
+  String get nasPasswordLabel => 'Contraseña del NAS';
+
+  @override
+  String get nasPinNew => 'Código local nuevo';
+
+  @override
+  String get nasPinCurrent => 'Código local actual';
+
+  @override
+  String get nasPinConfirm => 'Confirmar código local nuevo';
+
+  @override
+  String get nasPhraseLabel => 'Frase de contraseña de la copia';
+
+  @override
+  String get nasPhraseConfirm => 'Confirmar frase de contraseña de la copia';
+
+  @override
+  String get nasGenerate => 'Generar seis palabras';
+
+  @override
+  String get nasHide => 'Ocultar frase de contraseña';
+
+  @override
+  String get nasShow => 'Mostrar frase de contraseña';
+
+  @override
+  String get nasWordsCredit =>
+      'Palabras: Electronic Frontier Foundation · CC BY 4.0';
+
+  @override
+  String get nasWordLicenses => 'Licencias de la lista de palabras';
+
+  @override
+  String get nasEnableButton => 'Activar o cambiar la frase de contraseña';
+
+  @override
+  String get nasDisableButton =>
+      'Desactivar la recuperación con frase de contraseña';
+
+  @override
+  String get nasFootRestore =>
+      'Hasta 10 000 capturas. Se necesita espacio temporal privado. Después, desbloquea con tu código nuevo. La subida en segundo plano sigue desactivada.';
+
+  @override
+  String get nasFootManage =>
+      'Esto solo cambia la protección de recuperación. Nunca cambia el código del teléfono ni vuelve a cifrar las capturas. Quitar la recuperación actual no revoca las instantáneas antiguas del servidor.';
+
+  @override
+  String get nasGenerateFailed =>
+      'No se pudo generar una frase de contraseña. Inténtalo de nuevo.';
+
+  @override
+  String get nasConfirmDisableTitle =>
+      '¿Desactivar la recuperación con frase de contraseña?';
+
+  @override
+  String get nasConfirmSaveTitle =>
+      '¿Guardar la frase de contraseña de la copia?';
+
+  @override
+  String get nasConfirmDisableBody =>
+      'Elimina el archivo de recuperación actual de la carpeta guardada del NAS. Las capturas se conservan. Las instantáneas antiguas del servidor pueden seguir aceptando una frase de contraseña anterior. Conserva tu clave de recuperación independiente.';
+
+  @override
+  String get nasConfirmSaveBody =>
+      'Crea o reemplaza la recuperación en la carpeta guardada del NAS. Guarda la nueva frase de contraseña por separado. Las instantáneas antiguas del servidor pueden seguir aceptando una frase anterior; esto no cambia la clave de tu bóveda.';
+
+  @override
+  String get nasDisableAction => 'Desactivar recuperación';
+
+  @override
+  String get nasSaveAction => 'Guardar frase de contraseña';
+
+  @override
+  String get nasSeparatePhrase =>
+      'Usa una frase de contraseña de copia distinta, no tu código local.';
+
+  @override
+  String get nasNeedPasscode =>
+      'Elige y confirma un código nuevo de al menos seis caracteres.';
+
+  @override
+  String get nasNeedDetails =>
+      'Introduce la carpeta, el usuario y la contraseña guardados del NAS.';
+
+  @override
+  String get nasMismatch =>
+      'Las frases de contraseña de la copia no coinciden.';
+
+  @override
+  String get nasCheckingRestore => 'Comprobando la copia cifrada del NAS…';
+
+  @override
+  String get nasCheckingSaved =>
+      'Comprobando la recuperación guardada del NAS…';
+
+  @override
+  String get nasRestoredTitle => 'Bóveda restaurada';
+
+  @override
+  String get nasRestoredUnsaved =>
+      'No se pudo guardar la conexión con el NAS. Tus capturas están restauradas; vuelve a añadir la conexión en Ajustes para reanudar las copias.';
+
+  @override
+  String get nasContinue => 'Continuar';
+
+  @override
+  String get nasDisabledDone =>
+      'Recuperación con frase de contraseña desactivada. Se conservan las capturas.';
+
+  @override
+  String get nasSavedDone =>
+      'Frase de contraseña de la copia guardada. Guárdala por separado, junto con tu clave de recuperación.';
+
+  @override
+  String get nasWrongCurrent => 'Código actual incorrecto. Inténtalo de nuevo.';
+
+  @override
+  String get nasCancelled => 'Cancelado. Se conservan los originales.';
+
+  @override
+  String get nasRestoreFailed =>
+      'No se pudo restaurar. Revisa la conexión con el NAS, la frase de contraseña de la copia y el requisito de bóveda vacía. Se conservan los originales.';
+
+  @override
+  String get nasChangeFailed =>
+      'No se pudo cambiar la recuperación. Revisa la copia guardada del NAS, el archivo de recuperación compatible y la compatibilidad del servidor. Sincroniza primero y vuelve a intentarlo. Se conservan los originales.';
 }

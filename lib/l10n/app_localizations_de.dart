@@ -1557,4 +1557,153 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get portableFailed =>
       'Backup konnte nicht wiederhergestellt oder gespeichert werden. Prüfen Sie Schlüssel, Datei, verfügbaren Speicher und die Voraussetzung eines leeren Tresors.';
+
+  @override
+  String get nasTitleRestore => 'Vom NAS wiederherstellen';
+
+  @override
+  String get nasTitleManage => 'Backup-Passphrase';
+
+  @override
+  String get nasIntroRestore =>
+      'Verwenden Sie die separate Backup-Passphrase, die Sie zuvor auf Ihrem NAS aktiviert haben. Der kurze Telefon-Code kann dieses Backup nicht wiederherstellen. Die Wiederherstellung authentifiziert alle Dateien in einem leeren Tresor; es wird nichts zusammengeführt. Ihr NAS bleibt schreibgeschützt.';
+
+  @override
+  String get nasIntroManage =>
+      'Schützen Sie die NAS-Wiederherstellung mit einer separaten, starken Passphrase. Jeder, der die verschlüsselte Datei besitzt, kann offline Vermutungen ausprobieren. Bevorzugen Sie sechs zufällige Wörter; Länge allein beweist keine Stärke. Schließen Sie zuerst eine Synchronisierung mit dem gespeicherten NAS ab. Das NAS muss sicheres Dateisperren unterstützen; andernfalls wird nichts geschrieben.';
+
+  @override
+  String get nasUrlLabel => 'HTTPS-WebDAV-Ordner-URL';
+
+  @override
+  String get nasUserLabel => 'NAS-Benutzername';
+
+  @override
+  String get nasPasswordLabel => 'NAS-Passwort';
+
+  @override
+  String get nasPinNew => 'Neuer lokaler Code';
+
+  @override
+  String get nasPinCurrent => 'Aktueller lokaler Code';
+
+  @override
+  String get nasPinConfirm => 'Neuen lokalen Code bestätigen';
+
+  @override
+  String get nasPhraseLabel => 'Backup-Passphrase';
+
+  @override
+  String get nasPhraseConfirm => 'Backup-Passphrase bestätigen';
+
+  @override
+  String get nasGenerate => 'Sechs Wörter erzeugen';
+
+  @override
+  String get nasHide => 'Passphrase ausblenden';
+
+  @override
+  String get nasShow => 'Passphrase anzeigen';
+
+  @override
+  String get nasWordsCredit =>
+      'Wörter: Electronic Frontier Foundation · CC BY 4.0';
+
+  @override
+  String get nasWordLicenses => 'Lizenzen der Wortliste';
+
+  @override
+  String get nasEnableButton => 'Passphrase aktivieren oder ändern';
+
+  @override
+  String get nasDisableButton =>
+      'Wiederherstellung per Passphrase deaktivieren';
+
+  @override
+  String get nasFootRestore =>
+      'Bis zu 10.000 Aufnahmen. Privater temporärer Speicherplatz ist erforderlich. Entsperren Sie anschließend mit Ihrem neuen Code. Der Hintergrund-Upload bleibt aus.';
+
+  @override
+  String get nasFootManage =>
+      'Dies ändert nur den Wiederherstellungsschutz. Es ändert nie den Telefon-Code und verschlüsselt keine Aufnahmen neu. Das Entfernen der aktuellen Wiederherstellung widerruft keine alten Server-Snapshots.';
+
+  @override
+  String get nasGenerateFailed =>
+      'Passphrase konnte nicht erzeugt werden. Versuchen Sie es erneut.';
+
+  @override
+  String get nasConfirmDisableTitle =>
+      'Wiederherstellung per Passphrase deaktivieren?';
+
+  @override
+  String get nasConfirmSaveTitle => 'Backup-Passphrase speichern?';
+
+  @override
+  String get nasConfirmDisableBody =>
+      'Entfernt die aktuelle Wiederherstellungsdatei aus dem gespeicherten NAS-Ordner. Aufnahmen bleiben erhalten. Alte Server-Snapshots akzeptieren möglicherweise noch eine frühere Passphrase. Bewahren Sie Ihren unabhängigen Wiederherstellungsschlüssel auf.';
+
+  @override
+  String get nasConfirmSaveBody =>
+      'Erstellt oder ersetzt die Wiederherstellung im gespeicherten NAS-Ordner. Bewahren Sie die neue Passphrase getrennt auf. Alte Server-Snapshots akzeptieren möglicherweise noch eine frühere Passphrase; der Schlüssel Ihres Tresors wird dadurch nicht gewechselt.';
+
+  @override
+  String get nasDisableAction => 'Wiederherstellung deaktivieren';
+
+  @override
+  String get nasSaveAction => 'Passphrase speichern';
+
+  @override
+  String get nasSeparatePhrase =>
+      'Verwenden Sie eine separate Backup-Passphrase, nicht Ihren lokalen Code.';
+
+  @override
+  String get nasNeedPasscode =>
+      'Wählen und bestätigen Sie einen neuen Code mit mindestens sechs Zeichen.';
+
+  @override
+  String get nasNeedDetails =>
+      'Geben Sie Ihren gespeicherten NAS-Ordner, Benutzernamen und das Passwort ein.';
+
+  @override
+  String get nasMismatch => 'Die Backup-Passphrasen stimmen nicht überein.';
+
+  @override
+  String get nasCheckingRestore => 'Verschlüsseltes NAS-Backup wird geprüft …';
+
+  @override
+  String get nasCheckingSaved =>
+      'Gespeicherte NAS-Wiederherstellung wird geprüft …';
+
+  @override
+  String get nasRestoredTitle => 'Tresor wiederhergestellt';
+
+  @override
+  String get nasRestoredUnsaved =>
+      'Die NAS-Verbindung konnte nicht gespeichert werden. Ihre Aufnahmen sind wiederhergestellt; fügen Sie die Verbindung in den Einstellungen erneut hinzu, um Backups fortzusetzen.';
+
+  @override
+  String get nasContinue => 'Weiter';
+
+  @override
+  String get nasDisabledDone =>
+      'Wiederherstellung per Passphrase deaktiviert. Aufnahmen bleiben erhalten.';
+
+  @override
+  String get nasSavedDone =>
+      'Backup-Passphrase gespeichert. Bewahren Sie sie und Ihren Wiederherstellungsschlüssel getrennt auf.';
+
+  @override
+  String get nasWrongCurrent =>
+      'Falscher aktueller Code. Versuchen Sie es erneut.';
+
+  @override
+  String get nasCancelled => 'Abgebrochen. Originale bleiben erhalten.';
+
+  @override
+  String get nasRestoreFailed =>
+      'Wiederherstellung fehlgeschlagen. Prüfen Sie die NAS-Verbindung, die Backup-Passphrase und die Voraussetzung eines leeren Tresors. Originale bleiben erhalten.';
+
+  @override
+  String get nasChangeFailed =>
+      'Wiederherstellung konnte nicht geändert werden. Prüfen Sie das gespeicherte NAS-Backup, die unterstützte Wiederherstellungsdatei und die Serverkompatibilität. Synchronisieren Sie zuerst und versuchen Sie es dann erneut. Originale bleiben erhalten.';
 }

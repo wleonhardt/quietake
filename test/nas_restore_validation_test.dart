@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/sync/nas_recovery_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
@@ -22,13 +23,16 @@ void main() {
   });
   tearDown(() => dir.delete(recursive: true));
 
-  Future<void> open(WidgetTester tester) async {
+  Future<void> open(WidgetTester tester, {Locale? locale}) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: NasRecoveryScreen(
           store: MasterKeyStore(sodium, dir),
           onRestored: () => restored = true,
@@ -88,6 +92,17 @@ void main() {
     expect(await start(tester), contains('at least six characters'));
     await fill(tester, pin: 'newpass', confirm: 'different');
     expect(await start(tester), contains('confirm a new passcode'));
+  });
+
+  testWidgets('the restore screen follows the device language', (tester) async {
+    await open(tester, locale: const Locale('fr'));
+    expect(find.text('Restaurer depuis le NAS'), findsOneWidget);
+    await fill(tester, user: '');
+    expect(
+      await start(tester),
+      'Saisissez le dossier, le nom d\'utilisateur et le mot de passe NAS enregistrés.',
+    );
+    expect(find.text('Restore from NAS'), findsNothing);
   });
 
   testWidgets('missing NAS details are requested', (tester) async {
