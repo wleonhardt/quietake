@@ -15,14 +15,13 @@
   separate empty targets. Source CI is not signed-artifact or store evidence.
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
-- Next candidates: `archive_worker.dart` edge cases (one test file references it), and
-  `recording_progress.dart` platform selection. Review `lib/` for bugs after.
+- Next candidates: `archive_worker.dart` edge cases (one test file references it). Review `lib/` for bugs after.
 - NAS and simulator checks are authorized for the dev loop; no NAS run has
   happened yet. Keep to synthetic data and the development application ID.
 
 ## Done
 
-- Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `checkedFileName`
+- Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
 - A widget test that ran the full export (isolate worker plus file IO) under
