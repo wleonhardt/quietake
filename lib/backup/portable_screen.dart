@@ -285,6 +285,7 @@ class _PortableScreenState extends State<PortableScreen>
             TextField(
               key: Keys.portableRecovery,
               controller: _recovery,
+              onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
               enabled: !_busy,
               obscureText: true,
               enableSuggestions: false,
@@ -295,6 +296,7 @@ class _PortableScreenState extends State<PortableScreen>
           TextField(
             key: Keys.portablePasscode,
             controller: _pass,
+            onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
             enabled: !_busy,
             obscureText: true,
             enableSuggestions: false,
@@ -308,6 +310,7 @@ class _PortableScreenState extends State<PortableScreen>
             TextField(
               key: Keys.portableConfirm,
               controller: _confirm,
+              onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
               enabled: !_busy,
               obscureText: true,
               enableSuggestions: false,

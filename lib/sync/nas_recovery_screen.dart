@@ -338,6 +338,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
     child: TextField(
       key: key,
       controller: controller,
+      onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
       enabled: !_busy,
       obscureText: secret,
       keyboardType: keyboardType,
