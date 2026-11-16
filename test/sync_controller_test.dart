@@ -498,6 +498,21 @@ void main() {
       await stalled.close(force: true);
     }
   });
+  test(
+    'checking an unconfigured backup asks to connect and sends nothing',
+    () async {
+      settings = SyncSettings(url: '', username: '', password: '');
+      server.log.clear();
+      await controller.verify();
+      expect(controller.state, SyncState.unconfigured);
+      expect(
+        controller.verificationResult,
+        'Connect a saved NAS backup before checking.',
+      );
+      expect(controller.verificationCurrent, isFalse);
+      expect(server.log, isEmpty);
+    },
+  );
   test('verification is read-only, scoped to saved target and invalidated by later capture', () async {
     await capture('a.jpg');
     await controller.sync();
