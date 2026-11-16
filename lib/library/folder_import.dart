@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+
 import '../vault/vault.dart';
 import 'import_media.dart';
 
@@ -164,4 +166,40 @@ class FolderImport {
       cancelled: cancelled,
     );
   }
+}
+
+const folderChannel = MethodChannel('quietake/folder');
+
+/// The platform folder picker behind [FolderSource]. The native side keeps the
+/// chosen folder open until [release]; it reads only direct children.
+class PickedFolder implements FolderSource {
+  PickedFolder._(this.identity, this._entries);
+  @override
+  final String identity;
+  final List<FolderEntry> _entries;
+
+  /// Null when the user cancels the picker.
+  static Future<PickedFolder?> pick() async {
+    final raw = await folderChannel.invokeMapMethod<String, dynamic>('pick');
+    if (raw == null) return null;
+    return PickedFolder._(raw['identity'] as String, [
+      for (final e in raw['entries'] as List)
+        FolderEntry(id: (e as Map)['id'] as String, name: e['name'] as String),
+    ]);
+  }
+
+  @override
+  Future<List<FolderEntry>> list() async => _entries;
+
+  @override
+  Future<File> copyTo(FolderEntry entry, Directory directory) async {
+    final path = await folderChannel.invokeMethod<String>('copy', {
+      'id': entry.id,
+      'directory': directory.path,
+    });
+    return File(path!);
+  }
+
+  Future<void> cancel() => folderChannel.invokeMethod<void>('cancel');
+  Future<void> release() => folderChannel.invokeMethod<void>('release');
 }

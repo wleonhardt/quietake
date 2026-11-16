@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/library/folder_import.dart';
@@ -180,5 +181,76 @@ void main() {
     // Same content: the second folder finds exact duplicates, not ledger hits.
     expect(summary.alreadyDone, 0);
     expect(summary.duplicates, 2);
+  });
+
+  group('PickedFolder', () {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    final calls = <MethodCall>[];
+    Object? pickReply;
+
+    setUp(() {
+      calls.clear();
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(folderChannel, (
+        call,
+      ) async {
+        calls.add(call);
+        return switch (call.method) {
+          'pick' => pickReply,
+          'copy' => '${call.arguments['directory']}/copy.jpg',
+          _ => null,
+        };
+      });
+    });
+    tearDown(
+      () => binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        folderChannel,
+        null,
+      ),
+    );
+
+    test('a cancelled picker returns null', () async {
+      pickReply = null;
+      expect(await PickedFolder.pick(), isNull);
+    });
+
+    test('lists the entries and copies one by id into the directory', () async {
+      pickReply = {
+        'identity': 'content://tree/x',
+        'entries': [
+          {'id': 'doc:1', 'name': 'a.jpg'},
+          {'id': 'doc:2', 'name': 'b.png'},
+        ],
+      };
+      final folder = (await PickedFolder.pick())!;
+      expect(folder.identity, 'content://tree/x');
+      final entries = await folder.list();
+      expect(entries.map((e) => e.name), ['a.jpg', 'b.png']);
+      final file = await folder.copyTo(entries.first, staging);
+      expect(file.path, '${staging.path}/copy.jpg');
+      expect(calls.last.arguments, {'id': 'doc:1', 'directory': staging.path});
+      await folder.cancel();
+      await folder.release();
+      expect(calls.map((c) => c.method), ['pick', 'copy', 'cancel', 'release']);
+    });
+
+    test(
+      'a native copy failure becomes a failed file, not a crashed run',
+      () async {
+        pickReply = {
+          'identity': 'f',
+          'entries': [
+            {'id': 'doc:1', 'name': 'a.jpg'},
+          ],
+        };
+        binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          folderChannel,
+          (call) async => call.method == 'pick'
+              ? pickReply
+              : throw PlatformException(code: 'copy'),
+        );
+        final summary = await importer.run((await PickedFolder.pick())!);
+        expect((summary.imported, summary.failed), (0, 1));
+      },
+    );
   });
 }

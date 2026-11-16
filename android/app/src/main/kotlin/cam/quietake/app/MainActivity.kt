@@ -21,6 +21,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var microphoneResult: MethodChannel.Result? = null
     private var privacyChannel: MethodChannel? = null
     private lateinit var privateImport: PrivateImport
+    private lateinit var folderImport: FolderImport
     private lateinit var portableFiles: PortableFiles
     private lateinit var videoPreparation: VideoPreparation
     private lateinit var backgroundUploads: BackgroundUploads
@@ -43,6 +44,17 @@ class MainActivity : FlutterFragmentActivity() {
         videoPreparation = VideoPreparation(this)
         privateImport = PrivateImport(this)
         portableFiles = PortableFiles(this)
+        folderImport = FolderImport(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/folder")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "pick" -> folderImport.pick(result)
+                    "copy" -> folderImport.copy(call.argument<String>("id")!!, call.argument<String>("directory")!!, result)
+                    "cancel" -> { folderImport.cancel(); result.success(null) }
+                    "release" -> folderImport.release(result)
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/backup")
             .setMethodCallHandler { call, result -> portableFiles.handle(call, result) }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/import")
@@ -122,6 +134,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == privateImport.requestCode) privateImport.result(resultCode, data)
+        if (requestCode == folderImport.requestCode) folderImport.result(resultCode, data)
         if (requestCode == portableFiles.pickCode || requestCode == portableFiles.saveCode) portableFiles.result(requestCode, resultCode, data)
     }
 
@@ -136,6 +149,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onDestroy() {
         backgroundUploads.close()
         privateImport.close()
+        folderImport.close()
         portableFiles.close()
         videoPreparation.close()
         microphoneResult?.success(false)

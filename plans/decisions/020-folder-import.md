@@ -30,7 +30,16 @@ bounded chunk at a time, and can be run again to finish what was interrupted.
 ## Slices
 
 1. Pipeline, ledger and `FolderSource` interface with host tests (this record).
-2. Android folder picker (Storage Access Framework tree) and iOS folder picker.
+2. Native pickers (done): channel `quietake/folder` with `pick`, `copy`, `cancel` and
+   `release`. Android uses `ACTION_OPEN_DOCUMENT_TREE` and `DocumentsContract`
+   (`FolderImport.kt`); iOS uses a folder `UIDocumentPickerViewController` with
+   security-scoped access held until `release` (`FolderImportPicker` in
+   `PrivateImport.swift`, so the Xcode project needs no new entry). Both list only
+   direct children, cap the list at 10,001 so Dart can refuse the folder, and copy
+   one file at a time with the same 32 MiB photo and 512 MiB video bounds as file
+   import. `PickedFolder` is the Dart `FolderSource` over the channel. No
+   screen uses it yet, so device runs only prove the native code compiles and
+   existing import still works; the pickers need the screen slice to be exercised.
 3. Import screen: "Choose folder" button, progress by count, resume prompt, e2e.
 4. Policy and README wording.
 

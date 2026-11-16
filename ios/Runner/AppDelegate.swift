@@ -6,6 +6,7 @@ import AVFoundation
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let privateImport = PrivateImport()
   private let portableFiles = PortableFiles()
+  private let folderImport = FolderImportPicker()
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -21,6 +22,8 @@ import AVFoundation
 
     let imports = FlutterMethodChannel(name: "quietake/import", binaryMessenger: registrar.messenger())
     imports.setMethodCallHandler { [self] call, result in privateImport.handle(call, result: result) }
+    FlutterMethodChannel(name: "quietake/folder", binaryMessenger: registrar.messenger())
+      .setMethodCallHandler { [weak self] call, result in self?.folderImport.handle(call, result: result) }
     FlutterMethodChannel(name: "quietake/captures", binaryMessenger: registrar.messenger())
       .setMethodCallHandler { call, result in
         // Dart owns the pending-capture path and passes it; it must stay inside Documents.
