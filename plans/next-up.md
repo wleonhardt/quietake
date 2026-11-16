@@ -24,7 +24,7 @@
   `Session.start` fails (documents path is a file) segfaults flutter_tester. Calling
   `SetupScreen.onUnlocked` directly after writing the keyfile does not. Cause unfound; the
   crash may be a test-process artifact, but a native key-use-after-dispose is unproven either way.
-- Next: continue `lib/` bug review. Read so far with no defect found (incl. `sync_controller.dart`, well covered):
+- Next: secrets left in text fields while locked (content navigator stays alive offstage). Fixed: recovery key check, Change passcode screen. Still open, same fix and test pattern: Settings NAS password field (`_pass`) and the passcode confirm dialog (`Keys.recoveryPrompt`). Then continue `lib/` bug review. Read so far with no defect found (incl. `sync_controller.dart`, well covered):
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
   prepared-video overwrite), `privacy_controller.dart`, `master_key_store.dart`, `webdav_client.dart` and the

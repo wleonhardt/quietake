@@ -13,7 +13,8 @@ class ChangePasscodeScreen extends StatefulWidget {
   State<ChangePasscodeScreen> createState() => _ChangePasscodeScreenState();
 }
 
-class _ChangePasscodeScreenState extends State<ChangePasscodeScreen> {
+class _ChangePasscodeScreenState extends State<ChangePasscodeScreen>
+    with WidgetsBindingObserver {
   final _current = TextEditingController();
   final _next = TextEditingController();
   final _confirm = TextEditingController();
@@ -21,7 +22,24 @@ class _ChangePasscodeScreenState extends State<ChangePasscodeScreen> {
   String Function(AppLocalizations)? _error;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// The content stays alive behind the lock screen, so typed passcodes must not.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _current.clear();
+      _next.clear();
+      _confirm.clear();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _current.dispose();
     _next.dispose();
     _confirm.dispose();
