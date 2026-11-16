@@ -139,6 +139,26 @@ void main() {
     });
   });
 
+  testWidgets('a failed Restore says so and keeps the capture in the list', (
+    tester,
+  ) async {
+    await open(tester, [base]);
+    await until(
+      tester,
+      () => find.byKey(Keys.recentlyDeletedRestore(a)).evaluate().isNotEmpty,
+    );
+    // A trash folder that cannot be written makes removing the marker fail.
+    final trash = Directory('${dir.path}/.trash');
+    await tester.runAsync(() => Process.run('chmod', ['500', trash.path]));
+    addTearDown(() => Process.runSync('chmod', ['700', trash.path]));
+    await tester.tap(find.byKey(Keys.recentlyDeletedRestore(a)));
+    await until(
+      tester,
+      () => find.text('Could not restore. Please retry.').evaluate().isNotEmpty,
+    );
+    expect(find.byKey(Keys.recentlyDeletedItem(a)), findsOneWidget);
+  });
+
   // Confirming Delete now runs the vault delete and a sync, and the widget zone
   // then hangs in Session.close. That path is covered by vault_trash_test and the
   // device test integration_test/recently_deleted_test.dart.
