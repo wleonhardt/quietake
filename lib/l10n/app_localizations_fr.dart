@@ -573,4 +573,81 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get viewReset => 'Réinitialiser';
+
+  @override
+  String get pickerCameraTitle => 'Étiquettes des nouvelles captures';
+
+  @override
+  String get pickerRemoveTitle => 'Retirer des étiquettes';
+
+  @override
+  String get pickerAddTitle => 'Ajouter des étiquettes';
+
+  @override
+  String get pickerCameraNote => 'Effacé au verrouillage ou en arrière-plan.';
+
+  @override
+  String pickerSelectionNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return '$_temp0 · les autres étiquettes restent inchangées';
+  }
+
+  @override
+  String get pickerCancel => 'Annuler la sélection d\'étiquettes';
+
+  @override
+  String get pickerNoTags => 'Aucune étiquette';
+
+  @override
+  String pickerAlreadyTagged(int tagged, int total) {
+    return '$tagged sur $total déjà étiquetées';
+  }
+
+  @override
+  String get pickerManage => 'Gérer les étiquettes';
+
+  @override
+  String get pickerStale =>
+      'Une étiquette sélectionnée a changé. Vérifiez votre sélection.';
+
+  @override
+  String get pickerReview => 'Vérifier';
+
+  @override
+  String pickerUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Utiliser $count étiquettes',
+      one: 'Utiliser 1 étiquette',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickerAddCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ajouter $count étiquettes',
+      one: 'Ajouter 1 étiquette',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickerRemoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Retirer $count étiquettes',
+      one: 'Retirer 1 étiquette',
+    );
+    return '$_temp0';
+  }
 }

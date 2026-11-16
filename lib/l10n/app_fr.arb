@@ -151,5 +151,19 @@
   "viewName": "Nom",
   "viewApply": "Appliquer l'affichage",
   "viewShowCount": "{count, plural, =1{Afficher 1 capture} other{Afficher {count} captures}}",
-  "viewReset": "Réinitialiser"
+  "viewReset": "Réinitialiser",
+  "pickerCameraTitle": "Étiquettes des nouvelles captures",
+  "pickerRemoveTitle": "Retirer des étiquettes",
+  "pickerAddTitle": "Ajouter des étiquettes",
+  "pickerCameraNote": "Effacé au verrouillage ou en arrière-plan.",
+  "pickerSelectionNote": "{count, plural, =1{1 capture} other{{count} captures}} · les autres étiquettes restent inchangées",
+  "pickerCancel": "Annuler la sélection d'étiquettes",
+  "pickerNoTags": "Aucune étiquette",
+  "pickerAlreadyTagged": "{tagged} sur {total} déjà étiquetées",
+  "pickerManage": "Gérer les étiquettes",
+  "pickerStale": "Une étiquette sélectionnée a changé. Vérifiez votre sélection.",
+  "pickerReview": "Vérifier",
+  "pickerUse": "{count, plural, =1{Utiliser 1 étiquette} other{Utiliser {count} étiquettes}}",
+  "pickerAddCount": "{count, plural, =1{Ajouter 1 étiquette} other{Ajouter {count} étiquettes}}",
+  "pickerRemoveCount": "{count, plural, =1{Retirer 1 étiquette} other{Retirer {count} étiquettes}}"
 }

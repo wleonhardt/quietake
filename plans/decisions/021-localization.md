@@ -39,7 +39,7 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
    language change shows the old text until the next status; acceptable for a
    transient message.
 4. Library, Tags, Moments, viewer, share and import. Tags screen, name dialog,
-   merge picker, Moments and the view sheet are done; tag picker, gallery,
+   merge picker, Moments, the view sheet and the tag picker are done; gallery,
    viewer, share and import remain. `monthLabel` now takes a context and uses
    `intl` `yMMMM`.
 5. Settings, backup and NAS screens, and snackbar errors.

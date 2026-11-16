@@ -151,5 +151,19 @@
   "viewName": "Nombre",
   "viewApply": "Aplicar vista",
   "viewShowCount": "{count, plural, =1{Mostrar 1 captura} other{Mostrar {count} capturas}}",
-  "viewReset": "Restablecer"
+  "viewReset": "Restablecer",
+  "pickerCameraTitle": "Etiquetas para las capturas nuevas",
+  "pickerRemoveTitle": "Quitar etiquetas",
+  "pickerAddTitle": "Añadir etiquetas",
+  "pickerCameraNote": "Se borra al bloquear o pasar a segundo plano.",
+  "pickerSelectionNote": "{count, plural, =1{1 captura} other{{count} capturas}} · las demás etiquetas no cambian",
+  "pickerCancel": "Cancelar la selección de etiquetas",
+  "pickerNoTags": "Sin etiquetas",
+  "pickerAlreadyTagged": "{tagged} de {total} ya etiquetadas",
+  "pickerManage": "Gestionar etiquetas",
+  "pickerStale": "Una etiqueta seleccionada ha cambiado. Revisa tu selección.",
+  "pickerReview": "Revisar",
+  "pickerUse": "{count, plural, =1{Usar 1 etiqueta} other{Usar {count} etiquetas}}",
+  "pickerAddCount": "{count, plural, =1{Añadir 1 etiqueta} other{Añadir {count} etiquetas}}",
+  "pickerRemoveCount": "{count, plural, =1{Quitar 1 etiqueta} other{Quitar {count} etiquetas}}"
 }

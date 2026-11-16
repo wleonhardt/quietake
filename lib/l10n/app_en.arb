@@ -279,5 +279,57 @@
       }
     }
   },
-  "viewReset": "Reset"
+  "viewReset": "Reset",
+  "pickerCameraTitle": "Tags for new captures",
+  "pickerRemoveTitle": "Remove tags",
+  "pickerAddTitle": "Add tags",
+  "pickerCameraNote": "Clears on lock or background.",
+  "pickerSelectionNote": "{count, plural, =1{1 capture} other{{count} captures}} · other tags stay unchanged",
+  "@pickerSelectionNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerCancel": "Cancel tag selection",
+  "pickerNoTags": "No tags",
+  "pickerAlreadyTagged": "{tagged} of {total} already tagged",
+  "@pickerAlreadyTagged": {
+    "placeholders": {
+      "tagged": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerManage": "Manage tags",
+  "pickerStale": "A selected tag changed. Review your selection.",
+  "pickerReview": "Review",
+  "pickerUse": "{count, plural, =1{Use 1 tag} other{Use {count} tags}}",
+  "@pickerUse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerAddCount": "{count, plural, =1{Add 1 tag} other{Add {count} tags}}",
+  "@pickerAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerRemoveCount": "{count, plural, =1{Remove 1 tag} other{Remove {count} tags}}",
+  "@pickerRemoveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

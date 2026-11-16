@@ -1013,6 +1013,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset'**
   String get viewReset;
+
+  /// No description provided for @pickerCameraTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags for new captures'**
+  String get pickerCameraTitle;
+
+  /// No description provided for @pickerRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove tags'**
+  String get pickerRemoveTitle;
+
+  /// No description provided for @pickerAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tags'**
+  String get pickerAddTitle;
+
+  /// No description provided for @pickerCameraNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Clears on lock or background.'**
+  String get pickerCameraNote;
+
+  /// No description provided for @pickerSelectionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 capture} other{{count} captures}} · other tags stay unchanged'**
+  String pickerSelectionNote(int count);
+
+  /// No description provided for @pickerCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel tag selection'**
+  String get pickerCancel;
+
+  /// No description provided for @pickerNoTags.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags'**
+  String get pickerNoTags;
+
+  /// No description provided for @pickerAlreadyTagged.
+  ///
+  /// In en, this message translates to:
+  /// **'{tagged} of {total} already tagged'**
+  String pickerAlreadyTagged(int tagged, int total);
+
+  /// No description provided for @pickerManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage tags'**
+  String get pickerManage;
+
+  /// No description provided for @pickerStale.
+  ///
+  /// In en, this message translates to:
+  /// **'A selected tag changed. Review your selection.'**
+  String get pickerStale;
+
+  /// No description provided for @pickerReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get pickerReview;
+
+  /// No description provided for @pickerUse.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Use 1 tag} other{Use {count} tags}}'**
+  String pickerUse(int count);
+
+  /// No description provided for @pickerAddCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Add 1 tag} other{Add {count} tags}}'**
+  String pickerAddCount(int count);
+
+  /// No description provided for @pickerRemoveCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Remove 1 tag} other{Remove {count} tags}}'**
+  String pickerRemoveCount(int count);
 }
 
 class _AppLocalizationsDelegate

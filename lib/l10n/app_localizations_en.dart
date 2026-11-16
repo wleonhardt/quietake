@@ -557,4 +557,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewReset => 'Reset';
+
+  @override
+  String get pickerCameraTitle => 'Tags for new captures';
+
+  @override
+  String get pickerRemoveTitle => 'Remove tags';
+
+  @override
+  String get pickerAddTitle => 'Add tags';
+
+  @override
+  String get pickerCameraNote => 'Clears on lock or background.';
+
+  @override
+  String pickerSelectionNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return '$_temp0 · other tags stay unchanged';
+  }
+
+  @override
+  String get pickerCancel => 'Cancel tag selection';
+
+  @override
+  String get pickerNoTags => 'No tags';
+
+  @override
+  String pickerAlreadyTagged(int tagged, int total) {
+    return '$tagged of $total already tagged';
+  }
+
+  @override
+  String get pickerManage => 'Manage tags';
+
+  @override
+  String get pickerStale => 'A selected tag changed. Review your selection.';
+
+  @override
+  String get pickerReview => 'Review';
+
+  @override
+  String pickerUse(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Use $count tags',
+      one: 'Use 1 tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickerAddCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count tags',
+      one: 'Add 1 tag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String pickerRemoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Remove $count tags',
+      one: 'Remove 1 tag',
+    );
+    return '$_temp0';
+  }
 }

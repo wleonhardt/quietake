@@ -5,11 +5,56 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/brand.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/library/tag_picker.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 void main() {
+  testWidgets('the picker follows the device language', (tester) async {
+    late Directory dir;
+    late Vault vault;
+    await tester.runAsync(() async {
+      final sodium = await SodiumSumoInit.init();
+      dir = await Directory.systemTemp.createTemp('tag-picker-es');
+      vault = Vault(VaultCrypto(sodium), sodium.crypto.secretBox.keygen(), dir);
+      final id = await vault.catalog.createAlbum('Alex');
+      await vault.catalog.organize({'one.jpg.shtr'}, tagIds: {id});
+    });
+    try {
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => chooseTags(
+                context,
+                vault.catalog,
+                captures: {'one.jpg.shtr', 'two.jpg.shtr'},
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Añadir etiquetas'), findsOneWidget);
+      expect(find.text('1 de 2 ya etiquetadas'), findsOneWidget);
+      expect(find.text('Añadir 0 etiquetas'), findsOneWidget);
+      expect(find.text('Add tags'), findsNothing);
+    } finally {
+      await tester.pumpWidget(const SizedBox());
+      await tester.runAsync(() async {
+        await vault.catalog.close();
+        vault.dispose();
+        await dir.delete(recursive: true);
+      });
+    }
+  });
+
   for (final remove in [false, true]) {
     testWidgets(
       'batch tag picker counts, search and cancellation; remove=$remove',

@@ -151,5 +151,19 @@
   "viewName": "Name",
   "viewApply": "Ansicht anwenden",
   "viewShowCount": "{count, plural, =1{1 Aufnahme anzeigen} other{{count} Aufnahmen anzeigen}}",
-  "viewReset": "Zurücksetzen"
+  "viewReset": "Zurücksetzen",
+  "pickerCameraTitle": "Tags für neue Aufnahmen",
+  "pickerRemoveTitle": "Tags entfernen",
+  "pickerAddTitle": "Tags hinzufügen",
+  "pickerCameraNote": "Wird beim Sperren oder im Hintergrund gelöscht.",
+  "pickerSelectionNote": "{count, plural, =1{1 Aufnahme} other{{count} Aufnahmen}} · andere Tags bleiben unverändert",
+  "pickerCancel": "Tag-Auswahl abbrechen",
+  "pickerNoTags": "Keine Tags",
+  "pickerAlreadyTagged": "{tagged} von {total} bereits mit Tag",
+  "pickerManage": "Tags verwalten",
+  "pickerStale": "Ein ausgewählter Tag wurde geändert. Prüfen Sie Ihre Auswahl.",
+  "pickerReview": "Prüfen",
+  "pickerUse": "{count, plural, =1{1 Tag verwenden} other{{count} Tags verwenden}}",
+  "pickerAddCount": "{count, plural, =1{1 Tag hinzufügen} other{{count} Tags hinzufügen}}",
+  "pickerRemoveCount": "{count, plural, =1{1 Tag entfernen} other{{count} Tags entfernen}}"
 }
