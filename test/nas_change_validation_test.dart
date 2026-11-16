@@ -114,4 +114,29 @@ void main() {
     expect(find.byKey(Keys.nasChangeConfirm), findsNothing);
     expect(find.text('Checking saved NAS recovery…'), findsNothing);
   });
+
+  testWidgets('Generate fills a new backup passphrase and clears its confirm', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.enterText(find.byKey(Keys.nasPhraseConfirm), 'stale');
+    await tester.ensureVisible(find.byKey(Keys.nasGenerate));
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.nasGenerate)));
+    String phraseText() =>
+        tester.widget<TextField>(find.byKey(Keys.nasPhrase)).controller!.text;
+    for (var i = 0; i < 100 && phraseText().isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(phraseText().split(' ').length, greaterThan(3));
+    expect(
+      tester
+          .widget<TextField>(find.byKey(Keys.nasPhraseConfirm))
+          .controller!
+          .text,
+      isEmpty,
+    );
+  });
 }
