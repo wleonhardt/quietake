@@ -144,4 +144,26 @@ void main() {
       expect(await session.vault.deletedNames(), isEmpty);
     });
   });
+
+  testWidgets('controls are labeled and large enough on a small screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final semantics = tester.ensureSemantics();
+    await open(tester, [base]);
+    await until(
+      tester,
+      () => find.byKey(Keys.recentlyDeletedItem(a)).evaluate().isNotEmpty,
+    );
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+    expect(find.byTooltip('Restore'), findsOneWidget);
+    expect(find.byTooltip('Delete now'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    semantics.dispose();
+  });
 }
