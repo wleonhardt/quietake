@@ -641,7 +641,10 @@ class _CaptureScreenState extends State<CaptureScreen>
             IgnorePointer(
               child: AnimatedContainer(
                 key: _flash ? Keys.captureFlash : Keys.captureRecordingFrame,
-                duration: const Duration(milliseconds: 160),
+                // Reduced motion: the cue appears and goes without a fade.
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 160),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: _flash ? flashRing : recordRing,
