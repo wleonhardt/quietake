@@ -68,7 +68,11 @@ void main() {
     fail('Gallery did not settle');
   }
 
-  Future<void> open(WidgetTester tester, {bool corruptCatalog = false}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    bool corruptCatalog = false,
+    bool vaultMissing = false,
+  }) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -104,11 +108,15 @@ void main() {
         await dir.delete(recursive: true);
       });
     });
+    if (vaultMissing) {
+      await tester.runAsync(() => dir.rename('${dir.path}-moved'));
+    }
     await tester.runAsync(() async {
       await tester.pumpWidget(
         MaterialApp(home: GalleryScreen(session: session)),
       );
     });
+    if (vaultMissing) return;
     await until(
       tester,
       () => find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
@@ -320,5 +328,21 @@ void main() {
     }
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('a vault that cannot be listed offers Retry and recovers', (
+    tester,
+  ) async {
+    await open(tester, vaultMissing: true);
+    final retry = find.text('Could not open vault. Retry');
+    await until(tester, () => retry.evaluate().isNotEmpty);
+    // The folder comes back, then Retry lists the captures again.
+    await tester.runAsync(() => Directory('${dir.path}-moved').rename(dir.path));
+    await tester.runAsync(() => tester.tap(retry));
+    await until(
+      tester,
+      () => find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
+    );
+    expect(retry, findsNothing);
   });
 }
