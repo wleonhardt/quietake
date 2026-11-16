@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/cast/cast_backend.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/item.dart';
@@ -21,6 +22,7 @@ void main() {
   late Directory dir;
   late Session session;
   late List<VaultItem> items;
+  final backend = FakeCastBackend();
 
   Future<void> until(WidgetTester tester, bool Function() done) async {
     for (var i = 0; i < 150 && !done(); i++) {
@@ -55,7 +57,7 @@ void main() {
       session = Session(
         vault: vault,
         server: await MediaServer.start(vault),
-        cast: CastController(vault, FakeCastBackend()),
+        cast: CastController(vault, backend),
         store: MasterKeyStore(sodium, dir),
       );
       await vault.catalog.load();
@@ -169,5 +171,25 @@ void main() {
     await tester.tap(find.byKey(Keys.viewerFit));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.viewerFit), findsNothing);
+  });
+
+  testWidgets('the viewer shows the cast device, or that casting failed', (
+    tester,
+  ) async {
+    if (await tester.runAsync(MediaServer.lanAddress) == null) return;
+    await open(tester);
+    const tv = CastDevice('tv-1', 'Living Room TV');
+    backend.failConnect = true;
+    await tester.runAsync(() => session.cast.start(tv, null));
+    await until(
+      tester,
+      () => find.text('Could not cast. Try again.').evaluate().isNotEmpty,
+    );
+    backend.failConnect = false;
+    await tester.runAsync(() => session.cast.start(tv, null));
+    await until(
+      tester,
+      () => find.text('casting to Living Room TV').evaluate().isNotEmpty,
+    );
   });
 }
