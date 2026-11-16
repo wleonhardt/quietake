@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/library/folder_import.dart';
 import 'package:quietake/library/import_media.dart';
 import 'package:quietake/library/import_screen.dart';
@@ -37,7 +38,7 @@ void main() {
     clear = () async {};
   });
 
-  Future<void> open(WidgetTester tester) async {
+  Future<void> open(WidgetTester tester, {Locale? locale}) async {
     await tester.runAsync(() async {
       final sodium = await SodiumSumoInit.init();
       dir = await Directory.systemTemp.createTemp('quietake-import-screen');
@@ -84,7 +85,14 @@ void main() {
         ..setMockMethodCallHandler(folderChannel, null)
         ..setMockMethodCallHandler(importChannel, null);
     });
-    await tester.pumpWidget(MaterialApp(home: ImportScreen(session: session)));
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ImportScreen(session: session),
+      ),
+    );
     await tester.pump();
   }
 
@@ -134,6 +142,22 @@ void main() {
       );
     },
   );
+
+  testWidgets('the import screen follows the device language', (tester) async {
+    pick = () async => [
+      {'name': 'notes.txt', 'path': null, 'error': null},
+    ];
+    await open(tester, locale: const Locale('es'));
+    expect(find.text('Elegir archivos'), findsOneWidget);
+    expect(find.text('Elegir carpeta'), findsOneWidget);
+    expect(find.text('Archivos admitidos y límites'), findsOneWidget);
+    await choose(tester);
+    expect(
+      text(tester, Keys.importSummary),
+      '0 importadas · 0 duplicadas omitidas · 1 con error',
+    );
+    expect(find.text('Choose files'), findsNothing);
+  });
 
   testWidgets('a failing picker reports a retryable error', (tester) async {
     pick = () async => throw PlatformException(code: 'picker');

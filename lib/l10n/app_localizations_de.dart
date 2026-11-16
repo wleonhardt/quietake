@@ -813,4 +813,87 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get galleryPreviewUnavailable => 'Vorschau nicht verfügbar';
+
+  @override
+  String get importIntro =>
+      'Kopieren Sie Fotos und Videos aus Dateien in Ihre Bibliothek. Die Originale bleiben unverändert, einschließlich Standort und anderer Metadaten. Es wird nichts gelöscht oder geteilt.';
+
+  @override
+  String get importChooseFiles => 'Dateien auswählen';
+
+  @override
+  String get importChooseFolder => 'Ordner auswählen';
+
+  @override
+  String get importSupportedTitle => 'Unterstützte Dateien und Grenzen';
+
+  @override
+  String get importSupportedBody =>
+      'JPEG, PNG oder abspielbares MP4. Bis zu 20 Dateien und insgesamt 512 MiB; Fotos bis 32 MiB und 64 MP. Ein Ordner importiert seine Dateien (keine Unterordner), bis zu 10.000, jeweils 20 auf einmal; wählen Sie denselben Ordner erneut, um fortzufahren. Die Wiedergabe auf dem Fernseher hängt von den Codecs ab. Importe verwenden das Hinzufügedatum. Ausgewählte Kopien können noch verschlüsselt werden, während Quietake gesperrt ist.';
+
+  @override
+  String get importCancelling => 'Abbruch nach der aktuellen Datei…';
+
+  @override
+  String get importCancelRemaining => 'Rest abbrechen';
+
+  @override
+  String importFolderCount(int handled, int total) {
+    return '$handled von $total Dateien';
+  }
+
+  @override
+  String get importBusyPrevious =>
+      'Der vorherige Import wird beendet. Versuchen Sie es gleich noch einmal.';
+
+  @override
+  String get importOpenFailed =>
+      'Import konnte nicht geöffnet werden. Prüfen Sie den Speicher und versuchen Sie es erneut.';
+
+  @override
+  String get importStoppedEarly =>
+      'Der Import wurde vorzeitig beendet. Als importiert aufgeführte Kopien sind gespeichert.';
+
+  @override
+  String get importCleanupFailed =>
+      'Die temporäre Bereinigung ist fehlgeschlagen. Starten Sie Quietake neu, bevor Sie es erneut versuchen.';
+
+  @override
+  String get importFolderStopped =>
+      'Der Ordnerimport wurde beendet. Wählen Sie den Ordner erneut, um fortzufahren; fertige Dateien sind gespeichert.';
+
+  @override
+  String importImported(int count) {
+    return '$count importiert';
+  }
+
+  @override
+  String importDuplicates(int count) {
+    return '$count Duplikate übersprungen';
+  }
+
+  @override
+  String importAlreadyDone(int count) {
+    return '$count bereits früher importiert';
+  }
+
+  @override
+  String importFailedCount(int count) {
+    return '$count fehlgeschlagen';
+  }
+
+  @override
+  String importNotStarted(int count) {
+    return '$count nicht gestartet';
+  }
+
+  @override
+  String importSummaryEnd(String summary) {
+    return '$summary.';
+  }
+
+  @override
+  String importSummaryContinue(String summary) {
+    return '$summary. Wählen Sie denselben Ordner erneut, um fortzufahren.';
+  }
 }

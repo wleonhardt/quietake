@@ -1385,6 +1385,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preview unavailable'**
   String get galleryPreviewUnavailable;
+
+  /// No description provided for @importIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy photos and videos from Files into your Library. Originals stay unchanged, including location and other metadata. Nothing is deleted or shared.'**
+  String get importIntro;
+
+  /// No description provided for @importChooseFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose files'**
+  String get importChooseFiles;
+
+  /// No description provided for @importChooseFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose folder'**
+  String get importChooseFolder;
+
+  /// No description provided for @importSupportedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported files and limits'**
+  String get importSupportedTitle;
+
+  /// No description provided for @importSupportedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked.'**
+  String get importSupportedBody;
+
+  /// No description provided for @importCancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling after current file…'**
+  String get importCancelling;
+
+  /// No description provided for @importCancelRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel remaining'**
+  String get importCancelRemaining;
+
+  /// No description provided for @importFolderCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{handled} of {total} files'**
+  String importFolderCount(int handled, int total);
+
+  /// No description provided for @importBusyPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous import is finishing. Try again shortly.'**
+  String get importBusyPrevious;
+
+  /// No description provided for @importOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open import. Check storage and try again.'**
+  String get importOpenFailed;
+
+  /// No description provided for @importStoppedEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Import stopped early. Copies listed as imported are saved.'**
+  String get importStoppedEarly;
+
+  /// No description provided for @importCleanupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary cleanup failed. Restart Quietake before trying again.'**
+  String get importCleanupFailed;
+
+  /// No description provided for @importFolderStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder import stopped. Choose the folder again to continue; finished files are saved.'**
+  String get importFolderStopped;
+
+  /// No description provided for @importImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} imported'**
+  String importImported(int count);
+
+  /// No description provided for @importDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} duplicates skipped'**
+  String importDuplicates(int count);
+
+  /// No description provided for @importAlreadyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} already imported earlier'**
+  String importAlreadyDone(int count);
+
+  /// No description provided for @importFailedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} failed'**
+  String importFailedCount(int count);
+
+  /// No description provided for @importNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} not started'**
+  String importNotStarted(int count);
+
+  /// No description provided for @importSummaryEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'{summary}.'**
+  String importSummaryEnd(String summary);
+
+  /// No description provided for @importSummaryContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'{summary}. Choose the same folder again to continue.'**
+  String importSummaryContinue(String summary);
 }
 
 class _AppLocalizationsDelegate

@@ -417,5 +417,84 @@
       }
     }
   },
-  "galleryPreviewUnavailable": "Preview unavailable"
+  "galleryPreviewUnavailable": "Preview unavailable",
+  "importIntro": "Copy photos and videos from Files into your Library. Originals stay unchanged, including location and other metadata. Nothing is deleted or shared.",
+  "importChooseFiles": "Choose files",
+  "importChooseFolder": "Choose folder",
+  "importSupportedTitle": "Supported files and limits",
+  "importSupportedBody": "JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked.",
+  "importCancelling": "Cancelling after current file…",
+  "importCancelRemaining": "Cancel remaining",
+  "importFolderCount": "{handled} of {total} files",
+  "@importFolderCount": {
+    "placeholders": {
+      "handled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importBusyPrevious": "Previous import is finishing. Try again shortly.",
+  "importOpenFailed": "Could not open import. Check storage and try again.",
+  "importStoppedEarly": "Import stopped early. Copies listed as imported are saved.",
+  "importCleanupFailed": "Temporary cleanup failed. Restart Quietake before trying again.",
+  "importFolderStopped": "Folder import stopped. Choose the folder again to continue; finished files are saved.",
+  "importImported": "{count} imported",
+  "@importImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDuplicates": "{count} duplicates skipped",
+  "@importDuplicates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importAlreadyDone": "{count} already imported earlier",
+  "@importAlreadyDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importFailedCount": "{count} failed",
+  "@importFailedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importNotStarted": "{count} not started",
+  "@importNotStarted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryEnd": "{summary}.",
+  "@importSummaryEnd": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryContinue": "{summary}. Choose the same folder again to continue.",
+  "@importSummaryContinue": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  }
 }

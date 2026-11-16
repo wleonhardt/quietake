@@ -791,4 +791,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get galleryPreviewUnavailable => 'Preview unavailable';
+
+  @override
+  String get importIntro =>
+      'Copy photos and videos from Files into your Library. Originals stay unchanged, including location and other metadata. Nothing is deleted or shared.';
+
+  @override
+  String get importChooseFiles => 'Choose files';
+
+  @override
+  String get importChooseFolder => 'Choose folder';
+
+  @override
+  String get importSupportedTitle => 'Supported files and limits';
+
+  @override
+  String get importSupportedBody =>
+      'JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked.';
+
+  @override
+  String get importCancelling => 'Cancelling after current file…';
+
+  @override
+  String get importCancelRemaining => 'Cancel remaining';
+
+  @override
+  String importFolderCount(int handled, int total) {
+    return '$handled of $total files';
+  }
+
+  @override
+  String get importBusyPrevious =>
+      'Previous import is finishing. Try again shortly.';
+
+  @override
+  String get importOpenFailed =>
+      'Could not open import. Check storage and try again.';
+
+  @override
+  String get importStoppedEarly =>
+      'Import stopped early. Copies listed as imported are saved.';
+
+  @override
+  String get importCleanupFailed =>
+      'Temporary cleanup failed. Restart Quietake before trying again.';
+
+  @override
+  String get importFolderStopped =>
+      'Folder import stopped. Choose the folder again to continue; finished files are saved.';
+
+  @override
+  String importImported(int count) {
+    return '$count imported';
+  }
+
+  @override
+  String importDuplicates(int count) {
+    return '$count duplicates skipped';
+  }
+
+  @override
+  String importAlreadyDone(int count) {
+    return '$count already imported earlier';
+  }
+
+  @override
+  String importFailedCount(int count) {
+    return '$count failed';
+  }
+
+  @override
+  String importNotStarted(int count) {
+    return '$count not started';
+  }
+
+  @override
+  String importSummaryEnd(String summary) {
+    return '$summary.';
+  }
+
+  @override
+  String importSummaryContinue(String summary) {
+    return '$summary. Choose the same folder again to continue.';
+  }
 }

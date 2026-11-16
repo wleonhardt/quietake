@@ -39,8 +39,8 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
    language change shows the old text until the next status; acceptable for a
    transient message.
 4. Library, Tags, Moments, viewer, share and import. Tags screen, name dialog,
-   merge picker, Moments, the view sheet and the tag picker and the gallery screen are done; viewer, share and import
-   remain. Tile accessibility labels join localized parts with a comma. `monthLabel` now takes a context and uses
+   merge picker, Moments, the view sheet and the tag picker, the gallery screen and the Import screen are done; viewer
+   and share remain. Per-file import messages from the import layer stay English. Tile accessibility labels join localized parts with a comma. `monthLabel` now takes a context and uses
    `intl` `yMMMM`.
 5. Settings, backup and NAS screens, and snackbar errors.
 Strings built in code, such as month names in Moments, move to `intl` date

@@ -810,4 +810,87 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get galleryPreviewUnavailable => 'Aperçu indisponible';
+
+  @override
+  String get importIntro =>
+      'Copiez des photos et des vidéos depuis Fichiers vers votre Bibliothèque. Les originaux restent inchangés, y compris la position et les autres métadonnées. Rien n\'est supprimé ni partagé.';
+
+  @override
+  String get importChooseFiles => 'Choisir des fichiers';
+
+  @override
+  String get importChooseFolder => 'Choisir un dossier';
+
+  @override
+  String get importSupportedTitle => 'Fichiers pris en charge et limites';
+
+  @override
+  String get importSupportedBody =>
+      'JPEG, PNG ou MP4 lisible. Jusqu\'à 20 fichiers et 512 Mio au total ; photos jusqu\'à 32 Mio et 64 MP. Un dossier importe ses fichiers (pas les sous-dossiers), jusqu\'à 10 000, par lots de 20 ; choisissez à nouveau le même dossier pour reprendre. La lecture sur téléviseur dépend des codecs. Les imports utilisent la date d\'ajout. Les copies sélectionnées peuvent finir d\'être chiffrées pendant que Quietake est verrouillé.';
+
+  @override
+  String get importCancelling => 'Annulation après le fichier en cours…';
+
+  @override
+  String get importCancelRemaining => 'Annuler le reste';
+
+  @override
+  String importFolderCount(int handled, int total) {
+    return '$handled fichiers sur $total';
+  }
+
+  @override
+  String get importBusyPrevious =>
+      'L\'import précédent se termine. Réessayez dans un instant.';
+
+  @override
+  String get importOpenFailed =>
+      'Impossible d\'ouvrir l\'import. Vérifiez le stockage et réessayez.';
+
+  @override
+  String get importStoppedEarly =>
+      'L\'import s\'est arrêté prématurément. Les copies indiquées comme importées sont enregistrées.';
+
+  @override
+  String get importCleanupFailed =>
+      'Le nettoyage temporaire a échoué. Redémarrez Quietake avant de réessayer.';
+
+  @override
+  String get importFolderStopped =>
+      'L\'import du dossier s\'est arrêté. Choisissez à nouveau le dossier pour continuer ; les fichiers terminés sont enregistrés.';
+
+  @override
+  String importImported(int count) {
+    return '$count importées';
+  }
+
+  @override
+  String importDuplicates(int count) {
+    return '$count doublons ignorés';
+  }
+
+  @override
+  String importAlreadyDone(int count) {
+    return '$count déjà importées auparavant';
+  }
+
+  @override
+  String importFailedCount(int count) {
+    return '$count en échec';
+  }
+
+  @override
+  String importNotStarted(int count) {
+    return '$count non commencées';
+  }
+
+  @override
+  String importSummaryEnd(String summary) {
+    return '$summary.';
+  }
+
+  @override
+  String importSummaryContinue(String summary) {
+    return '$summary. Choisissez à nouveau le même dossier pour continuer.';
+  }
 }
