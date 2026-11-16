@@ -18,8 +18,12 @@
 - Next: continue `lib/` bug review. Read so far with no defect found:
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
-  prepared-video overwrite), `privacy_controller.dart`. Still to read:
-  `main.dart` lifecycle, `master_key_store.dart`, `sync/`. Add a failing test per bug found.
+  prepared-video overwrite), `privacy_controller.dart`, `master_key_store.dart`, `webdav_client.dart` and the
+  push path of `sync_service.dart`. Minor, unfixed: `WebDavClient.list` null-checks
+  `href` and takes `.last` of its segments, so a malformed 207 reply surfaces as a
+  generic error instead of a clear one. Store-level passcode minimum is enforced
+  only at UI/NAS entry points (tests rely on short ones). Still to read:
+  `main.dart` lifecycle, rest of `sync/`. Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop; no NAS run has
   happened yet. Keep to synthetic data and the development application ID.
 
