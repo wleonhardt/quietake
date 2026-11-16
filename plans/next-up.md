@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host test (`lock_unlock_failure_test.dart`): recovery started from the lock screen opens a restore-only Setup and hands its key to the app, popping Setup.
 - Host test (`viewer_actions_test.dart`): the viewer shows "Could not cast. Try again." after a failed connect and "casting to <device>" after a successful one (skipped without a LAN address).
 - Host test (`sync_controller_test.dart`): a same-key NAS copy with different content is kept and the result reads "NAS conflict for …. Both copies kept" with state pending. Lesson: a conflict is detected by size or content, and with a remote catalog present equal-size copies are skipped, so the test copy must differ in size.
 - Host test (`nas_change_validation_test.dart`): Generate fills a multi-word backup passphrase and clears the confirmation field (`Keys.nasGenerate` was untested). `nas_recovery_screen.dart` still lacks the committed change/disable success paths (lines about 239-324), which need a locking WebDAV server.
