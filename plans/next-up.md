@@ -43,8 +43,7 @@
 
 ## Done
 
-- Host test (`gallery_selection_test.dart`): with backup unconfigured, the actions sheet's sync button is labelled "Set up backup" (a tooltip) and opens Settings.
-- Host test (`gallery_selection_test.dart`): narrowing the view to Favorites hides the tiles and the Reset view button restores them (the button was untested).
+- Host tests (`gallery_selection_test.dart`, iterations 86-87): Reset view restores a view narrowed to Favorites, and with backup unconfigured the sync button (tooltip "Set up backup") opens Settings.
 - Full host suite at iteration 85: 585 passed, analyzer clean, after the gallery, cast picker, Settings and Setup coverage tests. No app code changed since the recovery-prompt fix, so the iOS lock result still applies.
 - Host test (`viewer_actions_test.dart`): swiping the real viewer moves to the next capture and back (the page-change handler was uncovered), double tap zooms a photo while Reset to fit restores it, and a too-large photo shows its size message (`viewer_test.dart`), and backgrounding pauses video playback while foregrounding resumes it, and a paused video with hidden controls offers a play overlay (`viewer_video_test.dart`). Coverage at iteration 70: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 72%, `viewer_screen.dart` 82%.
 - Bug fixed: cancelling the Settings "Show recovery key" passcode prompt disposed its text controller while the dialog was still animating out (debug assertion "TextEditingController was used after being disposed"). The prompt is now a small widget that owns its controller (red/green `settings_access_test.dart`, which also covers empty-save and unreadable-keyfile messages). Host suite 578 passed, analyzer clean, iOS `lock_test.dart` passed (7 cases, 74.4 s). Android not rerun. Sweep of every `TextEditingController` in `lib/`: all others are `State` fields disposed in `dispose`; no other dispose-after-pop case.
