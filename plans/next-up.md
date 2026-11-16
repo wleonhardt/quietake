@@ -41,6 +41,22 @@
   not read. A real-NAS run needs a test credential and an empty test folder
   handed over by the owner; until then loopback WebDAV tests stand in.
 
+## Feature ideas (planned, unscheduled)
+
+Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
+
+- Recently deleted: keep deleted captures encrypted for 30 days and offer restore. Backup sync must still never infer deletion from absence.
+- Unlock throttling: add an increasing delay after repeated wrong passcodes. Today the lock screen only shows "wrong passcode".
+- Capture options: timer, grid overlay, tap-to-focus and exposure lock, and a burst mode that stays inside private staging.
+- Albums: cover choice, sort by tag, and a "Moments" view that groups captures by date from the vault catalog, with no cloud index.
+- Viewer: slideshow with the screen kept awake only while the vault is unlocked, and a metadata panel with size, date and tags.
+- Share: per-share option to strip all EXIF fields, not only GPS; video location strip is a separate, larger item.
+- Backup: scheduled backup health reminder when the last verified check is older than a set age; a restore dry run that checks without writing.
+- Storage view: show vault size and what is pending upload, with a safe prune of re-creatable caches only.
+- Import: folder import with progress and a resume after interruption, using the existing 10,000-file limits.
+- Accessibility: TalkBack/VoiceOver labels for the grid and viewer controls, larger text checks, and reduced-motion handling for the capture flash.
+- Localization: extract strings and add one second language; policy text stays reviewed by the owner.
+
 ## Done
 
 - Host test (`sync_controller_test.dart`): checking an unconfigured backup sets state unconfigured, shows "Connect a saved NAS backup before checking." and sends no request.
