@@ -35,6 +35,15 @@ class _WrongPasscodeStore extends _UnreadableStore {
   }
 }
 
+class _LockedStore extends _UnreadableStore {
+  _LockedStore(super.sodium);
+  @override
+  Future<SecureKey> unlockWithPasscode(String passcode) =>
+      throw PasscodeLockedException(
+        const Duration(seconds: 29, milliseconds: 500),
+      );
+}
+
 class _UnreadableStore extends MasterKeyStore {
   _UnreadableStore(SodiumSumo sodium) : super(sodium, Directory.systemTemp);
   @override
@@ -148,4 +157,27 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     },
   );
+
+  testWidgets('a locked passcode shows how long to wait', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: LockScreen(
+          store: _LockedStore(sodium),
+          auth: FakeAuthenticator(isAvailable: false),
+          autoPrompt: false,
+          onUnlocked: (_) {},
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.enterText(find.byKey(Keys.lockPasscode), 'whatever');
+    await tester.tap(find.byKey(Keys.lockUnlock));
+    await tester.pump();
+    await tester.pump();
+    expect(
+      find.text('Too many wrong passcodes. Try again in 30 seconds.'),
+      findsOneWidget,
+    );
+    await tester.pumpWidget(const SizedBox());
+  });
 }

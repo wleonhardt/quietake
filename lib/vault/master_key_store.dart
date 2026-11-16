@@ -15,6 +15,18 @@ class WrongPasscodeException implements Exception {
   String toString() => 'wrong passcode';
 }
 
+/// A passcode try refused without checking it, because too many recent tries
+/// failed. A subtype so every caller that handles a wrong passcode stays safe.
+class PasscodeLockedException extends WrongPasscodeException {
+  PasscodeLockedException(this.retryAfter);
+  final Duration retryAfter;
+  @override
+  String toString() {
+    final seconds = retryAfter.inSeconds + 1;
+    return 'Too many wrong passcodes. Try again in ${seconds < 60 ? '$seconds seconds' : '${(seconds / 60).ceil()} minutes'}.';
+  }
+}
+
 class BadRecoveryKeyException implements Exception {
   BadRecoveryKeyException([
     this.message = 'recovery key is not 32 bytes of base64',
@@ -37,12 +49,27 @@ class BadRecoveryKeyException implements Exception {
 /// - Recovery key: the master key itself, base64, shown once at setup and on
 ///   demand after a passcode check. Enough on its own to read every container.
 class MasterKeyStore {
-  MasterKeyStore(this.sodium, this.dir, {FlutterSecureStorage? storage})
-    : _storage = storage ?? const FlutterSecureStorage();
+  MasterKeyStore(
+    this.sodium,
+    this.dir, {
+    FlutterSecureStorage? storage,
+    this._clock = DateTime.now,
+  }) : _storage = storage ?? const FlutterSecureStorage();
 
   final SodiumSumo sodium;
   final Directory dir;
   final FlutterSecureStorage _storage;
+  final DateTime Function() _clock;
+
+  /// Consecutive wrong passcodes in this app process. The fifth starts a
+  /// 30 second lock that doubles with each further failure, up to 15 minutes.
+  /// It is not persisted: Argon2id already prices each guess, and a stored
+  /// counter could lock the owner out of their own vault.
+  int _failures = 0;
+  DateTime? _lockedUntil;
+  static const _freeTries = 5;
+  static const _firstLock = Duration(seconds: 30);
+  static const _longestLock = Duration(minutes: 15);
 
   static const cacheName = 'quietake.master_key';
 
@@ -97,6 +124,26 @@ class MasterKeyStore {
   }
 
   Future<SecureKey> unlockWithPasscode(String passcode) async {
+    final until = _lockedUntil;
+    if (until != null && _clock().isBefore(until)) {
+      throw PasscodeLockedException(until.difference(_clock()));
+    }
+    try {
+      final key = await _unlockWithPasscode(passcode);
+      _failures = 0;
+      _lockedUntil = null;
+      return key;
+    } on WrongPasscodeException {
+      _failures++;
+      if (_failures >= _freeTries) {
+        final lock = _firstLock * (1 << (_failures - _freeTries).clamp(0, 10));
+        _lockedUntil = _clock().add(lock > _longestLock ? _longestLock : lock);
+      }
+      rethrow;
+    }
+  }
+
+  Future<SecureKey> _unlockWithPasscode(String passcode) async {
     final j = jsonDecode(await keyfile.readAsString());
     // Untrusted bytes: shape first, so a damaged file is a FormatException.
     if (j is! Map ||

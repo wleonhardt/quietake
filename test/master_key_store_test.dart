@@ -384,6 +384,97 @@ void main() {
     expect(key.extractBytes(), legacy.extractBytes());
   });
 
+  group('unlock throttling', () {
+    late DateTime now;
+    late MasterKeyStore timed;
+    setUp(() async {
+      now = DateTime(2026, 1, 1, 12);
+      timed = MasterKeyStore(
+        sodium,
+        dir,
+        storage: const FlutterSecureStorage(),
+        clock: () => now,
+      );
+      (await timed.createWithPasscode('correct horse')).dispose();
+    });
+
+    Future<void> wrong() async {
+      await expectLater(
+        timed.unlockWithPasscode('wrong'),
+        throwsA(
+          isA<WrongPasscodeException>().having(
+            (e) => e is PasscodeLockedException,
+            'locked',
+            isFalse,
+          ),
+        ),
+      );
+    }
+
+    test(
+      'five wrong passcodes lock further tries, even a correct one',
+      () async {
+        for (var i = 0; i < 5; i++) {
+          await wrong();
+        }
+        await expectLater(
+          timed.unlockWithPasscode('correct horse'),
+          throwsA(
+            isA<PasscodeLockedException>().having(
+              (e) => e.retryAfter,
+              'retryAfter',
+              const Duration(seconds: 30),
+            ),
+          ),
+        );
+      },
+    );
+
+    test('the lock ends on time, doubles on the next failure and resets on success', () async {
+      for (var i = 0; i < 5; i++) {
+        await wrong();
+      }
+      now = now.add(const Duration(seconds: 31));
+      await wrong();
+      await expectLater(
+        timed.unlockWithPasscode('correct horse'),
+        throwsA(
+          isA<PasscodeLockedException>().having(
+            (e) => e.retryAfter,
+            'retryAfter',
+            const Duration(seconds: 60),
+          ),
+        ),
+      );
+      now = now.add(const Duration(seconds: 61));
+      (await timed.unlockWithPasscode('correct horse')).dispose();
+      for (var i = 0; i < 4; i++) {
+        await wrong();
+      }
+      (await timed.unlockWithPasscode('correct horse')).dispose();
+    });
+
+    test('the delay stops growing at fifteen minutes', () async {
+      for (var i = 0; i < 5; i++) {
+        await wrong();
+      }
+      for (var i = 0; i < 8; i++) {
+        now = now.add(const Duration(minutes: 16));
+        await wrong();
+      }
+      await expectLater(
+        timed.unlockWithPasscode('correct horse'),
+        throwsA(
+          isA<PasscodeLockedException>().having(
+            (e) => e.retryAfter,
+            'retryAfter',
+            const Duration(minutes: 15),
+          ),
+        ),
+      );
+    });
+  });
+
   test('recovery export round-trips and sets a new passcode', () async {
     final key = await store.createWithPasscode('old');
     final rec = store.exportRecovery(key);

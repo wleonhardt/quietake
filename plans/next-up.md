@@ -46,7 +46,6 @@
 Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
 
 - Recently deleted: keep deleted captures encrypted for 30 days and offer restore. Backup sync must still never infer deletion from absence.
-- Unlock throttling: add an increasing delay after repeated wrong passcodes. Today the lock screen only shows "wrong passcode".
 - Capture options: timer, grid overlay, tap-to-focus and exposure lock, and a burst mode that stays inside private staging.
 - Albums: cover choice, sort by tag, and a "Moments" view that groups captures by date from the vault catalog, with no cloud index.
 - Viewer: slideshow with the screen kept awake only while the vault is unlocked, and a metadata panel with size, date and tags.
@@ -59,6 +58,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 
 ## Done
 
+- Feature built from the ideas list: unlock throttling (decision `plans/decisions/001-unlock-throttling.md`). Five wrong passcodes in one app process lock further tries for 30 s, doubling to 15 min; success resets; the lock screen shows the wait. Store-level, in-memory, so Settings, change passcode, NAS and portable share it; restart clears it. Tests in `master_key_store_test.dart` and `lock_unlock_failure_test.dart`. Host suite 615 passed, analyzer clean, iOS `lock_test.dart` passed (7 cases, 75.1 s). Android e2e not run; the other callers still show their fixed wrong-passcode text while locked (unchanged copy, could name the wait).
 - Host tests (`sync_controller_test.dart`): a backup check with a rejected password shows "Could not check NAS (HTTP 401)…" and one against a closed server shows "Could not reach NAS…"; both leave state pending.
 - Host test (`sync_controller_test.dart`): checking an unconfigured backup sets state unconfigured, shows "Connect a saved NAS backup before checking." and sends no request.
 - Coverage refresh at iteration 118: 94.0% total, 607 tests passing. Lowest: `nas_recovery_screen.dart`, `portable_screen.dart`, `viewer_screen.dart` (delete path; widget delete tests risk the catalog teardown hang), `gallery_screen.dart`, Android-only `settings_screen.dart` rows. Host test (`gallery_selection_test.dart`): submitting a search with the keyboard keeps its text as a removable chip and shows Edit search (red when `_composing` is not cleared).
