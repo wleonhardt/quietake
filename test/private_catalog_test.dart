@@ -408,4 +408,23 @@ void main() {
       throwsA(isA<FormatException>()),
     );
   });
+
+  test('edits naming a deleted tag are refused and change nothing', () async {
+    await catalog.load();
+    final tag = await catalog.createAlbum('Gone');
+    await catalog.deleteAlbum(tag);
+    await expectLater(catalog.renameAlbum(tag, 'Back'), throwsFormatException);
+    await expectLater(
+      catalog.organize({'one.jpg.shtr'}, albumId: tag),
+      throwsFormatException,
+    );
+    expect(catalog.albums, isEmpty);
+    expect(catalog.items, isEmpty);
+  });
+
+  test('a closed catalog refuses edits', () async {
+    await catalog.load();
+    await catalog.close();
+    await expectLater(catalog.createAlbum('Late'), throwsStateError);
+  });
 }
