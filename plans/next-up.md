@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host test (`gallery_selection_test.dart`): with backup unconfigured, the actions sheet's sync button is labelled "Set up backup" (a tooltip) and opens Settings.
 - Host test (`gallery_selection_test.dart`): narrowing the view to Favorites hides the tiles and the Reset view button restores them (the button was untested).
 - Full host suite at iteration 85: 585 passed, analyzer clean, after the gallery, cast picker, Settings and Setup coverage tests. No app code changed since the recovery-prompt fix, so the iOS lock result still applies.
 - Host test (`viewer_actions_test.dart`): swiping the real viewer moves to the next capture and back (the page-change handler was uncovered), double tap zooms a photo while Reset to fit restores it, and a too-large photo shows its size message (`viewer_test.dart`), and backgrounding pauses video playback while foregrounding resumes it, and a paused video with hidden controls offers a play overlay (`viewer_video_test.dart`). Coverage at iteration 70: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 72%, `viewer_screen.dart` 82%.

@@ -14,6 +14,7 @@ import 'package:quietake/library/private_catalog.dart';
 import 'package:quietake/gallery/viewer_screen.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
+import 'package:quietake/sync/sync_controller.dart';
 import 'package:quietake/settings/settings_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
@@ -293,5 +294,31 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.libraryResetScope), findsNothing);
     expect(find.byKey(Keys.galleryTile(0)), findsOneWidget);
+  });
+
+  testWidgets('Set up backup in the actions sheet opens Settings', (
+    tester,
+  ) async {
+    FlutterSecureStorage.setMockInitialValues({});
+    await open(tester);
+    // A sync with no saved details marks backup as off.
+    await tester.runAsync(() => session.sync.sync());
+    await tester.pump();
+    expect(session.sync.state, SyncState.unconfigured);
+    await revealLibraryControl(tester, Keys.gallerySync);
+    expect(find.byTooltip('Set up backup'), findsOneWidget);
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.gallerySync)));
+    for (
+      var i = 0;
+      i < 50 && find.byType(SettingsScreen).evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(SettingsScreen), findsOneWidget);
   });
 }
