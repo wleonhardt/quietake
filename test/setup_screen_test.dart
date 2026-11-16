@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -51,6 +52,18 @@ class _BrokenRestoreStore extends MasterKeyStore {
     bool Function(SecureKey key)? acceptsKey,
     Future<bool> Function(String fingerprint)? confirmFingerprint,
   }) async => throw const FileSystemException('disk full');
+}
+
+class _PendingRestoreStore extends MasterKeyStore {
+  _PendingRestoreStore(super.sodium, super.dir);
+  final pending = Completer<SecureKey>();
+  @override
+  Future<SecureKey> restoreFromRecovery(
+    String recovery,
+    String passcode, {
+    bool Function(SecureKey key)? acceptsKey,
+    Future<bool> Function(String fingerprint)? confirmFingerprint,
+  }) => pending.future;
 }
 
 class _BrokenStore extends MasterKeyStore {
@@ -388,4 +401,32 @@ void main() {
       expect(find.byType(NasRecoveryScreen), findsNothing);
     },
   );
+
+  testWidgets('a restore that finishes after the app was paused is discarded', (
+    tester,
+  ) async {
+    final store = _PendingRestoreStore(sodium, dir);
+    var unlocked = 0;
+    await pumpSetup(tester, store, onUnlocked: (_) => unlocked++);
+    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await tester.pump();
+    await tester.enterText(find.byKey(Keys.setupRecoveryKey), 'any key');
+    await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
+    await tester.enterText(find.byKey(Keys.setupConfirm), 'test-passcode');
+    await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    store.pending.complete(sodium.crypto.secretBox.keygen());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(unlocked, 0, reason: 'a backgrounded restore must not unlock');
+    expect(find.byKey(Keys.setupSubmit), findsOneWidget);
+  });
 }

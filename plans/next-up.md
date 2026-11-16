@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host test (`setup_screen_test.dart`): a recovery restore that finishes after the app was paused is discarded and never handed to the app (fails with the `attempt` guard removed). Lesson: `fail()` inside a callback called from an async handler is swallowed by the handler's catch, so count calls and assert afterwards.
 - Host test (`setup_screen_test.dart`): a finished ZIP or NAS restore pops its screen and calls Setup's `onRestored`. `setup_screen.dart` still lacks the pause-cancels-submit hook and a few create-path branches (lines about 89-128).
 - Host test (`albums_screen_test.dart`): an unlistable vault shows "Could not count captures. Retry" and Retry recovers once the folder returns.
 - Review (iteration 113): `Setup._submit` (restore and create paths), `QuietakeApp._start` and `Session.start` read for a key use after dispose; each key has one owner and one disposal, so the Setup segfault theory stays unproven. No code changed.
