@@ -17,7 +17,7 @@
   Do not bypass failures or repeat full suites without a concrete reason.
 - Coverage run (`flutter test --coverage`, 526 tests, 89.4% total) lowest files: `import_screen.dart`
   22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51% (connection test paths now covered by
-  `settings_connection_test.dart`; idle timeout, recovery prompt, disconnect and save/disconnect storage failures now covered by `settings_access_test.dart`; change-passcode screen and Android-only background rows remain),
+  `settings_connection_test.dart`; idle timeout, recovery prompt, disconnect and save/disconnect storage failures now covered by `settings_access_test.dart`; change-passcode error branches now covered by `change_passcode_failure_test.dart`; Android-only background rows remain),
   `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
   `nas_restore_validation_test.dart`; change-mode validation in `nas_change_validation_test.dart`; the committed change/disable success flows still need a locking server). Take these next.
 - Open: a host test that drives real first-run Setup through the recovery screen while
