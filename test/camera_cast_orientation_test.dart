@@ -33,6 +33,87 @@ class _UnlockableCamera extends ControlledCamera {
   Future<void> unlockCaptureOrientation(int cameraId) async {}
 }
 
+/// A camera whose orientation lock works and whose photos are real.
+class _CastCamera extends ControlledCamera {
+  _CastCamera(super.directory) {
+    empty = false;
+  }
+
+  @override
+  Future<void> lockCaptureOrientation(
+    int cameraId,
+    DeviceOrientation orientation,
+  ) async {}
+
+  @override
+  Future<void> unlockCaptureOrientation(int cameraId) async {}
+}
+
+typedef _Booted = ({
+  Session session,
+  FakeCastBackend backend,
+  Future<void> Function(bool Function()) until,
+});
+
+/// Opens the capture screen on [makeCamera] with a cast session available.
+Future<_Booted> _boot(
+  WidgetTester tester,
+  ControlledCamera Function(Directory) makeCamera,
+) async {
+  FlutterSecureStorage.setMockInitialValues({});
+  late Directory root;
+  late Session session;
+  late ControlledCamera camera;
+  final backend = FakeCastBackend();
+  final previous = CameraPlatform.instance;
+  await tester.runAsync(() async {
+    final sodium = await SodiumSumoInit.init();
+    root = await Directory.systemTemp.createTemp('quietake-camera-cast-boot');
+    final vault = Vault(
+      VaultCrypto(sodium),
+      sodium.crypto.secretBox.keygen(),
+      root,
+    );
+    session = Session(
+      vault: vault,
+      server: await MediaServer.start(vault),
+      cast: CastController(vault, backend),
+      store: MasterKeyStore(sodium, root),
+    );
+    camera = makeCamera(root);
+  });
+  CameraPlatform.instance = camera;
+  addTearDown(() async {
+    await tester.pumpWidget(const SizedBox());
+    for (var i = 0; i < 100 && camera.disposed.length < camera.created; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+    }
+    CameraPlatform.instance = previous;
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await session.close();
+      await root.delete(recursive: true);
+    });
+  });
+  await tester.runAsync(
+    () => tester.pumpWidget(MaterialApp(home: CaptureScreen(session: session))),
+  );
+  Future<void> until(bool Function() done) async {
+    for (var i = 0; i < 150 && !done(); i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(done(), isTrue);
+  }
+
+  await until(() => find.byKey(Keys.preview).evaluate().isNotEmpty);
+  return (session: session, backend: backend, until: until);
+}
+
 void main() {
   testWidgets('the camera follows a cast session into landscape and back', (
     tester,
@@ -118,66 +199,32 @@ void main() {
     tester,
   ) async {
     if (await tester.runAsync(MediaServer.lanAddress) == null) return;
-    FlutterSecureStorage.setMockInitialValues({});
-    late Directory root;
-    late Session session;
-    late _UnlockableCamera camera;
-    final previous = CameraPlatform.instance;
-    await tester.runAsync(() async {
-      final sodium = await SodiumSumoInit.init();
-      root = await Directory.systemTemp.createTemp('quietake-camera-lock');
-      final vault = Vault(
-        VaultCrypto(sodium),
-        sodium.crypto.secretBox.keygen(),
-        root,
-      );
-      session = Session(
-        vault: vault,
-        server: await MediaServer.start(vault),
-        cast: CastController(vault, FakeCastBackend()),
-        store: MasterKeyStore(sodium, root),
-      );
-      camera = _UnlockableCamera(root);
-    });
-    CameraPlatform.instance = camera;
-    addTearDown(() async {
-      await tester.pumpWidget(const SizedBox());
-      for (var i = 0; i < 100 && camera.disposed.length < camera.created; i++) {
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 20)),
-        );
-      }
-      CameraPlatform.instance = previous;
-      await tester.runAsync(() async {
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-        await session.close();
-        await root.delete(recursive: true);
-      });
-    });
+    final booted = await _boot(tester, _UnlockableCamera.new);
     await tester.runAsync(
-      () =>
-          tester.pumpWidget(MaterialApp(home: CaptureScreen(session: session))),
+      () => booted.session.cast.start(
+        const CastDevice('tv-1', 'Living Room TV'),
+        null,
+      ),
     );
-    Future<void> until(bool Function() done) async {
-      for (var i = 0; i < 150 && !done(); i++) {
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump();
-      }
-      expect(done(), isTrue);
-    }
-
-    await until(() => find.byKey(Keys.preview).evaluate().isNotEmpty);
-    await tester.runAsync(
-      () =>
-          session.cast.start(const CastDevice('tv-1', 'Living Room TV'), null),
-    );
-    await until(
+    await booted.until(
       () => find
           .text('Could not update camera orientation.')
           .evaluate()
           .isNotEmpty,
     );
+  });
+
+  testWidgets('a photo taken while casting is shown on the TV', (tester) async {
+    if (await tester.runAsync(MediaServer.lanAddress) == null) return;
+    final booted = await _boot(tester, _CastCamera.new);
+    await tester.runAsync(
+      () => booted.session.cast.start(
+        const CastDevice('tv-1', 'Living Room TV'),
+        null,
+      ),
+    );
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.shutter)));
+    await booted.until(() => booted.backend.loadedUrl != null);
+    expect(booted.backend.log.last, startsWith('load image/jpeg'));
   });
 }
