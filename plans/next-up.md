@@ -35,7 +35,7 @@
   still spends batch size budget, minor). `vault.dart` and `share_media.dart` read, no
   defect (`Vault.ingestAs` deletes its plaintext even when the name collides; only the importer's
   private staging copy is affected and microsecond names make that unreachable). `nas_recovery.dart` and
-  `portable_backup.dart` read, no defect. Sweep of async button handlers and `SyncSettings`/keyfile callers found only the Settings gap fixed above; `_backgroundLock` in `main.dart` would skip locking if `hasKeyfile` threw before the first check finished, which `File.exists` does not realistically do (not changed). Unread: `vault_crypto.dart` (frozen vectors), `viewer_screen.dart` (device e2e covered). `capture_screen.dart` capture, stop and ingest paths read: failed stop clears recording state, no plaintext handled outside `CaptureStore`; no defect. Add a failing test per bug found.
+  `portable_backup.dart` read, no defect. Sweep of async button handlers and `SyncSettings`/keyfile callers found only the Settings gap fixed above; `_backgroundLock` in `main.dart` would skip locking if `hasKeyfile` threw before the first check finished, which `File.exists` does not realistically do (not changed). Unread: `vault_crypto.dart` (frozen vectors), `viewer_screen.dart` share/delete/video-open paths read, handled with snackbars, no defect (device e2e covers the rest). `capture_screen.dart` capture, stop and ingest paths read: failed stop clears recording state, no plaintext handled outside `CaptureStore`; no defect. Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop. The home NAS needs
   WebDAV credentials that live in HubnerDocs `.secrets`, which this loop must
   not read. A real-NAS run needs a test credential and an empty test folder
@@ -53,7 +53,7 @@
   Host suite 535 passed, analyzer clean, iOS simulator `integration_test/lock_test.dart` passed
   (7 cases, 76.5 s). Android lock e2e not rerun.
 - Go recovery (`gofmt`, `vet`, `test`) and `tool/check_interop.dart` pass on this
-  branch at its current source; nothing crypto/recovery changed.
+  branch at its current source (rerun at iteration 46, Go tests cached); nothing crypto/recovery changed.
 - `WebDavClient.list` now rejects a listing entry with no href or no file name
   with a FormatException (red/green test). Full host suite passed: 486 tests,
   analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
