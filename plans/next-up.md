@@ -40,16 +40,18 @@
   with a FormatException (red/green test). Full host suite passed: 486 tests,
   analyzer clean. iOS simulator `integration_test/backup_test.dart` also passed (4 cases, 57.9 s
   test, 111 s build, loopback WebDAV). Android not rerun; no UI or vault code changed.
-- Host tests now cover camera-open recovery of an interrupted photo, viewer favorite and delete (cancel, delete one of two), gallery selection (select, favorite, name, tags, unreadable catalog, open viewer), `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
+- Host tests now cover Albums screen empty state, search and delete-cancel, camera-open recovery of an interrupted photo, viewer favorite and delete (cancel, delete one of two), gallery selection (select, favorite, name, tags, unreadable catalog, open viewer), `setup_screen.dart` validation, restore toggle, bad key and fingerprint confirm/reject, `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `import_screen.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
 - A widget test that ran the full export (isolate worker plus file IO) under
   `testWidgets` hung with no output after 3 minutes even with `runAsync` polling.
   Not diagnosed further; export success/save paths stay covered by
   `portable_backup_test.dart` and `integration_test/portable_test.dart`.
-- A viewer test that deletes the only capture passed its body, then `session.close()` hung
-  in `catalog.close()` awaiting its serial tail (not diagnosed; time-boxed). Test removed;
-  e2e delete flows cover that path.
+- Widget tests that delete the last capture, delete a tag or merge tags pass their body, then
+  `session.close()` hangs: `catalog.load()` never completes, so `PrivateCatalog._tail` stays
+  pending after the edit (seen in the viewer and Albums screen tests; not diagnosed beyond that,
+  time-boxed twice). Only the success paths were removed; cancel paths are covered. Next
+  experiment: log which `_serial` action never finishes, test-side only.
 - `testWidgets` swaps in a mock HTTP client that answers 400 to everything. A widget
   test that talks to the loopback `FakeWebDavServer` must set
   `HttpOverrides.global = null` first.
