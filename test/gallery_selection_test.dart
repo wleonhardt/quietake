@@ -72,6 +72,8 @@ void main() {
     WidgetTester tester, {
     bool corruptCatalog = false,
     bool vaultMissing = false,
+    List<String> names = const ['a.jpg', 'b.jpg'],
+    DateTime? month,
   }) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
@@ -85,7 +87,7 @@ void main() {
         sodium.crypto.secretBox.keygen(),
         dir,
       );
-      for (final name in ['a.jpg', 'b.jpg']) {
+      for (final name in names) {
         final input = await File('test_fixtures/tiny.jpg')
             .copy('${dir.path}/in-$name');
         await vault.ingestAs(input, name);
@@ -113,13 +115,24 @@ void main() {
     }
     await tester.runAsync(() async {
       await tester.pumpWidget(
-        MaterialApp(home: GalleryScreen(session: session)),
+        MaterialApp(
+          home: month == null
+              ? GalleryScreen(session: session)
+              : GalleryScreen(
+                  session: session,
+                  searchMode: true,
+                  initialMonth: month,
+                ),
+        ),
       );
     });
     if (vaultMissing) return;
     await until(
       tester,
-      () => find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
+      () => find
+          .byKey(Keys.galleryTile(month == null ? 1 : 0))
+          .evaluate()
+          .isNotEmpty,
     );
   }
 
@@ -404,4 +417,30 @@ void main() {
       isNotNull,
     );
   });
+
+  testWidgets(
+    'opened from Moments, the gallery lists one month and can clear it',
+    (tester) async {
+      await open(
+        tester,
+        names: ['2026-11-03T10-00-00.jpg', '2026-10-31T23-59-59.jpg'],
+        month: DateTime(2026, 11),
+      );
+      expect(find.widgetWithText(InputChip, 'November 2026'), findsOneWidget);
+      expect(find.byKey(Keys.galleryTile(0)), findsOneWidget);
+      expect(find.byKey(Keys.galleryTile(1)), findsNothing);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(Keys.libraryRemoveMonth),
+          matching: find.byType(Icon),
+        ),
+      );
+      await until(
+        tester,
+        () => find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
+      );
+      expect(find.byKey(Keys.libraryRemoveMonth), findsNothing);
+    },
+  );
 }

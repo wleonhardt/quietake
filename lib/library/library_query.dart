@@ -13,6 +13,7 @@ class LibraryQuery {
     this.tags = const {},
     this.matchAnyTag = false,
     this.untagged = false,
+    this.month,
     this.sort = LibrarySort.newest,
   });
   final String text;
@@ -21,7 +22,17 @@ class LibraryQuery {
   final Set<String> tags;
   final bool matchAnyTag;
   final bool untagged;
+
+  /// Only captures taken in this local year and month, from the file name.
+  final DateTime? month;
   final LibrarySort sort;
+
+  bool _inMonth(DateTime? taken) {
+    final local = taken?.toLocal();
+    return local != null &&
+        local.year == month!.year &&
+        local.month == month!.month;
+  }
 
   List<VaultItem> apply(
     List<VaultItem> items,
@@ -40,6 +51,7 @@ class LibraryQuery {
               item.isVideo == (kind == MediaKind.video)) &&
           (!favorites || details.favorite) &&
           (!untagged || details.albums.isEmpty) &&
+          (month == null || _inMonth(item.capturedAt)) &&
           (tags.isEmpty ||
               (matchAnyTag
                   ? tags.any(details.albums.contains)

@@ -86,6 +86,7 @@ abstract final class Keys {
   static const libraryUntagged = Key('library.untagged');
   static Key libraryTag(String id) => Key('library.tag.$id');
   static Key libraryRemoveTag(String id) => Key('library.tag.remove.$id');
+  static const libraryRemoveMonth = Key('library.month.remove');
   static const libraryResetScope = Key('library.resetScope');
   static const librarySearch = Key('library.search');
   static const librarySort = Key('library.sort');
@@ -112,6 +113,9 @@ abstract final class Keys {
   static const albumCreate = Key('album.create');
   static const albumCreateFirst = Key('album.createFirst');
   static const albumSort = Key('album.sort');
+  static const momentsOpen = Key('moments.open');
+  static const momentsScreen = Key('moments.screen');
+  static Key momentMonth(String month) => Key('moments.month.$month');
   static const albumRename = Key('album.rename');
   static const albumDelete = Key('album.delete');
   static const albumDeleteConfirm = Key('album.deleteConfirm');

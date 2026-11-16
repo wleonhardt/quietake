@@ -12,6 +12,7 @@ import '../library/name_dialog.dart';
 import '../library/tag_picker.dart';
 import '../library/view_sheet.dart';
 import '../privacy/privacy_scope.dart';
+import '../library/moments_screen.dart' show monthLabel;
 import '../session.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_settings.dart';
@@ -28,11 +29,13 @@ class GalleryScreen extends StatefulWidget {
     this.searchMode = false,
     this.initialTags = const {},
     this.initialUntagged = false,
+    this.initialMonth,
   });
   final Session session;
   final bool searchMode;
   final Set<String> initialTags;
   final bool initialUntagged;
+  final DateTime? initialMonth;
   @override
   State<GalleryScreen> createState() => _GalleryScreenState();
 }
@@ -45,9 +48,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
   late bool _composing =
       widget.searchMode &&
       widget.initialTags.isEmpty &&
-      !widget.initialUntagged;
+      !widget.initialUntagged &&
+      widget.initialMonth == null;
   late Set<String> _tags = {...widget.initialTags};
   late bool _untagged = widget.initialUntagged;
+  late DateTime? _month = widget.initialMonth;
   bool _matchAny = false;
   var _kind = MediaKind.all;
   var _favorites = false;
@@ -62,6 +67,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     Set<String>,
     bool,
     bool,
+    DateTime?,
   )?
   _queryInputs;
   List<VaultItem> _queryItems = const [];
@@ -131,6 +137,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           _favorites = false;
           _tags = {};
           _untagged = false;
+          _month = null;
           _search.clear();
           _selected.clear();
           _selecting = false;
@@ -156,6 +163,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       tags: _tags,
       matchAnyTag: _matchAny,
       untagged: _untagged,
+      month: _month,
     ).apply(_all, catalog.items, catalog.albums).length;
   }
 
@@ -344,6 +352,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         if (widget.searchMode &&
             (_tags.isNotEmpty ||
                 _untagged ||
+                _month != null ||
                 (!_composing && _search.text.isNotEmpty)))
           Wrap(
             spacing: 4,
@@ -361,6 +370,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 InputChip(
                   label: const Text('Untagged'),
                   onDeleted: () => _scope(() => _untagged = false),
+                ),
+              if (_month != null)
+                InputChip(
+                  key: Keys.libraryRemoveMonth,
+                  label: Text(monthLabel(_month!)),
+                  onDeleted: () => _scope(() => _month = null),
                 ),
               if (!_composing && _search.text.isNotEmpty)
                 InputChip(
@@ -846,6 +861,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   _tags,
                   _matchAny,
                   _untagged,
+                  _month,
                 );
                 if (_queryInputs != inputs) {
                   _queryItems = LibraryQuery(
@@ -855,6 +871,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     tags: _tags,
                     matchAnyTag: _matchAny,
                     untagged: _untagged,
+                    month: _month,
                     sort: _sort,
                   ).apply(all, catalog.items, catalog.albums);
                   _queryInputs = inputs;
@@ -893,6 +910,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                         _favorites = false;
                                         _tags = {};
                                         _untagged = false;
+                                        _month = null;
                                       });
                                     },
                                     child: const Text(

@@ -7,6 +7,7 @@ import '../privacy/privacy_scope.dart';
 import '../privacy/privacy_controller.dart';
 import '../session.dart';
 import 'merge_target.dart';
+import 'moments_screen.dart';
 import 'name_dialog.dart';
 import 'private_catalog.dart';
 
@@ -175,6 +176,17 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
       title: const Text('Tags'),
       actions: [
         const LockButton(),
+        IconButton(
+          key: Keys.momentsOpen,
+          tooltip: 'Moments',
+          icon: const Icon(Icons.calendar_month_outlined),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => MomentsScreen(session: widget.session),
+            ),
+          ),
+        ),
         IconButton(
           key: Keys.albumSort,
           tooltip: _byCount ? 'Sort by name' : 'Sort by most captures',
