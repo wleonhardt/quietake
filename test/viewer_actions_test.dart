@@ -159,6 +159,27 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('screen readers get a photo label and named controls', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await open(tester);
+    await until(
+      tester,
+      () => find.byKey(Keys.viewerPhoto).evaluate().isNotEmpty,
+    );
+    expect(find.bySemanticsLabel('Private photo'), findsOneWidget);
+    for (final label in [
+      'Add favorite',
+      'Details',
+      'Share a copy',
+      'Delete photo',
+    ]) {
+      expect(find.byTooltip(label), findsOneWidget, reason: label);
+    }
+    semantics.dispose();
+  });
+
   testWidgets('cancelling delete keeps the capture', (tester) async {
     await open(tester);
     await tester.tap(find.byKey(Keys.viewerDelete));
