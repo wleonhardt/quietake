@@ -18,7 +18,8 @@
 - Coverage run (`flutter test --coverage`, 486 tests) lowest files: `import_screen.dart`
   22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51% (connection test paths now covered by
   `settings_connection_test.dart`; passcode/recovery/background rows remain),
-  `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62%. Take these next.
+  `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
+  `nas_restore_validation_test.dart`; change/disable flows still need a locking server). Take these next.
 - Next: continue `lib/` bug review. Read so far with no defect found:
   `media_server.dart`, `lock_screen.dart`, `restore_transaction.dart`,
   `capture_store.dart` (atomic `encryptFile` protects the
