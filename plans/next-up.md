@@ -15,13 +15,18 @@
   separate empty targets. Source CI is not signed-artifact or store evidence.
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
-- Next: review `lib/` for bugs, starting with privacy-sensitive paths (lock,
-  capture staging, cast server, share cleanup). Add a failing test per bug found.
+- Next: continue `lib/` bug review. Read so far with no defect found:
+  `media_server.dart`, `capture_store.dart` (atomic `encryptFile` protects the
+  prepared-video overwrite), `privacy_controller.dart`. Still to read:
+  `lock_screen.dart`, `main.dart` lifecycle, `master_key_store.dart`,
+  `sync/`, `restore_transaction.dart`. Add a failing test per bug found.
 - NAS and simulator checks are authorized for the dev loop; no NAS run has
   happened yet. Keep to synthetic data and the development application ID.
 
 ## Done
 
+- Go recovery (`gofmt`, `vet`, `test`) and `tool/check_interop.dart` pass on this
+  branch at its current source; nothing crypto/recovery changed.
 - Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `device_picker.dart`, PortableScreen restore and export validation, `recording_progress.dart`, `archive_worker.dart` untrusted-ZIP rejections, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
