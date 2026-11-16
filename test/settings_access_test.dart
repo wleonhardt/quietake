@@ -178,6 +178,29 @@ void main() {
     expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
   });
 
+  testWidgets('changing the passcode returns with a confirmation', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.ensureVisible(find.byKey(Keys.settingsChangePasscode));
+    await tester.tap(find.byKey(Keys.settingsChangePasscode));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Keys.currentPasscode), _passcode);
+    await tester.enterText(find.byKey(Keys.newPasscode), 'replacement-pass');
+    await tester.enterText(
+      find.byKey(Keys.confirmPasscode),
+      'replacement-pass',
+    );
+    await tester.tap(find.byKey(Keys.changePasscodeSubmit));
+    await until(tester, find.text('Passcode changed'));
+    expect(find.text('Passcode changed'), findsOneWidget);
+    expect(find.byKey(Keys.changePasscodeSubmit), findsNothing);
+    await tester.runAsync(() async {
+      final key = await session.store.unlockWithPasscode('replacement-pass');
+      key.dispose();
+    });
+  });
+
   testWidgets('cancelling disconnect keeps the screen open', (tester) async {
     await open(tester);
     await tester.ensureVisible(find.byKey(Keys.settingsDisconnect));
