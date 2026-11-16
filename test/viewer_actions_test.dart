@@ -15,6 +15,7 @@ import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_cast_backend.dart';
+import '../test_support/viewer_gestures.dart';
 
 void main() {
   late Directory dir;
@@ -139,5 +140,14 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(items[1].file.existsSync(), isTrue);
     expect(find.byKey(Keys.viewerPager), findsOneWidget);
+  });
+
+  testWidgets('swiping moves to the next capture and back', (tester) async {
+    await open(tester);
+    expect(find.text('1 / 2'), findsOneWidget);
+    await swipeViewerPage(tester, forward: true);
+    await until(tester, () => find.text('2 / 2').evaluate().isNotEmpty);
+    await swipeViewerPage(tester, forward: false);
+    await until(tester, () => find.text('1 / 2').evaluate().isNotEmpty);
   });
 }
