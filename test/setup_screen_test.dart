@@ -347,4 +347,45 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(NasRecoveryScreen), findsOneWidget);
   });
+
+  testWidgets(
+    'a finished ZIP or NAS restore closes its screen and tells Setup',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final store = MasterKeyStore(sodium, dir);
+      var restored = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SetupScreen(
+            store: store,
+            onUnlocked: (_) => fail('unlocked'),
+            onRestored: () => restored++,
+          ),
+        ),
+      );
+      Future<void> settle() async {
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+      }
+
+      await tester.tap(find.byKey(Keys.portableRestoreOpen));
+      await settle();
+      tester.widget<PortableScreen>(find.byType(PortableScreen)).onRestored!();
+      await settle();
+      expect(restored, 1);
+      expect(find.byType(PortableScreen), findsNothing);
+
+      await tester.tap(find.byKey(Keys.nasRestoreOpen));
+      await settle();
+      tester
+          .widget<NasRecoveryScreen>(find.byType(NasRecoveryScreen))
+          .onRestored!();
+      await settle();
+      expect(restored, 2);
+      expect(find.byType(NasRecoveryScreen), findsNothing);
+    },
+  );
 }
