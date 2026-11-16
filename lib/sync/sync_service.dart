@@ -142,7 +142,10 @@ class SyncService {
       final incomingCatalog = await _catalog(entries, work);
       final incoming = <String, File>{};
       // Validate the entire prospective restore before any upload, removal or adoption.
+      // A trashed capture keeps its NAS copy and must not come back as a new one.
+      final held = (await vault.trashedAt()).keys.toSet();
       for (final entry in remote.entries) {
+        if (held.contains(entry.key)) continue;
         final own = local[entry.key];
         final conflict = own != null && entry.value.size != await own.length();
         if (incomingCatalog != null &&
@@ -269,6 +272,7 @@ class SyncService {
     final work = await _work();
     try {
       final deleted = await vault.deletedNames();
+      final held = (await vault.trashedAt()).keys.toSet();
       final local = {
         for (final f
             in await vault.dir
@@ -276,7 +280,8 @@ class SyncService {
                 .where((f) => f is File && f.path.endsWith('.shtr'))
                 .cast<File>()
                 .toList())
-          if (!deleted.contains(f.uri.pathSegments.last))
+          if (!deleted.contains(f.uri.pathSegments.last) &&
+              !held.contains(f.uri.pathSegments.last))
             f.uri.pathSegments.last: f,
       };
       final entries = await dav.list(maxBytes: maxListingBytes);

@@ -123,6 +123,7 @@ class Vault {
 
   Future<List<File>> list() async {
     final deleted = await deletedNames();
+    final trashed = (await trashedAt()).keys.toSet();
     final files = await dir
         .list()
         .where(
@@ -139,7 +140,9 @@ class Vault {
     }
     files.removeWhere(
       (f) =>
-          f.path.endsWith('.part') || deleted.contains(f.uri.pathSegments.last),
+          f.path.endsWith('.part') ||
+          deleted.contains(f.uri.pathSegments.last) ||
+          trashed.contains(f.uri.pathSegments.last),
     );
     files.sort((a, b) => b.path.compareTo(a.path));
     return files;
@@ -160,14 +163,85 @@ class Vault {
         .toSet();
   }
 
-  /// Commits the deletion decision before removing bytes, so crashes can retry.
-  Future<void> delete(File container) async {
+  Directory get _trash => Directory('${dir.path}/.trash');
+
+  /// How long a trashed capture stays before it is deleted for good.
+  static const trashKeep = Duration(days: 30);
+
+  /// Container names in Recently deleted and when each was trashed. The bytes
+  /// stay where they are; only the marker hides the capture.
+  Future<Map<String, DateTime>> trashedAt() async {
+    if (!await _trash.exists()) return {};
+    final result = <String, DateTime>{};
+    await for (final entry in _trash.list()) {
+      if (entry is! File || !entry.path.endsWith('.at')) continue;
+      final base = entry.uri.pathSegments.last;
+      try {
+        result['${base.substring(0, base.length - 3)}.shtr'] = DateTime.parse(
+          await entry.readAsString(),
+        );
+      } on FormatException {
+        // An unreadable marker counts as just trashed so it cannot expire early.
+        result['${base.substring(0, base.length - 3)}.shtr'] = DateTime.now();
+      }
+    }
+    return result;
+  }
+
+  File _trashMarker(String name) =>
+      File('${_trash.path}/${name.substring(0, name.length - 5)}.at');
+
+  String _containerName(File container) {
     final name = checkedFileName(container.uri.pathSegments.last);
     if (container.absolute.parent.uri.normalizePath() !=
             dir.absolute.uri.normalizePath() ||
         !name.endsWith('.shtr')) {
       throw const FormatException('Expected a container in this vault');
     }
+    return name;
+  }
+
+  /// Hides [container] from the library for [trashKeep]. Nothing is unlinked and
+  /// no deletion is journaled, so sync keeps the NAS copy.
+  Future<void> trash(File container, {DateTime? at}) async {
+    final name = _containerName(container);
+    if (!await container.exists()) {
+      throw const FormatException('Capture not found');
+    }
+    await _trash.create(recursive: true);
+    final pending = await _trash.createTemp('.pending-');
+    try {
+      final staged = await File('${pending.path}/marker').writeAsString(
+        (at ?? DateTime.now()).toUtc().toIso8601String(),
+        flush: true,
+      );
+      await staged.rename(_trashMarker(name).path);
+    } finally {
+      await pending.delete(recursive: true);
+    }
+  }
+
+  /// Returns a trashed capture to the library.
+  Future<void> restore(File container) async {
+    final marker = _trashMarker(_containerName(container));
+    if (await marker.exists()) await marker.delete();
+  }
+
+  /// Permanently deletes trashed captures older than [keep]. Returns how many.
+  Future<int> purgeTrash({Duration keep = trashKeep, DateTime? now}) async {
+    final cutoff = (now ?? DateTime.now()).subtract(keep);
+    var purged = 0;
+    for (final entry in (await trashedAt()).entries) {
+      if (entry.value.isAfter(cutoff)) continue;
+      await delete(File('${dir.path}/${entry.key}'));
+      purged++;
+    }
+    return purged;
+  }
+
+  /// Commits the deletion decision before removing bytes, so crashes can retry.
+  Future<void> delete(File container) async {
+    final name = _containerName(container);
     final marker = File(
       '${_deletions.path}/${name.substring(0, name.length - 5)}.del',
     );
@@ -190,6 +264,9 @@ class Vault {
         if (e.osError?.errorCode != 2) rethrow;
       }
     }
+    // The deletion is journaled, so a trash marker is no longer needed.
+    final trashMarker = _trashMarker(name);
+    if (await trashMarker.exists()) await trashMarker.delete();
   }
 
   /// Exposed for tests that build containers with a custom chunk size.
