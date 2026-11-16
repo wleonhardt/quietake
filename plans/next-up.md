@@ -43,7 +43,7 @@
 
 ## Done
 
-- Host test (`viewer_actions_test.dart`): swiping the real viewer moves to the next capture and back (the page-change handler was uncovered), and double tap zooms a photo while Reset to fit restores it. Coverage at iteration 70: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 72%, `viewer_screen.dart` 82%.
+- Host test (`viewer_actions_test.dart`): swiping the real viewer moves to the next capture and back (the page-change handler was uncovered), double tap zooms a photo while Reset to fit restores it, and a too-large photo shows its size message (`viewer_test.dart`). Coverage at iteration 70: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 72%, `viewer_screen.dart` 82%.
 - Full host suite at iteration 65: 568 passed, analyzer clean.
 - Host tests (`private_catalog_test.dart`): a library too large to save is refused with state unchanged, and an oversized catalog is refused on load. `private_catalog.dart`, `cast_controller.dart`, `library_query.dart`, `tag_picker.dart`, `merge_target.dart`, `name_dialog.dart` and `albums_screen.dart` and most of `gallery_screen.dart` (load, selection, tags, settings, grid and tile) re-read, no defect. `CastController.start`'s "Connect to Wi-Fi" branch is untested because `MediaServer.lanAddress` is a static with no test hook. Both limits were untested before. Also covered: edits naming a deleted tag are refused, and a closed catalog refuses edits. A grep for untested error strings is not useful because tests assert exception types.
 - Host tests (`idle_lock_test.dart`): an idle session locks after the app's timeout, and hardware key presses and touches keep it unlocked (first host coverage of `QuietakeApp` idle locking; `idleTimeout` is the test hook).

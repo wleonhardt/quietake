@@ -22,9 +22,11 @@ class _CountingVault extends Vault {
   int reads = 0;
   bool failRead = false;
   bool invalidImage = false;
+  bool tooLarge = false;
   @override
   Future<Uint8List> readAll(File container) async {
     reads++;
+    if (tooLarge) throw const PhotoTooLargeException();
     if (failRead) throw const FormatException('Corrupt test photo');
     return invalidImage
         ? Uint8List.fromList([1, 2, 3])
@@ -71,7 +73,10 @@ void main() {
         );
         await tester.pumpWidget(viewer());
         await tester.pump();
-        expect(Theme.of(tester.element(find.byKey(Keys.viewerPager))).brightness, Brightness.dark);
+        expect(
+          Theme.of(tester.element(find.byKey(Keys.viewerPager))).brightness,
+          Brightness.dark,
+        );
         if (failFirst) {
           await tester.runAsync(() async {
             await Future<void>.delayed(const Duration(milliseconds: 30));
@@ -99,4 +104,49 @@ void main() {
       },
     );
   }
+
+  testWidgets('a photo too large to decode shows its size message', (
+    tester,
+  ) async {
+    late Directory dir;
+    late Session session;
+    await tester.runAsync(() async {
+      final sodium = await SodiumSumoInit.init();
+      dir = await Directory.systemTemp.createTemp('quietake-viewer-large');
+      final vault = _CountingVault(
+        VaultCrypto(sodium),
+        sodium.crypto.secretBox.keygen(),
+        dir,
+      )..tooLarge = true;
+      session = Session(
+        vault: vault,
+        server: await MediaServer.start(vault),
+        cast: CastController(vault, FakeCastBackend()),
+        store: MasterKeyStore(sodium, dir),
+      );
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: quietakeTheme(brightness: Brightness.light),
+        home: ViewerScreen(
+          session: session,
+          items: [VaultItem(File('${dir.path}/big.jpg.shtr'))],
+          initialIndex: 0,
+        ),
+      ),
+    );
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 30)),
+    );
+    await tester.pump();
+    expect(
+      tester.widget<Text>(find.byKey(Keys.viewerError)).data,
+      const PhotoTooLargeException().message,
+    );
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(() async {
+      await session.close();
+      await dir.delete(recursive: true);
+    });
+  });
 }
