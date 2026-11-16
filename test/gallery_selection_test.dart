@@ -274,4 +274,24 @@ void main() {
     });
     expect(find.byKey(Keys.libraryCloseSearch), findsOneWidget);
   });
+
+  testWidgets('Reset view clears a narrowed view and lists everything again', (
+    tester,
+  ) async {
+    await open(tester);
+    await revealLibraryControl(tester, Keys.libraryFavorites);
+    await tester.tap(find.byKey(Keys.libraryFavorites));
+    await tester.pump();
+    await revealLibraryControl(tester, Keys.libraryViewApply);
+    await tester.tap(find.byKey(Keys.libraryViewApply));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.galleryTile(0)), findsNothing);
+    await tester.ensureVisible(find.byKey(Keys.libraryResetScope));
+    await tester.tap(find.byKey(Keys.libraryResetScope));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.libraryResetScope), findsNothing);
+    expect(find.byKey(Keys.galleryTile(0)), findsOneWidget);
+  });
 }
