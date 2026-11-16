@@ -513,6 +513,36 @@ void main() {
       expect(server.log, isEmpty);
     },
   );
+  test('checking with a rejected password explains the HTTP status', () async {
+    await capture('a.jpg');
+    settings = SyncSettings(
+      url: server.url.toString(),
+      username: 'vaultapp',
+      password: 'wrong',
+    );
+    await controller.verify();
+    expect(controller.state, SyncState.pending);
+    expect(controller.verificationCurrent, isFalse);
+    expect(
+      controller.verificationResult,
+      'Could not check NAS (HTTP 401). Check saved connection.',
+    );
+  });
+
+  test('checking an unreachable NAS asks to check the connection', () async {
+    await capture('a.jpg');
+    final url = server.url.toString();
+    await server.close();
+    settings = SyncSettings(url: url, username: 'vaultapp', password: 'secret');
+    await controller.verify();
+    expect(controller.state, SyncState.pending);
+    expect(
+      controller.verificationResult,
+      'Could not reach NAS. Check connection and retry.',
+    );
+    server = await FakeWebDavServer.start();
+  });
+
   test('verification is read-only, scoped to saved target and invalidated by later capture', () async {
     await capture('a.jpg');
     await controller.sync();

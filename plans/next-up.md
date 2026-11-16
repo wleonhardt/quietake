@@ -59,6 +59,7 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 
 ## Done
 
+- Host tests (`sync_controller_test.dart`): a backup check with a rejected password shows "Could not check NAS (HTTP 401)…" and one against a closed server shows "Could not reach NAS…"; both leave state pending.
 - Host test (`sync_controller_test.dart`): checking an unconfigured backup sets state unconfigured, shows "Connect a saved NAS backup before checking." and sends no request.
 - Coverage refresh at iteration 118: 94.0% total, 607 tests passing. Lowest: `nas_recovery_screen.dart`, `portable_screen.dart`, `viewer_screen.dart` (delete path; widget delete tests risk the catalog teardown hang), `gallery_screen.dart`, Android-only `settings_screen.dart` rows. Host test (`gallery_selection_test.dart`): submitting a search with the keyboard keeps its text as a removable chip and shows Edit search (red when `_composing` is not cleared).
 - Host test (`setup_screen_test.dart`): a recovery restore that finishes after the app was paused is discarded and never handed to the app (fails with the `attempt` guard removed). Lesson: `fail()` inside a callback called from an async handler is swallowed by the handler's catch, so count calls and assert afterwards.
