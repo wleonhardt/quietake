@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/camera/burst_setting.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
@@ -97,5 +98,15 @@ void main() {
     final text = tester.widget<Text>(find.byKey(Keys.settingsStorage)).data!;
     expect(text, contains('1 in Recently deleted'));
     expect(text, contains('30 days'));
+  });
+
+  testWidgets('the burst size choice is saved', (tester) async {
+    await open(tester);
+    await tester.ensureVisible(find.byKey(Keys.settingsBurstSize));
+    await tester.tap(find.byKey(Keys.settingsBurstSize));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('10 photos').last);
+    await tester.pumpAndSettle();
+    expect(await tester.runAsync(BurstSetting.load), 10);
   });
 }

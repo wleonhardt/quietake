@@ -9,6 +9,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'burst_setting.dart';
 import '../cast/device_picker.dart';
 import '../gallery/gallery_screen.dart';
 import '../gallery/item.dart';
@@ -106,6 +107,9 @@ class _CaptureScreenState extends State<CaptureScreen>
     WidgetsBinding.instance.addObserver(this);
     widget.session.cast.addListener(_onCast);
     widget.session.vault.catalog.addListener(_onCatalog);
+    BurstSetting.load().then((size) {
+      if (mounted) setState(() => _burstSize = size);
+    });
     _init();
   }
 
@@ -559,7 +563,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
-  static const _burstSize = 5;
+  int _burstSize = BurstSetting.standard;
 
   /// Takes [_burstSize] photos one after another. Each one is saved through the
   /// same private path as a single photo, so a stop part way keeps what is saved.
@@ -1195,19 +1199,21 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   /// Press and hold the shutter for a burst. A custom action offers the same
   /// to screen readers, since the gesture has no button of its own.
-  Widget _burstGesture({required bool enabled, required Widget child}) =>
-      MergeSemantics(
-        child: Semantics(
-          customSemanticsActions: enabled
-              ? {const CustomSemanticsAction(label: 'Take 5 photos'): _burst}
-              : null,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onLongPress: enabled ? _burst : null,
-            child: child,
-          ),
-        ),
-      );
+  Widget _burstGesture({
+    required bool enabled,
+    required Widget child,
+  }) => MergeSemantics(
+    child: Semantics(
+      customSemanticsActions: enabled
+          ? {CustomSemanticsAction(label: 'Take $_burstSize photos'): _burst}
+          : null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: enabled ? _burst : null,
+        child: child,
+      ),
+    ),
+  );
 
   Widget _labeledControl(Widget button, String label) => Expanded(
     child: Column(

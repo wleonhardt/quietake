@@ -46,7 +46,7 @@
 Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
 
 - Recently deleted: decision 015 accepted (default on, 30 days, Delete now skips trash). Slices 1 to 4 done (policy wording drafted in decision 015, owner must review before `website/app-privacy.html` and the in-app policy change): vault trash markers, sync hold, viewer dialog with Recently deleted, Recently deleted screen on the Tags screen (iOS e2e passed; Android not run). Slice 3: unlock-time purge, Settings switch, Storage count. Limit: the unlock-time purge call in `Session.start` has no direct test (needs the real documents dir). Limit: widget test cannot confirm Delete now (Session.close hangs); `recently_deleted_test.dart` covers it on device.
-- Capture options are done (grid, tap-to-focus, focus/exposure lock, self timer, burst). Possible follow-ups: a burst size choice, a real-device capture pass.
+- Capture options are done (grid, tap-to-focus, focus/exposure lock, self timer, burst, burst size 3/5/10 in Settings, decision 016). Possible follow-up: a real-device capture pass. Burst size change applies when the camera screen next opens; simulator camera is a stub, so real burst timing is unverified.
 - Albums: cover choice (the Moments month view is done).
 - Viewer: keep the screen awake during the slideshow only while the vault is unlocked (needs a plugin decision; the slideshow itself is done).
 - Share: per-share option to strip all EXIF fields, not only GPS; video location strip is a separate, larger item.

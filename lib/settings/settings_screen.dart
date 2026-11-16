@@ -17,6 +17,7 @@ import '../sync/backup_screen.dart';
 import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
 import '../vault/master_key_store.dart';
+import '../camera/burst_setting.dart';
 import '../vault/trash_setting.dart';
 import '../vault/vault.dart';
 import '../sync/webdav_client.dart';
@@ -50,11 +51,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _mobileData = widget.initial.mobileData;
   String _backgroundStatus = 'Checking Android scheduler…';
   bool _keepDeleted = true;
+  int _burstSize = BurstSetting.standard;
 
   @override
   void initState() {
     super.initState();
     if (Platform.isAndroid) _loadBackgroundStatus();
+    BurstSetting.load().then((size) {
+      if (mounted) setState(() => _burstSize = size);
+    });
     TrashSetting.load().then((keep) {
       if (mounted) setState(() => _keepDeleted = keep);
     });
@@ -565,6 +570,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ]),
+          const SizedBox(height: 24),
+          _heading(Keys.settingsCameraSection, 'Camera'),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(
+            key: Keys.settingsBurstSize,
+            isExpanded: true,
+            initialValue: _burstSize,
+            decoration: const InputDecoration(
+              labelText: 'Photos in a burst',
+              helperText: 'Press and hold the shutter.',
+            ),
+            items: [
+              for (final size in BurstSetting.choices)
+                DropdownMenuItem(value: size, child: Text('$size photos')),
+            ],
+            onChanged: (size) async {
+              if (size == null) return;
+              setState(() => _burstSize = size);
+              await BurstSetting.save(size);
+            },
+          ),
           const SizedBox(height: 24),
           _heading(Keys.settingsStorageSection, 'Storage'),
           const SizedBox(height: 12),
