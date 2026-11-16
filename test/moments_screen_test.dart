@@ -19,7 +19,11 @@ void main() {
   late Directory dir;
   late Session session;
 
-  Future<void> open(WidgetTester tester, List<String> names) async {
+  Future<void> open(
+    WidgetTester tester,
+    List<String> names, {
+    bool unreadable = false,
+  }) async {
     FlutterSecureStorage.setMockInitialValues({});
     await tester.runAsync(() async {
       final sodium = await SodiumSumoInit.init();
@@ -48,6 +52,7 @@ void main() {
         await dir.delete(recursive: true);
       });
     });
+    if (unreadable) await tester.runAsync(() => dir.rename('${dir.path}-away'));
     await tester.runAsync(
       () =>
           tester.pumpWidget(MaterialApp(home: MomentsScreen(session: session))),
@@ -93,6 +98,22 @@ void main() {
     await until(
       tester,
       () => find.text('No dated captures yet').evaluate().isNotEmpty,
+    );
+  });
+
+  testWidgets('an unreadable vault offers a retry that recovers', (
+    tester,
+  ) async {
+    await open(tester, ['2026-11-03T10-00-00.jpg'], unreadable: true);
+    await until(
+      tester,
+      () => find.text('Could not read captures. Retry').evaluate().isNotEmpty,
+    );
+    await tester.runAsync(() => Directory('${dir.path}-away').rename(dir.path));
+    await tester.tap(find.text('Could not read captures. Retry'));
+    await until(
+      tester,
+      () => find.byKey(Keys.momentMonth('2026-11')).evaluate().isNotEmpty,
     );
   });
 }

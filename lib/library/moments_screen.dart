@@ -61,7 +61,9 @@ class _MomentsScreenState extends State<MomentsScreen> {
         if (snapshot.hasError) {
           return Center(
             child: TextButton(
-              onPressed: () => setState(() => _months = _load()),
+              onPressed: () => setState(() {
+                _months = _load();
+              }),
               child: const Text('Could not read captures. Retry'),
             ),
           );
@@ -98,7 +100,11 @@ class _MomentsScreenState extends State<MomentsScreen> {
                       ),
                     ),
                   );
-                  if (mounted) setState(() => _months = _load());
+                  if (mounted) {
+                    setState(() {
+                      _months = _load();
+                    });
+                  }
                 },
               ),
           ],
