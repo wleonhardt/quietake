@@ -18,7 +18,7 @@
 - Coverage run (`flutter test --coverage`, 541 tests, 90.2% total at iteration 40; `backup_screen_test.dart` added after) lowest files: `portable_screen.dart` 70%, `nas_recovery_screen.dart` 71%, `settings_screen.dart` 78%, `viewer_screen.dart` 82%. `portable_screen.dart` remaining gaps need real export/restore I/O or lifecycle pause during prepare (widget-zone hang risk). Older list: `import_screen.dart`
   22% (now covered by `import_screen_test.dart`), `settings_screen.dart` 51% (connection test paths now covered by
   `settings_connection_test.dart`; idle timeout, recovery prompt, disconnect and save/disconnect storage failures now covered by `settings_access_test.dart`; change-passcode success from Settings and error branches now covered by `change_passcode_failure_test.dart`; Android-only background rows remain),
-  `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation now covered by
+  `background_uploads.dart` 55% (now covered), `nas_recovery_screen.dart` 62% (restore-mode validation and clearing of typed secrets on app pause now covered by
   `nas_restore_validation_test.dart`; change-mode validation in `nas_change_validation_test.dart`; the committed change/disable success flows still need a locking server). Take these next.
 - Open: a host test that drives real first-run Setup through the recovery screen while
   `Session.start` fails (documents path is a file) segfaults flutter_tester. Calling

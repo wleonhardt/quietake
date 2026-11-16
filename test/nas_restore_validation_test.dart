@@ -102,4 +102,44 @@ void main() {
     expect(await start(tester), 'Use an HTTPS WebDAV folder URL');
     expect(restored, isFalse);
   });
+
+  testWidgets(
+    'backgrounding clears the typed secrets and the restore passphrase',
+    (tester) async {
+      await open(tester);
+      await fill(tester);
+      for (final state in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.hidden,
+        AppLifecycleState.paused,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pump();
+      for (final key in [
+        Keys.nasPin,
+        Keys.nasPinConfirm,
+        Keys.nasPhrase,
+        Keys.nasPassword,
+      ]) {
+        expect(
+          tester.widget<TextField>(find.byKey(key)).controller!.text,
+          isEmpty,
+          reason: '$key',
+        );
+      }
+      // The non-secret details stay so the user does not retype them.
+      expect(
+        tester.widget<TextField>(find.byKey(Keys.nasUrl)).controller!.text,
+        'https://nas.example/vault/',
+      );
+      for (final state in [
+        AppLifecycleState.hidden,
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+    },
+  );
 }
