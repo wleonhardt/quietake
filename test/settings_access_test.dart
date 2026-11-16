@@ -262,6 +262,32 @@ void main() {
     );
   });
 
+  testWidgets(
+    'the recovery key check clears the typed key when the app pauses',
+    (tester) async {
+      await open(tester);
+      await openRecoveryCheck(tester);
+      await tester.enterText(
+        find.byKey(Keys.recoveryCheckField),
+        'secret text',
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      expect(
+        tester
+            .widget<TextField>(find.byKey(Keys.recoveryCheckField))
+            .controller!
+            .text,
+        '',
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    },
+  );
+
   testWidgets('the recovery key check follows the device language', (
     tester,
   ) async {

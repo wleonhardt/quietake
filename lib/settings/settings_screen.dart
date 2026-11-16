@@ -719,12 +719,29 @@ class _RecoveryCheckDialog extends StatefulWidget {
   State<_RecoveryCheckDialog> createState() => _RecoveryCheckDialogState();
 }
 
-class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog> {
+class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog>
+    with WidgetsBindingObserver {
   final _typed = TextEditingController();
   String Function(AppLocalizations)? _result;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// The content stays alive behind the lock screen, so a typed key must not.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _typed.clear();
+      setState(() => _result = null);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _typed.dispose();
     super.dispose();
   }
