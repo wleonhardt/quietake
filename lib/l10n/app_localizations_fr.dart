@@ -399,4 +399,128 @@ class AppLocalizationsFr extends AppLocalizations {
   String camTakeBurst(int count) {
     return 'Prendre $count photos';
   }
+
+  @override
+  String get save => 'Enregistrer';
+
+  @override
+  String get tagsTitle => 'Étiquettes';
+
+  @override
+  String get tagsMoments => 'Moments';
+
+  @override
+  String get tagsSortName => 'Trier par nom';
+
+  @override
+  String get tagsSortCount => 'Trier par nombre de captures';
+
+  @override
+  String get tagsCreate => 'Créer une étiquette';
+
+  @override
+  String get tagsFind => 'Rechercher des étiquettes';
+
+  @override
+  String get tagsCountFailed => 'Impossible de compter les captures. Réessayer';
+
+  @override
+  String get tagsUntagged => 'Sans étiquette';
+
+  @override
+  String tagsCaptureCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tagsNoMatch => 'Aucune étiquette correspondante';
+
+  @override
+  String get tagsNone => 'Aucune étiquette pour l\'instant';
+
+  @override
+  String get tagsNoMatchHint => 'Essayez un autre nom ou créez celle-ci.';
+
+  @override
+  String get tagsNoneHint =>
+      'Les étiquettes regroupent les captures dans toute la Bibliothèque.';
+
+  @override
+  String tagsCreateNamed(String name) {
+    return 'Créer « $name »';
+  }
+
+  @override
+  String get tagsCreateFirst => 'Créer la première étiquette';
+
+  @override
+  String get tagsOptions => 'Options de l\'étiquette';
+
+  @override
+  String get tagsRename => 'Renommer';
+
+  @override
+  String get tagsRenameTitle => 'Renommer l\'étiquette';
+
+  @override
+  String get tagsSetCover => 'Définir la couverture';
+
+  @override
+  String get tagsClearCover => 'Retirer la couverture';
+
+  @override
+  String get tagsMergeInto => 'Fusionner avec…';
+
+  @override
+  String get tagsDelete => 'Supprimer l\'étiquette';
+
+  @override
+  String get tagsDeleteTitle => 'Supprimer l\'étiquette ?';
+
+  @override
+  String tagsDeleteBody(String name) {
+    return 'Retirer « $name » de toutes les captures ? Les photos et les vidéos restent dans votre coffre.';
+  }
+
+  @override
+  String get tagsMergeTitle => 'Fusionner les étiquettes ?';
+
+  @override
+  String tagsMergeBody(String source, String target, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures utiliseront',
+      one: '1 capture utilisera',
+    );
+    return 'Fusionner « $source » avec « $target » ? $_temp0 l\'étiquette restante. L\'étiquette d\'origine est supprimée. Les photos, les vidéos et les autres étiquettes restent inchangées.';
+  }
+
+  @override
+  String get tagsMergeConfirm => 'Fusionner les étiquettes';
+
+  @override
+  String get mergeChoose => 'Choisissez l\'étiquette à conserver';
+
+  @override
+  String get mergeCancel => 'Annuler la fusion';
+
+  @override
+  String get mergeFindDestination => 'Rechercher l\'étiquette de destination';
+
+  @override
+  String get libraryNameLabel => 'Nom';
+
+  @override
+  String get librarySaveFailed => 'Impossible d\'enregistrer. Réessayez.';
+
+  @override
+  String get libraryUpdateFailed =>
+      'Impossible de mettre à jour la bibliothèque privée. Réessayez.';
 }

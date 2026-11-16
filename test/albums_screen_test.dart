@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/library/albums_screen.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
@@ -37,6 +38,7 @@ void main() {
     bool vaultMissing = false,
     double textScale = 1,
     Size size = const Size(800, 1600),
+    Locale? locale,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -82,6 +84,9 @@ void main() {
     await tester.runAsync(() async {
       await tester.pumpWidget(
         MaterialApp(
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(textScale)),
@@ -162,6 +167,26 @@ void main() {
     await tester.pump();
     expect(find.text('No matching tags'), findsOneWidget);
     expect(find.text("Create 'Zoo'"), findsOneWidget);
+  });
+
+  testWidgets('the Tags screen follows the device language', (tester) async {
+    await open(
+      tester,
+      tags: ['Family'],
+      captures: [
+        [0],
+        [0],
+      ],
+      locale: const Locale('fr'),
+    );
+    expect(find.text('Étiquettes'), findsOneWidget);
+    expect(find.text('Sans étiquette'), findsOneWidget);
+    expect(find.text('2 captures'), findsOneWidget);
+    await tester.enterText(find.byKey(Keys.tagSearch), 'Zoo');
+    await tester.pump();
+    expect(find.text('Aucune étiquette correspondante'), findsOneWidget);
+    expect(find.text('Créer « Zoo »'), findsOneWidget);
+    expect(find.text('Tags'), findsNothing);
   });
 
   testWidgets('cancelling tag deletion keeps the tag', (tester) async {

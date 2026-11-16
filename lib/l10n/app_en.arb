@@ -190,5 +190,73 @@
         "type": "int"
       }
     }
-  }
+  },
+  "save": "Save",
+  "tagsTitle": "Tags",
+  "tagsMoments": "Moments",
+  "tagsSortName": "Sort by name",
+  "tagsSortCount": "Sort by most captures",
+  "tagsCreate": "Create tag",
+  "tagsFind": "Find tags",
+  "tagsCountFailed": "Could not count captures. Retry",
+  "tagsUntagged": "Untagged",
+  "tagsCaptureCount": "{count, plural, =1{1 capture} other{{count} captures}}",
+  "@tagsCaptureCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsNoMatch": "No matching tags",
+  "tagsNone": "No tags yet",
+  "tagsNoMatchHint": "Try another name or create this one.",
+  "tagsNoneHint": "Tags group captures across the Library.",
+  "tagsCreateNamed": "Create '{name}'",
+  "@tagsCreateNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagsCreateFirst": "Create first tag",
+  "tagsOptions": "Tag options",
+  "tagsRename": "Rename",
+  "tagsRenameTitle": "Rename tag",
+  "tagsSetCover": "Set cover",
+  "tagsClearCover": "Clear cover",
+  "tagsMergeInto": "Merge into…",
+  "tagsDelete": "Delete tag",
+  "tagsDeleteTitle": "Delete tag?",
+  "tagsDeleteBody": "Remove “{name}” from all captures? Photos and videos stay in your vault.",
+  "@tagsDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagsMergeTitle": "Merge tags?",
+  "tagsMergeBody": "Merge “{source}” into “{target}”? {count, plural, =1{1 capture} other{{count} captures}} will use the remaining tag. The source tag is removed. Photos, videos and other tags stay unchanged.",
+  "@tagsMergeBody": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsMergeConfirm": "Merge tags",
+  "mergeChoose": "Choose the tag to keep",
+  "mergeCancel": "Cancel merge",
+  "mergeFindDestination": "Find destination tag",
+  "libraryNameLabel": "Name",
+  "librarySaveFailed": "Could not save. Retry.",
+  "libraryUpdateFailed": "Could not update private library. Retry."
 }

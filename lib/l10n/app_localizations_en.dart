@@ -385,4 +385,126 @@ class AppLocalizationsEn extends AppLocalizations {
   String camTakeBurst(int count) {
     return 'Take $count photos';
   }
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get tagsTitle => 'Tags';
+
+  @override
+  String get tagsMoments => 'Moments';
+
+  @override
+  String get tagsSortName => 'Sort by name';
+
+  @override
+  String get tagsSortCount => 'Sort by most captures';
+
+  @override
+  String get tagsCreate => 'Create tag';
+
+  @override
+  String get tagsFind => 'Find tags';
+
+  @override
+  String get tagsCountFailed => 'Could not count captures. Retry';
+
+  @override
+  String get tagsUntagged => 'Untagged';
+
+  @override
+  String tagsCaptureCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tagsNoMatch => 'No matching tags';
+
+  @override
+  String get tagsNone => 'No tags yet';
+
+  @override
+  String get tagsNoMatchHint => 'Try another name or create this one.';
+
+  @override
+  String get tagsNoneHint => 'Tags group captures across the Library.';
+
+  @override
+  String tagsCreateNamed(String name) {
+    return 'Create \'$name\'';
+  }
+
+  @override
+  String get tagsCreateFirst => 'Create first tag';
+
+  @override
+  String get tagsOptions => 'Tag options';
+
+  @override
+  String get tagsRename => 'Rename';
+
+  @override
+  String get tagsRenameTitle => 'Rename tag';
+
+  @override
+  String get tagsSetCover => 'Set cover';
+
+  @override
+  String get tagsClearCover => 'Clear cover';
+
+  @override
+  String get tagsMergeInto => 'Merge into…';
+
+  @override
+  String get tagsDelete => 'Delete tag';
+
+  @override
+  String get tagsDeleteTitle => 'Delete tag?';
+
+  @override
+  String tagsDeleteBody(String name) {
+    return 'Remove “$name” from all captures? Photos and videos stay in your vault.';
+  }
+
+  @override
+  String get tagsMergeTitle => 'Merge tags?';
+
+  @override
+  String tagsMergeBody(String source, String target, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count captures',
+      one: '1 capture',
+    );
+    return 'Merge “$source” into “$target”? $_temp0 will use the remaining tag. The source tag is removed. Photos, videos and other tags stay unchanged.';
+  }
+
+  @override
+  String get tagsMergeConfirm => 'Merge tags';
+
+  @override
+  String get mergeChoose => 'Choose the tag to keep';
+
+  @override
+  String get mergeCancel => 'Cancel merge';
+
+  @override
+  String get mergeFindDestination => 'Find destination tag';
+
+  @override
+  String get libraryNameLabel => 'Name';
+
+  @override
+  String get librarySaveFailed => 'Could not save. Retry.';
+
+  @override
+  String get libraryUpdateFailed => 'Could not update private library. Retry.';
 }

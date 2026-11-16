@@ -398,4 +398,130 @@ class AppLocalizationsDe extends AppLocalizations {
   String camTakeBurst(int count) {
     return '$count Fotos aufnehmen';
   }
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get tagsTitle => 'Tags';
+
+  @override
+  String get tagsMoments => 'Momente';
+
+  @override
+  String get tagsSortName => 'Nach Name sortieren';
+
+  @override
+  String get tagsSortCount => 'Nach meisten Aufnahmen sortieren';
+
+  @override
+  String get tagsCreate => 'Tag erstellen';
+
+  @override
+  String get tagsFind => 'Tags suchen';
+
+  @override
+  String get tagsCountFailed =>
+      'Aufnahmen konnten nicht gezählt werden. Erneut versuchen';
+
+  @override
+  String get tagsUntagged => 'Ohne Tag';
+
+  @override
+  String tagsCaptureCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aufnahmen',
+      one: '1 Aufnahme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tagsNoMatch => 'Keine passenden Tags';
+
+  @override
+  String get tagsNone => 'Noch keine Tags';
+
+  @override
+  String get tagsNoMatchHint =>
+      'Versuchen Sie einen anderen Namen oder erstellen Sie diesen.';
+
+  @override
+  String get tagsNoneHint =>
+      'Tags gruppieren Aufnahmen in der gesamten Bibliothek.';
+
+  @override
+  String tagsCreateNamed(String name) {
+    return '„$name“ erstellen';
+  }
+
+  @override
+  String get tagsCreateFirst => 'Ersten Tag erstellen';
+
+  @override
+  String get tagsOptions => 'Tag-Optionen';
+
+  @override
+  String get tagsRename => 'Umbenennen';
+
+  @override
+  String get tagsRenameTitle => 'Tag umbenennen';
+
+  @override
+  String get tagsSetCover => 'Titelbild festlegen';
+
+  @override
+  String get tagsClearCover => 'Titelbild entfernen';
+
+  @override
+  String get tagsMergeInto => 'Zusammenführen mit…';
+
+  @override
+  String get tagsDelete => 'Tag löschen';
+
+  @override
+  String get tagsDeleteTitle => 'Tag löschen?';
+
+  @override
+  String tagsDeleteBody(String name) {
+    return '„$name“ von allen Aufnahmen entfernen? Fotos und Videos bleiben in Ihrem Tresor.';
+  }
+
+  @override
+  String get tagsMergeTitle => 'Tags zusammenführen?';
+
+  @override
+  String tagsMergeBody(String source, String target, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aufnahmen verwenden',
+      one: '1 Aufnahme verwendet',
+    );
+    return '„$source“ mit „$target“ zusammenführen? $_temp0 dann den verbleibenden Tag. Der Quell-Tag wird entfernt. Fotos, Videos und andere Tags bleiben unverändert.';
+  }
+
+  @override
+  String get tagsMergeConfirm => 'Tags zusammenführen';
+
+  @override
+  String get mergeChoose => 'Tag zum Behalten wählen';
+
+  @override
+  String get mergeCancel => 'Zusammenführen abbrechen';
+
+  @override
+  String get mergeFindDestination => 'Ziel-Tag suchen';
+
+  @override
+  String get libraryNameLabel => 'Name';
+
+  @override
+  String get librarySaveFailed => 'Speichern fehlgeschlagen. Erneut versuchen.';
+
+  @override
+  String get libraryUpdateFailed =>
+      'Die private Bibliothek konnte nicht aktualisiert werden. Erneut versuchen.';
 }

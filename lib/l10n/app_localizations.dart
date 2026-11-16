@@ -725,6 +725,210 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take {count} photos'**
   String camTakeBurst(int count);
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @tagsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get tagsTitle;
+
+  /// No description provided for @tagsMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'Moments'**
+  String get tagsMoments;
+
+  /// No description provided for @tagsSortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by name'**
+  String get tagsSortName;
+
+  /// No description provided for @tagsSortCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by most captures'**
+  String get tagsSortCount;
+
+  /// No description provided for @tagsCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create tag'**
+  String get tagsCreate;
+
+  /// No description provided for @tagsFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find tags'**
+  String get tagsFind;
+
+  /// No description provided for @tagsCountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not count captures. Retry'**
+  String get tagsCountFailed;
+
+  /// No description provided for @tagsUntagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Untagged'**
+  String get tagsUntagged;
+
+  /// No description provided for @tagsCaptureCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 capture} other{{count} captures}}'**
+  String tagsCaptureCount(int count);
+
+  /// No description provided for @tagsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching tags'**
+  String get tagsNoMatch;
+
+  /// No description provided for @tagsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No tags yet'**
+  String get tagsNone;
+
+  /// No description provided for @tagsNoMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another name or create this one.'**
+  String get tagsNoMatchHint;
+
+  /// No description provided for @tagsNoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags group captures across the Library.'**
+  String get tagsNoneHint;
+
+  /// No description provided for @tagsCreateNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Create \'{name}\''**
+  String tagsCreateNamed(String name);
+
+  /// No description provided for @tagsCreateFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create first tag'**
+  String get tagsCreateFirst;
+
+  /// No description provided for @tagsOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag options'**
+  String get tagsOptions;
+
+  /// No description provided for @tagsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get tagsRename;
+
+  /// No description provided for @tagsRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename tag'**
+  String get tagsRenameTitle;
+
+  /// No description provided for @tagsSetCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Set cover'**
+  String get tagsSetCover;
+
+  /// No description provided for @tagsClearCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cover'**
+  String get tagsClearCover;
+
+  /// No description provided for @tagsMergeInto.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into…'**
+  String get tagsMergeInto;
+
+  /// No description provided for @tagsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete tag'**
+  String get tagsDelete;
+
+  /// No description provided for @tagsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete tag?'**
+  String get tagsDeleteTitle;
+
+  /// No description provided for @tagsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove “{name}” from all captures? Photos and videos stay in your vault.'**
+  String tagsDeleteBody(String name);
+
+  /// No description provided for @tagsMergeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge tags?'**
+  String get tagsMergeTitle;
+
+  /// No description provided for @tagsMergeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge “{source}” into “{target}”? {count, plural, =1{1 capture} other{{count} captures}} will use the remaining tag. The source tag is removed. Photos, videos and other tags stay unchanged.'**
+  String tagsMergeBody(String source, String target, int count);
+
+  /// No description provided for @tagsMergeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge tags'**
+  String get tagsMergeConfirm;
+
+  /// No description provided for @mergeChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the tag to keep'**
+  String get mergeChoose;
+
+  /// No description provided for @mergeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel merge'**
+  String get mergeCancel;
+
+  /// No description provided for @mergeFindDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Find destination tag'**
+  String get mergeFindDestination;
+
+  /// No description provided for @libraryNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get libraryNameLabel;
+
+  /// No description provided for @librarySaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Retry.'**
+  String get librarySaveFailed;
+
+  /// No description provided for @libraryUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update private library. Retry.'**
+  String get libraryUpdateFailed;
 }
 
 class _AppLocalizationsDelegate
