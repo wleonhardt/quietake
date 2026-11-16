@@ -15,14 +15,14 @@
   separate empty targets. Source CI is not signed-artifact or store evidence.
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason.
-- Candidate gaps from lib review (no direct unit tests yet): `view_sheet.dart`, `device_picker.dart`, `portable_screen.dart`.
+- Candidate gaps from lib review (no direct unit tests yet): `device_picker.dart`, `portable_screen.dart`.
   Cover through behavior-based widget tests with stable keys.
 - NAS and simulator checks are authorized for the dev loop; no NAS run has
   happened yet. Keep to synthetic data and the development application ID.
 
 ## Done
 
-- Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `checkedFileName`
+- Host tests now cover `name_dialog.dart`, `share_dialog.dart`, `view_sheet.dart`, `checkedFileName`
   and `sortedTags`. Analyzer clean; new files pass; full suite reused from the
   baseline of 444 passing tests (only test files were added).
 - Widget tests that touch real files must wrap that IO in `tester.runAsync`;
