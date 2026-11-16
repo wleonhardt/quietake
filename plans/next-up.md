@@ -52,14 +52,7 @@
 - Bug fixed: typing in the NAS recovery and portable backup fields (soft keyboard sends no pointer or hardware key events) did not reset the idle-lock timer, so a 1-minute timeout could lock mid-entry and clear the NAS draft. Their fields now call `PrivacyScope.activity()` like Settings and Change passcode (red/green `typing_activity_test.dart`). Host suite 560 passed, analyzer clean, iOS `portable_test.dart` (5 cases, 73.8 s) and `nas_recovery_test.dart` (6 cases, 146.5 s) passed. Android not rerun. Other fields not changed: name/tag/search entries are short; Setup has no session timer.
 - Iterations 49-52, test-only, no defect: restore-journal tampering refused by `resume` (`master_key_store_test.dart`); WebDAV listing size limit and rejected PROPFIND (`webdav_client_test.dart`); catalog-less legacy backup never restores a deleted capture (`delete_sync_test.dart`); `saveSettings` persists, syncs and reports busy (`sync_controller_test.dart`); stale `.recovery-work-*` staging removed before a recovery change, other hidden dirs kept (`nas_recovery_test.dart`); failed idle-timeout save shows its message and keeps the old value (`settings_access_test.dart`, 9 pass). Full host suite at iteration 52: 554 passed, analyzer clean.
 - Bug fixed: Gallery Settings button threw an unhandled error and did nothing when the saved NAS details could not be read (keystore failure). It now shows "Could not read saved NAS details. Try again." (red/green in `gallery_selection_test.dart`). Host suite 547 passed, analyzer clean, iOS `backup_test.dart` passed (4 cases, 56.7 s). Android not rerun. Corrupt-JSON blobs fail the same way and now get the same message; sync still reports pending.
-- Bug fixed: after a failed session open from first-run Setup or restore, `_hasKeyfile` stayed
-  false, so Setup reappeared with no reason although the keyfile was committed. `_start` now sets
-  it, so the lock screen shows the message (red/green `app_start_failure_test.dart`, firstRun case).
-  Host suite 536 passed, analyzer clean, iOS `lock_test.dart` passed (7 cases, 75.0 s).
-- Bug fixed: `LockScreen` copied `message` only in `initState`, so the "Could not open the vault"
-  reason never showed after a failed session open (red/green `app_start_failure_test.dart`).
-  Host suite 535 passed, analyzer clean, iOS simulator `integration_test/lock_test.dart` passed
-  (7 cases, 76.5 s). Android lock e2e not rerun.
+- Bugs fixed: after a failed session open, Setup reappeared because `_hasKeyfile` stayed false, and `LockScreen` never showed the "Could not open the vault" message because it copied it only in `initState` (red/green `app_start_failure_test.dart`). Host suite 536 passed; iOS `lock_test.dart` passed (7 cases). Android lock e2e not rerun.
 - Go recovery (`gofmt`, `vet`, `test`) and `tool/check_interop.dart` pass on this
   branch at its current source (rerun at iteration 46, Go tests cached); nothing crypto/recovery changed.
 - `WebDavClient.list` now rejects a listing entry with no href or no file name
