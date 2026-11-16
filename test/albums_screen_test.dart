@@ -34,8 +34,10 @@ void main() {
     WidgetTester tester, {
     List<String> tags = const [],
     bool vaultMissing = false,
+    double textScale = 1,
+    Size size = const Size(800, 1600),
   }) async {
-    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -70,7 +72,14 @@ void main() {
     }
     await tester.runAsync(() async {
       await tester.pumpWidget(
-        MaterialApp(home: AlbumsScreen(session: session)),
+        MaterialApp(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
+          home: AlbumsScreen(session: session),
+        ),
       );
     });
     if (vaultMissing) return;
@@ -104,6 +113,23 @@ void main() {
       () => find.byKey(Keys.libraryUntagged).evaluate().isNotEmpty,
     );
     expect(retry, findsNothing);
+  });
+
+  testWidgets('tags stay usable at large text on a narrow screen', (
+    tester,
+  ) async {
+    await open(
+      tester,
+      tags: ['A tag with a rather long name', 'Trips'],
+      textScale: 2,
+      size: const Size(320, 640),
+    );
+    expect(find.text('A tag with a rather long name'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.albumMenu(ids[0])));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Rename'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('an empty library offers to create the first tag', (

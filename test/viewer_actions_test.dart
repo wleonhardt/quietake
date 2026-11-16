@@ -34,8 +34,12 @@ void main() {
     expect(done(), isTrue, reason: 'condition never became true');
   }
 
-  Future<void> open(WidgetTester tester) async {
-    tester.view.physicalSize = const Size(800, 1600);
+  Future<void> open(
+    WidgetTester tester, {
+    double textScale = 1,
+    Size size = const Size(800, 1600),
+  }) async {
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -71,6 +75,11 @@ void main() {
     });
     await tester.pumpWidget(
       MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
         home: Builder(
           builder: (context) => TextButton(
             key: const Key('test.open'),
@@ -132,6 +141,22 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.viewerInfoDialog), findsNothing);
+  });
+
+  testWidgets('Details fits a narrow screen at large text', (tester) async {
+    await open(tester, textScale: 2, size: const Size(320, 640));
+    await tester.runAsync(() async {
+      final catalog = session.vault.catalog;
+      final tag = await catalog.createAlbum('A tag with a rather long name');
+      await catalog.organize({items[0].name}, tagIds: {tag});
+    });
+    await tester.tap(find.byKey(Keys.viewerInfo));
+    await until(
+      tester,
+      () => find.textContaining('Encrypted size: ').evaluate().isNotEmpty,
+    );
+    expect(find.text('Close'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('cancelling delete keeps the capture', (tester) async {
