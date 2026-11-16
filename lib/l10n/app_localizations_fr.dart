@@ -523,4 +523,54 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get libraryUpdateFailed =>
       'Impossible de mettre à jour la bibliothèque privée. Réessayez.';
+
+  @override
+  String get momentsLoadFailed => 'Impossible de lire les captures. Réessayer';
+
+  @override
+  String get momentsEmpty => 'Aucune capture datée pour l\'instant';
+
+  @override
+  String get viewTitle => 'Affichage';
+
+  @override
+  String get viewAll => 'Tout';
+
+  @override
+  String get viewPhotos => 'Photos';
+
+  @override
+  String get viewVideos => 'Vidéos';
+
+  @override
+  String get viewFavoritesOnly => 'Favoris uniquement';
+
+  @override
+  String get viewSort => 'Trier';
+
+  @override
+  String get viewNewest => 'Plus récentes d\'abord';
+
+  @override
+  String get viewOldest => 'Plus anciennes d\'abord';
+
+  @override
+  String get viewName => 'Nom';
+
+  @override
+  String get viewApply => 'Appliquer l\'affichage';
+
+  @override
+  String viewShowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Afficher $count captures',
+      one: 'Afficher 1 capture',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get viewReset => 'Réinitialiser';
 }

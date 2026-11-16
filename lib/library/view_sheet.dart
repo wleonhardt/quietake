@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import 'library_query.dart';
 
 typedef LibraryView = ({MediaKind kind, bool favorites, LibrarySort sort});
@@ -25,7 +26,10 @@ Future<LibraryView?> chooseLibraryView(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('View', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                context.l10n.viewTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
@@ -39,9 +43,9 @@ Future<LibraryView?> chooseLibraryView(
                         MediaKind.video => Keys.libraryVideos,
                       },
                       label: Text(switch (kind) {
-                        MediaKind.all => 'All',
-                        MediaKind.photo => 'Photos',
-                        MediaKind.video => 'Videos',
+                        MediaKind.all => context.l10n.viewAll,
+                        MediaKind.photo => context.l10n.viewPhotos,
+                        MediaKind.video => context.l10n.viewVideos,
                       }),
                       selected: value.kind == kind,
                       onSelected: (_) => update(
@@ -57,7 +61,7 @@ Future<LibraryView?> chooseLibraryView(
               const SizedBox(height: 12),
               CheckboxListTile(
                 key: Keys.libraryFavorites,
-                title: const Text('Favorites only'),
+                title: Text(context.l10n.viewFavoritesOnly),
                 value: value.favorites,
                 onChanged: (checked) => update(
                   () => value = (
@@ -77,25 +81,28 @@ Future<LibraryView?> chooseLibraryView(
                     sort: sort,
                   ),
                 ),
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(
                     value: LibrarySort.newest,
-                    child: Text('Newest first'),
+                    child: Text(context.l10n.viewNewest),
                   ),
                   PopupMenuItem(
                     key: Keys.librarySortOldest,
                     value: LibrarySort.oldest,
-                    child: Text('Oldest first'),
+                    child: Text(context.l10n.viewOldest),
                   ),
-                  PopupMenuItem(value: LibrarySort.name, child: Text('Name')),
+                  PopupMenuItem(
+                    value: LibrarySort.name,
+                    child: Text(context.l10n.viewName),
+                  ),
                 ],
                 child: ListTile(
                   leading: const Icon(Icons.sort),
-                  title: const Text('Sort'),
+                  title: Text(context.l10n.viewSort),
                   subtitle: Text(switch (value.sort) {
-                    LibrarySort.newest => 'Newest first',
-                    LibrarySort.oldest => 'Oldest first',
-                    LibrarySort.name => 'Name',
+                    LibrarySort.newest => context.l10n.viewNewest,
+                    LibrarySort.oldest => context.l10n.viewOldest,
+                    LibrarySort.name => context.l10n.viewName,
                   }),
                 ),
               ),
@@ -105,9 +112,8 @@ Future<LibraryView?> chooseLibraryView(
                 onPressed: () => Navigator.pop(context, value),
                 // The pending view's live count, so the choice is informed.
                 child: Text(switch (count?.call(value)) {
-                  null => 'Apply view',
-                  1 => 'Show 1 capture',
-                  final n => 'Show $n captures',
+                  null => context.l10n.viewApply,
+                  final n => context.l10n.viewShowCount(n),
                 }),
               ),
               Row(
@@ -115,7 +121,7 @@ Future<LibraryView?> chooseLibraryView(
                   Expanded(
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(context.l10n.cancel),
                     ),
                   ),
                   Expanded(
@@ -128,7 +134,7 @@ Future<LibraryView?> chooseLibraryView(
                           sort: LibrarySort.newest,
                         ),
                       ),
-                      child: const Text('Reset'),
+                      child: Text(context.l10n.viewReset),
                     ),
                   ),
                 ],

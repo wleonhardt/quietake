@@ -374,7 +374,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               if (_month != null)
                 InputChip(
                   key: Keys.libraryRemoveMonth,
-                  label: Text(monthLabel(_month!)),
+                  label: Text(monthLabel(context, _month!)),
                   onDeleted: () => _scope(() => _month = null),
                 ),
               if (!_composing && _search.text.isNotEmpty)

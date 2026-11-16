@@ -184,7 +184,7 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
       leading: Icon(
         item.isVideo ? Icons.videocam_outlined : Icons.photo_outlined,
       ),
-      title: Text(taken == null ? name : monthLabel(taken)),
+      title: Text(taken == null ? name : monthLabel(context, taken)),
       subtitle: Text(context.l10n.recentlyDeletedDaysLeft(left)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

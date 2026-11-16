@@ -38,8 +38,10 @@ test harness has no delegates, so existing tests need no change. Plurals use ICU
 3. Camera and capture screen (done). Status text is stored already translated, so a
    language change shows the old text until the next status; acceptable for a
    transient message.
-4. Library, Tags, Moments, viewer, share and import. Tags screen, name dialog and
-   merge picker are done; Moments, tag picker, gallery, viewer, share and import remain.
+4. Library, Tags, Moments, viewer, share and import. Tags screen, name dialog,
+   merge picker, Moments and the view sheet are done; tag picker, gallery,
+   viewer, share and import remain. `monthLabel` now takes a context and uses
+   `intl` `yMMMM`.
 5. Settings, backup and NAS screens, and snackbar errors.
 Strings built in code, such as month names in Moments, move to `intl` date
 formatting in slice 4.

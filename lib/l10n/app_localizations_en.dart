@@ -507,4 +507,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get libraryUpdateFailed => 'Could not update private library. Retry.';
+
+  @override
+  String get momentsLoadFailed => 'Could not read captures. Retry';
+
+  @override
+  String get momentsEmpty => 'No dated captures yet';
+
+  @override
+  String get viewTitle => 'View';
+
+  @override
+  String get viewAll => 'All';
+
+  @override
+  String get viewPhotos => 'Photos';
+
+  @override
+  String get viewVideos => 'Videos';
+
+  @override
+  String get viewFavoritesOnly => 'Favorites only';
+
+  @override
+  String get viewSort => 'Sort';
+
+  @override
+  String get viewNewest => 'Newest first';
+
+  @override
+  String get viewOldest => 'Oldest first';
+
+  @override
+  String get viewName => 'Name';
+
+  @override
+  String get viewApply => 'Apply view';
+
+  @override
+  String viewShowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count captures',
+      one: 'Show 1 capture',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get viewReset => 'Reset';
 }

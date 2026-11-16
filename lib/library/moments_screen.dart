@@ -1,29 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../gallery/gallery_screen.dart';
 import '../gallery/item.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/privacy_scope.dart';
 import '../session.dart';
 
-const _monthNames = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-/// "November 2026" for a local year and month.
-String monthLabel(DateTime month) =>
-    '${_monthNames[month.month - 1]} ${month.year}';
+/// "November 2026" for a local year and month, in the app language.
+String monthLabel(BuildContext context, DateTime month) {
+  final locale = Localizations.maybeLocaleOf(context)?.toString() ?? 'en';
+  return DateFormat.yMMMM(locale).format(month);
+}
 
 /// Groups captures by the local month in their file name. It reads file names
 /// only, so it needs no decryption and keeps no index.
@@ -54,7 +43,10 @@ class _MomentsScreenState extends State<MomentsScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     key: Keys.momentsScreen,
-    appBar: AppBar(title: const Text('Moments'), actions: const [LockButton()]),
+    appBar: AppBar(
+      title: Text(context.l10n.tagsMoments),
+      actions: const [LockButton()],
+    ),
     body: FutureBuilder<Map<DateTime, int>>(
       future: _months,
       builder: (context, snapshot) {
@@ -64,7 +56,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
               onPressed: () => setState(() {
                 _months = _load();
               }),
-              child: const Text('Could not read captures. Retry'),
+              child: Text(context.l10n.momentsLoadFailed),
             ),
           );
         }
@@ -73,7 +65,7 @@ class _MomentsScreenState extends State<MomentsScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (counts.isEmpty) {
-          return const Center(child: Text('No dated captures yet'));
+          return Center(child: Text(context.l10n.momentsEmpty));
         }
         final months = counts.keys.toList()..sort((a, b) => b.compareTo(a));
         return ListView(
@@ -84,10 +76,8 @@ class _MomentsScreenState extends State<MomentsScreen> {
                   '${month.year}-${month.month.toString().padLeft(2, '0')}',
                 ),
                 leading: const Icon(Icons.calendar_month_outlined),
-                title: Text(monthLabel(month)),
-                subtitle: Text(
-                  '${counts[month]} ${counts[month] == 1 ? 'capture' : 'captures'}',
-                ),
+                title: Text(monthLabel(context, month)),
+                subtitle: Text(context.l10n.tagsCaptureCount(counts[month]!)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
                   await Navigator.push(

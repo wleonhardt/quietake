@@ -137,5 +137,19 @@
   "mergeFindDestination": "Rechercher l'étiquette de destination",
   "libraryNameLabel": "Nom",
   "librarySaveFailed": "Impossible d'enregistrer. Réessayez.",
-  "libraryUpdateFailed": "Impossible de mettre à jour la bibliothèque privée. Réessayez."
+  "libraryUpdateFailed": "Impossible de mettre à jour la bibliothèque privée. Réessayez.",
+  "momentsLoadFailed": "Impossible de lire les captures. Réessayer",
+  "momentsEmpty": "Aucune capture datée pour l'instant",
+  "viewTitle": "Affichage",
+  "viewAll": "Tout",
+  "viewPhotos": "Photos",
+  "viewVideos": "Vidéos",
+  "viewFavoritesOnly": "Favoris uniquement",
+  "viewSort": "Trier",
+  "viewNewest": "Plus récentes d'abord",
+  "viewOldest": "Plus anciennes d'abord",
+  "viewName": "Nom",
+  "viewApply": "Appliquer l'affichage",
+  "viewShowCount": "{count, plural, =1{Afficher 1 capture} other{Afficher {count} captures}}",
+  "viewReset": "Réinitialiser"
 }

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/library/moments_screen.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
@@ -23,6 +24,7 @@ void main() {
     WidgetTester tester,
     List<String> names, {
     bool unreadable = false,
+    Locale? locale,
   }) async {
     FlutterSecureStorage.setMockInitialValues({});
     await tester.runAsync(() async {
@@ -54,8 +56,14 @@ void main() {
     });
     if (unreadable) await tester.runAsync(() => dir.rename('${dir.path}-away'));
     await tester.runAsync(
-      () =>
-          tester.pumpWidget(MaterialApp(home: MomentsScreen(session: session))),
+      () => tester.pumpWidget(
+        MaterialApp(
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: MomentsScreen(session: session),
+        ),
+      ),
     );
   }
 
@@ -91,6 +99,22 @@ void main() {
           tester.getTopLeft(find.text('October 2026')).dy,
       isTrue,
     );
+  });
+
+  testWidgets('month names and counts follow the device language', (
+    tester,
+  ) async {
+    await open(tester, [
+      '2026-03-03T10-00-00.jpg',
+      '2026-03-20T08-30-00.mp4',
+    ], locale: const Locale('de'));
+    await until(
+      tester,
+      () => find.byKey(Keys.momentMonth('2026-03')).evaluate().isNotEmpty,
+    );
+    expect(find.text('März 2026'), findsOneWidget);
+    expect(find.text('2 Aufnahmen'), findsOneWidget);
+    expect(find.text('Momente'), findsOneWidget);
   });
 
   testWidgets('a vault without dated captures says so', (tester) async {

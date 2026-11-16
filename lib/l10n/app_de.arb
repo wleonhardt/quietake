@@ -137,5 +137,19 @@
   "mergeFindDestination": "Ziel-Tag suchen",
   "libraryNameLabel": "Name",
   "librarySaveFailed": "Speichern fehlgeschlagen. Erneut versuchen.",
-  "libraryUpdateFailed": "Die private Bibliothek konnte nicht aktualisiert werden. Erneut versuchen."
+  "libraryUpdateFailed": "Die private Bibliothek konnte nicht aktualisiert werden. Erneut versuchen.",
+  "momentsLoadFailed": "Aufnahmen konnten nicht gelesen werden. Erneut versuchen",
+  "momentsEmpty": "Noch keine Aufnahmen mit Datum",
+  "viewTitle": "Ansicht",
+  "viewAll": "Alle",
+  "viewPhotos": "Fotos",
+  "viewVideos": "Videos",
+  "viewFavoritesOnly": "Nur Favoriten",
+  "viewSort": "Sortieren",
+  "viewNewest": "Neueste zuerst",
+  "viewOldest": "Älteste zuerst",
+  "viewName": "Name",
+  "viewApply": "Ansicht anwenden",
+  "viewShowCount": "{count, plural, =1{1 Aufnahme anzeigen} other{{count} Aufnahmen anzeigen}}",
+  "viewReset": "Zurücksetzen"
 }

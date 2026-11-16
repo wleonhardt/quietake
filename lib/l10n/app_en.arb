@@ -258,5 +258,26 @@
   "mergeFindDestination": "Find destination tag",
   "libraryNameLabel": "Name",
   "librarySaveFailed": "Could not save. Retry.",
-  "libraryUpdateFailed": "Could not update private library. Retry."
+  "libraryUpdateFailed": "Could not update private library. Retry.",
+  "momentsLoadFailed": "Could not read captures. Retry",
+  "momentsEmpty": "No dated captures yet",
+  "viewTitle": "View",
+  "viewAll": "All",
+  "viewPhotos": "Photos",
+  "viewVideos": "Videos",
+  "viewFavoritesOnly": "Favorites only",
+  "viewSort": "Sort",
+  "viewNewest": "Newest first",
+  "viewOldest": "Oldest first",
+  "viewName": "Name",
+  "viewApply": "Apply view",
+  "viewShowCount": "{count, plural, =1{Show 1 capture} other{Show {count} captures}}",
+  "@viewShowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewReset": "Reset"
 }

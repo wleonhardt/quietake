@@ -137,5 +137,19 @@
   "mergeFindDestination": "Buscar etiqueta de destino",
   "libraryNameLabel": "Nombre",
   "librarySaveFailed": "No se pudo guardar. Reintentar.",
-  "libraryUpdateFailed": "No se pudo actualizar la biblioteca privada. Reintentar."
+  "libraryUpdateFailed": "No se pudo actualizar la biblioteca privada. Reintentar.",
+  "momentsLoadFailed": "No se pudieron leer las capturas. Reintentar",
+  "momentsEmpty": "Aún no hay capturas con fecha",
+  "viewTitle": "Vista",
+  "viewAll": "Todo",
+  "viewPhotos": "Fotos",
+  "viewVideos": "Vídeos",
+  "viewFavoritesOnly": "Solo favoritos",
+  "viewSort": "Ordenar",
+  "viewNewest": "Más recientes primero",
+  "viewOldest": "Más antiguas primero",
+  "viewName": "Nombre",
+  "viewApply": "Aplicar vista",
+  "viewShowCount": "{count, plural, =1{Mostrar 1 captura} other{Mostrar {count} capturas}}",
+  "viewReset": "Restablecer"
 }

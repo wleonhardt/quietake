@@ -929,6 +929,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not update private library. Retry.'**
   String get libraryUpdateFailed;
+
+  /// No description provided for @momentsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read captures. Retry'**
+  String get momentsLoadFailed;
+
+  /// No description provided for @momentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No dated captures yet'**
+  String get momentsEmpty;
+
+  /// No description provided for @viewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get viewTitle;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get viewAll;
+
+  /// No description provided for @viewPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get viewPhotos;
+
+  /// No description provided for @viewVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos'**
+  String get viewVideos;
+
+  /// No description provided for @viewFavoritesOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites only'**
+  String get viewFavoritesOnly;
+
+  /// No description provided for @viewSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get viewSort;
+
+  /// No description provided for @viewNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest first'**
+  String get viewNewest;
+
+  /// No description provided for @viewOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest first'**
+  String get viewOldest;
+
+  /// No description provided for @viewName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get viewName;
+
+  /// No description provided for @viewApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply view'**
+  String get viewApply;
+
+  /// No description provided for @viewShowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 capture} other{Show {count} captures}}'**
+  String viewShowCount(int count);
+
+  /// No description provided for @viewReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get viewReset;
 }
 
 class _AppLocalizationsDelegate

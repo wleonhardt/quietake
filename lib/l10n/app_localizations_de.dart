@@ -524,4 +524,55 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get libraryUpdateFailed =>
       'Die private Bibliothek konnte nicht aktualisiert werden. Erneut versuchen.';
+
+  @override
+  String get momentsLoadFailed =>
+      'Aufnahmen konnten nicht gelesen werden. Erneut versuchen';
+
+  @override
+  String get momentsEmpty => 'Noch keine Aufnahmen mit Datum';
+
+  @override
+  String get viewTitle => 'Ansicht';
+
+  @override
+  String get viewAll => 'Alle';
+
+  @override
+  String get viewPhotos => 'Fotos';
+
+  @override
+  String get viewVideos => 'Videos';
+
+  @override
+  String get viewFavoritesOnly => 'Nur Favoriten';
+
+  @override
+  String get viewSort => 'Sortieren';
+
+  @override
+  String get viewNewest => 'Neueste zuerst';
+
+  @override
+  String get viewOldest => 'Älteste zuerst';
+
+  @override
+  String get viewName => 'Name';
+
+  @override
+  String get viewApply => 'Ansicht anwenden';
+
+  @override
+  String viewShowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aufnahmen anzeigen',
+      one: '1 Aufnahme anzeigen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get viewReset => 'Zurücksetzen';
 }
