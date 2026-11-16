@@ -10,6 +10,7 @@ import 'package:quietake/camera/capture_screen.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/library/private_catalog.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -232,6 +233,26 @@ void main() {
       await unmount(tester);
     },
   );
+
+  testWidgets('an unreadable catalog explains the tag choice failure', (
+    tester,
+  ) async {
+    await boot(tester);
+    await tester.runAsync(
+      () =>
+          File('${root.path}/${PrivateCatalog.fileName}')
+              .writeAsBytes([1, 2, 3]),
+    );
+    await tester.tap(find.byKey(Keys.captureAlbum));
+    await until(
+      tester,
+      () async => find
+          .text('Could not open private tags. Retry from Library.')
+          .evaluate()
+          .isNotEmpty,
+    );
+    await unmount(tester);
+  });
 
   testWidgets(
     'camera combines tags and cancels pending choice without media edits',
