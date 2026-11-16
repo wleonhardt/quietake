@@ -43,6 +43,7 @@
 
 ## Done
 
+- Full host suite at iteration 65: 568 passed, analyzer clean.
 - Host tests (`private_catalog_test.dart`): a library too large to save is refused with state unchanged, and an oversized catalog is refused on load. `private_catalog.dart`, `cast_controller.dart`, `library_query.dart` and `tag_picker.dart` re-read, no defect. `CastController.start`'s "Connect to Wi-Fi" branch is untested because `MediaServer.lanAddress` is a static with no test hook. Both limits were untested before. Also covered: edits naming a deleted tag are refused, and a closed catalog refuses edits. A grep for untested error strings is not useful because tests assert exception types.
 - Host tests (`idle_lock_test.dart`): an idle session locks after the app's timeout, and hardware key presses and touches keep it unlocked (first host coverage of `QuietakeApp` idle locking; `idleTimeout` is the test hook).
 - Host test (`app_start_failure_test.dart`): after a restore completes, the app shows the lock screen, not Setup. Other short text entry points (names, tags, search) still do not reset the idle timer; they are short, so left unchanged.
