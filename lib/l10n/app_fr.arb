@@ -465,5 +465,13 @@
   "recoveryCheckClose": "Fermer",
   "recoveryCheckMatch": "Elle correspond à la clé de récupération de votre coffre.",
   "recoveryCheckMismatch": "Cette clé ne correspond pas à ce coffre. Vérifiez où vous l'avez enregistrée, puis réessayez.",
-  "recoveryCheckInvalid": "Ce n'est pas une clé de récupération valide. Vérifiez s'il manque des caractères ou s'il y en a en trop."
+  "recoveryCheckInvalid": "Ce n'est pas une clé de récupération valide. Vérifiez s'il manque des caractères ou s'il y en a en trop.",
+  "redactTitle": "Masquer des parties de la photo",
+  "redactUndo": "Annuler la dernière zone",
+  "redactDone": "Terminé",
+  "redactStatus": "{count, plural, =0{Faites glisser sur la photo pour masquer une zone.} =1{1 zone sera masquée.} other{{count} zones seront masquées.}}",
+  "redactFailed": "Impossible d'ouvrir cette photo pour la modifier.",
+  "shareRedactButton": "Masquer des parties de cette photo…",
+  "shareRedactEdit": "Zones masquées : {count}. Modifier…",
+  "shareRedactNote": "La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L'original reste inchangé dans votre coffre."
 }

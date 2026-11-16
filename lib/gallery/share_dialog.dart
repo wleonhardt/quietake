@@ -6,6 +6,7 @@ import '../privacy/privacy_controller.dart';
 import '../privacy/privacy_scope.dart';
 import '../vault/vault.dart';
 import 'item.dart';
+import 'redact_screen.dart';
 import 'share_media.dart';
 
 Future<void> showShareCopies(
@@ -40,6 +41,7 @@ class _ShareDialogState extends State<_ShareDialog> {
   bool _cancelled = false;
   int _prepared = 0;
   bool _stripLocation = true;
+  List<Rect> _regions = const [];
   String Function(AppLocalizations)? _error;
   PrivacyController? _privacy;
 
@@ -62,6 +64,27 @@ class _ShareDialogState extends State<_ShareDialog> {
       (WidgetsBinding.instance.lifecycleState == null ||
           WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed);
 
+  bool get _canRedact =>
+      widget.items.length == 1 && !widget.items.single.isVideo;
+
+  Future<void> _redact() async {
+    final item = widget.items.single;
+    setState(() => _error = null);
+    try {
+      final bytes = await widget.vault.readAll(item.file);
+      if (!mounted) return;
+      final chosen = await Navigator.push<List<Rect>>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RedactScreen(bytes: bytes, initial: _regions),
+        ),
+      );
+      if (chosen != null && mounted) setState(() => _regions = chosen);
+    } catch (_) {
+      if (mounted) setState(() => _error = (l10n) => l10n.shareFailed);
+    }
+  }
+
   Future<void> _share() async {
     setState(() {
       _busy = true;
@@ -77,6 +100,9 @@ class _ShareDialogState extends State<_ShareDialog> {
         widget.items,
         origin: widget.origin,
         stripLocation: _stripLocation,
+        redactions: _regions.isEmpty
+            ? const {}
+            : {widget.items.single.name: _regions},
         isActive: () => _active,
         onProgress: (prepared, _) {
           if (mounted) setState(() => _prepared = prepared);
@@ -122,18 +148,34 @@ class _ShareDialogState extends State<_ShareDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(l10n.shareWarning),
-          CheckboxListTile(
-            key: Keys.shareStripLocation,
-            contentPadding: EdgeInsets.zero,
-            value: _stripLocation,
-            onChanged: _busy
-                ? null
-                : (value) => setState(() => _stripLocation = value ?? true),
-            title: Text(l10n.shareStripTitle),
-            subtitle: Text(
-              _stripLocation ? l10n.shareStripOn : l10n.shareStripOff,
+          if (_canRedact)
+            OutlinedButton(
+              key: Keys.shareRedact,
+              onPressed: _busy ? null : _redact,
+              child: Text(
+                _regions.isEmpty
+                    ? l10n.shareRedactButton
+                    : l10n.shareRedactEdit(_regions.length),
+              ),
             ),
-          ),
+          if (_regions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(l10n.shareRedactNote),
+            )
+          else
+            CheckboxListTile(
+              key: Keys.shareStripLocation,
+              contentPadding: EdgeInsets.zero,
+              value: _stripLocation,
+              onChanged: _busy
+                  ? null
+                  : (value) => setState(() => _stripLocation = value ?? true),
+              title: Text(l10n.shareStripTitle),
+              subtitle: Text(
+                _stripLocation ? l10n.shareStripOn : l10n.shareStripOff,
+              ),
+            ),
           if (widget.items.length > 1)
             Padding(
               padding: const EdgeInsets.only(top: 12),

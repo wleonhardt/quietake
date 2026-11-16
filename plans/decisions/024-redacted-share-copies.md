@@ -1,7 +1,7 @@
 # 024 Redacted share copies
 
-Status: accepted for step 1 (the pixel function). The editing screen and the share
-dialog entry are step 2 and are not built yet.
+Status: accepted. Step 1 (the pixel function) and step 2 (editing screen and share
+dialog entry) are built.
 
 ## Decision
 
@@ -27,3 +27,18 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
 - Automatic face detection is not part of this decision.
 - Step 2 must decrypt into private storage only, delete the copy after sharing like
   other share copies, and add Spanish, French and German text.
+
+## Step 2 as built
+
+- The share dialog shows "Hide parts of this photo…" only when exactly one photo is
+  selected. Videos and multi-item shares are unchanged.
+- `RedactScreen` decrypts the photo into memory only while it is open, lets the owner
+  drag rectangles (down position starts the rectangle), undo the last one and press
+  Done. Going back keeps the earlier choice. The screen closes when the app locks.
+- With areas chosen, the dialog hides the metadata switch (a PNG has none) and says the
+  copy becomes a PNG with those areas pixelated. `shareMediaCopies` takes
+  `redactions` keyed by capture name and shares `photo-<id>.png` as `image/png`.
+- Drawing is pointer only: there is no keyboard or screen-reader way to place an
+  area yet. Owner should weigh that before release.
+- Tests: `redact_screen_test.dart`, `share_media_test.dart`, `share_dialog_test.dart`.
+  No device test drives the editor; `sharing_test.dart` still passes on both devices.

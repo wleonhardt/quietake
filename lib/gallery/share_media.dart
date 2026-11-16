@@ -9,6 +9,7 @@ import '../crypto/random_token.dart';
 import '../vault/vault.dart';
 import 'exif_strip.dart';
 import 'item.dart';
+import 'redact.dart';
 
 bool _sharing = false;
 
@@ -47,6 +48,10 @@ Future<void> shareMediaCopies(
   List<VaultItem> selected, {
   required Rect origin,
   bool stripLocation = true,
+
+  /// Areas to pixelate per photo, keyed by capture name. A redacted copy is a
+  /// PNG without metadata; the vault original is never changed.
+  Map<String, List<Rect>> redactions = const {},
   required bool Function() isActive,
   void Function(int prepared, int total)? onProgress,
 }) async {
@@ -85,16 +90,18 @@ Future<void> shareMediaCopies(
     for (final item in items) {
       if (!isActive()) return;
       final id = randomHexToken(vault.crypto.sodium);
+      final areas = item.isVideo ? null : redactions[item.name];
+      final redacted = areas != null && areas.isNotEmpty;
       final extension = item.isVideo
           ? item.extension
-          : item.extension == 'png'
+          : redacted || item.extension == 'png'
           ? 'png'
           : 'jpg';
       final file = File(
         '${directory.path}/${item.isVideo ? 'video' : 'photo'}-$id.$extension',
       );
       try {
-        if (stripLocation && !item.isVideo) {
+        if (redacted || (stripLocation && !item.isVideo)) {
           // Photos are bounded (Vault.maxPhotoBytes). JPEG GPS data is erased;
           // unsafe metadata aborts before the chooser receives any copy.
           if (!isActive()) throw _ShareCancelled();
@@ -106,7 +113,10 @@ Future<void> shareMediaCopies(
             );
           }
           if (!isActive()) throw _ShareCancelled();
-          await file.writeAsBytes(withoutMetadata(plain), flush: true);
+          await file.writeAsBytes(
+            redacted ? await redactToPng(plain, areas) : withoutMetadata(plain),
+            flush: true,
+          );
         } else {
           await vault
               .read(item.file)
@@ -132,7 +142,9 @@ Future<void> shareMediaCopies(
           item: item,
         );
       }
-      files.add(XFile(file.path, mimeType: item.contentType));
+      files.add(
+        XFile(file.path, mimeType: redacted ? 'image/png' : item.contentType),
+      );
       onProgress?.call(files.length, items.length);
     }
     if (!isActive()) return;

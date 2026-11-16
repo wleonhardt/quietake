@@ -465,5 +465,13 @@
   "recoveryCheckClose": "Schließen",
   "recoveryCheckMatch": "Er stimmt mit dem Wiederherstellungsschlüssel Ihres Tresors überein.",
   "recoveryCheckMismatch": "Dieser Schlüssel passt nicht zu diesem Tresor. Prüfen Sie, wo Sie ihn gespeichert haben, und versuchen Sie es erneut.",
-  "recoveryCheckInvalid": "Das ist kein gültiger Wiederherstellungsschlüssel. Prüfen Sie, ob Zeichen fehlen oder zu viel sind."
+  "recoveryCheckInvalid": "Das ist kein gültiger Wiederherstellungsschlüssel. Prüfen Sie, ob Zeichen fehlen oder zu viel sind.",
+  "redactTitle": "Teile des Fotos verbergen",
+  "redactUndo": "Letzten Bereich rückgängig machen",
+  "redactDone": "Fertig",
+  "redactStatus": "{count, plural, =0{Ziehen Sie über das Foto, um einen Bereich zu verbergen.} =1{1 Bereich wird verborgen.} other{{count} Bereiche werden verborgen.}}",
+  "redactFailed": "Dieses Foto konnte nicht zur Bearbeitung geöffnet werden.",
+  "shareRedactButton": "Teile dieses Fotos verbergen …",
+  "shareRedactEdit": "Verborgene Bereiche: {count}. Ändern …",
+  "shareRedactNote": "Die geteilte Kopie wird ein PNG mit verpixelten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert."
 }

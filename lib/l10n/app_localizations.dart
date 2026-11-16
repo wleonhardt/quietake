@@ -2897,6 +2897,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is not a valid recovery key. Check for missing or extra characters.'**
   String get recoveryCheckInvalid;
+
+  /// No description provided for @redactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide parts of the photo'**
+  String get redactTitle;
+
+  /// No description provided for @redactUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo last area'**
+  String get redactUndo;
+
+  /// No description provided for @redactDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get redactDone;
+
+  /// No description provided for @redactStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Drag over the photo to hide an area.} =1{1 area will be hidden.} other{{count} areas will be hidden.}}'**
+  String redactStatus(int count);
+
+  /// No description provided for @redactFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo could not be opened for editing.'**
+  String get redactFailed;
+
+  /// No description provided for @shareRedactButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide parts of this photo…'**
+  String get shareRedactButton;
+
+  /// No description provided for @shareRedactEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden areas: {count}. Change…'**
+  String shareRedactEdit(int count);
+
+  /// No description provided for @shareRedactNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.'**
+  String get shareRedactNote;
 }
 
 class _AppLocalizationsDelegate

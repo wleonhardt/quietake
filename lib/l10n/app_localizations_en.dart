@@ -1712,4 +1712,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recoveryCheckInvalid =>
       'This is not a valid recovery key. Check for missing or extra characters.';
+
+  @override
+  String get redactTitle => 'Hide parts of the photo';
+
+  @override
+  String get redactUndo => 'Undo last area';
+
+  @override
+  String get redactDone => 'Done';
+
+  @override
+  String redactStatus(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count areas will be hidden.',
+      one: '1 area will be hidden.',
+      zero: 'Drag over the photo to hide an area.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get redactFailed => 'This photo could not be opened for editing.';
+
+  @override
+  String get shareRedactButton => 'Hide parts of this photo…';
+
+  @override
+  String shareRedactEdit(int count) {
+    return 'Hidden areas: $count. Change…';
+  }
+
+  @override
+  String get shareRedactNote =>
+      'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.';
 }

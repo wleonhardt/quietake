@@ -927,5 +927,27 @@
   "recoveryCheckClose": "Close",
   "recoveryCheckMatch": "This matches your vault's recovery key.",
   "recoveryCheckMismatch": "This key does not match this vault. Check where you saved it, then try again.",
-  "recoveryCheckInvalid": "This is not a valid recovery key. Check for missing or extra characters."
+  "recoveryCheckInvalid": "This is not a valid recovery key. Check for missing or extra characters.",
+  "redactTitle": "Hide parts of the photo",
+  "redactUndo": "Undo last area",
+  "redactDone": "Done",
+  "redactStatus": "{count, plural, =0{Drag over the photo to hide an area.} =1{1 area will be hidden.} other{{count} areas will be hidden.}}",
+  "@redactStatus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "redactFailed": "This photo could not be opened for editing.",
+  "shareRedactButton": "Hide parts of this photo…",
+  "shareRedactEdit": "Hidden areas: {count}. Change…",
+  "@shareRedactEdit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareRedactNote": "The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault."
 }

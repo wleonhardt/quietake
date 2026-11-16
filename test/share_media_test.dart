@@ -12,6 +12,7 @@ import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/exif_fixture.dart';
+import '../test_support/png_fixture.dart';
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -301,6 +302,91 @@ void main() {
       expect(await Directory('${root.path}/quietake-share').exists(), isFalse);
       // The unlinked plaintext copy must not stay readable through a handle.
       expect(_openHandles(), 0);
+    },
+  );
+
+  test(
+    'redacted photos share as a metadata-free PNG; others are untouched',
+    () async {
+      final png = await gradientPng();
+      final photo = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/g.png').writeAsBytes(png),
+          'g.png',
+        ),
+      );
+      final gps = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/h.jpg').writeAsBytes(jpegWithGps()),
+          'h.jpg',
+        ),
+      );
+      final names = <String>[];
+      final mimes = <dynamic>[];
+      final sent = <Uint8List>[];
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        mimes.addAll(args['mimeTypes'] as List);
+        for (final path in args['paths'] as List) {
+          names.add((path as String).split('/').last);
+          sent.add(await File(path).readAsBytes());
+        }
+        return '';
+      });
+      await shareMediaCopies(
+        vault,
+        [photo, gps],
+        origin: origin,
+        redactions: {
+          photo.name: [const Rect.fromLTRB(.25, .25, .75, .75)],
+        },
+        isActive: () => true,
+      );
+      expect(mimes, ['image/png', 'image/jpeg']);
+      expect(names[0], matches(RegExp(r'^photo-[0-9a-f]{32}\.png$')));
+      expect(sent[0].sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+      expect(sent[0], isNot(png));
+      // The other photo only had its metadata reduced, still a JPEG.
+      expect(names[1], endsWith('.jpg'));
+      expect(sent[1].sublist(0, 2), [0xff, 0xd8]);
+      // The vault original is unchanged.
+      expect(await vault.readAll(photo.file), png);
+    },
+  );
+
+  test(
+    'a GPS JPEG that is redacted becomes a PNG even if metadata is kept',
+    () async {
+      final jpeg = jpegWithGps();
+      final photo = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/r.jpg').writeAsBytes(jpeg),
+          'r.jpg',
+        ),
+      );
+      final sent = <Uint8List>[];
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        for (final path in args['paths'] as List) {
+          sent.add(await File(path as String).readAsBytes());
+        }
+        return '';
+      });
+      await shareMediaCopies(
+        vault,
+        [photo],
+        origin: origin,
+        stripLocation: false,
+        redactions: {
+          photo.name: [const Rect.fromLTRB(0, 0, .5, .5)],
+        },
+        isActive: () => true,
+      );
+      expect(sent.single.sublist(0, 4), [137, 80, 78, 71]);
     },
   );
 

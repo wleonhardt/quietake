@@ -1747,4 +1747,40 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get recoveryCheckInvalid =>
       'No es una clave de recuperación válida. Comprueba si faltan caracteres o sobran.';
+
+  @override
+  String get redactTitle => 'Ocultar partes de la foto';
+
+  @override
+  String get redactUndo => 'Deshacer la última zona';
+
+  @override
+  String get redactDone => 'Listo';
+
+  @override
+  String redactStatus(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Se ocultarán $count zonas.',
+      one: 'Se ocultará 1 zona.',
+      zero: 'Arrastra sobre la foto para ocultar una zona.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get redactFailed => 'No se pudo abrir esta foto para editarla.';
+
+  @override
+  String get shareRedactButton => 'Ocultar partes de esta foto…';
+
+  @override
+  String shareRedactEdit(int count) {
+    return 'Zonas ocultas: $count. Cambiar…';
+  }
+
+  @override
+  String get shareRedactNote =>
+      'La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda.';
 }

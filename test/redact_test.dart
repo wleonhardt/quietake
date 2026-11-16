@@ -4,36 +4,9 @@ import 'dart:ui' as ui;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/gallery/redact.dart';
 
+import '../test_support/png_fixture.dart';
+
 const _size = 64;
-
-/// A PNG whose red channel is the column and green channel the row.
-Future<Uint8List> _gradient() async {
-  final raw = Uint8List(_size * _size * 4);
-  for (var y = 0; y < _size; y++) {
-    for (var x = 0; x < _size; x++) {
-      final i = (y * _size + x) * 4;
-      raw[i] = x * 4;
-      raw[i + 1] = y * 4;
-      raw[i + 2] = 90;
-      raw[i + 3] = 255;
-    }
-  }
-  return _encode(raw);
-}
-
-Future<Uint8List> _encode(Uint8List raw) async {
-  final buffer = await ui.ImmutableBuffer.fromUint8List(raw);
-  final descriptor = ui.ImageDescriptor.raw(
-    buffer,
-    width: _size,
-    height: _size,
-    pixelFormat: ui.PixelFormat.rgba8888,
-  );
-  final codec = await descriptor.instantiateCodec();
-  final image = (await codec.getNextFrame()).image;
-  final png = await image.toByteData(format: ui.ImageByteFormat.png);
-  return png!.buffer.asUint8List();
-}
 
 Future<Uint8List> _pixels(Uint8List png) async {
   final codec = await ui.instantiateImageCodec(png);
@@ -52,7 +25,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('a region is pixelated and the rest keeps its pixels', () async {
-    final source = await _gradient();
+    final source = await gradientPng();
     final before = await _pixels(source);
     final out = await redactToPng(source, [
       const ui.Rect.fromLTRB(0.25, 0.25, 0.75, 0.75),
@@ -73,13 +46,13 @@ void main() {
   });
 
   test('no regions re-encodes the same pixels', () async {
-    final source = await _gradient();
+    final source = await gradientPng();
     final out = await redactToPng(source, const []);
     expect(await _pixels(out), await _pixels(source));
   });
 
   test('regions outside or empty or beyond the image change nothing', () async {
-    final source = await _gradient();
+    final source = await gradientPng();
     final out = await redactToPng(source, [
       const ui.Rect.fromLTRB(2, 2, 3, 3),
       const ui.Rect.fromLTRB(0.5, 0.5, 0.5, 0.9),
@@ -89,7 +62,7 @@ void main() {
   });
 
   test('a region past the edge is clamped to the image', () async {
-    final source = await _gradient();
+    final source = await gradientPng();
     final before = await _pixels(source);
     final out = await redactToPng(source, [
       const ui.Rect.fromLTRB(0.5, 0.5, 2, 2),
@@ -100,7 +73,7 @@ void main() {
   });
 
   test('the output is a PNG with no metadata chunks', () async {
-    final out = await redactToPng(await _gradient(), const [
+    final out = await redactToPng(await gradientPng(), const [
       ui.Rect.fromLTRB(0, 0, 0.5, 0.5),
     ]);
     expect(out.sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);

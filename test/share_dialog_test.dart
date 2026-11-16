@@ -11,6 +11,8 @@ import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../test_support/png_fixture.dart';
+
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
   const share = MethodChannel('dev.fluttercommunity.plus/share');
@@ -18,6 +20,8 @@ void main() {
   late Directory root;
   late Vault vault;
   late VaultItem item;
+  late VaultItem photo;
+  List<dynamic> sharedMimes = const [];
   var shareCalls = 0;
   var shareFails = false;
 
@@ -34,10 +38,17 @@ void main() {
     final plain = await File('${root.path}/in.mp4')
         .writeAsBytes(List.generate(4096, (i) => i % 251));
     item = VaultItem(await vault.ingestAs(plain, 'clip.mp4'));
+    photo = VaultItem(
+      await vault.ingestAs(
+        await File('${root.path}/pic.png').writeAsBytes(await gradientPng()),
+        'pic.png',
+      ),
+    );
     binding.defaultBinaryMessenger
       ..setMockMethodCallHandler(paths, (_) async => root.path)
-      ..setMockMethodCallHandler(share, (_) async {
+      ..setMockMethodCallHandler(share, (call) async {
         shareCalls++;
+        sharedMimes = (call.arguments as Map)['mimeTypes'] as List;
         if (shareFails) throw PlatformException(code: 'unavailable');
         return '';
       });
@@ -51,7 +62,11 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  Future<void> open(WidgetTester tester, {Locale? locale}) async {
+  Future<void> open(
+    WidgetTester tester, {
+    Locale? locale,
+    VaultItem? target,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
         locale: locale,
@@ -61,7 +76,7 @@ void main() {
           builder: (context) => TextButton(
             key: const Key('open'),
             onPressed: () => showShareCopies(context, vault, [
-              item,
+              target ?? item,
             ], origin: const Rect.fromLTWH(0, 0, 10, 10)),
             child: const Text('open'),
           ),
@@ -105,6 +120,54 @@ void main() {
     expect(find.text('Elegir app'), findsOneWidget);
     expect(find.text('Share a copy?'), findsNothing);
   });
+
+  testWidgets('a video offers no hiding of areas', (tester) async {
+    await open(tester);
+    expect(find.byKey(Keys.shareRedact), findsNothing);
+  });
+
+  testWidgets(
+    'hiding areas of a photo shares a PNG and drops the metadata switch',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await open(tester, target: photo);
+      expect(find.byKey(Keys.shareStripLocation), findsOneWidget);
+      await tester.runAsync(() => tester.tap(find.byKey(Keys.shareRedact)));
+      await settleReal(
+        tester,
+        () => find.byKey(Keys.redactCanvas).evaluate().isNotEmpty,
+      );
+      await tester.pump(const Duration(seconds: 1));
+      final box = tester.getRect(find.byKey(Keys.redactCanvas));
+      final gesture = await tester.startGesture(
+        box.topLeft + const Offset(10, 10),
+      );
+      await gesture.moveTo(box.center);
+      await gesture.up();
+      await tester.pump();
+      await tester.tap(find.byKey(Keys.redactDone));
+      await tester.pumpAndSettle();
+      // The dialog's await began in the real zone, so let it resume there.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Hidden areas: 1'), findsOneWidget);
+      expect(find.byKey(Keys.shareStripLocation), findsNothing);
+      expect(find.textContaining('becomes a PNG'), findsOneWidget);
+      await tester.tap(find.byKey(Keys.shareConfirm));
+      await settleReal(
+        tester,
+        () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+      );
+      await tester.pumpAndSettle();
+      expect(shareCalls, 1);
+      expect(sharedMimes, ['image/png']);
+    },
+  );
 
   testWidgets('cancel closes without preparing or sharing', (tester) async {
     await open(tester);

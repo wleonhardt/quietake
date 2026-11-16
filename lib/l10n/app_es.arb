@@ -465,5 +465,13 @@
   "recoveryCheckClose": "Cerrar",
   "recoveryCheckMatch": "Coincide con la clave de recuperación de tu bóveda.",
   "recoveryCheckMismatch": "Esta clave no coincide con esta bóveda. Revisa dónde la guardaste e inténtalo de nuevo.",
-  "recoveryCheckInvalid": "No es una clave de recuperación válida. Comprueba si faltan caracteres o sobran."
+  "recoveryCheckInvalid": "No es una clave de recuperación válida. Comprueba si faltan caracteres o sobran.",
+  "redactTitle": "Ocultar partes de la foto",
+  "redactUndo": "Deshacer la última zona",
+  "redactDone": "Listo",
+  "redactStatus": "{count, plural, =0{Arrastra sobre la foto para ocultar una zona.} =1{Se ocultará 1 zona.} other{Se ocultarán {count} zonas.}}",
+  "redactFailed": "No se pudo abrir esta foto para editarla.",
+  "shareRedactButton": "Ocultar partes de esta foto…",
+  "shareRedactEdit": "Zonas ocultas: {count}. Cambiar…",
+  "shareRedactNote": "La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda."
 }

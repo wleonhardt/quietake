@@ -1752,4 +1752,41 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get recoveryCheckInvalid =>
       'Das ist kein gültiger Wiederherstellungsschlüssel. Prüfen Sie, ob Zeichen fehlen oder zu viel sind.';
+
+  @override
+  String get redactTitle => 'Teile des Fotos verbergen';
+
+  @override
+  String get redactUndo => 'Letzten Bereich rückgängig machen';
+
+  @override
+  String get redactDone => 'Fertig';
+
+  @override
+  String redactStatus(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Bereiche werden verborgen.',
+      one: '1 Bereich wird verborgen.',
+      zero: 'Ziehen Sie über das Foto, um einen Bereich zu verbergen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get redactFailed =>
+      'Dieses Foto konnte nicht zur Bearbeitung geöffnet werden.';
+
+  @override
+  String get shareRedactButton => 'Teile dieses Fotos verbergen …';
+
+  @override
+  String shareRedactEdit(int count) {
+    return 'Verborgene Bereiche: $count. Ändern …';
+  }
+
+  @override
+  String get shareRedactNote =>
+      'Die geteilte Kopie wird ein PNG mit verpixelten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert.';
 }

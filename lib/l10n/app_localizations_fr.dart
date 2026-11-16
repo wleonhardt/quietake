@@ -1750,4 +1750,41 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get recoveryCheckInvalid =>
       'Ce n\'est pas une clé de récupération valide. Vérifiez s\'il manque des caractères ou s\'il y en a en trop.';
+
+  @override
+  String get redactTitle => 'Masquer des parties de la photo';
+
+  @override
+  String get redactUndo => 'Annuler la dernière zone';
+
+  @override
+  String get redactDone => 'Terminé';
+
+  @override
+  String redactStatus(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zones seront masquées.',
+      one: '1 zone sera masquée.',
+      zero: 'Faites glisser sur la photo pour masquer une zone.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get redactFailed =>
+      'Impossible d\'ouvrir cette photo pour la modifier.';
+
+  @override
+  String get shareRedactButton => 'Masquer des parties de cette photo…';
+
+  @override
+  String shareRedactEdit(int count) {
+    return 'Zones masquées : $count. Modifier…';
+  }
+
+  @override
+  String get shareRedactNote =>
+      'La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L\'original reste inchangé dans votre coffre.';
 }
