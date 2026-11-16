@@ -81,6 +81,41 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
     _reload();
   }
 
+  Future<void> _deleteAll(List<String> names) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete all now?'),
+        content: Text(
+          '${names.length} ${names.length == 1 ? 'capture is' : 'captures are'} '
+          'permanently removed from this phone and your configured NAS. '
+          'They cannot be restored.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: Keys.recentlyDeletedAllConfirm,
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete all now'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      for (final name in names) {
+        await widget.session.sync.delete(_file(name));
+        widget.session.previews.evict(name);
+      }
+    } catch (_) {
+      _say('Could not finish deleting. Please retry.');
+    }
+    _reload();
+  }
+
   void _say(String text) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
@@ -125,6 +160,18 @@ class _RecentlyDeletedScreenState extends State<RecentlyDeletedScreen> {
               child: Text(
                 'Deleted captures stay encrypted on this phone for '
                 '${Vault.trashKeep.inDays} days, then are removed for good.',
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: TextButton.icon(
+                  key: Keys.recentlyDeletedAll,
+                  onPressed: () => _deleteAll(names),
+                  icon: const Icon(Icons.delete_forever_outlined),
+                  label: const Text('Delete all now'),
+                ),
               ),
             ),
             for (final name in names) _tile(name, items[name]!, now),

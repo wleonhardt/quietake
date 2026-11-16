@@ -116,6 +116,8 @@ abstract final class Keys {
   static const recentlyDeletedOpen = Key('recentlyDeleted.open');
   static const recentlyDeletedScreen = Key('recentlyDeleted.screen');
   static const recentlyDeletedEmpty = Key('recentlyDeleted.empty');
+  static const recentlyDeletedAll = Key('recentlyDeleted.all');
+  static const recentlyDeletedAllConfirm = Key('recentlyDeleted.allConfirm');
   static const recentlyDeletedConfirm = Key('recentlyDeleted.confirm');
   static Key recentlyDeletedItem(String name) =>
       Key('recentlyDeleted.item.$name');

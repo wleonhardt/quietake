@@ -115,6 +115,27 @@ void main() {
       expect(await victim.exists(), isFalse);
       expect(mediaOnNas(), hasLength(2));
       expect(await app.vault.list(), hasLength(2));
+
+      // Trash the rest, then Delete all now.
+      for (final file in await app.vault.list()) {
+        await app.session.sync.trash(file);
+      }
+      await tester.pumpWidget(
+        MaterialApp(
+          key: UniqueKey(),
+          home: RecentlyDeletedScreen(session: app.session),
+        ),
+      );
+      await tap(tester, Keys.recentlyDeletedAll);
+      await tap(tester, Keys.recentlyDeletedAllConfirm);
+      await until(
+        tester,
+        () => find.byKey(Keys.recentlyDeletedEmpty).evaluate().isNotEmpty,
+      );
+      await until(tester, () => !app.session.sync.isSyncing);
+      await app.session.sync.sync();
+      expect(mediaOnNas(), isEmpty);
+      expect(await app.vault.list(), isEmpty);
     },
   );
 }

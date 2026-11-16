@@ -166,4 +166,23 @@ void main() {
     expect(tester.takeException(), isNull);
     semantics.dispose();
   });
+
+  testWidgets('Delete all now asks first and Cancel keeps every capture', (
+    tester,
+  ) async {
+    await open(tester, [base, other]);
+    await until(
+      tester,
+      () => find.byKey(Keys.recentlyDeletedAll).evaluate().isNotEmpty,
+    );
+    await tester.tap(find.byKey(Keys.recentlyDeletedAll));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('2 captures are permanently'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(Keys.recentlyDeletedItem(a)), findsOneWidget);
+    await tester.runAsync(() async {
+      expect(await session.vault.deletedNames(), isEmpty);
+    });
+  });
 }
