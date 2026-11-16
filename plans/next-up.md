@@ -56,6 +56,17 @@ Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record 
 - Import: folder import with progress and a resume after interruption, using the existing 10,000-file limits.
 - Localization: extract strings and add one second language; policy text stays reviewed by the owner.
 
+Ideas from related privacy camera and vault projects (added 2026-11-16, none started; checked against `lib/`, none exists yet):
+
+- Lock now: a Gallery button and an Android Quick Settings tile that lock at once, stop Cast and clear caches (Tella's quick exit). Small; reuses the existing lock path.
+- Recovery key drill: every few months ask the owner to type part of the recovery key to prove they still have it, like Signal's PIN reminders. Never store or log the typed text.
+- Redacted share copies: blur or pixelate chosen regions on a JPEG share copy before it leaves the app (Signal's blur tool, Guardian Project ObscuraCam). The vault original stays unchanged; on-device face detection could follow later.
+- Encrypted share: send selected captures as a passphrase-protected ZIP in the portable backup format, so the recipient opens it with Quietake or the Go recovery tool instead of getting plaintext (Ente shared albums, without a server). Needs a decision on reusing the portable format for non-backup use.
+- Capture while locked: open the camera from the lock screen and seal each capture to a vault public key (libsodium sealed box, already in `sodium`), so viewing still needs unlock. This is the strongest fit for "Capture. Keep. Yours." but needs a new container version, frozen vectors and Go recovery support; v1 stays unchanged.
+- Provenance proof: at capture, record a SHA-256 hash and time in the private catalog and sign it with a per-vault key; a share can include a verification file (Guardian Project ProofMode, C2PA). Opt-in, offline only, no notary service.
+- NAS metadata hardening: pad uploads to size buckets and use random remote names, so the server learns less than today's visible sizes and names (Cryptomator name encryption, Signal attachment padding). Format change: needs a decision, recovery tool support and README update.
+- Neutral app icon: an optional plain icon and name (Tella camouflage) through an Android activity alias and iOS alternate icons. Present it as reducing casual notice, not as hiding the app from a forensic search.
+
 ## Done
 
 - Feature from the ideas list: backup check reminder (decision `005-backup-check-reminder.md`). The last full check date is saved per share and Check backup shows a reminder after 30 days or when never checked. Tests in `sync_settings_test.dart`, `backup_verification_test.dart` and `backup_screen_test.dart`. Reminder shows only after the first sync of a launch; no notification. Host suite 627 passed, analyzer clean, iOS `backup_test.dart` passed (4 cases, 56.3 s). Android not run.
