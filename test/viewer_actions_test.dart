@@ -248,6 +248,22 @@ void main() {
     expect(find.byKey(Keys.viewerPager), findsOneWidget);
   });
 
+  testWidgets(
+    'with keeping turned off the dialog offers only a permanent delete',
+    (tester) async {
+      await open(tester);
+      FlutterSecureStorage.setMockInitialValues({'trash.keep': 'off'});
+      await tester.tap(find.byKey(Keys.viewerDelete));
+      await until(
+        tester,
+        () => find.byKey(Keys.deleteDialog).evaluate().isNotEmpty,
+      );
+      expect(find.byKey(Keys.deleteTrash), findsNothing);
+      expect(find.byKey(Keys.deleteConfirm), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
+    },
+  );
+
   testWidgets('swiping moves to the next capture and back', (tester) async {
     await open(tester);
     expect(find.text('1 / 2'), findsOneWidget);

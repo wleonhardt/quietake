@@ -69,6 +69,10 @@ class Session {
     Vault? vault;
     try {
       vault = Vault(VaultCrypto(store.sodium), key, await Vault.defaultDir());
+      try {
+        // Captures past their 30 days go now. A failure retries next unlock.
+        await vault.purgeTrash();
+      } catch (_) {}
       return Session(
         vault: vault,
         server: await MediaServer.start(vault),

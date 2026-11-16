@@ -13,6 +13,7 @@ import '../privacy/privacy_scope.dart';
 import '../privacy/privacy_controller.dart';
 import '../session.dart';
 import '../sync/sync_settings.dart';
+import '../vault/trash_setting.dart';
 import '../vault/vault.dart';
 import 'item.dart';
 import 'preview.dart';
@@ -182,6 +183,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
     setState(() => _deleting = true);
     try {
       final configured = (await SyncSettings.load()).isConfigured;
+      final keep = await TrashSetting.load();
       if (!mounted || !_isActive) return;
       final choice = await showDialog<_DeleteChoice>(
         context: context,
@@ -189,11 +191,12 @@ class _ViewerScreenState extends State<ViewerScreen> {
           key: Keys.deleteDialog,
           title: Text('Delete this ${item.isVideo ? 'video' : 'photo'}?'),
           content: Text(
-            'Recently deleted keeps it on this phone, encrypted, for '
-            '${Vault.trashKeep.inDays} days so you can restore it'
-            '${configured ? '. Your NAS copy stays until then' : ''}. '
-            'Delete now removes it from this phone'
-            '${configured ? ' and your configured NAS' : ''} permanently. '
+            '${keep ? 'Recently deleted keeps it on this phone, encrypted, for '
+                      '${Vault.trashKeep.inDays} days so you can restore it'
+                      '${configured ? '. Your NAS copy stays until then' : ''}. '
+                      'Delete now removes it from this phone'
+                      '${configured ? ' and your configured NAS' : ''} permanently. ' : 'It will be permanently removed from this phone'
+                      '${configured ? ' and your configured NAS' : ''}. '}'
             '${configured ? 'If the NAS is unavailable, deletion finishes when sync succeeds. ' : 'Pending deletions apply if you reconnect a NAS backup. '}'
             'Other backups and shared copies are unaffected. Active casting will stop.',
           ),
@@ -209,13 +212,14 @@ class _ViewerScreenState extends State<ViewerScreen> {
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
               onPressed: () => Navigator.pop(context, _DeleteChoice.now),
-              child: const Text('Delete now'),
+              child: Text(keep ? 'Delete now' : 'Delete'),
             ),
-            FilledButton(
-              key: Keys.deleteTrash,
-              onPressed: () => Navigator.pop(context, _DeleteChoice.trash),
-              child: const Text('Recently deleted'),
-            ),
+            if (keep)
+              FilledButton(
+                key: Keys.deleteTrash,
+                onPressed: () => Navigator.pop(context, _DeleteChoice.trash),
+                child: const Text('Recently deleted'),
+              ),
           ],
         ),
       );

@@ -17,6 +17,8 @@ import '../sync/backup_screen.dart';
 import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
 import '../vault/master_key_store.dart';
+import '../vault/trash_setting.dart';
+import '../vault/vault.dart';
 import '../sync/webdav_client.dart';
 
 import 'package:sodium/sodium_sumo.dart';
@@ -47,11 +49,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _background = widget.initial.backgroundUploads;
   late bool _mobileData = widget.initial.mobileData;
   String _backgroundStatus = 'Checking Android scheduler…';
+  bool _keepDeleted = true;
 
   @override
   void initState() {
     super.initState();
     if (Platform.isAndroid) _loadBackgroundStatus();
+    TrashSetting.load().then((keep) {
+      if (mounted) setState(() => _keepDeleted = keep);
+    });
   }
 
   Future<void> _loadBackgroundStatus() async {
@@ -272,7 +278,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<String> _storageSummary() async {
     final files = await widget.session.vault.list();
-    if (files.isEmpty) return 'No captures on this phone yet.';
+    final held = (await widget.session.vault.trashedAt()).length;
+    final extra = held == 0
+        ? ''
+        : ' $held in Recently deleted, removed for good after '
+              '${Vault.trashKeep.inDays} days.';
+    if (files.isEmpty) return 'No captures on this phone yet.$extra';
     var bytes = 0;
     for (final file in files) {
       try {
@@ -287,7 +298,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ? '${(bytes / 1024).toStringAsFixed(1)} KB'
         : '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${files.length} ${files.length == 1 ? 'capture' : 'captures'}, '
-        '$size encrypted on this phone.';
+        '$size encrypted on this phone.$extra';
   }
 
   Widget _heading(Key key, String title) => Semantics(
@@ -567,6 +578,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         : 'Counting captures…',
                     key: Keys.settingsStorage,
                   ),
+          ),
+          SwitchListTile(
+            key: Keys.settingsKeepDeleted,
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Keep deleted captures for 30 days'),
+            subtitle: const Text(
+              'Delete moves a capture to Recently deleted first. It stays encrypted.',
+            ),
+            value: _keepDeleted,
+            onChanged: (value) async {
+              setState(() => _keepDeleted = value);
+              await TrashSetting.save(value);
+            },
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
