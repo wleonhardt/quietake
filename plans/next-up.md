@@ -45,7 +45,7 @@
 
 Each idea keeps the privacy boundaries in AGENTS.md and needs a decision record before structural work. None is started.
 
-- Recently deleted: keep deleted captures encrypted for 30 days and offer restore. Backup sync must still never infer deletion from absence.
+- Recently deleted: proposal `015-recently-deleted-proposal.md` written; waiting for the owner's answers (default on or off, policy wording, immediate delete) before slice 1.
 - Capture options are done (grid, tap-to-focus, focus/exposure lock, self timer, burst). Possible follow-ups: a burst size choice, a real-device capture pass.
 - Albums: cover choice (the Moments month view is done).
 - Viewer: keep the screen awake during the slideshow only while the vault is unlocked (needs a plugin decision; the slideshow itself is done).
