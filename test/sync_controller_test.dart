@@ -201,6 +201,25 @@ void main() {
     },
   );
 
+  test(
+    'a conflicting NAS copy is kept and the result names the capture',
+    () async {
+      await capture('one.jpg');
+      await controller.sync();
+      expect(server.files.keys, contains('one.jpg.shtr'));
+      // A same-key copy with different content, as another phone could upload.
+      final source = await File('${dir.path}/other.jpg')
+          .writeAsBytes([1, 2, 3, 4, 5, 6, 7, 8]);
+      final other = await vault.ingestAs(source, 'other.jpg');
+      server.files['one.jpg.shtr'] = await other.readAsBytes();
+      await other.delete();
+      await controller.sync();
+      expect(controller.state, SyncState.pending);
+      expect(controller.result, startsWith('NAS conflict for '));
+      expect(controller.result, contains('Both copies kept'));
+    },
+  );
+
   test('unconfigured backup makes no network request', () async {
     settings = const SyncSettings(url: '', username: '', password: '');
     await controller.sync();

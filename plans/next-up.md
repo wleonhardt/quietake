@@ -43,6 +43,7 @@
 
 ## Done
 
+- Host test (`sync_controller_test.dart`): a same-key NAS copy with different content is kept and the result reads "NAS conflict for …. Both copies kept" with state pending. Lesson: a conflict is detected by size or content, and with a remote catalog present equal-size copies are skipped, so the test copy must differ in size.
 - Host test (`nas_change_validation_test.dart`): Generate fills a multi-word backup passphrase and clears the confirmation field (`Keys.nasGenerate` was untested). `nas_recovery_screen.dart` still lacks the committed change/disable success paths (lines about 239-324), which need a locking WebDAV server.
 - Host test (`portable_screen_test.dart`): a file pick that finishes after the screen is left cancels and then discards its private copy. `portable_screen.dart` remaining gaps are the prepare/commit paths (lines about 162-238), which need real isolate and file work.
 - Iteration 100 sanity run: Go recovery checks and `dart run tool/check_interop.dart` pass. Full host suite at iteration 104: 599 passed, analyzer clean.
