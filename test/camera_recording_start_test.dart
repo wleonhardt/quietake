@@ -32,6 +32,28 @@ class _SlowStartCamera extends ControlledCamera {
   }
 }
 
+/// Opens only without audio, like a device that refuses the microphone on the
+/// camera session even after permission.
+class _NoAudioCamera extends _SlowStartCamera {
+  _NoAudioCamera(super.directory);
+
+  @override
+  Future<int> createCamera(
+    CameraDescription description,
+    ResolutionPreset? preset, {
+    bool enableAudio = false,
+  }) {
+    if (enableAudio) throw CameraException('audio', 'unavailable');
+    return super.createCamera(description, preset, enableAudio: enableAudio);
+  }
+
+  // A controller whose open failed disposes the id it never received.
+  @override
+  Future<void> dispose(int id) async {
+    if (id >= 1 && !disposed.contains(id)) await super.dispose(id);
+  }
+}
+
 /// Offers both lenses and refuses to reopen the camera after the first open,
 /// like a lens that cannot be switched.
 class _FlipCamera extends _SlowStartCamera {
@@ -187,6 +209,37 @@ void main() {
             .textContaining('Allow microphone access in Settings')
             .evaluate()
             .isNotEmpty,
+      );
+      expect(find.text('Stop'), findsNothing);
+      expect(tester.takeException(), isNull);
+    } finally {
+      await shutdown(tester);
+    }
+  });
+
+  testWidgets('a camera that cannot open with audio keeps photos working', (
+    tester,
+  ) async {
+    await boot(tester);
+    try {
+      camera = _NoAudioCamera(directory);
+      CameraPlatform.instance = camera;
+      await tester.pumpWidget(
+        MaterialApp(home: CaptureScreen(session: session)),
+      );
+      await _until(
+        tester,
+        () => find.byKey(Keys.preview).evaluate().isNotEmpty,
+      );
+      await tester.tap(find.byKey(Keys.videoToggle));
+      await _until(
+        tester,
+        () =>
+            find.textContaining('Could not start video').evaluate().isNotEmpty,
+      );
+      await _until(
+        tester,
+        () => find.byKey(Keys.preview).evaluate().isNotEmpty,
       );
       expect(find.text('Stop'), findsNothing);
       expect(tester.takeException(), isNull);
