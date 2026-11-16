@@ -94,4 +94,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 700));
     expect(find.byType(LockScreen), findsOneWidget);
   });
+
+  testWidgets('touches keep the session unlocked', (tester) async {
+    await open(tester);
+    for (var i = 0; i < 4; i++) {
+      await tester.pump(const Duration(milliseconds: 400));
+      final touch = await tester.startGesture(const Offset(2, 2));
+      await touch.up();
+    }
+    expect(find.byType(LockScreen), findsNothing);
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(find.byType(LockScreen), findsOneWidget);
+  });
 }
