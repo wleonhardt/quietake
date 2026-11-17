@@ -95,4 +95,40 @@ void main() {
     // The locked camera shows no library, settings or unlock controls.
     expect(find.byKey(Keys.lockUnlock).hitTestable(), findsNothing);
   });
+
+  testWidgets('a failed seal says so and leaves no plaintext photo behind', (
+    tester,
+  ) async {
+    final b = await boot(tester, pair: true);
+    addTearDown(() => CameraPlatform.instance = b.previous);
+    // A file where the pending folder belongs makes sealing fail.
+    await tester.runAsync(
+      () async => File('${b.dir.path}/.pending').writeAsString('x'),
+    );
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(Keys.lockCamera));
+      await tester.pump();
+    });
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    await tester.pump();
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(Keys.lockedShutter));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    });
+    await tester.pump();
+    final context = tester.element(find.byKey(Keys.lockedStatus));
+    expect(
+      tester.widget<Text>(find.byKey(Keys.lockedStatus)).data,
+      context.l10n.lockedCameraFailed,
+    );
+    expect(b.camera.outputs, isNotEmpty);
+    expect(
+      b.camera.outputs.every((f) => !f.existsSync()),
+      isTrue,
+      reason: 'a photo that could not be sealed must not linger as plaintext',
+    );
+  });
 }

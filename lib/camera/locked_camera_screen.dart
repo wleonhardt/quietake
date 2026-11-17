@@ -80,15 +80,22 @@ class _LockedCameraScreenState extends State<LockedCameraScreen>
     final c = _controller;
     if (c == null || _busy) return;
     setState(() => _busy = true);
+    File? plain;
     try {
       final shot = await c.takePicture();
+      plain = File(shot.path);
       await widget.store.save(
-        File(shot.path),
+        plain,
         extension: 'jpg',
         publicKey: widget.publicKey,
       );
       if (mounted) setState(() => _status = (l) => l.lockedCameraSaved);
     } catch (_) {
+      // A photo that could not be sealed is dropped rather than left as
+      // plaintext: the vault is locked and there is no pending retry for it.
+      try {
+        if (plain != null && await plain.exists()) await plain.delete();
+      } catch (_) {}
       if (mounted) setState(() => _status = (l) => l.lockedCameraFailed);
     } finally {
       if (mounted) setState(() => _busy = false);
