@@ -43,3 +43,35 @@ the temporary archive is deleted after sharing like other share copies.
 - Go or no-go on A, and whether the iPhone limitation is acceptable.
 - Wording for the share dialog and the privacy policy, which says copies are
   unencrypted today.
+
+## Build plan for option B (2026-11-16, not started)
+
+The share bundle is a separate format, not a new version of the `.shtr` container, so the v1
+container contract and its frozen vectors stay untouched. It gets its own magic `SHSB`, version byte
+and file extension `.quietake-share`.
+
+Proposed layout (all integers big-endian): magic `SHSB`, version `1`, reserved `0`, Argon2id
+operations and memory limits (validated like the keyfile: 1-3 operations, 8 KiB-256 MiB), a 16-byte
+salt, a 24-byte secretbox nonce, a 48-byte random share key wrapped by the passphrase-derived key, then one
+`crypto_secretstream_xchacha20poly1305` body that carries a sequence of entries: a 4-byte name length,
+the neutral name (`photo-01.jpg`), an 8-byte content length and the content. The last chunk is tagged
+FINAL, so truncation is detected. The passphrase is a fresh six-word phrase from `BackupPassphrase`,
+shown once; the vault master key is never involved, which is the whole reason A and B differ from the
+portable backup.
+
+Slices, each with tests and its own commit:
+
+1. Format document `docs/share-bundle.md` and frozen vectors `docs/vectors/share.json` (fixed salt,
+   nonces and key so the bytes are reproducible). Owner review of the layout before code, because a
+   shipped format cannot change.
+2. Dart writer and reader in `lib/crypto/share_bundle.dart`, pure and streaming, with tests against the
+   vectors and for wrong passphrase, tampering, truncation and oversized parameters.
+3. Go reader in `recover/` plus an interop case in `tool/check_interop.dart`, so recipients without the
+   app can open a bundle with the command line tool.
+4. Share dialog "Encrypted share" using the existing metadata removal and redaction, a passphrase
+   screen shown once, and deletion of the temporary bundle like other share copies. Wording needs the
+   owner's approval, and the privacy policy sentence that copies are unencrypted must be reviewed.
+5. Opening a bundle inside Quietake (import from a received file) with the passphrase.
+
+Risks: entry names and sizes inside the stream are hidden but the total size is visible; passphrase
+strength is the only protection against guessing; iPhone recipients need the app or the Go tool.
