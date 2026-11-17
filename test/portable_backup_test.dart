@@ -144,6 +144,46 @@ void main() {
     },
   );
 
+  test(
+    'a changed byte in the central directory is refused or harmless',
+    () async {
+      await backup.export(archive);
+      final good = await archive.readAsBytes();
+      final before = await (await vault.list()).single.readAsBytes();
+      final eocd = _lastIndexOf(good, [0x50, 0x4b, 0x05, 0x06]);
+      final central = _lastIndexOf(good, [0x50, 0x4b, 0x01, 0x02], eocd);
+      var first = central;
+      for (var i = 0; i + 3 < eocd; i++) {
+        if (good[i] == 0x50 &&
+            good[i + 1] == 0x4b &&
+            good[i + 2] == 1 &&
+            good[i + 3] == 2) {
+          first = i;
+          break;
+        }
+      }
+      // Every third byte keeps the run short; the full sweep was checked once.
+      for (var at = first; at < good.length; at += 3) {
+        final bad = Uint8List.fromList(good)..[at] ^= 0x01;
+        await archive.writeAsBytes(bad);
+        try {
+          final stage = await backup.stage(archive, root);
+          final restored = Vault(vault.crypto, key.copy(), stage);
+          try {
+            final file = (await restored.list()).single;
+            expect(await file.readAsBytes(), before, reason: 'offset $at');
+          } finally {
+            await restored.catalog.close();
+            restored.dispose();
+            await stage.delete(recursive: true);
+          }
+        } on Exception {
+          // Refused.
+        }
+      }
+    },
+  );
+
   test('wrong key rejects before staging becomes visible and preserves source archive', () async {
     await backup.export(archive);
     final original = await archive.readAsBytes();
@@ -325,4 +365,15 @@ void main() {
       expect(await source.length(), 64 * 1024 * 1024);
     },
   );
+}
+
+int _lastIndexOf(Uint8List b, List<int> sig, [int? before]) {
+  for (var i = (before ?? b.length) - sig.length; i >= 0; i--) {
+    var hit = true;
+    for (var j = 0; j < sig.length && hit; j++) {
+      hit = b[i + j] == sig[j];
+    }
+    if (hit) return i;
+  }
+  return -1;
 }
