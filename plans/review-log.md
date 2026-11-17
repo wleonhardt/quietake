@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17: `restore_transaction.dart` resume paths now have `test/restore_resume_test.dart` (abandoned staging cleanup, missing or mismatched prepared credentials, a vault that gained files, an empty target replaced).
+
 - 2026-11-17: `import_media.dart` gained tests for cancelling during the duplicate scan and for the real validator's magic-byte checks; its remaining uncovered lines are the MP4 player probe and the Sodium failure catch.
 
 - 2026-11-17 review of multi-photo redaction (`share_dialog.dart`) and the gallery incoming-share check: no defects found. Areas are keyed by capture name, an empty result removes that photo's entry, and `_incomingChecking` stops two checks from opening Import twice. Gap: a second share that arrives while Import is open is only noticed at the next resume or dependency change.
