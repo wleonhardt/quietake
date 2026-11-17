@@ -20,6 +20,8 @@ const (
 	shareMarker     = "quietake.share.v1\x00"
 	shareMaxPass    = 1024
 	ShareDefaultCap = 512 << 20
+	// ShareMaxEntries matches the app reader; the app writes at most 10.
+	ShareMaxEntries = 100
 )
 
 var ErrShare = errors.New("share bundle: wrong passphrase, damaged or truncated")
@@ -205,6 +207,9 @@ func (p *shareParser) advance(field []byte) error {
 			return errors.New("share bundle: duplicate entry name")
 		}
 		p.seen[lower] = true
+		if len(p.seen) > ShareMaxEntries {
+			return errors.New("share bundle: too many entries")
+		}
 		p.name = name
 		p.state, p.need = 2, 8
 	case 2:

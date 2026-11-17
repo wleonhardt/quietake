@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -83,5 +84,31 @@ func TestShareRejectsDamage(t *testing.T) {
 		b := append([]byte(nil), good...)
 		b[p.at], b[p.at+1], b[p.at+2], b[p.at+3] = byte(p.val>>24), byte(p.val>>16), byte(p.val>>8), byte(p.val)
 		try("limits", b, v.Passphrase, 1<<20)
+	}
+}
+
+// emptyEntries is the plaintext body of n uniquely named empty entries.
+func emptyEntries(n int) []byte {
+	var b []byte
+	for i := 0; i < n; i++ {
+		name := fmt.Sprintf("f-%d.jpg", i)
+		b = append(b, 0, 0, 0, byte(len(name)))
+		b = append(b, name...)
+		b = append(b, make([]byte, 8)...)
+	}
+	return b
+}
+
+func TestShareParserEntryLimit(t *testing.T) {
+	run := func(n int) error {
+		var written []string
+		p := &shareParser{dir: t.TempDir(), max: 1 << 20, seen: map[string]bool{}, written: &written}
+		return p.add(emptyEntries(n))
+	}
+	if err := run(ShareMaxEntries); err != nil {
+		t.Fatalf("at the limit: %v", err)
+	}
+	if err := run(ShareMaxEntries + 1); err == nil {
+		t.Fatal("one over the limit was accepted")
 	}
 }

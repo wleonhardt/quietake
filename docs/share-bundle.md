@@ -63,7 +63,7 @@ Ciphertext length of the body = ⌊n / chunkSize⌋ × (chunkSize + 17) + (n mod
 Readers accept `chunkSize` from 1 to 1 MiB, Argon2id operations from 1 to 3 and memory from 8 KiB to
 256 MiB, and reject anything else without clamping. A reader must cap the sum of entry lengths it
 will extract (the app caps extraction at 512 MiB by default, `ShareBundle.defaultMaxTotal`), because `contentLength` is untrusted
-until the entry has been authenticated through its chunks. The app reader also rejects a bundle with more than 100 entries (`ShareBundle.maxEntries`; the app writes at most 10), so a crafted bundle of empty entries cannot fill private storage. This is a reader limit, not a format change; the Go reader does not enforce it yet.
+until the entry has been authenticated through its chunks. The app reader also rejects a bundle with more than 100 entries (`ShareBundle.maxEntries`; the app writes at most 10), so a crafted bundle of empty entries cannot fill private storage. This is a reader limit, not a format change and the Go reader enforces the same limit (`ShareMaxEntries`).
 
 ## What a recipient or the network learns
 
