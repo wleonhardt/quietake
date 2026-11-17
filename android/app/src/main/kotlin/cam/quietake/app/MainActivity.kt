@@ -23,7 +23,10 @@ class MainActivity : FlutterFragmentActivity() {
     private var microphoneResult: MethodChannel.Result? = null
     private var privacyChannel: MethodChannel? = null
     private lateinit var privateImport: PrivateImport
-    private lateinit var incomingShare: IncomingShare
+    // Created on first use: a cold start from "Open with" reaches handleLaunch in
+    // onCreate, before the Flutter engine is configured.
+    private val incomingShareLazy = lazy { IncomingShare(this) }
+    private val incomingShare get() = incomingShareLazy.value
     private lateinit var folderImport: FolderImport
     private lateinit var portableFiles: PortableFiles
     private lateinit var videoPreparation: VideoPreparation
@@ -81,7 +84,7 @@ class MainActivity : FlutterFragmentActivity() {
             .setMethodCallHandler(backgroundUploads::handle)
         videoPreparation = VideoPreparation(this)
         privateImport = PrivateImport(this)
-        incomingShare = IncomingShare(this)
+        incomingShareLazy.value // creating it removes copies left by an earlier process
         portableFiles = PortableFiles(this)
         folderImport = FolderImport(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/folder")
@@ -219,7 +222,7 @@ class MainActivity : FlutterFragmentActivity() {
         if (LockBridge.channel === privacyChannel) LockBridge.channel = null
         backgroundUploads.close()
         privateImport.close()
-        incomingShare.close()
+        if (incomingShareLazy.isInitialized()) incomingShare.close()
         folderImport.close()
         portableFiles.close()
         videoPreparation.close()

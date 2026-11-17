@@ -24,3 +24,9 @@ On iOS the passphrase dialog appearing after unlock, and a real Open in from Fil
 ## Checks
 
 Host suite 847 passed (3 new: import screen takes the incoming share, gallery opens it when unlocked, gallery ignores it while locked); `flutter analyze` clean; Android compile, JVM tests and `startup_test.dart` pass.
+
+## Emulator check and a fixed crash (2026-11-17)
+
+Opening a real `content://` URI (a file in Downloads, via `am start --grant-read-uri-permission`) on the Android emulator showed a launch crash in the first version: `MainActivity.handleLaunch` ran in `onCreate` before the Flutter engine was configured, so the `lateinit` `incomingShare` was not set and a cold start from "Open with" crashed. It is now created on first use, and `configureFlutterEngine` touches it so a normal start still removes copies left by an earlier process. After the fix the cold open copied the exact bytes into `cache/quietake-incoming`, a second open while the app ran (`onNewIntent`) did too, and a normal restart removed the copy. Android compile, JVM tests and `startup_test.dart` pass.
+
+Limit found: the filter with `application/octet-stream` and a `.quietake-share` path pattern does not match a MediaStore URI such as `content://media/external/downloads/<id>`, which carries no file name, and Files, Gmail and most chat apps open attachments that way. Only a sender that supplies `application/vnd.quietake.share` or a URI path ending in the file name lists Quietake. So "Open with" from other apps will often not offer Quietake on Android. Owner call: widen the filter to every `application/octet-stream` file (Quietake would then appear for any unknown binary, and the reader would refuse non-shares), or keep it narrow. Not changed.
