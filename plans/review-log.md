@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 device check on the Android emulator: `locked_camera_test.dart` 1 of 1 and `viewer_interaction_test.dart` 5 of 5 pass after the waiting-photo count and the viewer cover button. Neither drives the new Details dialog cover button or the waiting-photo notice on a device; they are host-tested only.
+
 - 2026-11-17 device check: `integration_test/sharing_test.dart` passed 6 of 6 on the Android emulator after the multi-photo redaction change, including hiding an area of one photo. A new device test now hides an area in each of two photos: both Android and iOS pass 7 of 7 (two PNGs shared, both originals unchanged).
 
 - 2026-11-17 device check: `tool/e2e.sh android integration_test/import_test.dart` passed all 5 tests on the emulator (including folder import); the same file also passed 5 of 5 on the iOS simulator after the subfolder walk change after the lazy incoming-share change in `MainActivity`. `android/.kotlin/` is Gradle cache and is now ignored.
