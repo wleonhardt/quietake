@@ -173,6 +173,18 @@ void main() {
     expect(await vault.list(), hasLength(2), reason: 'ledger is not media');
   });
 
+  test('a damaged ledger is ignored so the folder can still import', () async {
+    final entries = await files(2);
+    await importer.run(_Source(external, entries));
+    final ledger =
+        Directory('${vault.dir.path}/.import').listSync().single as File;
+    await ledger.writeAsBytes([1, 2, 3, 4]);
+    final again = await importer.run(_Source(external, entries));
+    expect(again.duplicates, 2, reason: 'exact copies are found by content');
+    expect(again.failed, 0);
+    expect(await vault.list(), hasLength(2));
+  });
+
   test('different folders keep separate ledgers', () async {
     final entries = await files(2);
     await importer.run(_Source(external, entries, identity: 'a'));

@@ -23,7 +23,8 @@ bounded chunk at a time, and can be run again to finish what was interrupted.
   `.import/<folder key>.ledger`, is written with `Vault.writeMetadata` after
   every chunk, and is keyed by a hash of the folder identifier so no folder name
   is stored in clear. Failed and cancelled entries are not recorded, so a rerun
-  retries them. Exact-duplicate detection still protects against a lost ledger.
+  retries them. Exact-duplicate detection still protects against a lost ledger. A damaged or unreadable ledger is treated as lost: the
+  folder restarts instead of failing every run (2026-11-17).
 - The ledger is local only. Sync uploads `.shtr` containers and the catalog, so
   the ledger is never sent to the NAS, and a lost ledger costs only time.
 

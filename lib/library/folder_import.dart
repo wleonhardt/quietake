@@ -41,15 +41,21 @@ class ImportLedger {
   Future<void> load() async {
     done.clear();
     if (!await file.exists()) return;
-    final bytes = <int>[];
-    await for (final chunk in vault.read(file)) {
-      bytes.addAll(chunk);
+    try {
+      final bytes = <int>[];
+      await for (final chunk in vault.read(file)) {
+        bytes.addAll(chunk);
+      }
+      final value = jsonDecode(utf8.decode(bytes));
+      if (value is! List || value.any((e) => e is! String)) {
+        throw const FormatException('Unsupported import ledger');
+      }
+      done.addAll(value.cast<String>());
+    } on Object {
+      // The ledger only saves work. A damaged one restarts the folder, and
+      // files already imported are found again as exact duplicates.
+      done.clear();
     }
-    final value = jsonDecode(utf8.decode(bytes));
-    if (value is! List || value.any((e) => e is! String)) {
-      throw const FormatException('Unsupported import ledger');
-    }
-    done.addAll(value.cast<String>());
   }
 
   Future<void> save() async {
