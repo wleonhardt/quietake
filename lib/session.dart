@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:sodium/sodium_sumo.dart';
@@ -9,6 +10,7 @@ import 'gallery/preview.dart';
 import 'media/media_server.dart';
 import 'sync/sync_controller.dart';
 import 'vault/master_key_store.dart';
+import 'vault/pending_key_store.dart';
 import 'vault/vault.dart';
 
 /// Everything that exists only while the vault is unlocked.
@@ -80,6 +82,12 @@ class Session {
         // Captures past their 30 days go now. A failure retries next unlock.
         await vault.purgeTrash();
       } catch (_) {}
+      // Key pair for captures taken while locked (decision 028). Not awaited so
+      // unlock never waits for it; a failure or a key disposed by an early lock
+      // leaves it for the next unlock.
+      unawaited(
+        PendingKeyStore(store.sodium, store.dir).ensure(key).catchError((_) {}),
+      );
       return Session(
         vault: vault,
         server: await MediaServer.start(vault),

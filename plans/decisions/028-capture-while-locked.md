@@ -41,3 +41,5 @@ and the Go recovery tool stay unchanged.
 2. Store the public key next to the keyfile and the secret key encrypted under the master key; create them for new and existing vaults at the next unlock. Needs a keyfile-adjacent file with its own tests.
 3. A pending directory in private storage, a locked-state capture path in `CaptureStore`, and publication on unlock that keeps the pending file until the v1 file is durable.
 4. Android lock-screen camera entry, then iOS. Neither may expose the library, catalog or tags.
+
+Slice 2 done: `lib/vault/pending_key_store.dart` keeps `vault.pendingkey.json` in the app documents folder (public key in the clear, secret key encrypted under the master key, version 1). `Session.start` creates it without waiting (a failure or an early lock retries at the next unlock). The keyfile, passcode change and v1 containers are not touched. A secret that no longer opens with the master key (vault key replaced by a restore) is replaced by a new pair, because older pending files could not be published anyway. Not covered yet: portable backup and restore do not carry the file; a restore creates a new pair at the next unlock.

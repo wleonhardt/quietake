@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_backend.dart';
@@ -8,6 +9,7 @@ import 'package:quietake/gallery/item.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
 import 'package:quietake/vault/master_key_store.dart';
+import 'package:quietake/vault/pending_key_store.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -110,6 +112,37 @@ void main() {
         expect(await fresh.exists(), isTrue);
         expect(await session.vault.deletedNames(), {'old.jpg.shtr'});
         expect((await session.vault.trashedAt()).keys, ['fresh.jpg.shtr']);
+      } finally {
+        await session.close();
+        await dir.delete(recursive: true);
+      }
+    },
+  );
+
+  test(
+    'starting a session creates the key pair for captures taken while locked',
+    () async {
+      final sodium = await SodiumSumoInit.init();
+      final dir = await Directory.systemTemp.createTemp(
+        'quietake-session-pair',
+      );
+      final key = sodium.crypto.secretBox.keygen();
+      final store = MasterKeyStore(sodium, dir);
+      final session = await Session.start(
+        store,
+        key,
+        FakeCastBackend(),
+        vaultDir: dir,
+      );
+      try {
+        Uint8List? pub;
+        for (var i = 0; i < 50 && pub == null; i++) {
+          pub = await PendingKeyStore(sodium, dir).publicKey();
+          if (pub == null) {
+            await Future<void>.delayed(const Duration(milliseconds: 20));
+          }
+        }
+        expect(pub, isNotNull);
       } finally {
         await session.close();
         await dir.delete(recursive: true);
