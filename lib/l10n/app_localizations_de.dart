@@ -1877,6 +1877,24 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die geteilte Kopie wird ein PNG mit verpixelten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert.';
 
   @override
+  String get shareRedactButtonMany => 'Teile dieser Fotos verbergen…';
+
+  @override
+  String shareRedactEditMany(int areas, int photos) {
+    String _temp0 = intl.Intl.pluralLogic(
+      photos,
+      locale: localeName,
+      other: '$photos Fotos',
+      one: '1 Foto',
+    );
+    return 'Verborgene Bereiche: $areas in $_temp0. Ändern…';
+  }
+
+  @override
+  String get shareRedactNoteMany =>
+      'Fotos mit verborgenen Bereichen werden als PNG-Kopien geteilt, mit verpixelten Bereichen und ohne Metadaten. Die Originale bleiben in Ihrem Tresor unverändert.';
+
+  @override
   String redactCell(int row, int column) {
     return 'Zeile $row, Spalte $column';
   }

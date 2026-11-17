@@ -43,7 +43,9 @@ class _ShareDialogState extends State<_ShareDialog> {
   int _prepared = 0;
   bool _stripLocation = true;
   bool _encrypted = false;
-  List<Rect> _regions = const [];
+
+  /// Areas to hide per photo, keyed by capture name (decision 024).
+  Map<String, List<Rect>> _regions = {};
   String Function(AppLocalizations)? _error;
   PrivacyController? _privacy;
 
@@ -66,22 +68,39 @@ class _ShareDialogState extends State<_ShareDialog> {
       (WidgetsBinding.instance.lifecycleState == null ||
           WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed);
 
-  bool get _canRedact =>
-      widget.items.length == 1 && !widget.items.single.isVideo;
+  List<VaultItem> get _photos => [
+    for (final item in widget.items)
+      if (!item.isVideo) item,
+  ];
 
+  bool get _canRedact => _photos.isNotEmpty;
+
+  int get _areaCount =>
+      _regions.values.fold(0, (sum, areas) => sum + areas.length);
+
+  /// Opens one editor page per photo, in order. Backing out of a page stops
+  /// there and keeps the choices already made.
   Future<void> _redact() async {
-    final item = widget.items.single;
     setState(() => _error = null);
     try {
-      final bytes = await widget.vault.readAll(item.file);
-      if (!mounted) return;
-      final chosen = await Navigator.push<List<Rect>>(
-        context,
-        MaterialPageRoute(
-          builder: (_) => RedactScreen(bytes: bytes, initial: _regions),
-        ),
-      );
-      if (chosen != null && mounted) setState(() => _regions = chosen);
+      for (final item in _photos) {
+        final bytes = await widget.vault.readAll(item.file);
+        if (!mounted) return;
+        final chosen = await Navigator.push<List<Rect>>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RedactScreen(
+              bytes: bytes,
+              initial: _regions[item.name] ?? const [],
+            ),
+          ),
+        );
+        if (chosen == null || !mounted) return;
+        setState(() {
+          _regions = {..._regions, if (chosen.isNotEmpty) item.name: chosen}
+            ..removeWhere((name, _) => name == item.name && chosen.isEmpty);
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _error = (l10n) => l10n.shareFailed);
     }
@@ -154,9 +173,7 @@ class _ShareDialogState extends State<_ShareDialog> {
         origin: widget.origin,
         stripLocation: _stripLocation,
         passphrase: phrase,
-        redactions: _regions.isEmpty
-            ? const {}
-            : {widget.items.single.name: _regions},
+        redactions: _regions,
         isActive: () => _active,
         onProgress: (prepared, _) {
           if (mounted) setState(() => _prepared = prepared);
@@ -186,6 +203,17 @@ class _ShareDialogState extends State<_ShareDialog> {
     }
   }
 
+  String _redactLabel(AppLocalizations l10n) {
+    if (_photos.length == 1) {
+      return _regions.isEmpty
+          ? l10n.shareRedactButton
+          : l10n.shareRedactEdit(_areaCount);
+    }
+    return _regions.isEmpty
+        ? l10n.shareRedactButtonMany
+        : l10n.shareRedactEditMany(_areaCount, _regions.length);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -206,18 +234,18 @@ class _ShareDialogState extends State<_ShareDialog> {
             OutlinedButton(
               key: Keys.shareRedact,
               onPressed: _busy ? null : _redact,
-              child: Text(
-                _regions.isEmpty
-                    ? l10n.shareRedactButton
-                    : l10n.shareRedactEdit(_regions.length),
-              ),
+              child: Text(_redactLabel(l10n)),
             ),
           if (_regions.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: Text(l10n.shareRedactNote),
-            )
-          else
+              child: Text(
+                _photos.length == 1
+                    ? l10n.shareRedactNote
+                    : l10n.shareRedactNoteMany,
+              ),
+            ),
+          if (_regions.length < _photos.length || _photos.isEmpty)
             CheckboxListTile(
               key: Keys.shareStripLocation,
               contentPadding: EdgeInsets.zero,

@@ -3072,6 +3072,24 @@ abstract class AppLocalizations {
   /// **'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.'**
   String get shareRedactNote;
 
+  /// No description provided for @shareRedactButtonMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide parts of these photos…'**
+  String get shareRedactButtonMany;
+
+  /// No description provided for @shareRedactEditMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden areas: {areas} in {photos, plural, =1{1 photo} other{{photos} photos}}. Change…'**
+  String shareRedactEditMany(int areas, int photos);
+
+  /// No description provided for @shareRedactNoteMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos with hidden areas are shared as PNG copies with those areas pixelated and no metadata. The originals stay unchanged in your vault.'**
+  String get shareRedactNoteMany;
+
   /// No description provided for @redactCell.
   ///
   /// In en, this message translates to:

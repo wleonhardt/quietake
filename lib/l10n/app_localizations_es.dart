@@ -1872,6 +1872,24 @@ class AppLocalizationsEs extends AppLocalizations {
       'La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda.';
 
   @override
+  String get shareRedactButtonMany => 'Ocultar partes de estas fotos…';
+
+  @override
+  String shareRedactEditMany(int areas, int photos) {
+    String _temp0 = intl.Intl.pluralLogic(
+      photos,
+      locale: localeName,
+      other: '$photos fotos',
+      one: '1 foto',
+    );
+    return 'Zonas ocultas: $areas en $_temp0. Cambiar…';
+  }
+
+  @override
+  String get shareRedactNoteMany =>
+      'Las fotos con zonas ocultas se comparten como copias PNG con esas zonas pixeladas y sin metadatos. Los originales no cambian en tu bóveda.';
+
+  @override
   String redactCell(int row, int column) {
     return 'Fila $row, columna $column';
   }

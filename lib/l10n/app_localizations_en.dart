@@ -1835,6 +1835,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.';
 
   @override
+  String get shareRedactButtonMany => 'Hide parts of these photos…';
+
+  @override
+  String shareRedactEditMany(int areas, int photos) {
+    String _temp0 = intl.Intl.pluralLogic(
+      photos,
+      locale: localeName,
+      other: '$photos photos',
+      one: '1 photo',
+    );
+    return 'Hidden areas: $areas in $_temp0. Change…';
+  }
+
+  @override
+  String get shareRedactNoteMany =>
+      'Photos with hidden areas are shared as PNG copies with those areas pixelated and no metadata. The originals stay unchanged in your vault.';
+
+  @override
   String redactCell(int row, int column) {
     return 'Row $row, column $column';
   }

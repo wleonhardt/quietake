@@ -71,7 +71,7 @@ Build-on ideas (added 2026-11-17, none started; each extends a finished decision
 - Passphrase handoff in person (extends 025): offer to show the one-time share passphrase as an on-screen QR code, so it travels by a different path than the bundle. Shown once, never saved; no camera scanning needed on the sender.
 - Videos in the locked camera (extends 028): the lock screen camera is photo-only. Recording while locked needs a sealed streaming path, a size cap and a stop on screen-off; decide whether it is worth the larger plaintext window first.
 - Waiting-photo count after unlock (extends 028): DONE (decision 028 note): one snackbar after unlock with the published count, en/es/fr/de; host suite 848 passed; translations need native review.
-- Several photos at once in redaction (extends 024): apply hidden areas to each selected photo in one share, one editor page per photo. Optional later: on-device face boxes as suggestions only (ML Kit on Android, Vision on iOS), needing a dependency decision.
+- Several photos at once in redaction (extends 024): DONE (decision 024 note): one editor page per selected photo, areas kept per photo; host suite 851 passed; face-box suggestions not built (needs a dependency decision).
 - Subfolders in folder import (extends 020): DONE except folder-name tags (decision 032): Include subfolders switch, off by default, Android and iOS walk up to 6 levels; host suite 850 passed; real tree walk unverified; policy sentence G awaits the owner before release.
 - Tag from the viewer (extends 018): DONE (decision 018 slice 3): Details dialog button per tag sets the capture as that tag's cover; host suite 849 passed; translations need native review.
 

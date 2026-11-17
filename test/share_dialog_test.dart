@@ -21,6 +21,7 @@ void main() {
   late Vault vault;
   late VaultItem item;
   late VaultItem photo;
+  late VaultItem photo2;
   List<dynamic> sharedMimes = const [];
   List<dynamic> sharedPaths = const [];
   var shareCalls = 0;
@@ -43,6 +44,12 @@ void main() {
       await vault.ingestAs(
         await File('${root.path}/pic.png').writeAsBytes(await gradientPng()),
         'pic.png',
+      ),
+    );
+    photo2 = VaultItem(
+      await vault.ingestAs(
+        await File('${root.path}/pic2.png').writeAsBytes(await gradientPng()),
+        'pic2.png',
       ),
     );
     binding.defaultBinaryMessenger
@@ -68,6 +75,7 @@ void main() {
     WidgetTester tester, {
     Locale? locale,
     VaultItem? target,
+    List<VaultItem>? targets,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -77,9 +85,12 @@ void main() {
         home: Builder(
           builder: (context) => TextButton(
             key: const Key('open'),
-            onPressed: () => showShareCopies(context, vault, [
-              target ?? item,
-            ], origin: const Rect.fromLTWH(0, 0, 10, 10)),
+            onPressed: () => showShareCopies(
+              context,
+              vault,
+              targets ?? [target ?? item],
+              origin: const Rect.fromLTWH(0, 0, 10, 10),
+            ),
             child: const Text('open'),
           ),
         ),
@@ -170,6 +181,51 @@ void main() {
       expect(sharedMimes, ['image/png']);
     },
   );
+
+  testWidgets('several photos are hidden one editor page per photo', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await open(tester, targets: [photo, photo2]);
+    expect(find.text('Hide parts of these photos…'), findsOneWidget);
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.shareRedact)));
+    for (var page = 0; page < 2; page++) {
+      await settleReal(
+        tester,
+        () => find.byKey(Keys.redactCanvas).evaluate().isNotEmpty,
+      );
+      await tester.pump(const Duration(seconds: 1));
+      final box = tester.getRect(find.byKey(Keys.redactCanvas));
+      final gesture = await tester.startGesture(
+        box.topLeft + const Offset(10, 10),
+      );
+      await gesture.moveTo(box.center);
+      await gesture.up();
+      await tester.pump();
+      await tester.tap(find.byKey(Keys.redactDone));
+      // The next editor page decodes in the real zone and never settles.
+      for (var k = 0; k < 5; k++) {
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+      }
+    }
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Hidden areas: 2 in 2 photos'), findsOneWidget);
+    expect(find.byKey(Keys.shareStripLocation), findsNothing);
+    await tester.tap(find.byKey(Keys.shareConfirm));
+    await settleReal(
+      tester,
+      () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+    );
+    await tester.pumpAndSettle();
+    expect(shareCalls, 1);
+    expect(sharedMimes, ['image/png', 'image/png']);
+  });
 
   testWidgets('cancel closes without preparing or sharing', (tester) async {
     await open(tester);

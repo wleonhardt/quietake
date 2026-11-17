@@ -3,7 +3,7 @@
 ## Open
 
 - Store release timing remains undecided.
-- App wording drafts to review (en, es, fr, de; translations also need native review): share dialog encryption and passphrase text, Import "Open encrypted share" and its help sentence, "Give NAS files random names" in Settings, the recovery key last-matched line with its 90-day reminder, the lock screen photo count notice after unlock, the viewer "Use as cover of {tag}" button, and the Include subfolders switch.
+- App wording drafts to review (en, es, fr, de; translations also need native review): share dialog encryption and passphrase text, Import "Open encrypted share" and its help sentence, "Give NAS files random names" in Settings, the recovery key last-matched line with its 90-day reminder, the lock screen photo count notice after unlock, the viewer "Use as cover of {tag}" button, the Include subfolders switch, and the multi-photo "Hide parts of these photos" text.
 - Decision 028 iOS: the Lock Screen control opens the app only after the phone is unlocked. Build the LockedCameraCapture extension (native Swift sealing, App Group, entitlement) or keep this? Also add the control to a real Lock Screen, and create a provisioning profile for the `.control` bundle id.
 - Policy sentences F (received share kept privately until unlock) and G (Include subfolders switch; must be published before a release that ships it) in decision 030: approve, edit or reject. Also: should folder names become tags on subfolder import?
 - Decision 029: look at the generated gray icon on a real launcher.

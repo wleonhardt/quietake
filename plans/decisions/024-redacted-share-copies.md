@@ -52,6 +52,10 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
   redacted copy is a new PNG without metadata. This is not a contradiction, but the owner should
   decide whether to add a sentence. Policy text is owner-reviewed, so it is not edited here.
 
+## Several photos at once (2026-11-17)
+
+The share dialog now offers "Hide parts of these photos…" whenever the selection holds at least one photo (videos in a mixed selection are shared unchanged). It opens one `RedactScreen` per photo in order; backing out of a page stops there and keeps the earlier choices, and the label then reads "Hidden areas: N in M photos. Change…". `_regions` is a map by capture name, so `shareMediaCopies` (already keyed by name) needs no change. Photos with areas become metadata-free PNG copies; the metadata switch stays until every photo has areas. Each photo is decrypted only while its page is open, as before. en/es/fr/de strings, translations need native review. Face-box suggestions are not built (they need a dependency decision). Tests: `share_dialog_test.dart` (two photos, two pages, two PNGs); host suite 851 passed; iOS `sharing_test.dart` passes; Android not rerun. Policy sentence C already covers hiding parts of a photo before sharing; no change.
+
 ## Proposed policy sentence (draft, awaits owner review, not yet published)
 
 Insert after "...PNG and video copies are not changed." in the Optional sharing section of
