@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 read `Session._publishLocked` and `LockedCaptureStore.publishAll`: an early lock disposes the master key, which throws a `StateError` out of the publish; the `catchError` returns 0, the derived secret key is still disposed in `finally`, and the pending files stay for the next unlock. Deleted names are dropped, and a pending copy goes only after its sealed file reads through FINAL. No defect.
+
 - 2026-11-17 read the iOS folder walk (entry IDs are relative paths, symlinks skipped, `..` and absolute IDs refused on copy), the Dart `FolderImport` ledger (keyed by entry ID, unique per tree on both platforms) and `LockTileService` with `LockBridge` (the bridge is cleared only by the activity that set it); no defect found.
 
 - 2026-11-17 read `FolderImport.kt` (Android folder walk, decision 032): depth cap, 10,001-entry stop, cancel and close checks between queries, and the non-subfolder path all behave as documented; no defect. A real SAF tree was still not walked on a device.
