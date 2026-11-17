@@ -54,6 +54,16 @@ void main() {
     expect(await locked.count(), 1);
   });
 
+  test('a pending capture never shows in the library listing', () async {
+    final pub = (await keys.publicKey())!;
+    await locked.save(
+      await source([1, 2, 3]),
+      extension: 'jpg',
+      publicKey: pub,
+    );
+    expect(await vault.list(), isEmpty);
+  });
+
   test('unlock publishes each pending capture as a normal container', () async {
     final pub = (await keys.publicKey())!;
     await locked.save(
