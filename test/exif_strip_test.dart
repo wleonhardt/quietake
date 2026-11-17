@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -199,6 +200,26 @@ void main() {
       final saved = Uint8List.fromList(bytes);
       expect(() => withoutMetadata(bytes), throwsFormatException);
       expect(bytes, saved);
+    }
+  });
+
+  test('random damage only ever throws a FormatException', () {
+    final random = Random(20261117);
+    final base = jpegWithGps();
+    for (var run = 0; run < 3000; run++) {
+      final bytes = Uint8List.fromList(base);
+      for (var i = random.nextInt(4); i >= 0; i--) {
+        bytes[random.nextInt(bytes.length)] = random.nextInt(256);
+      }
+      final cut = random.nextInt(4) == 0
+          ? Uint8List.sublistView(bytes, 0, random.nextInt(bytes.length))
+          : bytes;
+      try {
+        final out = withoutMetadata(cut);
+        expect(out.length, lessThanOrEqualTo(cut.length + 40));
+      } on FormatException {
+        // Damaged layouts are refused before a copy is shared.
+      }
     }
   });
 }

@@ -87,3 +87,4 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 - 2026-11-17: iOS simulator `import_test.dart` (5 cases, 86.3 s) also passes with the ledger fix.
 - 2026-11-17: Android emulator re-run on the branch head: `sharing_test.dart` (7 cases, 118.2 s) and `locked_camera_test.dart` (1 case, 26.8 s) pass. Coverage gaps are unchanged (real Cast SDK, portable export success).
 - 2026-11-17: Added `FuzzDecrypt` (Go native fuzz, seeded with every container vector; helpers now take `testing.TB`). 40 s runs, about 1.4 million inputs, found no panic or crash; the engine's rate dropped to 0/s late in each run, which looks like fuzzer minimization, not a hang in `Decrypt` (all its loops are bounded by the input length). A plain `go test` runs only the seeds.
+- 2026-11-17: Added a seeded random-damage test for `withoutMetadata` (3000 mutated or cut JPEGs): only `FormatException` is thrown, never a range error; no defect.
