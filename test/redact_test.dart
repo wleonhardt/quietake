@@ -45,6 +45,21 @@ void main() {
     expect(colors.length, lessThanOrEqualTo(16));
   });
 
+  test(
+    'a photo over the pixel limit is scaled down before it is read',
+    () async {
+      final source = await gradientPng();
+      final out = await redactToPng(source, const [
+        ui.Rect.fromLTRB(0, 0, 0.5, 0.5),
+      ], maxPixels: 1024);
+      final codec = await ui.instantiateImageCodec(out);
+      final image = (await codec.getNextFrame()).image;
+      expect([image.width, image.height], [32, 32]);
+      image.dispose();
+      codec.dispose();
+    },
+  );
+
   test('no regions re-encodes the same pixels', () async {
     final source = await gradientPng();
     final out = await redactToPng(source, const []);

@@ -4,8 +4,20 @@ import 'dart:ui' as ui;
 
 /// Pixelates [regions] (rectangles in 0..1 image coordinates) of a decoded image
 /// and returns a PNG built from raw pixels, so no metadata is carried over.
-Future<Uint8List> redactToPng(Uint8List source, List<ui.Rect> regions) async {
-  final codec = await ui.instantiateImageCodec(source);
+///
+/// A photo with more than [maxPixels] pixels is scaled down while it is decoded,
+/// because the raw copy takes four bytes a pixel and several copies are alive at once.
+Future<Uint8List> redactToPng(
+  Uint8List source,
+  List<ui.Rect> regions, {
+  int maxPixels = defaultMaxRedactPixels,
+}) async {
+  final scale = await _decodeScale(source, maxPixels);
+  final codec = await ui.instantiateImageCodec(
+    source,
+    targetWidth: scale?.$1,
+    targetHeight: scale?.$2,
+  );
   final ui.Image image;
   try {
     image = (await codec.getNextFrame()).image;
@@ -37,6 +49,30 @@ Future<Uint8List> redactToPng(Uint8List source, List<ui.Rect> regions) async {
   } finally {
     out.dispose();
     descriptor.dispose();
+    buffer.dispose();
+  }
+}
+
+/// 40 megapixels is 160 MB of raw pixels.
+const defaultMaxRedactPixels = 40 * 1000 * 1000;
+
+/// Target size when the header says the image is over [maxPixels], else null.
+Future<(int, int)?> _decodeScale(Uint8List source, int maxPixels) async {
+  final buffer = await ui.ImmutableBuffer.fromUint8List(source);
+  try {
+    final descriptor = await ui.ImageDescriptor.encoded(buffer);
+    try {
+      final width = descriptor.width, height = descriptor.height;
+      if (width * height <= maxPixels) return null;
+      final factor = sqrt(maxPixels / (width * height));
+      return (
+        max(1, (width * factor).floor()),
+        max(1, (height * factor).floor()),
+      );
+    } finally {
+      descriptor.dispose();
+    }
+  } finally {
     buffer.dispose();
   }
 }
