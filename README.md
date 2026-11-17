@@ -34,7 +34,9 @@ first release target; iOS development is ongoing.
 - The lock screen has a Camera button, shown once the vault has been unlocked
   after this feature shipped. A photo taken there is sealed to a public key
   without the vault key and becomes a normal capture at the next unlock; the
-  locked camera shows no library, tags or settings.
+  locked camera shows no library, tags or settings. On Android a Quick Settings
+  tile, "Quietake camera", opens the same locked camera (also over the phone
+  lock screen); it locks the app first and shows nothing else.
 - Settings can switch the launcher to a plain gray icon (and, on Android, the
   name Tools). This does not hide Quietake from the app list or system settings.
 - Casting sends decrypted media over local HTTP to the selected receiver. It is

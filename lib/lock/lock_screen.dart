@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../auth/authenticator.dart';
 import '../keys.dart';
+import '../privacy/screen_privacy.dart';
 import '../l10n/l10n.dart';
 import '../form_body.dart';
 import '../brand.dart';
@@ -65,7 +66,25 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     _error = _text(widget.message);
     WidgetsBinding.instance.addObserver(this);
     _probe();
-    _loadPublicKey();
+    _loadPublicKey().then((_) => _openCameraIfRequested());
+  }
+
+  bool _cameraOpen = false;
+
+  /// The Android camera tile asks the native side to bring the app up for the
+  /// locked camera only (decision 028). The native flag is read once, and a
+  /// vault without a key pair offers no camera, tile or not.
+  Future<void> _openCameraIfRequested() async {
+    if (!mounted || _cameraOpen) return;
+    bool asked;
+    try {
+      asked =
+          await ScreenPrivacy.channel.invokeMethod<bool>('takeLockedCamera') ??
+          false;
+    } on MissingPluginException {
+      return;
+    }
+    if (asked && mounted && _publicKey != null) await _openCamera();
   }
 
   /// The locked camera needs the vault public key; a vault that has none yet
@@ -81,6 +100,8 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   Future<void> _openCamera() async {
     final key = _publicKey;
     if (key == null) return;
+    if (_cameraOpen) return;
+    _cameraOpen = true;
     try {
       final dir = await widget.vaultDir();
       if (!mounted) return;
@@ -94,6 +115,8 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
       );
     } catch (_) {
       if (mounted) setState(() => _error = (l) => l.camUnavailable);
+    } finally {
+      _cameraOpen = false;
     }
   }
 
@@ -113,6 +136,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   /// Leaving mid-prompt: dismiss it, or the plugin refuses the next one.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _openCameraIfRequested();
     if (state == AppLifecycleState.paused) {
       _resumePrompt = widget.autoPrompt || _prompting;
       _attempt++;

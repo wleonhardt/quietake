@@ -27,9 +27,43 @@ class MainActivity : FlutterFragmentActivity() {
     private lateinit var videoPreparation: VideoPreparation
     private lateinit var backgroundUploads: BackgroundUploads
 
+    companion object {
+        const val LOCKED_CAMERA = "cam.quietake.app.LOCKED_CAMERA"
+    }
+
+    /** Set by the camera tile; the Dart lock screen takes it once (decision 028). */
+    @Volatile private var lockedCameraRequested = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         super.onCreate(savedInstanceState)
+        handleLaunch(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleLaunch(intent)
+    }
+
+    /**
+     * Only the camera tile's action may show this window over the device lock
+     * screen. The app is locked first, so an unlocked session never appears
+     * there, and the flag is dropped as soon as the activity pauses.
+     */
+    private fun handleLaunch(intent: Intent?) {
+        if (intent?.action != LOCKED_CAMERA) return
+        intent.action = null
+        lockedCameraRequested = true
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        privacyChannel?.invokeMethod("lockNow", null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        lockedCameraRequested = false
+        setShowWhenLocked(false)
+        setTurnScreenOn(false)
     }
 
     override fun onUserLeaveHint() {
@@ -125,6 +159,10 @@ class MainActivity : FlutterFragmentActivity() {
                     "captured" to false, "covered" to false, "backgrounded" to false, "generation" to 0
                 ))
                 "ready" -> result.success(null)
+                "takeLockedCamera" -> {
+                    result.success(lockedCameraRequested)
+                    lockedCameraRequested = false
+                }
                 else -> result.notImplemented()
             }
         }

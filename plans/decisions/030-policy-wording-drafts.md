@@ -18,7 +18,7 @@ Section: Your vault.
 
 > While the vault is locked you can open the camera from the lock screen. Photos taken this way are encrypted at once with a key that can only be opened by an unlocked Quietake, then stored in a hidden area of the app's private storage. The plaintext photo is deleted right after encryption. You cannot view these photos until you unlock; unlocking moves them into your vault as ordinary encrypted captures. The locked camera takes photos only, never records audio, and closes when the app goes to the background.
 
-Facts checked in code: `PendingCrypto` seal to the vault public key, `.pending/` directory, `LockedCameraScreen` back camera without audio, pops on pause, `Session._publishLocked` at unlock. Wording choice for the owner: "photos only" matches the shipped screen; video is not offered. Not yet built: the phone's own lock-screen shortcut (Android) and Lock Screen control (iOS) that would open the camera without opening the app; this draft covers only the in-app lock screen button. Add a sentence for those when they ship.
+Facts checked in code: `PendingCrypto` seal to the vault public key, `.pending/` directory, `LockedCameraScreen` back camera without audio, pops on pause, `Session._publishLocked` at unlock. Wording choice for the owner: "photos only" matches the shipped screen; video is not offered. The Android Quick Settings tile "Quietake camera" now also opens the locked camera, also from the phone lock screen; suggested extra sentence: "On Android you can add a Quick Settings tile that opens this camera; the tile locks Quietake first and shows nothing else." The iOS Lock Screen control is not built yet; add a sentence when it ships.
 
 ## C. Hidden areas in shared photos (decision 024)
 

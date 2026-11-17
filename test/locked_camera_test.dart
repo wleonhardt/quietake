@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/lock/lock_screen.dart';
+import 'package:quietake/privacy/screen_privacy.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/pending_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
@@ -174,6 +175,54 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.lockedShutter), findsNothing);
+  });
+  group('opened from the phone lock screen tile', () {
+    void tileAsks(WidgetTester tester, bool answer, [List<String>? calls]) {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        ScreenPrivacy.channel,
+        (call) async {
+          calls?.add(call.method);
+          return call.method == 'takeLockedCamera' ? answer : null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          ScreenPrivacy.channel,
+          null,
+        ),
+      );
+    }
+
+    testWidgets('a request from the tile opens the camera without a tap', (
+      tester,
+    ) async {
+      tileAsks(tester, true);
+      final b = await boot(tester, pair: true);
+      addTearDown(() => CameraPlatform.instance = b.previous);
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(Keys.lockedShutter), findsOneWidget);
+    });
+
+    testWidgets('without a request, or without a key pair, nothing opens', (
+      tester,
+    ) async {
+      tileAsks(tester, false);
+      final b = await boot(tester, pair: true);
+      addTearDown(() => CameraPlatform.instance = b.previous);
+      expect(find.byKey(Keys.lockedShutter), findsNothing);
+      tileAsks(tester, true);
+      final c = await boot(tester, pair: false);
+      addTearDown(() => CameraPlatform.instance = c.previous);
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pump();
+      expect(find.byKey(Keys.lockedShutter), findsNothing);
+    });
   });
 }
 

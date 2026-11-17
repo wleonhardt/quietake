@@ -2,4 +2,5 @@
 <resources>
     <string name="lock_tile_label">Quietake sperren</string>
     <string name="neutral_app_label">Werkzeuge</string>
+    <string name="camera_tile_label">Quietake-Kamera</string>
 </resources>
