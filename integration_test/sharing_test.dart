@@ -394,4 +394,75 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'hiding a chosen area of one photo shares a PNG and leaves the original',
+    (tester) async {
+      final app = await TestApp.unlocked();
+      for (final entry in await app.vault.dir.list().toList()) {
+        await entry.delete(recursive: true);
+      }
+      final source = await File(
+        '${(await getTemporaryDirectory()).path}/share-seed',
+      ).writeAsBytes(fixtureBytes('tiny.jpg'));
+      await app.vault.ingestAs(source, '2026-01.jpg');
+      final original = await (await app.vault.list()).single.readAsBytes();
+      final shared = <String, Uint8List>{};
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        final paths = (args['paths'] as List).cast<String>();
+        final mimes = (args['mimeTypes'] as List).cast<String>();
+        for (var i = 0; i < paths.length; i++) {
+          shared[mimes[i]] = await File(paths[i]).readAsBytes();
+        }
+        return '';
+      });
+      try {
+        await tester.pumpWidget(app.widget());
+        await tap(tester, Keys.openGallery);
+        await tap(tester, Keys.librarySelect);
+        await tap(tester, Keys.librarySelectAll);
+        await tap(tester, Keys.libraryShare);
+        await tap(tester, Keys.shareRedact);
+        await until(
+          tester,
+          () => find.byKey(Keys.redactCanvas).evaluate().isNotEmpty,
+        );
+        await tap(tester, Keys.redactCell(1, 1));
+        await tap(tester, Keys.redactDone);
+        await until(
+          tester,
+          () => find.textContaining('Hidden areas: 1').evaluate().isNotEmpty,
+        );
+        await tap(tester, Keys.shareConfirm);
+        await until(
+          tester,
+          () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+        );
+        expect(shared.keys, ['image/png']);
+        // A PNG signature, and no JPEG metadata or bytes carried over.
+        expect(shared['image/png']!.sublist(0, 8), [
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10,
+        ]);
+        expect(await (await app.vault.list()).single.readAsBytes(), original);
+        expect(tester.takeException(), isNull);
+      } finally {
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          null,
+        );
+        await tester.pumpWidget(const SizedBox());
+        await app.close();
+      }
+    },
+  );
 }
