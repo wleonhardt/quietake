@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -84,6 +85,32 @@ func TestShareRejectsDamage(t *testing.T) {
 		b := append([]byte(nil), good...)
 		b[p.at], b[p.at+1], b[p.at+2], b[p.at+3] = byte(p.val>>24), byte(p.val>>16), byte(p.val>>8), byte(p.val)
 		try("limits", b, v.Passphrase, 1<<20)
+	}
+}
+
+// TestShareRandomDamage changes up to three random bytes of a bundle. Offset 5
+// is reserved and the low byte of the memory cost (offset 17) is rounded down
+// by Argon2, so neither changes the key or the content and both are skipped.
+func TestShareRandomDamage(t *testing.T) {
+	v := loadShare(t)
+	good, _ := hex.DecodeString(v.Cases[2].Bundle)
+	rng := rand.New(rand.NewSource(20261117))
+	for run := 0; run < 150; run++ {
+		b := append([]byte(nil), good...)
+		for i := rng.Intn(3); i >= 0; i-- {
+			at := rng.Intn(len(b))
+			if at == 5 || at == 17 {
+				at = 6
+			}
+			b[at] ^= byte(1 + rng.Intn(255))
+		}
+		dir := t.TempDir()
+		if _, err := ExtractShare(bytes.NewReader(b), v.Passphrase, dir, 1<<20); err == nil {
+			t.Fatalf("run %d: damaged bundle accepted", run)
+		}
+		if left, _ := os.ReadDir(dir); len(left) != 0 {
+			t.Fatalf("run %d: left %d files", run, len(left))
+		}
 	}
 }
 
