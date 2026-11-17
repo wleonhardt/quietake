@@ -13,7 +13,8 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
   adds no image package.
 - Each rectangle is pixelated with large blocks, at most four blocks across its
   longer side and never smaller than 16 pixels, so a face or text under it cannot be
-  recovered. The block color is the average of its source pixels.
+  recovered. A region or image shorter than 16 pixels becomes one flat block (a fix
+  after review: it used to throw). The block color is the average of its source pixels.
 - The PNG is built from raw pixels, so it carries no EXIF, XMP or other metadata.
 - Rectangles are clamped to the image; an empty or outside rectangle changes nothing.
 
@@ -42,5 +43,7 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
   ("Row 2, column 3") that toggle one third of the photo each. They work with a
   keyboard or screen reader and share the same list of areas as dragging. Finer
   placement for assistive technology is not built.
-- Tests: `redact_screen_test.dart`, `share_media_test.dart`, `share_dialog_test.dart`.
-  No device test drives the editor; `sharing_test.dart` still passes on both devices.
+- Tests: `redact_screen_test.dart`, `redact_test.dart`, `share_media_test.dart`,
+  `share_dialog_test.dart`. `sharing_test.dart` drives the editor through a section chip
+  on Android and iOS (shared copy is a PNG, vault original unchanged); the drag gesture
+  itself is covered by host tests only.
