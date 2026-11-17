@@ -1,6 +1,6 @@
 # 028 Capture while locked
 
-Status: accepted 2026-11-16 (owner): build on both Android and iOS, split over several iterations. No code yet.
+Status: accepted 2026-11-16 (owner): build on both Android and iOS, split over several iterations. Slice 1 is built (see the build plan below).
 
 ## Problem
 
@@ -34,3 +34,10 @@ and the Go recovery tool stay unchanged.
 ## Needs the owner
 
 - Go or no-go, and whether the lock-screen entry should be allowed on iOS and Android.
+
+## Build plan (2026-11-16)
+
+1. Done: `lib/crypto/pending_crypto.dart`. A pending file is the magic `SHTP`, version 1, a reserved byte, a wrap key sealed to the vault public key (80 bytes), then an ordinary v1 container whose file key is wrapped with that wrap key. Publishing opens the wrap key with the secret key, re-wraps only the 48-byte file key under the master key and copies the rest, so the result is a normal v1 container and the format of stored files does not change. Tests in `test/pending_crypto_test.dart`: round trip at 0, 1, one chunk and 700000 bytes; wrong key and damaged files leave no output. The key pair is not stored anywhere yet.
+2. Store the public key next to the keyfile and the secret key encrypted under the master key; create them for new and existing vaults at the next unlock. Needs a keyfile-adjacent file with its own tests.
+3. A pending directory in private storage, a locked-state capture path in `CaptureStore`, and publication on unlock that keeps the pending file until the v1 file is durable.
+4. Android lock-screen camera entry, then iOS. Neither may expose the library, catalog or tags.
