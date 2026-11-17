@@ -1442,6 +1442,17 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get settingsPlainIcon => 'Schlichtes Symbol und Namen verwenden';
+
+  @override
+  String get settingsPlainIconBody =>
+      'Zeigt ein graues Symbol mit dem Namen Werkzeuge statt Quietake. Die App kann beim Wechseln kurz schließen. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.';
+
+  @override
+  String get settingsPlainIconFailed =>
+      'Das App-Symbol konnte nicht geändert werden.';
+
+  @override
   String get settingsKeepDeleted => 'Gelöschte Aufnahmen 30 Tage aufbewahren';
 
   @override

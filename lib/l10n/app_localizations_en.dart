@@ -1415,6 +1415,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsPlainIcon => 'Use a plain icon and name';
+
+  @override
+  String get settingsPlainIconBody =>
+      'Shows a gray icon named Tools instead of Quietake. The app may close for a moment when you switch. This does not hide Quietake from the app list or system settings.';
+
+  @override
+  String get settingsPlainIconFailed => 'Could not change the app icon.';
+
+  @override
   String get settingsKeepDeleted => 'Keep deleted captures for 30 days';
 
   @override

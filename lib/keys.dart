@@ -164,6 +164,7 @@ abstract final class Keys {
   static const galleryCast = Key('gallery.cast');
 
   static const settingsPrivacySection = Key('settings.privacySection');
+  static const settingsPlainIcon = Key('settings.plainIcon');
   static const settingsBackupSection = Key('settings.backupSection');
   static const settingsRecoverySection = Key('settings.recoverySection');
   static const settingsPrivacyPolicy = Key('settings.privacyPolicy');

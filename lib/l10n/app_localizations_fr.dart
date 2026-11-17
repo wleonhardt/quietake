@@ -1439,6 +1439,17 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get settingsPlainIcon => 'Utiliser une icône et un nom discrets';
+
+  @override
+  String get settingsPlainIconBody =>
+      'Affiche une icône grise nommée Outils à la place de Quietake. L\'app peut se fermer un instant lors du changement. Quietake reste visible dans la liste des apps et dans les réglages du système.';
+
+  @override
+  String get settingsPlainIconFailed =>
+      'Impossible de changer l\'icône de l\'app.';
+
+  @override
   String get settingsKeepDeleted =>
       'Conserver les captures supprimées 30 jours';
 

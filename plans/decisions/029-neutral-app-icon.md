@@ -65,3 +65,16 @@ exception. Tests: `launcher_appearance_test.dart` (mocked channel, 4 cases); `in
 passes on the Android emulator (switch on, read back, switch off, read back) and on the iOS simulator (reports
 no support). Not verified: what the launcher shows while the alias is enabled (the test restores the normal entry
 at once), and whether the running app survives the switch on every launcher. Slice 3 adds the Settings row.
+
+## Slice 3 done (Settings row)
+
+A switch "Use a plain icon and name" sits in the Privacy card under Change passcode (`Keys.settingsPlainIcon`),
+shown only where `LauncherAppearance.neutral()` reports support, so today only on Android. Its subtitle states the
+limits: gray icon named Tools, the app may close for a moment, and Quietake stays visible in the app list and system
+settings. A failed switch keeps the old state and shows "Could not change the app icon." Strings in en, es, fr, de
+(the label in the manifest is separate and also translated). Tests: three cases in `settings_access_test.dart`
+(row hidden without support, switch and warning, failure keeps state); host suite 782 passed, analyzer clean;
+`privacy_test.dart` passes on the Android emulator with the row present. Owner review needed: this in-app wording
+and whether the website privacy policy should mention the option (it does not today). Not verified: toggling through
+the Settings UI on a device (the channel itself is device tested), and how the launcher looks with the plain entry.
+Slice 4 (iOS alternate icon, bitmap artwork at several sizes) is next and needs an owner look at the generated icons.

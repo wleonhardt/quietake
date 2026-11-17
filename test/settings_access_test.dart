@@ -493,4 +493,74 @@ void main() {
       expect(entry.value(), findsOneWidget);
     });
   }
+
+  group('plain launcher icon', () {
+    const channel = MethodChannel('quietake/appearance');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    tearDown(() => messenger.setMockMethodCallHandler(channel, null));
+
+    testWidgets('the row is hidden where the platform cannot switch', (
+      tester,
+    ) async {
+      await open(tester);
+      await settle(tester);
+      expect(find.byKey(Keys.settingsPlainIcon), findsNothing);
+    });
+
+    testWidgets('the switch changes the icon and shows the honest warning', (
+      tester,
+    ) async {
+      var neutral = false;
+      final calls = <Object?>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'neutral') return neutral;
+        calls.add(call.arguments);
+        neutral = call.arguments == true;
+        return null;
+      });
+      await open(tester);
+      await settle(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(Keys.settingsPlainIcon),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.textContaining('does not hide Quietake'), findsOneWidget);
+      expect(
+        tester.widget<SwitchListTile>(find.byKey(Keys.settingsPlainIcon)).value,
+        isFalse,
+      );
+      await tester.tap(find.byKey(Keys.settingsPlainIcon));
+      await settle(tester);
+      expect(calls, [true]);
+      expect(
+        tester.widget<SwitchListTile>(find.byKey(Keys.settingsPlainIcon)).value,
+        isTrue,
+      );
+    });
+
+    testWidgets('a failed switch keeps the old state and says so', (
+      tester,
+    ) async {
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'neutral') return false;
+        throw PlatformException(code: 'failed');
+      });
+      await open(tester);
+      await settle(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(Keys.settingsPlainIcon),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(Keys.settingsPlainIcon));
+      await settle(tester);
+      expect(
+        tester.widget<SwitchListTile>(find.byKey(Keys.settingsPlainIcon)).value,
+        isFalse,
+      );
+      expect(find.text('Could not change the app icon.'), findsOneWidget);
+    });
+  });
 }

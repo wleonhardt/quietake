@@ -2370,6 +2370,24 @@ abstract class AppLocalizations {
   /// **'{value} MB'**
   String settingsSizeMb(String value);
 
+  /// No description provided for @settingsPlainIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a plain icon and name'**
+  String get settingsPlainIcon;
+
+  /// No description provided for @settingsPlainIconBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows a gray icon named Tools instead of Quietake. The app may close for a moment when you switch. This does not hide Quietake from the app list or system settings.'**
+  String get settingsPlainIconBody;
+
+  /// No description provided for @settingsPlainIconFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change the app icon.'**
+  String get settingsPlainIconFailed;
+
   /// No description provided for @settingsKeepDeleted.
   ///
   /// In en, this message translates to:

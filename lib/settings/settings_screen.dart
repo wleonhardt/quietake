@@ -23,6 +23,7 @@ import '../camera/burst_setting.dart';
 import '../library/recently_deleted_screen.dart';
 import '../vault/trash_setting.dart';
 import '../vault/vault.dart';
+import 'launcher_appearance.dart';
 import '../sync/webdav_client.dart';
 
 import 'package:sodium/sodium_sumo.dart';
@@ -57,11 +58,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       l10n.settingsBgChecking;
   bool _keepDeleted = true;
   int _burstSize = BurstSetting.standard;
+  bool? _plainIcon;
 
   @override
   void initState() {
     super.initState();
     if (Platform.isAndroid) _loadBackgroundStatus();
+    LauncherAppearance.neutral().then((on) {
+      if (mounted) setState(() => _plainIcon = on);
+    });
     BurstSetting.load().then((size) {
       if (mounted) setState(() => _burstSize = size);
     });
@@ -412,6 +417,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(Icons.password),
               label: Text(l10n.changePasscodeTitle),
             ),
+            if (_plainIcon != null)
+              SwitchListTile(
+                key: Keys.settingsPlainIcon,
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.settingsPlainIcon),
+                subtitle: Text(l10n.settingsPlainIconBody),
+                value: _plainIcon!,
+                onChanged: (value) async {
+                  PrivacyScope.maybeOf(context)?.activity();
+                  final ok = await LauncherAppearance.setNeutral(value);
+                  if (!mounted) return;
+                  setState(() {
+                    if (ok) {
+                      _plainIcon = value;
+                    } else {
+                      _privacyResult = (l10n) => l10n.settingsPlainIconFailed;
+                    }
+                  });
+                },
+              ),
             if (_privacyResult != null)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
