@@ -21,7 +21,7 @@ type vectors struct {
 	} `json:"cases"`
 }
 
-func load(t *testing.T) (vectors, *[32]byte) {
+func load(t testing.TB) (vectors, *[32]byte) {
 	t.Helper()
 	data, err := os.ReadFile("../../../docs/vectors/containers.json")
 	if err != nil {
@@ -41,7 +41,7 @@ func load(t *testing.T) (vectors, *[32]byte) {
 	return v, key
 }
 
-func mustHex(t *testing.T, s string) []byte {
+func mustHex(t testing.TB, s string) []byte {
 	t.Helper()
 	b, err := hex.DecodeString(s)
 	if err != nil {
