@@ -320,7 +320,7 @@ void main() {
     tester,
   ) async {
     const passcode = 'auto-sync-test-passcode';
-    (await app.session.store.createWithPasscode(passcode)).dispose();
+    await app.setPasscode(passcode);
     final tmp = await getTemporaryDirectory();
     final plain = File('${tmp.path}/retry.jpg');
     await plain.writeAsBytes([255, 216, 255, 7]);

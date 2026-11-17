@@ -28,7 +28,7 @@ void main() {
 
   setUpAll(() async {
     app = await TestApp.unlocked();
-    (await app.session.store.createWithPasscode(oldPasscode)).dispose();
+    await app.setPasscode(oldPasscode);
     for (final file in await app.vault.list()) {
       await file.delete();
     }

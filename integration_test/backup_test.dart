@@ -144,8 +144,7 @@ void main() {
   testWidgets(
     'manual lock protects active check; cancel and retry retain originals',
     (tester) async {
-      (await app.session.store.createWithPasscode('backup-test-passcode'))
-          .dispose();
+      await app.setPasscode('backup-test-passcode');
       try {
         await open(tester);
         dav.stalledGets.add('backup.jpg.shtr');

@@ -175,8 +175,7 @@ void main() {
     (tester) async {
       final app = await TestApp.unlocked();
       await seed(app);
-      (await app.session.store.createWithPasscode('portable-passcode'))
-          .dispose();
+      await app.setPasscode('portable-passcode');
       final external = File('${docs.path}/portable-saved.zip');
       var sends = 0;
       binding.defaultBinaryMessenger.setMockMethodCallHandler(portableChannel, (

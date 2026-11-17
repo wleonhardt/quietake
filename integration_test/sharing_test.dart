@@ -313,8 +313,7 @@ void main() {
       (tester) async {
         final app = await TestApp.unlocked();
         await seed(app);
-        (await app.session.store.createWithPasscode('sharing-test-passcode'))
-            .dispose();
+        await app.setPasscode('sharing-test-passcode');
         final vault = GatedVault(app.vault);
         final backend = FakeCastBackend();
         final session = Session(

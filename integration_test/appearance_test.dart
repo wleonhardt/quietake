@@ -25,8 +25,7 @@ void main() {
         ).writeAsBytes(fixtureBytes('tiny.jpg'));
         final photo = await app.vault.ingestAs(source, 'appearance.jpg');
         final encrypted = await photo.readAsBytes();
-        (await app.session.store.createWithPasscode('appearance-test-passcode'))
-            .dispose();
+        await app.setPasscode('appearance-test-passcode');
         await tester.pumpWidget(app.widget());
         Future<void> until(bool Function() ready) async {
           final deadline = DateTime.now().add(const Duration(seconds: 30));

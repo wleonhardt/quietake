@@ -212,8 +212,7 @@ void main() {
   testWidgets(
     'selected import finishes behind manual lock and remains protected until unlock',
     (tester) async {
-      (await app.session.store.createWithPasscode('import-fixture-only'))
-          .dispose();
+      await app.setPasscode('import-fixture-only');
       final selected = Completer<List<Map<String, String>>>();
       binding.defaultBinaryMessenger.setMockMethodCallHandler(
         importChannel,

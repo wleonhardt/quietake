@@ -48,6 +48,17 @@ class TestApp {
     session: session,
   );
 
+  /// Gives the test vault a passcode without changing its key. Setup itself
+  /// always creates a new key (decision 033), which could not open this vault.
+  Future<void> setPasscode(String passcode) async {
+    final key = (await session.store.cachedKey())!;
+    try {
+      await session.store.commitPasscode(key, passcode);
+    } finally {
+      key.dispose();
+    }
+  }
+
   Future<void> close() async {
     await session.close();
   }
