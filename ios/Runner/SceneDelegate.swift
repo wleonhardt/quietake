@@ -24,6 +24,14 @@ class SceneDelegate: FlutterSceneDelegate {
     NotificationCenter.default.addObserver(self, selector: #selector(captureChanged(_:)),
       name: UIScreen.capturedDidChangeNotification, object: nil)
     setCovered(true)
+    NotificationCenter.default.addObserver(self, selector: #selector(lockedCameraRequested),
+      name: LockedCameraRequest.notification, object: nil)
+  }
+
+  /// The Lock Screen control asked for the locked camera: lock the app first, so
+  /// an unlocked session never shows, then let the Dart lock screen take the request.
+  @objc private func lockedCameraRequested() {
+    Self.privacyChannel?.invokeMethod("lockNow", arguments: nil)
   }
 
   override func sceneWillResignActive(_ scene: UIScene) {

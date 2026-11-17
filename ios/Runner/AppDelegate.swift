@@ -97,6 +97,9 @@ import AVFoundation
       case "ready":
         if let generation = call.arguments as? Int { scene?.flutterFrameReady(generation) }
         result(nil)
+      case "takeLockedCamera":
+        result(LockedCameraRequest.pending)
+        LockedCameraRequest.pending = false
       #if DEBUG
       case "checkCover": result(scene?.checkCover())
       #endif
