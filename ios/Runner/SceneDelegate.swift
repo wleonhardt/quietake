@@ -21,6 +21,7 @@ class SceneDelegate: FlutterSceneDelegate {
   override func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
                       options connectionOptions: UIScene.ConnectionOptions) {
     super.scene(scene, willConnectTo: session, options: connectionOptions)
+    if let url = Self.shareURL(connectionOptions.urlContexts) { IncomingShare.shared.accept(url) }
     NotificationCenter.default.addObserver(self, selector: #selector(captureChanged(_:)),
       name: UIScreen.capturedDidChangeNotification, object: nil)
     setCovered(true)
@@ -32,6 +33,19 @@ class SceneDelegate: FlutterSceneDelegate {
   /// an unlocked session never shows, then let the Dart lock screen take the request.
   @objc private func lockedCameraRequested() {
     Self.privacyChannel?.invokeMethod("lockNow", arguments: nil)
+  }
+
+  /// Another app opened a `.quietake-share` file with Quietake (decision 031).
+  private static func shareURL(_ contexts: Set<UIOpenURLContext>) -> URL? {
+    contexts.map(\.url).first { $0.isFileURL && $0.pathExtension.lowercased() == "quietake-share" }
+  }
+
+  override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = Self.shareURL(URLContexts) else {
+      super.scene(scene, openURLContexts: URLContexts)
+      return
+    }
+    IncomingShare.shared.accept(url)
   }
 
   override func sceneWillResignActive(_ scene: UIScene) {

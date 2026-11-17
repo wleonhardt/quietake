@@ -67,7 +67,7 @@ Ideas from related privacy camera and vault projects (added 2026-11-16, none sta
 
 Build-on ideas (added 2026-11-17, none started; each extends a finished decision and needs its own decision record or a slice in the existing one). Not re-proposed: size padding (026 option B, out) and provenance proof (027, rejected).
 
-- Open a share from other apps (decision 031): Android DONE (VIEW filters, bounded private copy, opened after unlock through the Import dialog; host suite 847 passed, emulator startup test passes, filters resolve on the emulator; no real Open with tested). NEXT: iOS document type plus the same take call, then the policy sentence.
+- Open a share from other apps (decision 031): DONE on Android and iOS (VIEW filters / document type, bounded private copy, opened after unlock through the Import dialog; host suite 847 passed; emulator filters and iOS simulator `openurl` copy verified; no real Open with and no iOS dialog check). Policy sentence F awaits the owner.
 - Passphrase handoff in person (extends 025): offer to show the one-time share passphrase as an on-screen QR code, so it travels by a different path than the bundle. Shown once, never saved; no camera scanning needed on the sender.
 - Videos in the locked camera (extends 028): the lock screen camera is photo-only. Recording while locked needs a sealed streaming path, a size cap and a stop on screen-off; decide whether it is worth the larger plaintext window first.
 - Waiting-photo count after unlock (extends 028): after unlock, say how many locked captures were published, so the owner knows the lock screen camera worked. Never show the count while locked.

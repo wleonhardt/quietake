@@ -21,7 +21,17 @@ import AVFoundation
       .setMethodCallHandler { [weak self] call, result in self?.portableFiles.handle(call, result: result) }
 
     let imports = FlutterMethodChannel(name: "quietake/import", binaryMessenger: registrar.messenger())
-    imports.setMethodCallHandler { [self] call, result in privateImport.handle(call, result: result) }
+    _ = IncomingShare.shared  // removes stale copies before any file is opened with the app
+    imports.setMethodCallHandler { [self] call, result in
+      switch call.method {
+      case "incomingShare": IncomingShare.shared.available(result)
+      case "takeIncomingShare":
+        let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent("quietake-import", isDirectory: true)
+        IncomingShare.shared.take(into: directory, result)
+      default: privateImport.handle(call, result: result)
+      }
+    }
     FlutterMethodChannel(name: "quietake/folder", binaryMessenger: registrar.messenger())
       .setMethodCallHandler { [weak self] call, result in self?.folderImport.handle(call, result: result) }
     FlutterMethodChannel(name: "quietake/captures", binaryMessenger: registrar.messenger())

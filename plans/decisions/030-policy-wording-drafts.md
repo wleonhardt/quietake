@@ -56,3 +56,11 @@ Also edit: the Android background-upload paragraph. Suggested added sentence: "W
 - Decision 026: the Android background job keeps its current rule and uploads only files whose random name a foreground sync already assigned.
 - Decision 028: the Quick Settings tile label should follow the plain icon (Tools when the plain icon is on). Not built yet.
 - Decision 028: build the iOS Lock Screen control (Xcode extension target, iOS 18). Not built yet; add its sentence to the policy when it ships.
+
+## F. Opening a received share from another app (decision 031, proposed 2026-11-17)
+
+Section: Optional sharing, after the encrypted share paragraph. Not published; awaiting the owner.
+
+> If another app opens a received Quietake share file with Quietake, Quietake keeps a private copy of that file inside the app until you unlock and enter its passphrase, then removes it. The file is still encrypted with the share passphrase and is never decrypted while Quietake is locked.
+
+Facts checked in code: `IncomingShare` on Android and iOS, 513 MiB bound, stale copy removed at startup, the Dart side takes it only while unlocked. Not verified with a real Open with.
