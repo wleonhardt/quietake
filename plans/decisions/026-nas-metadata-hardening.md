@@ -63,3 +63,14 @@ a rename at the upload call. Slices, each with tests and its own commit:
 
 Open risk for slice 3: restore on a fresh phone needs the catalog first to learn local names.
 If the catalog is lost, media can still be opened by key but only under generic names.
+
+## Slice 1b done: catalog field
+
+`PrivateCatalog` now keeps an optional `remoteNames` object (local name to remote name), written
+only when not empty, so older files load unchanged and older readers that ignore unknown keys
+still work. `assignRemoteName(local)` is idempotent and saves before returning. `restore` adopts
+the mapping from an incoming catalog. `forgetDeleted` deliberately leaves mappings alone: slice 3
+must drop a mapping only after the remote delete succeeded.
+Limit found: each mapping adds about 85 bytes to the 1 MiB catalog (`maxBytes`), so around
+10,000 mapped captures would use most of it. Slice 2 must either raise the limit consciously or
+store the mapping compactly (the 16-byte random value as hex is already the minimum for the name).

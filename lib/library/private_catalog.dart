@@ -1,10 +1,12 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
 import '../vault/file_name.dart';
+import '../sync/remote_names.dart';
 import '../vault/vault.dart';
 
 class CaptureDetails {
@@ -28,6 +30,10 @@ class PrivateCatalog extends ChangeNotifier {
   Map<String, String> _albums = {};
   Map<String, CaptureDetails> _items = {};
   Map<String, String> _covers = {};
+  RemoteNames _remoteNames = const RemoteNames.empty();
+
+  /// NAS file names of captures that were uploaded under a random name.
+  RemoteNames get remoteNames => _remoteNames;
 
   /// Optional cover capture per tag ID. A cover may name media that is gone.
   Map<String, String> get covers => UnmodifiableMapView(_covers);
@@ -76,15 +82,26 @@ class PrivateCatalog extends ChangeNotifier {
     }
     final state = await file.exists()
         ? await _decode(file)
-        : (<String, String>{}, <String, CaptureDetails>{}, <String, String>{});
+        : (
+            <String, String>{},
+            <String, CaptureDetails>{},
+            <String, String>{},
+            const RemoteNames.empty(),
+          );
     _albums = state.$1;
     _items = state.$2;
     _covers = state.$3;
+    _remoteNames = state.$4;
     _loaded = true;
   }
 
   Future<
-    (Map<String, String>, Map<String, CaptureDetails>, Map<String, String>)
+    (
+      Map<String, String>,
+      Map<String, CaptureDetails>,
+      Map<String, String>,
+      RemoteNames,
+    )
   >
   _decode(File source) async {
     final bytes = <int>[];
@@ -146,7 +163,7 @@ class PrivateCatalog extends ChangeNotifier {
         covers[entry.key] = entry.value as String;
       }
     }
-    return (albums, items, covers);
+    return (albums, items, covers, RemoteNames.fromJson(value['remoteNames']));
   }
 
   static String _name(String value, {bool empty = false}) {
@@ -168,7 +185,9 @@ class PrivateCatalog extends ChangeNotifier {
     Map<String, String> albums,
     Map<String, CaptureDetails> items, {
     Map<String, String>? covers,
+    RemoteNames? remoteNames,
   }) async {
+    final names = remoteNames ?? _remoteNames;
     // A cover never outlives its tag.
     final kept = {
       for (final e in (covers ?? _covers).entries)
@@ -179,6 +198,7 @@ class PrivateCatalog extends ChangeNotifier {
         'version': 1,
         'albums': albums,
         if (kept.isNotEmpty) 'covers': kept,
+        if (!names.isEmpty) 'remoteNames': names.toJson(),
         'items': {
           for (final entry in items.entries)
             entry.key: {
@@ -196,6 +216,7 @@ class PrivateCatalog extends ChangeNotifier {
     _albums = albums;
     _items = items;
     _covers = kept;
+    _remoteNames = names;
     _loaded = true;
     _revision++;
     notifyListeners();
@@ -338,6 +359,20 @@ class PrivateCatalog extends ChangeNotifier {
     await _save({..._albums}, {..._items}, covers: covers);
   });
 
+  /// The NAS name of [local]: assigns and saves a random one on first use.
+  /// The mapping is saved before any upload, so a crash leaves no orphan.
+  Future<String> assignRemoteName(String local, [Random? random]) =>
+      _serial(() async {
+        await _ensure();
+        _mediaName(local);
+        if (_remoteNames.remoteFor(local) != local) {
+          return _remoteNames.remoteFor(local);
+        }
+        final names = _remoteNames.assign(local, random ?? Random.secure());
+        await _save({..._albums}, {..._items}, remoteNames: names);
+        return names.remoteFor(local);
+      });
+
   /// Only the local deletion journal authorizes metadata cleanup.
   Future<void> forgetDeleted() => _serial(() async {
     await _ensure();
@@ -382,6 +417,7 @@ class PrivateCatalog extends ChangeNotifier {
     _albums = state.$1;
     _items = state.$2;
     _covers = state.$3;
+    _remoteNames = state.$4;
     _loaded = true;
     notifyListeners();
     return true;

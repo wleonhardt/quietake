@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -11,11 +12,13 @@ void main() {
   late Vault vault;
   late Directory dir;
   late PrivateCatalog catalog;
+  late SecureKey masterKey;
   setUp(() async {
     final sodium = await SodiumSumoInit.init();
     final crypto = VaultCrypto(sodium);
     dir = await Directory.systemTemp.createTemp('private-catalog-');
-    vault = Vault(crypto, crypto.generateMasterKey(), dir);
+    masterKey = crypto.generateMasterKey();
+    vault = Vault(crypto, masterKey, dir);
     catalog = vault.catalog;
   });
   tearDown(() async {
@@ -529,6 +532,74 @@ void main() {
     await catalog.load();
     await catalog.close();
     await expectLater(catalog.createAlbum('Late'), throwsStateError);
+  });
+
+  group('remote names', () {
+    const media = 'one.jpg.shtr';
+
+    test('no mapping writes no field and a plain file still loads', () async {
+      await catalog.load();
+      await catalog.createAlbum('Trips');
+      final plain = jsonDecode(utf8.decode(await _plain(vault, catalog.file)));
+      expect(plain.containsKey('remoteNames'), isFalse);
+      expect(catalog.remoteNames.isEmpty, isTrue);
+    });
+
+    test(
+      'an assigned name is stable, survives reopen and other edits',
+      () async {
+        await catalog.load();
+        final first = await catalog.assignRemoteName(media, Random(1));
+        expect(first, matches(RegExp(r'^[0-9a-f]{32}\.shtr$')));
+        expect(await catalog.assignRemoteName(media, Random(2)), first);
+        await catalog.createAlbum('Trips');
+        await catalog.organize({media}, favorite: true);
+        final reopened = PrivateCatalog(vault);
+        await reopened.load();
+        expect(reopened.remoteNames.remoteFor(media), first);
+        await reopened.close();
+        final plain = utf8.decode(await _plain(vault, catalog.file));
+        expect(plain, contains(first));
+        final raw = utf8.decode(
+          await catalog.file.readAsBytes(),
+          allowMalformed: true,
+        );
+        expect(raw, isNot(contains(first)));
+      },
+    );
+
+    test('invalid mappings are rejected before adoption', () async {
+      for (final names in [
+        '{"a.shtr":"dir/b.shtr"}',
+        '{"a.shtr":"b.txt"}',
+        '[]',
+        '{"a.shtr":"s.shtr","b.shtr":"s.shtr"}',
+      ]) {
+        await vault.writeMetadata(
+          catalog.file,
+          utf8.encode(
+            '{"version":1,"albums":{},"items":{},"remoteNames":$names}',
+          ),
+        );
+        await expectLater(
+          PrivateCatalog(vault).load(),
+          throwsA(isA<FormatException>()),
+          reason: names,
+        );
+      }
+    });
+
+    test('a restored catalog brings its mapping with it', () async {
+      await catalog.load();
+      final name = await catalog.assignRemoteName(media, Random(1));
+      final copy = File('${dir.path}/copy.catalog');
+      await catalog.file.copy(copy.path);
+      final other = Directory('${dir.path}/other')..createSync();
+      final peer = PrivateCatalog(Vault(vault.crypto, masterKey, other));
+      await peer.restore(copy);
+      expect(peer.remoteNames.remoteFor(media), name);
+      await peer.close();
+    });
   });
 }
 
