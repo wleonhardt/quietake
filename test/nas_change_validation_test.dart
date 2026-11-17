@@ -174,4 +174,26 @@ void main() {
       isEmpty,
     );
   });
+
+  testWidgets(
+    'a confirmed change without a saved NAS connection fails safely',
+    (tester) async {
+      await open(tester);
+      await fill(tester);
+      await save(tester);
+      await tester.tap(find.byKey(Keys.nasChangeConfirm));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(result(tester), startsWith('Could not change recovery.'));
+      expect(
+        tester.widget<TextField>(find.byKey(Keys.nasPin)).controller!.text,
+        isEmpty,
+        reason: 'The typed passcode must be cleared after a failed attempt',
+      );
+      expect(
+        tester.widget<TextField>(find.byKey(Keys.nasPhrase)).controller!.text,
+        isEmpty,
+      );
+    },
+  );
 }
