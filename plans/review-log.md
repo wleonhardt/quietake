@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 branch head sanity run (`claude/dev-loop-1`, 339 commits ahead of main, tree clean): `flutter analyze` clean, host suite 867 passed, `gofmt`, `go vet` and `go test` in `recover/` pass, `dart run tool/check_interop.dart` passes, and the Python tool tests pass (run as `python3 -m unittest tool.ci_scope_test tool.check_bundle_test tool.backup_prompt_check_test`; running the files directly fails on imports, not on logic).
+
 - 2026-11-17 l10n check: es, fr and de each have all 512 keys of the English file, no extras, and every placeholder name matches English. Only two French strings equal the English ones (ICU plural patterns). Wording quality still needs native review.
 
 - 2026-11-17 memory read sweep: every whole-file read into memory in `lib/` is bounded (`Vault.readAll` stops at 32 MiB and its callers are photo paths; the import check reads files already limited by size; the restore keyfile fingerprint refuses over 64 KiB). No defect.
