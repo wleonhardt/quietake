@@ -79,6 +79,8 @@ slice so anyone can open a bundle from the command line. Neither needs the sende
 
 ## Status
 
-Layout approved by the owner on 2026-11-16. Vectors are not frozen yet: they are produced by the first
-writer and then committed under `docs/vectors/share.json`, because libsodium picks the secretstream
-header at random.
+Layout approved by the owner on 2026-11-16. The Dart writer and reader are in
+`lib/crypto/share_bundle.dart`. Frozen vectors are in `docs/vectors/share.json` (test parameters:
+Argon2id ops 1, memory 8192, chunk size 64; the stream header is random, so the vectors are the
+bytes the first writer produced and must not be regenerated). Each case lists the passphrase's
+entries as hex; the Go `-share` reader must open them.

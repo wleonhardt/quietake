@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/crypto/share_bundle.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -32,6 +33,8 @@ void main() {
           '2cbd9774cbd93a82e9870d2a4c2acd1aff35998fcc3d3b6dacd7c5e4d0944723',
       'docs/vectors/keyfile.json':
           '227bcb2662e936c24cb8bc688d84fadfdc559ba0abc8bea43022c4ed645a3ffe',
+      'docs/vectors/share.json':
+          'd9d5787ad1fe0f1551bc8a5a8d19c811debde2a39b06f4ed7b2912929392a6ee',
       'docs/recovery-vectors/v1.json':
           'a06ee3fcb6a9a73243be5e8097dc213ce060b40f1ba41554731ea46d19431940',
     }.entries) {
@@ -50,6 +53,33 @@ void main() {
         b.add(x);
       }
       expect(b.takeBytes(), hex(c['plaintext_hex'] as String), reason: c['name'] as String);
+    }
+  });
+
+  test('every share bundle vector opens to its entries', () async {
+    final sv = jsonDecode(File('docs/vectors/share.json').readAsStringSync())
+        as Map<String, dynamic>;
+    final bundle = ShareBundle(crypto.sodium);
+    final dir = Directory.systemTemp.createTempSync('share_vec');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    for (final c in (sv['cases'] as List).cast<Map<String, dynamic>>()) {
+      final name = c['name'] as String;
+      final out = Directory('${dir.path}/$name')..createSync();
+      final file = File('${dir.path}/$name.bin')
+        ..writeAsBytesSync(hex(c['bundle_hex'] as String));
+      final entries = (c['entries'] as List).cast<Map<String, dynamic>>();
+      expect(
+        await bundle.extract(file, sv['passphrase'] as String, out),
+        [for (final e in entries) e['name']],
+        reason: name,
+      );
+      for (final e in entries) {
+        expect(
+          File('${out.path}/${e['name']}').readAsBytesSync(),
+          hex(e['content_hex'] as String),
+          reason: name,
+        );
+      }
     }
   });
 

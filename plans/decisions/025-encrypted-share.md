@@ -77,3 +77,5 @@ Risks: entry names and sizes inside the stream are hidden but the total size is 
 strength is the only protection against guessing; iPhone recipients need the app or the Go tool.
 
 Owner answer 2026-11-16: the proposed `SHSB` layout is approved. Slice 1 is the format document `docs/share-bundle.md`; vectors are produced by the first Dart writer in slice 2 and then frozen, because libsodium chooses the secretstream header at random.
+
+Slice 2 done 2026-11-16: `lib/crypto/share_bundle.dart` writes and extracts bundles per the spec; it rejects a wrong passphrase, any changed byte, truncation at any length (including on a chunk boundary), trailing data, unsafe or duplicate names, out-of-range cost or chunk size and totals above the cap, and deletes partial output. Vectors are frozen in `docs/vectors/share.json` and guarded by `test/vectors_freeze_test.dart`. The Go reader is slice 3.
