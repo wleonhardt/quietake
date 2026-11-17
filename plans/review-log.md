@@ -4,7 +4,7 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
-- 2026-11-17 review of `withoutMetadata` (JPEG share copies): bytes after the first end of image marker, such as a motion photo video or a second picture with its own EXIF, were passed through untouched, so a shared copy could still carry metadata. They are now cut (red and green test in `exif_strip_test.dart`, decision 019 updated); host suite 866 passed, analyzer clean. Android `sharing_test.dart` (7) and `viewer_test.dart` (6) pass with it.
+- 2026-11-17 review of `withoutMetadata` (JPEG share copies): bytes after the first end of image marker, such as a motion photo video or a second picture with its own EXIF, were passed through untouched, so a shared copy could still carry metadata. They are now cut (red and green test in `exif_strip_test.dart`, decision 019 updated); host suite 866 passed, analyzer clean. Android `sharing_test.dart` (7) and `viewer_test.dart` (6) and iOS `sharing_test.dart` (7) pass with it.
 
 - 2026-11-17 review of `ShareBundle.extract` (untrusted input): the reader capped total bytes but not entry count, so a bundle of millions of empty uniquely named entries (the sender must give the passphrase) could fill private storage with files. The Dart reader now rejects more than 100 entries (`ShareBundle.maxEntries`), with tests at the limit and one over, and `docs/share-bundle.md` says so. The Go reader now enforces the same limit (`ShareMaxEntries`, parser test at the limit and one over; `gofmt`, `go vet`, `go test` pass). Host suite 865 passed, analyzer clean, `check_interop` passes.
 
