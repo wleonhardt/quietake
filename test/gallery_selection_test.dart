@@ -484,6 +484,46 @@ void main() {
       );
     });
 
+    testWidgets(
+      'a second share that arrives while Import is open is found after it closes',
+      (tester) async {
+        var waiting = true;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(importChannel, (call) async {
+              calls.add(call.method);
+              if (call.method == 'incomingShare') {
+                final now = waiting;
+                waiting = false;
+                return now;
+              }
+              return <Object?>[];
+            });
+        await open(tester);
+        await until(
+          tester,
+          () => find.byType(ImportScreen).evaluate().isNotEmpty,
+        );
+        await tester.pump(const Duration(seconds: 1)); // finish the push
+        waiting = true; // a new share lands while Import is showing
+        final before = calls.where((c) => c == 'incomingShare').length;
+        Navigator.of(tester.element(find.byType(ImportScreen))).pop();
+        for (var i = 0; i < 40; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 10)),
+          );
+        }
+        expect(
+          calls.where((c) => c == 'incomingShare').length,
+          greaterThan(before),
+        );
+        await until(
+          tester,
+          () => find.byType(ImportScreen).evaluate().isNotEmpty,
+        );
+      },
+    );
+
     testWidgets('is neither asked for nor opened while the app is locked', (
       tester,
     ) async {

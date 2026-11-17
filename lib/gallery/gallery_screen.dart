@@ -104,6 +104,7 @@ class _GalleryScreenState extends State<GalleryScreen>
   }
 
   var _incomingChecking = false;
+  var _incomingRecheck = false;
 
   /// Tickers are off while the app is locked, so a share another app opened
   /// waits until unlock and is never taken or shown behind the lock screen.
@@ -119,7 +120,12 @@ class _GalleryScreenState extends State<GalleryScreen>
   }
 
   Future<void> _checkIncomingShare() async {
-    if (_incomingChecking || !TickerMode.valuesOf(context).enabled) return;
+    if (!TickerMode.valuesOf(context).enabled) return;
+    if (_incomingChecking) {
+      // Focus came back while the Import screen was closing: look once more.
+      _incomingRecheck = true;
+      return;
+    }
     _incomingChecking = true;
     try {
       final waiting =
@@ -131,6 +137,10 @@ class _GalleryScreenState extends State<GalleryScreen>
       // No platform support, or nothing arrived: nothing to open.
     } finally {
       _incomingChecking = false;
+    }
+    if (_incomingRecheck && mounted) {
+      _incomingRecheck = false;
+      await _checkIncomingShare();
     }
   }
 

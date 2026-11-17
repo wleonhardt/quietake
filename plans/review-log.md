@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 review of `GalleryScreen._checkIncomingShare`: a share that arrived while the Import screen was open was missed, because the gallery regained focus before the first check had cleared its guard, so it waited for the next app resume. A recheck flag now looks once more after the guard clears. Red and green host test in `gallery_selection_test.dart`; host suite 862 passed, analyzer clean. Not run on a device.
+
 - 2026-11-17 review of iOS `IncomingShare`: same single-flag race as Android, and copies ran on the concurrent global queue so two opens could write the same `incoming.part`. It now uses a counter and a serial queue, and answers by whether the file exists. The iOS import device test passes (5 of 5); two quick opens were not run on a device.
 
 - 2026-11-17 review of `IncomingShare.kt`: the single `copying` flag let the first of two quick opens report ready while the second copy was still queued; it is now a counter and waiting callers are answered only when none are running. It compiles and the Android import device test still passes (5 of 5), but the two-quick-opens case itself was not run on a device.
