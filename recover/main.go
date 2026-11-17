@@ -82,12 +82,17 @@ func main() {
 			fail(err)
 		}
 	}
+	mapped := catalogOutputNames(src, names, master)
 	okN, badN := 0, 0
 	for _, name := range names {
-		if recoveryOutputName(name) == "" {
+		output := recoveryOutputName(name)
+		if output == "" {
 			continue
 		}
-		if err := one(src, name, master, *out, *check); err != nil {
+		if m, ok := mapped[name]; ok {
+			output = m
+		}
+		if err := oneAs(src, name, output, master, *out, *check); err != nil {
 			badN++
 			fmt.Fprintf(os.Stderr, "FAIL %q: %q\n", name, err.Error())
 			continue
@@ -119,6 +124,10 @@ func one(src source, name string, master *[32]byte, out string, check bool) erro
 	if output == "" {
 		return errors.New("unsupported recovery filename")
 	}
+	return oneAs(src, name, output, master, out, check)
+}
+
+func oneAs(src source, name, output string, master *[32]byte, out string, check bool) error {
 	r, err := src.open(name)
 	if err != nil {
 		return err

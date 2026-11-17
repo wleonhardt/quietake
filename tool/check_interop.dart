@@ -104,6 +104,46 @@ Future<void> main() async {
         throw StateError('Recovery length differs: ${entry.key}');
       }
     }
+    final namedFolder = await Directory('${root.path}/random-names').create();
+    final namedOutput = await Directory('${root.path}/random-restored')
+        .create();
+    const randomRemote = '3f9c0a7e5b1d44c2a86e0d1f7b92c4aa.shtr';
+    final namedPlain = Uint8List.fromList(List.generate(300, (i) => i % 251));
+    final namedMedia = File('${namedFolder.path}/$randomRemote').openWrite();
+    try {
+      await namedMedia.addStream(crypto.encrypt(Stream.value(namedPlain), key));
+    } finally {
+      await namedMedia.close();
+    }
+    final namedManifest = utf8.encode(
+      '{"version":1,"albums":{},"items":{},'
+      '"remoteNames":{"2026-10-26T12-30-00.000Z.jpg.shtr":"$randomRemote"}}',
+    );
+    final namedCatalog = File('${namedFolder.path}/quietake.catalog')
+        .openWrite();
+    try {
+      await namedCatalog.addStream(
+        crypto.encrypt(Stream.value(namedManifest), key),
+      );
+    } finally {
+      await namedCatalog.close();
+    }
+    final namedRecovery = await Process.run(binary, [
+      '-key',
+      base64Encode(publicKey),
+      '-dir',
+      namedFolder.path,
+      '-out',
+      namedOutput.path,
+    ]);
+    final namedFile = File('${namedOutput.path}/2026-10-26T12-30-00.000Z.jpg');
+    if (namedRecovery.exitCode != 0 ||
+        await namedOutput.list().length != 2 ||
+        !await namedFile.exists() ||
+        base64Encode(await namedFile.readAsBytes()) !=
+            base64Encode(namedPlain)) {
+      throw StateError('Randomly named container recovery differs');
+    }
     final emptyFolder = await Directory('${root.path}/empty-catalog').create();
     final emptyOutput = await Directory('${root.path}/empty-restored').create();
     final emptyManifest = utf8.encode('{"version":1,"albums":{},"items":{}}');
@@ -133,7 +173,7 @@ Future<void> main() async {
       throw StateError('Empty ownership catalog recovery differs');
     }
     stdout.writeln(
-      'Verified ${cases.length} Dart-to-Go v1 media containers and two encrypted catalog cases, all final-block remainders, 64 B / 256 KiB / 1 MiB chunks.',
+      'Verified ${cases.length} Dart-to-Go v1 media containers and two encrypted catalog cases, a randomly named container restored under its capture name, all final-block remainders, 64 B / 256 KiB / 1 MiB chunks.',
     );
     final recoveryBox = await Process.run('flutter', [
       'test',

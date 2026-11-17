@@ -45,7 +45,11 @@ writing output. See [the envelope contract](../docs/nas-recovery.md).
 
 Output names are the container names minus `.shtr`, so `2026-10-17T13-09-35.687974Z.jpg.shtr`
 becomes `2026-10-17T13-09-35.687974Z.jpg`. Files are written to `.part` first and renamed when the
-FINAL chunk verified. A wrong key, a flipped byte, a swapped chunk or a missing FINAL chunk fails
+FINAL chunk verified. If the folder holds a readable `quietake.catalog` with the optional
+`remoteNames` object (random NAS names, decision 026), each randomly named container is written
+under its capture name instead. A mapping is ignored, and the generic name kept, when its file is
+not listed, its name is not a plain `.shtr` name, two captures claim one file, or the output name
+would collide with another output. A wrong key, a flipped byte, a swapped chunk or a missing FINAL chunk fails
 that file and the exit code is 1.
 
 `go test ./...` checks the implementation against the frozen public synthetic fixtures in

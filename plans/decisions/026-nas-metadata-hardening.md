@@ -92,3 +92,12 @@ Not done: slice 4 (Go recovery reads the mapping) must land before the flag is w
 controller; a lost mapping makes the next sync adopt randomly named files as new captures
 (duplicates, no data loss), so rebuild by matching ciphertext is still open; the 1 MiB catalog
 limit is unchanged; rename of existing remote files (slice 5).
+
+## Slice 4 done: recovery restores capture names
+
+`recover/names.go` decrypts `quietake.catalog` in memory (2 MiB cap), reads `remoteNames`, and writes
+randomly named containers under their capture names. Unreadable catalogs, unlisted files, duplicate
+claims, non-`.shtr` or path-like local names and output collisions all keep the generic name and never
+fail the run. Tests: `recover/names_test.go` (table) and a new Dart-to-Go case in
+`tool/check_interop.dart`; Go checks and interop pass. Next: wire `useRandomNames` into
+`SyncController` (default decision needed: on for new uploads only), then the lost-mapping rebuild.
