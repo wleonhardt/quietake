@@ -62,7 +62,7 @@ Ciphertext length of the body = ⌊n / chunkSize⌋ × (chunkSize + 17) + (n mod
 
 Readers accept `chunkSize` from 1 to 1 MiB, Argon2id operations from 1 to 3 and memory from 8 KiB to
 256 MiB, and reject anything else without clamping. A reader must cap the sum of entry lengths it
-will extract (the app uses the share limits in `lib/share`), because `contentLength` is untrusted
+will extract (the app caps extraction at 512 MiB by default, `ShareBundle.defaultMaxTotal`), because `contentLength` is untrusted
 until the entry has been authenticated through its chunks.
 
 ## What a recipient or the network learns
