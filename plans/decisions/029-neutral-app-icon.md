@@ -44,3 +44,14 @@ not copy another app or brand. Label: "Tools" (owner may change it). Slices, eac
 Risk to check in slice 1: the launcher intent on `.MainActivity` must stay valid when the alias is the
 enabled entry (share targets, notification taps and the Quick Settings tile all target the activity or
 service, not the launcher entry, so they are expected to keep working).
+
+## Slice 1 done (Android alias, no behavior change)
+
+Added the disabled `.NeutralAlias` activity alias, a vector icon (`mipmap/ic_neutral.xml` for all API
+levels and an adaptive version in `mipmap-anydpi-v26` with a themed monochrome layer), the colour
+`neutral_background` and the label "Tools" (de "Werkzeuge", es "Herramientas", fr "Outils"). Checked on
+the Android emulator with a debug build of the dev ID: it installs, `query-activities` lists exactly one
+launcher entry (`MainActivity`), the alias is registered and disabled, and the app launches. Not
+checked: how the plain icon looks on a launcher (needs the alias enabled). The shell cannot change
+component state (`SecurityException`), so slice 2 must be verified by an in-app call, for example a device
+test that switches and reads the state with `PackageManager`.

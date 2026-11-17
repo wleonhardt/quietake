@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="quietake_background">#121923</color>
+    <color name="neutral_background">#6B7480</color>
 </resources>

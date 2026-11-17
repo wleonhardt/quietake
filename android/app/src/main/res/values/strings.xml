@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lock_tile_label">Lock Quietake</string>
+    <string name="neutral_app_label">Tools</string>
 </resources>

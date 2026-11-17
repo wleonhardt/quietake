@@ -43,6 +43,19 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Optional plain launcher entry, disabled until Settings enables it; see decision 029. -->
+        <activity-alias
+            android:name=".NeutralAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_neutral"
+            android:label="@string/neutral_app_label"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
         <!-- Quick Settings tile that locks the running app; see decision 023. -->
         <service
             android:name=".LockTileService"
