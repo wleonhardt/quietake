@@ -18,7 +18,9 @@ valid recovery key. It can be retried until the owner closes it.
   vault is already unlocked and the check reveals no secret.
 - The typed text lives only in a dialog-owned controller. It is never stored, logged or
   sent anywhere. The parsed key is disposed right after the comparison, and the field
-  is cleared when the dialog closes.
+  is cleared when the dialog closes and when the app pauses (the content stays alive
+  behind the lock screen, so a typed key would otherwise survive it; the Change passcode
+  screen and the Show recovery key prompt now do the same).
 - The check reports nothing about how close a wrong key is.
 - Activity in the field resets the idle-lock timer like the other secret fields.
 - Not built: a reminder every few months, and a saved "last checked" date. Both need
