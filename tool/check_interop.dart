@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:sodium/sodium_sumo.dart';
 
+import 'package:quietake/crypto/pending_crypto.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 
 /// Temporary synthetic data only. Never rewrites the frozen format vectors.
@@ -46,6 +47,26 @@ Future<void> main() async {
           await sink.close();
         }
       }
+    }
+    // Captures sealed while locked and published with the master key must
+    // read as ordinary v1 containers (decision 028).
+    final pending = PendingCrypto(sodium);
+    final pair = pending.generateKeyPair();
+    for (final size in [0, 1, VaultCrypto.defaultChunkSize, 300000]) {
+      final name = 'pending-size-$size.bin';
+      cases[name] = size;
+      final plain = await File(
+        '${root.path}/input',
+      ).writeAsBytes(Uint8List.fromList(List.generate(size, (i) => i % 251)));
+      final sealed = File('${root.path}/$name.pending');
+      await pending.seal(plain, sealed, pair.publicKey);
+      await pending.publish(
+        sealed,
+        File('${containers.path}/$name.shtr'),
+        pair.publicKey,
+        pair.secretKey,
+        key,
+      );
     }
     final manifest = utf8.encode(
       '{"version":1,"albums":{"synthetic":"Private tag","action":"Running"},'
@@ -173,7 +194,7 @@ Future<void> main() async {
       throw StateError('Empty ownership catalog recovery differs');
     }
     stdout.writeln(
-      'Verified ${cases.length} Dart-to-Go v1 media containers and two encrypted catalog cases, a randomly named container restored under its capture name, all final-block remainders, 64 B / 256 KiB / 1 MiB chunks.',
+      'Verified ${cases.length} Dart-to-Go v1 media containers (including captures sealed while locked and published) and two encrypted catalog cases, a randomly named container restored under its capture name, all final-block remainders, 64 B / 256 KiB / 1 MiB chunks.',
     );
     final recoveryBox = await Process.run('flutter', [
       'test',
