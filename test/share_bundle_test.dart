@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -105,6 +106,33 @@ void main() {
     );
     expect(dest.listSync(), isEmpty);
   });
+
+  test(
+    'random damage only raises ShareBundleException and leaves no files',
+    () async {
+      await write([entry('a.jpg', data(300, 1)), entry('b.jpg', data(5, 2))]);
+      final good = out.readAsBytesSync();
+      final random = Random(20261117);
+      for (var run = 0; run < 200; run++) {
+        final bad = Uint8List.fromList(good);
+        for (var i = random.nextInt(3); i >= 0; i--) {
+          var at = random.nextInt(bad.length);
+          // Offset 5 is the reserved byte and offset 17 the low byte of the
+          // memory cost, which Argon2 rounds down to whole KiB; neither changes
+          // the derived key or the content.
+          if (at == 5 || at == 17) at = 6;
+          bad[at] ^= 1 + random.nextInt(255);
+        }
+        out.writeAsBytesSync(bad);
+        await expectLater(
+          open(),
+          throwsA(isA<ShareBundleException>()),
+          reason: 'run $run',
+        );
+        expect(dest.listSync(), isEmpty, reason: 'run $run');
+      }
+    },
+  );
 
   test('a changed byte anywhere fails and leaves no files', () async {
     await write([entry('a.jpg', data(300, 1)), entry('b.jpg', data(5, 2))]);
