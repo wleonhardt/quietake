@@ -203,6 +203,7 @@ final class FolderImportPicker: NSObject, UIDocumentPickerDelegate {
       guard let children = try? manager.contentsOfDirectory(
         at: directory, includingPropertiesForKeys: keys, options: [.skipsHiddenFiles]) else { return false }
       for child in children.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+        if entries.count > 10001 { return true }
         let values = try? child.resourceValues(forKeys: Set(keys))
         if values?.isSymbolicLink == true { continue }
         let relative = prefix + child.lastPathComponent
