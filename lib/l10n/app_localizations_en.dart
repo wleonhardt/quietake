@@ -1746,6 +1746,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recoveryCheckClose => 'Close';
 
   @override
+  String get recoveryCheckNever => 'Never checked.';
+
+  @override
+  String recoveryCheckLast(String date) {
+    return 'Last matched $date.';
+  }
+
+  @override
+  String recoveryCheckDue(String date) {
+    return 'Last matched $date. Check again every few months.';
+  }
+
+  @override
   String get recoveryCheckMatch => 'This matches your vault\'s recovery key.';
 
   @override

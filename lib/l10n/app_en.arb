@@ -938,6 +938,23 @@
   "recoveryCheckIntro": "Type the recovery key you saved elsewhere. It is compared on this phone and never stored.",
   "recoveryCheckAction": "Check",
   "recoveryCheckClose": "Close",
+  "recoveryCheckNever": "Never checked.",
+  "recoveryCheckLast": "Last matched {date}.",
+  "@recoveryCheckLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryCheckDue": "Last matched {date}. Check again every few months.",
+  "@recoveryCheckDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "recoveryCheckMatch": "This matches your vault's recovery key.",
   "recoveryCheckMismatch": "This key does not match this vault. Check where you saved it, then try again.",
   "recoveryCheckInvalid": "This is not a valid recovery key. Check for missing or extra characters.",

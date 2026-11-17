@@ -271,6 +271,53 @@ void main() {
     },
   );
 
+  testWidgets('the recovery key check remembers when the key last matched', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.ensureVisible(find.byKey(Keys.settingsRecoveryCheck));
+    expect(
+      tester.widget<Text>(find.byKey(Keys.recoveryCheckStatus)).data,
+      contains('Never checked'),
+    );
+    final saved = session.store.exportRecovery(session.vault.masterKeyForTests);
+    await openRecoveryCheck(tester);
+    await checkRecovery(tester, 'not a key');
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.byKey(Keys.recoveryCheckStatus)).data,
+      contains('Never checked'),
+    );
+    await openRecoveryCheck(tester);
+    await checkRecovery(tester, saved);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    final status = tester
+        .widget<Text>(find.byKey(Keys.recoveryCheckStatus))
+        .data!;
+    expect(status, contains('Last matched'));
+    expect(status, isNot(contains('again')));
+    expect(await session.store.loadRecoveryChecked(), isNotNull);
+  });
+
+  testWidgets('an old recovery key check asks for another one', (tester) async {
+    await open(tester);
+    final old = DateTime.now().subtract(const Duration(days: 120));
+    FlutterSecureStorage.setMockInitialValues({
+      'quietake.recovery_checked': old.toUtc().toIso8601String(),
+    });
+    await tester.ensureVisible(find.byKey(Keys.settingsRecoveryCheck));
+    await openRecoveryCheck(tester);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+    final status = tester
+        .widget<Text>(find.byKey(Keys.recoveryCheckStatus))
+        .data!;
+    expect(status, contains('Last matched'));
+    expect(status, contains('Check again'));
+  });
+
   testWidgets('the recovery key check clears the typed key when closed', (
     tester,
   ) async {

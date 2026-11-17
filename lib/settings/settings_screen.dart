@@ -73,6 +73,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     TrashSetting.load().then((keep) {
       if (mounted) setState(() => _keepDeleted = keep);
     });
+    _loadRecoveryChecked();
+  }
+
+  DateTime? _recoveryChecked;
+  static const _recoveryCheckDue = Duration(days: 90);
+
+  Future<void> _loadRecoveryChecked() async {
+    DateTime? at;
+    try {
+      at = await widget.session.store.loadRecoveryChecked();
+    } catch (_) {
+      // The reminder is optional; unreadable storage shows "never checked".
+    }
+    if (mounted) setState(() => _recoveryChecked = at);
+  }
+
+  String _recoveryCheckStatus(AppLocalizations l10n) {
+    final at = _recoveryChecked;
+    if (at == null) return l10n.recoveryCheckNever;
+    final date = DateFormat.yMMMd(l10n.localeName).format(at.toLocal());
+    return DateTime.now().difference(at) > _recoveryCheckDue
+        ? l10n.recoveryCheckDue(date)
+        : l10n.recoveryCheckLast(date);
   }
 
   Future<void> _loadBackgroundStatus() async {
@@ -635,7 +658,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   session: widget.session,
                   onActivity: () => PrivacyScope.maybeOf(context)?.activity(),
                 ),
-              ),
+              ).then((_) => _loadRecoveryChecked()),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _recoveryCheckStatus(l10n),
+              key: Keys.recoveryCheckStatus,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
             ListTile(
@@ -855,6 +884,11 @@ class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog>
       _result = match
           ? (l10n) => l10n.recoveryCheckMatch
           : (l10n) => l10n.recoveryCheckMismatch;
+      if (match) {
+        unawaited(
+          widget.session.store.saveRecoveryChecked().catchError((_) {}),
+        );
+      }
     } on BadRecoveryKeyException {
       _result = (l10n) => l10n.recoveryCheckInvalid;
     } finally {

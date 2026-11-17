@@ -23,6 +23,9 @@ valid recovery key. It can be retried until the owner closes it.
   screen and the Show recovery key prompt now do the same).
 - The check reports nothing about how close a wrong key is.
 - Activity in the field resets the idle-lock timer like the other secret fields.
-- Not built: a reminder every few months, and a saved "last checked" date. Both need
-  a storage decision and wording the owner should review.
 - Messages are localized in Spanish, French and German like the rest of the app.
+
+## Last-matched date and reminder (added 2026-11-17)
+
+When a typed key matches, `MasterKeyStore.saveRecoveryChecked` saves only the date in the platform keystore (`quietake.recovery_checked`). Never the key, never what was typed. Settings shows a line under the button: "Never checked.", "Last matched <date>." or, after 90 days, "Last matched <date>. Check again every few months." It is a reminder line only: no notification, no changed behavior, and the 90 days are not configurable. A failed read shows "Never checked."; a failed write is ignored. The date is per phone and per keystore, not tied to one vault, so restoring a different vault on the same phone can show a stale date until the next check. Tests in `test/settings_access_test.dart` (never, mismatch does not count, match saves, old date asks again). Wording in en, es, fr, de is a draft for owner approval.
+

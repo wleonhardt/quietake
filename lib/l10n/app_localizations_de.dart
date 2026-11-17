@@ -1786,6 +1786,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get recoveryCheckClose => 'Schließen';
 
   @override
+  String get recoveryCheckNever => 'Noch nie geprüft.';
+
+  @override
+  String recoveryCheckLast(String date) {
+    return 'Zuletzt übereinstimmend: $date.';
+  }
+
+  @override
+  String recoveryCheckDue(String date) {
+    return 'Zuletzt übereinstimmend: $date. Prüfe den Schlüssel alle paar Monate erneut.';
+  }
+
+  @override
   String get recoveryCheckMatch =>
       'Er stimmt mit dem Wiederherstellungsschlüssel Ihres Tresors überein.';
 

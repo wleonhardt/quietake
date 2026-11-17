@@ -1782,6 +1782,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get recoveryCheckClose => 'Cerrar';
 
   @override
+  String get recoveryCheckNever => 'Nunca comprobada.';
+
+  @override
+  String recoveryCheckLast(String date) {
+    return 'Última coincidencia: $date.';
+  }
+
+  @override
+  String recoveryCheckDue(String date) {
+    return 'Última coincidencia: $date. Vuelve a comprobarla cada pocos meses.';
+  }
+
+  @override
   String get recoveryCheckMatch =>
       'Coincide con la clave de recuperación de tu bóveda.';
 

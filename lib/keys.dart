@@ -229,6 +229,7 @@ abstract final class Keys {
   static const recoveryCheckField = Key('recovery.checkField');
   static const recoveryCheckOk = Key('recovery.checkOk');
   static const recoveryCheckResult = Key('recovery.checkResult');
+  static const recoveryCheckStatus = Key('recovery.checkStatus');
 
   static const setupPasscode = Key('setup.passcode');
   static const setupConfirm = Key('setup.confirm');

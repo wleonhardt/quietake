@@ -2958,6 +2958,24 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get recoveryCheckClose;
 
+  /// No description provided for @recoveryCheckNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never checked.'**
+  String get recoveryCheckNever;
+
+  /// No description provided for @recoveryCheckLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last matched {date}.'**
+  String recoveryCheckLast(String date);
+
+  /// No description provided for @recoveryCheckDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Last matched {date}. Check again every few months.'**
+  String recoveryCheckDue(String date);
+
   /// No description provided for @recoveryCheckMatch.
   ///
   /// In en, this message translates to:

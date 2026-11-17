@@ -77,6 +77,19 @@ class MasterKeyStore {
   static const _longestLock = Duration(minutes: 15);
 
   static const cacheName = 'quietake.master_key';
+  static const _recoveryCheckedName = 'quietake.recovery_checked';
+
+  /// Remembers that a typed recovery key matched this vault, for a reminder.
+  /// Only the date is kept, never the key or what was typed.
+  Future<void> saveRecoveryChecked() => _storage.write(
+    key: _recoveryCheckedName,
+    value: _clock().toUtc().toIso8601String(),
+  );
+
+  Future<DateTime?> loadRecoveryChecked() async {
+    final saved = await _storage.read(key: _recoveryCheckedName);
+    return saved == null ? null : DateTime.tryParse(saved);
+  }
 
   /// Minimum for new passcodes (decision 038); existing keyfiles keep unlocking.
   static const minPasscodeLength = 6;

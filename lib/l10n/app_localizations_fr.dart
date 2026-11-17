@@ -1784,6 +1784,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recoveryCheckClose => 'Fermer';
 
   @override
+  String get recoveryCheckNever => 'Jamais vérifiée.';
+
+  @override
+  String recoveryCheckLast(String date) {
+    return 'Dernière concordance : $date.';
+  }
+
+  @override
+  String recoveryCheckDue(String date) {
+    return 'Dernière concordance : $date. Vérifiez de nouveau tous les quelques mois.';
+  }
+
+  @override
   String get recoveryCheckMatch =>
       'Elle correspond à la clé de récupération de votre coffre.';
 
