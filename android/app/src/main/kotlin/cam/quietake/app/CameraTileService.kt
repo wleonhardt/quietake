@@ -14,6 +14,7 @@ import android.service.quicksettings.TileService
 class CameraTileService : TileService() {
     override fun onStartListening() {
         qsTile?.let {
+            it.label = TileLabel.pick(this, R.string.camera_tile_label, R.string.neutral_camera_tile_label)
             it.state = Tile.STATE_INACTIVE
             it.updateTile()
         }

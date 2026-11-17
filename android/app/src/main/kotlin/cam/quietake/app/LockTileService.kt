@@ -16,6 +16,7 @@ object LockBridge {
 class LockTileService : TileService() {
     override fun onStartListening() {
         qsTile?.let {
+            it.label = TileLabel.pick(this, R.string.lock_tile_label, R.string.neutral_lock_tile_label)
             it.state = Tile.STATE_INACTIVE
             it.updateTile()
         }

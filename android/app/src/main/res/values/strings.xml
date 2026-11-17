@@ -3,4 +3,6 @@
     <string name="lock_tile_label">Lock Quietake</string>
     <string name="neutral_app_label">Tools</string>
     <string name="camera_tile_label">Quietake camera</string>
+    <string name="neutral_lock_tile_label">Lock</string>
+    <string name="neutral_camera_tile_label">Camera</string>
 </resources>

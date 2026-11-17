@@ -3,4 +3,6 @@
     <string name="lock_tile_label">Quietake sperren</string>
     <string name="neutral_app_label">Werkzeuge</string>
     <string name="camera_tile_label">Quietake-Kamera</string>
+    <string name="neutral_lock_tile_label">Sperren</string>
+    <string name="neutral_camera_tile_label">Kamera</string>
 </resources>

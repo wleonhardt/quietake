@@ -65,3 +65,7 @@ Owner answer 2026-11-16: build the OS-level entry on both platforms (Android loc
 Manifest review 2026-11-17: `allowBackup` and `fullBackupContent` are off; both tile services require `BIND_QUICK_SETTINGS_TILE`, so only the system can bind them; `MainActivity` is exported only for launching. An outside app can send it the `LOCKED_CAMERA` action, which locks the app first and shows only the sealed-photo camera, so the worst effect is an unwanted lock and camera screen, never access to the vault.
 
 iOS `Info.plist` review 2026-11-17: App Transport Security allows only local networking, no file sharing or document-open keys, no URL schemes and no background modes are declared, and the usage descriptions match what the app does. No entitlements file exists. No change needed.
+
+## Tile label and plain icon (2026-11-17)
+
+The owner chose that the Android tile labels follow the plain icon. `LockTileService` and `CameraTileService` set their label in `onStartListening` through `TileLabel`: "Lock" and "Camera" (translated) while the plain launcher entry is enabled, otherwise "Lock Quietake" and "Quietake camera". The tile picker and system tile editor read the manifest label, which stays "Quietake" because an app cannot change it at run time. Not verified on a device.
