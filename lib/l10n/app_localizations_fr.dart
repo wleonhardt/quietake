@@ -105,6 +105,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get lockForgot => 'Code d\'accès oublié ?';
 
   @override
+  String get lockCamera => 'Appareil photo';
+
+  @override
+  String get lockedCameraSaved =>
+      'Photo scellée. Elle apparaît dans votre bibliothèque après le déverrouillage.';
+
+  @override
+  String get lockedCameraFailed => 'Impossible d\'enregistrer la photo.';
+
+  @override
+  String get lockedCameraClose => 'Fermer l\'appareil photo';
+
+  @override
   String get recoveryKeyLabel => 'Clé de récupération';
 
   @override

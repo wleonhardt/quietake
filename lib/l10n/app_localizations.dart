@@ -240,6 +240,30 @@ abstract class AppLocalizations {
   /// **'Forgot passcode?'**
   String get lockForgot;
 
+  /// No description provided for @lockCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get lockCamera;
+
+  /// No description provided for @lockedCameraSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo sealed. It appears in your library after you unlock.'**
+  String get lockedCameraSaved;
+
+  /// No description provided for @lockedCameraFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the photo.'**
+  String get lockedCameraFailed;
+
+  /// No description provided for @lockedCameraClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close camera'**
+  String get lockedCameraClose;
+
   /// No description provided for @recoveryKeyLabel.
   ///
   /// In en, this message translates to:

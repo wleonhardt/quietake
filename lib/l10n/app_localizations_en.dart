@@ -103,6 +103,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockForgot => 'Forgot passcode?';
 
   @override
+  String get lockCamera => 'Camera';
+
+  @override
+  String get lockedCameraSaved =>
+      'Photo sealed. It appears in your library after you unlock.';
+
+  @override
+  String get lockedCameraFailed => 'Could not save the photo.';
+
+  @override
+  String get lockedCameraClose => 'Close camera';
+
+  @override
   String get recoveryKeyLabel => 'Recovery key';
 
   @override

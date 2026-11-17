@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -6,7 +9,12 @@ import '../keys.dart';
 import '../l10n/l10n.dart';
 import '../form_body.dart';
 import '../brand.dart';
+import '../camera/locked_camera_screen.dart';
+import '../camera/locked_capture_store.dart';
+import '../crypto/pending_crypto.dart';
 import '../vault/master_key_store.dart';
+import '../vault/pending_key_store.dart';
+import '../vault/vault.dart';
 import 'setup_screen.dart';
 
 /// Passcode or biometric unlock. Produces the master key; the caller decides
@@ -20,6 +28,7 @@ class LockScreen extends StatefulWidget {
     this.autoPrompt = true,
     this.acceptsRecoveryKey,
     this.message,
+    this.vaultDir = Vault.defaultDir,
   });
 
   /// Shown until the next attempt, e.g. why the previous unlock did not open.
@@ -27,6 +36,9 @@ class LockScreen extends StatefulWidget {
   final bool autoPrompt;
   final bool Function(SecureKey)? acceptsRecoveryKey;
   final MasterKeyStore store;
+
+  /// Where sealed captures wait while locked; replaced in tests.
+  final Future<Directory> Function() vaultDir;
   final Authenticator auth;
   final void Function(SecureKey key) onUnlocked;
 
@@ -41,6 +53,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   bool _prompting = false;
   bool _resumePrompt = false;
   int _attempt = 0;
+  Uint8List? _publicKey;
   String Function(AppLocalizations)? _error;
 
   static String Function(AppLocalizations)? _text(String? message) =>
@@ -52,6 +65,36 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     _error = _text(widget.message);
     WidgetsBinding.instance.addObserver(this);
     _probe();
+    _loadPublicKey();
+  }
+
+  /// The locked camera needs the vault public key; a vault that has none yet
+  /// (never unlocked since this feature) offers no camera.
+  Future<void> _loadPublicKey() async {
+    final key = await PendingKeyStore(
+      widget.store.sodium,
+      widget.store.dir,
+    ).publicKey();
+    if (mounted && key != null) setState(() => _publicKey = key);
+  }
+
+  Future<void> _openCamera() async {
+    final key = _publicKey;
+    if (key == null) return;
+    try {
+      final dir = await widget.vaultDir();
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => LockedCameraScreen(
+            store: LockedCaptureStore(PendingCrypto(widget.store.sodium), dir),
+            publicKey: key,
+          ),
+        ),
+      );
+    } catch (_) {
+      if (mounted) setState(() => _error = (l) => l.camUnavailable);
+    }
   }
 
   @override
@@ -234,6 +277,13 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
               icon: const Icon(Icons.fingerprint),
               label: Text(l10n.lockUseBiometrics),
               onPressed: _busy || _prompting ? null : _useBiometric,
+            ),
+          if (_publicKey != null)
+            TextButton.icon(
+              key: Keys.lockCamera,
+              icon: const Icon(Icons.photo_camera_outlined),
+              label: Text(l10n.lockCamera),
+              onPressed: _busy || _prompting ? null : _openCamera,
             ),
           TextButton(
             key: Keys.lockRecovery,

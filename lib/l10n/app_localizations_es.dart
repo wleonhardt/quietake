@@ -104,6 +104,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get lockForgot => '¿Olvidaste tu código de acceso?';
 
   @override
+  String get lockCamera => 'Cámara';
+
+  @override
+  String get lockedCameraSaved =>
+      'Foto sellada. Aparece en tu biblioteca después de desbloquear.';
+
+  @override
+  String get lockedCameraFailed => 'No se pudo guardar la foto.';
+
+  @override
+  String get lockedCameraClose => 'Cerrar la cámara';
+
+  @override
   String get recoveryKeyLabel => 'Clave de recuperación';
 
   @override

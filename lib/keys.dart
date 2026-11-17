@@ -242,6 +242,9 @@ abstract final class Keys {
   static const lockUnlock = Key('lock.unlock');
   static const lockBiometric = Key('lock.biometric');
   static const lockError = Key('lock.error');
+  static const lockCamera = Key('lock.camera');
+  static const lockedShutter = Key('locked.shutter');
+  static const lockedStatus = Key('locked.status');
   static const galleryEmpty = Key('gallery.empty');
   static Key galleryTile(int i) => Key('gallery.tile.$i');
 
