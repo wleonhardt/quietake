@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 review of `ShareBundle.extract` (untrusted input): the reader capped total bytes but not entry count, so a bundle of millions of empty uniquely named entries (the sender must give the passphrase) could fill private storage with files. The Dart reader now rejects more than 100 entries (`ShareBundle.maxEntries`), with tests at the limit and one over, and `docs/share-bundle.md` says so. The Go reader (`recover/internal/shtr/share.go`) does not enforce it yet: next small item, with `gofmt`, `go vet`, `go test` and `check_interop`. Host suite 865 passed, analyzer clean, `check_interop` passes.
+
 - 2026-11-17 read the iOS Lock Screen control (`QuietakeControl.swift`, `LockedCameraIntent.swift`, scene observer): the intent holds no secret, a cold launch is covered because the request sets a `pending` flag the Dart lock screen reads once, and both targets compile the intent file. It assumes the intent runs in the app process (`openAppWhenRun`); that, the control tap and the signing profile are still unchecked on a real device.
 
 - 2026-11-17 read the multi-photo loop in `_ShareDialogState._redact`: an emptied photo drops its entry, backing out keeps earlier choices, and the per-photo map is keyed by capture name. A lock during the loop leaves the next editor page behind the lock screen until unlock (the content navigator stays alive offstage by design); it shows nothing while locked. No defect.

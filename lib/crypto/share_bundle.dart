@@ -40,6 +40,10 @@ class ShareBundle {
   static const minMem = 8192;
   static const maxMem = 256 << 20;
   static const maxPassphraseBytes = 1024;
+
+  /// Most entries a reader extracts. The app writes at most 10; this only stops
+  /// a crafted bundle from filling private storage with empty files.
+  static const maxEntries = 100;
   static const defaultMaxTotal = 512 << 20;
   static const _marker = 'quietake.share.v1';
   static const _saltBytes = 16;
@@ -370,6 +374,9 @@ class _EntryParser {
         ShareBundle._checkName(_name);
         if (!_seen.add(_name.toLowerCase())) {
           throw const ShareBundleException('duplicate entry name');
+        }
+        if (_seen.length > ShareBundle.maxEntries) {
+          throw const ShareBundleException('too many entries');
         }
         _state = 2;
         _need = 8;

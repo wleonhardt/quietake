@@ -43,6 +43,26 @@ void main() {
       bundle.extract(out, pass, dest, maxTotal: max ?? 1 << 20);
 
   test(
+    'a bundle with more entries than allowed is rejected and cleaned up',
+    () async {
+      await write([
+        for (var i = 0; i <= ShareBundle.maxEntries; i++)
+          entry('f-$i.jpg', Uint8List(0)),
+      ]);
+      await expectLater(open(), throwsA(isA<ShareBundleException>()));
+      expect(dest.listSync(), isEmpty);
+    },
+  );
+
+  test('a bundle at the entry limit is accepted', () async {
+    await write([
+      for (var i = 0; i < ShareBundle.maxEntries; i++)
+        entry('f-$i.jpg', Uint8List(0)),
+    ]);
+    expect(await open(), hasLength(ShareBundle.maxEntries));
+  });
+
+  test(
     'round trip keeps names, order and bytes across chunk boundaries',
     () async {
       final inputs = {
