@@ -30,7 +30,11 @@ first release target; iOS development is ongoing.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
   copies keep only their orientation by default: all other EXIF fields, XMP,
   Photoshop data and comments are removed. PNG and video copies remain
-  unchanged, so this is not complete metadata anonymization.
+  unchanged, so this is not complete metadata anonymization. The share dialog
+  can instead make one encrypted `.quietake-share` bundle with a fresh six-word
+  passphrase, shown once; send the passphrase by another route. Import has
+  "Open encrypted share" and `quietake-recover -share` opens a bundle too.
+  The passphrase protects the bundle only as well as it is kept secret.
 - The lock screen has a Camera button, shown once the vault has been unlocked
   after this feature shipped. A photo taken there is sealed to a public key
   without the vault key and becomes a normal capture at the next unlock; the
