@@ -18,7 +18,11 @@ void main() {
   setUpAll(() async => sodium = await SodiumSumoInit.init());
 
   Future<({Directory dir, ControlledCamera camera, CameraPlatform previous})>
-  boot(WidgetTester tester, {required bool pair}) async {
+  boot(
+    WidgetTester tester, {
+    required bool pair,
+    ControlledCamera Function(Directory)? makeCamera,
+  }) async {
     late Directory dir;
     await tester.runAsync(() async {
       dir = await Directory.systemTemp.createTemp('locked-camera');
@@ -29,7 +33,8 @@ void main() {
         ).ensure(sodium.crypto.secretBox.keygen());
       }
     });
-    final camera = ControlledCamera(dir)..empty = false;
+    final camera = (makeCamera?.call(dir) ?? ControlledCamera(dir))
+      ..empty = false;
     final previous = CameraPlatform.instance;
     CameraPlatform.instance = camera;
     await tester.runAsync(
@@ -131,4 +136,49 @@ void main() {
       reason: 'a photo that could not be sealed must not linger as plaintext',
     );
   });
+
+  Future<void> openLockedCamera(WidgetTester tester) async {
+    await tester.runAsync(() async {
+      await tester.tap(find.byKey(Keys.lockCamera));
+      await tester.pump();
+    });
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    await tester.pump();
+  }
+
+  testWidgets('a phone without a camera says so', (tester) async {
+    final b = await boot(tester, pair: true, makeCamera: _NoCamera.new);
+    addTearDown(() => CameraPlatform.instance = b.previous);
+    await openLockedCamera(tester);
+    expect(
+      tester.widget<Text>(find.byKey(Keys.lockedStatus)).data,
+      tester.element(find.byKey(Keys.lockedStatus)).l10n.camNone,
+    );
+    expect(
+      tester.widget<IconButton>(find.byKey(Keys.lockedShutter)).onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('leaving the app closes the locked camera', (tester) async {
+    final b = await boot(tester, pair: true);
+    addTearDown(() => CameraPlatform.instance = b.previous);
+    await openLockedCamera(tester);
+    expect(find.byKey(Keys.lockedShutter), findsOneWidget);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.lockedShutter), findsNothing);
+  });
+}
+
+class _NoCamera extends ControlledCamera {
+  _NoCamera(super.directory);
+  @override
+  Future<List<CameraDescription>> availableCameras() async => const [];
 }
