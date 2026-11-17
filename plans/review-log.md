@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 memory read sweep: every whole-file read into memory in `lib/` is bounded (`Vault.readAll` stops at 32 MiB and its callers are photo paths; the import check reads files already limited by size; the restore keyfile fingerprint refuses over 64 KiB). No defect.
+
 - 2026-11-17 decode sweep: every other image decode is already bounded (`loadPreview` and the viewer scale to the screen, the import check refuses over 64 megapixels and decodes at 64 px). The two full-size decodes were the hidden-area ones, now capped at 40 megapixels, so a 64 megapixel import is shared at about 40 megapixels when areas are hidden.
 
 - 2026-11-17 review of `redactToPng`: it decoded a photo at full size, so a very large JPEG (for example 100 megapixels, still under the byte limit) needed roughly 1.7 GB of raw pixel copies and could get the app killed by the system. It now reads the header size first and scales the decode down to at most 40 megapixels (`defaultMaxRedactPixels`); smaller photos are untouched. Test with a lowered limit in `redact_test.dart`; host suite 867 passed, analyzer clean, Android `sharing_test.dart` passes (7). The hidden-area editor screen decoded the same way (one full-size picture); it now uses the same `decodeBounded`. iOS `sharing_test.dart` passes (7) too. A real 100 megapixel photo was not tried on a device. Hidden areas keep working because they are fractions of the image.
