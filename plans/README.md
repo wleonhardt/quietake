@@ -3,6 +3,7 @@
 | Path | Purpose |
 | --- | --- |
 | next-up.md | Finite public work queue and completed items |
+| review-log.md | Historical code review and coverage notes moved out of next-up.md |
 | open-questions.md | Unresolved and resolved design questions |
 | decisions/ | Accepted public architecture decisions |
 
