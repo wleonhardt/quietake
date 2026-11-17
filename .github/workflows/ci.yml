@@ -11,7 +11,8 @@ permissions:
 
 concurrency:
   group: app-checks-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push to main must not cancel the checks of an earlier main commit.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   FLUTTER_VERSION: '3.47.7'
@@ -96,7 +97,7 @@ jobs:
           flutter analyze --no-pub
           flutter test --no-pub
           python3 -m unittest discover -s tool -p '*_test.py'
-          (cd recover && test -z "$(gofmt -l .)" && go vet ./... && go test ./...)
+          (cd recover && test -z "$(gofmt -l .)" && go mod verify && go vet ./... && go test ./...)
           dart run tool/check_interop.dart
           # Pub-enabled builds regenerate the registrant without dev-only plugins.
           flutter build appbundle --release --target=lib/main.dart \

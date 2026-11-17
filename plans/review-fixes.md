@@ -87,8 +87,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R63 planned: Folder import trusts the copy target path from Dart on both platforms.
 - R64 planned: The folder walk has no cap on folders visited and drops unreadable subfolders silently.
 - R65 planned: `VideoPreparation` reads media on the main thread.
-- R66 planned: Gradle wrapper has no checksum; Dependabot does not watch Gradle.
-- R67 planned: CI: cancel-in-progress also cancels main; `ci_scope.py` runs from the pull request head; no `govulncheck` or `go mod verify`.
+- R66 complete: The Gradle wrapper now carries the distribution checksum (value read from `services.gradle.org` for 9.3.1-all; the wrapper checks it on the next fresh download, which was not forced here) and Dependabot watches `/android`.
+- R67 complete in part: CI cancels in-progress runs only for pull requests, and the Go step runs `go mod verify` (passes locally). Both files parse as YAML; no workflow linter is installed here and the hosted run is unproven. Blocked part, in `open-questions.md`: running `tool/ci_scope.py` from the base commit instead of the pull request head, and adding a pinned `govulncheck`.
 - R68 blocked: CI has no iOS build job and one emulator API level; both cost runner time, owner call.
 - R69 planned: iOS has no privacy manifest, no export-compliance key and English-only permission prompts.
 - R70 planned: `Podfile` has no platform line.

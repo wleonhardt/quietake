@@ -18,6 +18,8 @@
 
 - Decision numbers: code and tests cite decisions 027 and 036 to 040 from the private history (clipboard rule, search scope, application ID, staged MOVE, lock clears plaintext). The public records restarted at 001 and are now at 034, so public 027 already means something else and 036 onward will collide. Publish short public records for those rules and renumber the citations, or continue the public numbers from 041?
 
+- CI: the check selector `tool/ci_scope.py` runs from the pull request's own checkout, so a pull request that edits it could select the light checks for itself. Run the selector from the base commit (and force full checks when it is missing there)? Also add a pinned `govulncheck` to the Go step? Both change the hosted workflow, which cannot be proven from a local checkout.
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).
