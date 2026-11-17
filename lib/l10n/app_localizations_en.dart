@@ -836,7 +836,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importSupportedBody =>
-      'JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked.';
+      'JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked. An encrypted share (.quietake-share) opens with its passphrase; its photos and videos then import like other files.';
 
   @override
   String get importCancelling => 'Cancelling after current file…';

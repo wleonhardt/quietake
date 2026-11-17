@@ -856,7 +856,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get importSupportedBody =>
-      'JPEG, PNG o MP4 reproducible. Hasta 20 archivos y 512 MiB en total; fotos de hasta 32 MiB y 64 MP. Una carpeta importa sus archivos (no las subcarpetas), hasta 10 000, de 20 en 20; elige la misma carpeta de nuevo para reanudar. La reproducción en TV depende de los códecs. Las importaciones usan la fecha de incorporación. Las copias seleccionadas pueden terminar de cifrarse mientras Quietake está bloqueado.';
+      'JPEG, PNG o MP4 reproducible. Hasta 20 archivos y 512 MiB en total; fotos de hasta 32 MiB y 64 MP. Una carpeta importa sus archivos (no las subcarpetas), hasta 10 000, de 20 en 20; elige la misma carpeta de nuevo para reanudar. La reproducción en TV depende de los códecs. Las importaciones usan la fecha de incorporación. Las copias seleccionadas pueden terminar de cifrarse mientras Quietake está bloqueado. Una compartición cifrada (.quietake-share) se abre con su frase de contraseña; sus fotos y vídeos se importan después como otros archivos.';
 
   @override
   String get importCancelling => 'Cancelando tras el archivo actual…';

@@ -858,7 +858,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get importSupportedBody =>
-      'JPEG, PNG oder abspielbares MP4. Bis zu 20 Dateien und insgesamt 512 MiB; Fotos bis 32 MiB und 64 MP. Ein Ordner importiert seine Dateien (keine Unterordner), bis zu 10.000, jeweils 20 auf einmal; wählen Sie denselben Ordner erneut, um fortzufahren. Die Wiedergabe auf dem Fernseher hängt von den Codecs ab. Importe verwenden das Hinzufügedatum. Ausgewählte Kopien können noch verschlüsselt werden, während Quietake gesperrt ist.';
+      'JPEG, PNG oder abspielbares MP4. Bis zu 20 Dateien und insgesamt 512 MiB; Fotos bis 32 MiB und 64 MP. Ein Ordner importiert seine Dateien (keine Unterordner), bis zu 10.000, jeweils 20 auf einmal; wählen Sie denselben Ordner erneut, um fortzufahren. Die Wiedergabe auf dem Fernseher hängt von den Codecs ab. Importe verwenden das Hinzufügedatum. Ausgewählte Kopien können noch verschlüsselt werden, während Quietake gesperrt ist. Eine verschlüsselte Freigabe (.quietake-share) wird mit ihrer Passphrase geöffnet; ihre Fotos und Videos werden danach wie andere Dateien importiert.';
 
   @override
   String get importCancelling => 'Abbruch nach der aktuellen Datei…';
