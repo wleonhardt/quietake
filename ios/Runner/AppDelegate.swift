@@ -66,6 +66,28 @@ import AVFoundation
       UIApplication.shared.isIdleTimerDisabled = (call.arguments as? Bool) == true
       result(nil)
     }
+    // Optional plain launcher icon (decision 029). iOS changes the icon, not the name under it.
+    let appearance = FlutterMethodChannel(name: "quietake/appearance", binaryMessenger: registrar.messenger())
+    appearance.setMethodCallHandler { call, result in
+      switch call.method {
+      case "neutral":
+        result(UIApplication.shared.alternateIconName == "NeutralIcon")
+      case "setNeutral":
+        guard UIApplication.shared.supportsAlternateIcons else {
+          result(FlutterError(code: "unsupported", message: "Alternate icons are not available", details: nil))
+          return
+        }
+        let name: String? = (call.arguments as? Bool) == true ? "NeutralIcon" : nil
+        UIApplication.shared.setAlternateIconName(name) { error in
+          if error == nil {
+            result(nil)
+          } else {
+            result(FlutterError(code: "failed", message: "Could not change the app icon", details: nil))
+          }
+        }
+      default: result(FlutterMethodNotImplemented)
+      }
+    }
     let privacy = FlutterMethodChannel(name: "quietake/privacy", binaryMessenger: registrar.messenger())
     SceneDelegate.privacyChannel = privacy
     privacy.setMethodCallHandler { call, result in
