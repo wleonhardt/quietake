@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 read the multi-photo loop in `_ShareDialogState._redact`: an emptied photo drops its entry, backing out keeps earlier choices, and the per-photo map is keyed by capture name. A lock during the loop leaves the next editor page behind the lock screen until unlock (the content navigator stays alive offstage by design); it shows nothing while locked. No defect.
+
 - 2026-11-17 read `Session._publishLocked` and `LockedCaptureStore.publishAll`: an early lock disposes the master key, which throws a `StateError` out of the publish; the `catchError` returns 0, the derived secret key is still disposed in `finally`, and the pending files stay for the next unlock. Deleted names are dropped, and a pending copy goes only after its sealed file reads through FINAL. No defect.
 
 - 2026-11-17 read the iOS folder walk (entry IDs are relative paths, symlinks skipped, `..` and absolute IDs refused on copy), the Dart `FolderImport` ledger (keyed by entry ID, unique per tree on both platforms) and `LockTileService` with `LockBridge` (the bridge is cleared only by the activity that set it); no defect found.
