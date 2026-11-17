@@ -828,6 +828,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importChooseFolder => 'Choose folder';
 
   @override
+  String get importSubfolders => 'Include subfolders';
+
+  @override
+  String get importSubfoldersBody =>
+      'Also reads photos and videos in folders inside the chosen one.';
+
+  @override
   String get importOpenShare => 'Open encrypted share';
 
   @override

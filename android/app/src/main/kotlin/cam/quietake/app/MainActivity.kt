@@ -87,7 +87,7 @@ class MainActivity : FlutterFragmentActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/folder")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
-                    "pick" -> folderImport.pick(result)
+                    "pick" -> folderImport.pick(result, call.argument<Boolean>("subfolders") == true)
                     "copy" -> folderImport.copy(call.argument<String>("id")!!, call.argument<String>("directory")!!, result)
                     "cancel" -> { folderImport.cancel(); result.success(null) }
                     "release" -> folderImport.release(result)

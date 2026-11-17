@@ -34,6 +34,7 @@ class _ImportScreenState extends State<ImportScreen> {
   final _results = <ImportResult>[];
   var _busy = false;
   var _cancelled = false;
+  var _subfolders = false;
   var _total = 0;
   var _handled = 0;
   PickedFolder? _folder;
@@ -185,7 +186,7 @@ class _ImportScreenState extends State<ImportScreen> {
       _handled = 0;
     });
     try {
-      final folder = await PickedFolder.pick();
+      final folder = await PickedFolder.pick(subfolders: _subfolders);
       if (folder == null) return;
       _folder = folder;
       final root = await getTemporaryDirectory();
@@ -266,6 +267,16 @@ class _ImportScreenState extends State<ImportScreen> {
             onPressed: _busy ? null : _pickFolder,
             icon: const Icon(Icons.folder_open_outlined),
             label: Text(l10n.importChooseFolder),
+          ),
+          SwitchListTile(
+            key: Keys.importSubfolders,
+            contentPadding: EdgeInsets.zero,
+            value: _subfolders,
+            onChanged: _busy
+                ? null
+                : (value) => setState(() => _subfolders = value),
+            title: Text(l10n.importSubfolders),
+            subtitle: Text(l10n.importSubfoldersBody),
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(

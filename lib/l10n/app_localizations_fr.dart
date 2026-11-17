@@ -847,6 +847,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get importChooseFolder => 'Choisir un dossier';
 
   @override
+  String get importSubfolders => 'Inclure les sous-dossiers';
+
+  @override
+  String get importSubfoldersBody =>
+      'Lit aussi les photos et vidéos des dossiers contenus dans celui choisi.';
+
+  @override
   String get importOpenShare => 'Ouvrir un partage chiffré';
 
   @override

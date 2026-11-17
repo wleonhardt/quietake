@@ -222,6 +222,8 @@
   "importIntro": "Kopieren Sie Fotos und Videos aus Dateien in Ihre Bibliothek. Die Originale bleiben unverändert, einschließlich Standort und anderer Metadaten. Es wird nichts gelöscht oder geteilt.",
   "importChooseFiles": "Dateien auswählen",
   "importChooseFolder": "Ordner auswählen",
+  "importSubfolders": "Unterordner einbeziehen",
+  "importSubfoldersBody": "Liest auch Fotos und Videos in Ordnern innerhalb des gewählten Ordners.",
   "importOpenShare": "Verschlüsselte Freigabe öffnen",
   "importSharePassphraseTitle": "Passphrase für diese Freigabe",
   "importSharePassphraseLabel": "Passphrase",

@@ -13,13 +13,16 @@ class FolderImport(private val activity: Activity) {
     private val worker = Executors.newSingleThreadExecutor()
     private var pending: MethodChannel.Result? = null
     private var tree: Uri? = null
+    /** Also read folders inside the chosen one (decision 032); off unless the person asked. */
+    private var subfolders = false
     @Volatile private var closed = false
     @Volatile private var cancelled = false
     val requestCode = 7303
 
-    fun pick(result: MethodChannel.Result) {
+    fun pick(result: MethodChannel.Result, withSubfolders: Boolean = false) {
         if (pending != null) { result.error("busy", "Folder import already open", null); return }
         pending = result
+        subfolders = withSubfolders
         cancelled = false
         try {
             activity.startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), requestCode)
@@ -49,26 +52,43 @@ class FolderImport(private val activity: Activity) {
         }
     }
 
-    /** Direct children that are files; subfolders are not walked. */
+    /**
+     * Direct children that are files; folders inside are walked only when the person
+     * turned on subfolders, at most [MAX_DEPTH] levels down. Document IDs are unique
+     * across the tree, so they stay the entry IDs.
+     */
     private fun list(root: Uri): List<Map<String, String>> {
-        val parent = DocumentsContract.getTreeDocumentId(root)
-        val children = DocumentsContract.buildChildDocumentsUriUsingTree(root, parent)
         val entries = mutableListOf<Map<String, String>>()
-        activity.contentResolver.query(
-            children,
-            arrayOf(
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_MIME_TYPE,
-            ),
-            null, null, null,
-        )?.use {
-            while (it.moveToNext()) {
-                if (it.getString(2) == DocumentsContract.Document.MIME_TYPE_DIR) continue
-                entries.add(mapOf("id" to it.getString(0), "name" to it.getString(1)))
-                // One more than the Dart limit so it can refuse the folder.
+        var level = listOf(DocumentsContract.getTreeDocumentId(root))
+        var depth = 0
+        while (level.isNotEmpty() && entries.size <= 10001) {
+            val next = mutableListOf<String>()
+            for (parent in level) {
+                val children = DocumentsContract.buildChildDocumentsUriUsingTree(root, parent)
+                activity.contentResolver.query(
+                    children,
+                    arrayOf(
+                        DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                        DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                        DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    ),
+                    null, null, null,
+                )?.use {
+                    while (it.moveToNext()) {
+                        if (it.getString(2) == DocumentsContract.Document.MIME_TYPE_DIR) {
+                            if (subfolders && depth < MAX_DEPTH) next.add(it.getString(0))
+                            continue
+                        }
+                        entries.add(mapOf("id" to it.getString(0), "name" to it.getString(1)))
+                        // One more than the Dart limit so it can refuse the folder.
+                        if (entries.size > 10001) break
+                    }
+                }
+                check(!closed && !cancelled)
                 if (entries.size > 10001) break
             }
+            level = next
+            depth++
         }
         return entries
     }
@@ -108,6 +128,8 @@ class FolderImport(private val activity: Activity) {
             }
         }
     }
+
+    companion object { const val MAX_DEPTH = 6 }
 
     fun cancel() { cancelled = true }
 

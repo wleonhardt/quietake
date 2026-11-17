@@ -850,6 +850,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importChooseFolder => 'Ordner auswählen';
 
   @override
+  String get importSubfolders => 'Unterordner einbeziehen';
+
+  @override
+  String get importSubfoldersBody =>
+      'Liest auch Fotos und Videos in Ordnern innerhalb des gewählten Ordners.';
+
+  @override
   String get importOpenShare => 'Verschlüsselte Freigabe öffnen';
 
   @override

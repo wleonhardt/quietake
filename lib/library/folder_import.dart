@@ -171,7 +171,8 @@ class FolderImport {
 const folderChannel = MethodChannel('quietake/folder');
 
 /// The platform folder picker behind [FolderSource]. The native side keeps the
-/// chosen folder open until [release]; it reads only direct children.
+/// chosen folder open until [release]; it reads only direct children unless
+/// the person asked for subfolders too (decision 032).
 class PickedFolder implements FolderSource {
   PickedFolder._(this.identity, this._entries);
   @override
@@ -179,8 +180,10 @@ class PickedFolder implements FolderSource {
   final List<FolderEntry> _entries;
 
   /// Null when the user cancels the picker.
-  static Future<PickedFolder?> pick() async {
-    final raw = await folderChannel.invokeMapMethod<String, dynamic>('pick');
+  static Future<PickedFolder?> pick({bool subfolders = false}) async {
+    final raw = await folderChannel.invokeMapMethod<String, dynamic>('pick', {
+      'subfolders': subfolders,
+    });
     if (raw == null) return null;
     return PickedFolder._(raw['identity'] as String, [
       for (final e in raw['entries'] as List)

@@ -1434,6 +1434,18 @@ abstract class AppLocalizations {
   /// **'Choose folder'**
   String get importChooseFolder;
 
+  /// No description provided for @importSubfolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Include subfolders'**
+  String get importSubfolders;
+
+  /// No description provided for @importSubfoldersBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Also reads photos and videos in folders inside the chosen one.'**
+  String get importSubfoldersBody;
+
   /// No description provided for @importOpenShare.
   ///
   /// In en, this message translates to:

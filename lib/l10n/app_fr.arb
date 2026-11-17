@@ -222,6 +222,8 @@
   "importIntro": "Copiez des photos et des vidéos depuis Fichiers vers votre Bibliothèque. Les originaux restent inchangés, y compris la position et les autres métadonnées. Rien n'est supprimé ni partagé.",
   "importChooseFiles": "Choisir des fichiers",
   "importChooseFolder": "Choisir un dossier",
+  "importSubfolders": "Inclure les sous-dossiers",
+  "importSubfoldersBody": "Lit aussi les photos et vidéos des dossiers contenus dans celui choisi.",
   "importOpenShare": "Ouvrir un partage chiffré",
   "importSharePassphraseTitle": "Phrase secrète de ce partage",
   "importSharePassphraseLabel": "Phrase secrète",

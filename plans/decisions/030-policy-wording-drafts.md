@@ -64,3 +64,11 @@ Section: Optional sharing, after the encrypted share paragraph. Not published; a
 > If another app opens a received Quietake share file with Quietake, Quietake keeps a private copy of that file inside the app until you unlock and enter its passphrase, then removes it. The file is still encrypted with the share passphrase and is never decrypted while Quietake is locked.
 
 Facts checked in code: `IncomingShare` on Android and iOS, 513 MiB bound, stale copy removed at startup, the Dart side takes it only while unlocked. Not verified with a real Open with.
+
+## G. Subfolders in folder import (decision 032, proposed 2026-11-17)
+
+Section: Your vault, optional import paragraph. Not published; awaiting the owner. It replaces the clause "Quietake reads only that folder's files, not its subfolders".
+
+> You can also choose one folder: Quietake reads only that folder's files unless you turn on "Include subfolders" for that import, and then it also reads the files in the folders inside it, up to six levels down.
+
+Facts checked in code: the switch is off whenever the Import screen opens, and the native pickers walk subfolders only when it is on. Not verified on a real folder tree. Publish before a release that ships the switch.

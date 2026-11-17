@@ -31,10 +31,12 @@ void main() {
   Future<void> Function() clear = () async {};
   Future<Object?> Function() pickFolder = () async => null;
   late List<String> folderCalls;
+  late List<Object?> folderArguments;
 
   setUp(() async {
     calls = [];
     folderCalls = [];
+    folderArguments = [];
     pickFolder = () async => null;
     pick = () async => <Object?>[];
     clear = () async {};
@@ -67,6 +69,7 @@ void main() {
       ..setMockMethodCallHandler(paths, (_) async => dir.path)
       ..setMockMethodCallHandler(folderChannel, (call) async {
         folderCalls.add(call.method);
+        if (call.method == 'pick') folderArguments.add(call.arguments);
         return switch (call.method) {
           'pick' => await pickFolder(),
           'copy' => throw PlatformException(code: 'copy'),
@@ -380,6 +383,24 @@ void main() {
       if (find.byKey(Keys.importProgress).evaluate().isEmpty && i > 2) break;
     }
   }
+
+  testWidgets('subfolders stay off unless the person turns them on', (
+    tester,
+  ) async {
+    await open(tester);
+    expect(
+      tester.widget<SwitchListTile>(find.byKey(Keys.importSubfolders)).value,
+      isFalse,
+    );
+    await chooseFolder(tester);
+    expect(folderArguments, [
+      {'subfolders': false},
+    ]);
+    await tester.tap(find.byKey(Keys.importSubfolders));
+    await tester.pump();
+    await chooseFolder(tester);
+    expect(folderArguments.last, {'subfolders': true});
+  });
 
   testWidgets('a cancelled folder picker changes nothing', (tester) async {
     await open(tester);

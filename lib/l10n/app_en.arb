@@ -433,6 +433,8 @@
   "importIntro": "Copy photos and videos from Files into your Library. Originals stay unchanged, including location and other metadata. Nothing is deleted or shared.",
   "importChooseFiles": "Choose files",
   "importChooseFolder": "Choose folder",
+  "importSubfolders": "Include subfolders",
+  "importSubfoldersBody": "Also reads photos and videos in folders inside the chosen one.",
   "importOpenShare": "Open encrypted share",
   "importSharePassphraseTitle": "Passphrase for this share",
   "importSharePassphraseLabel": "Passphrase",

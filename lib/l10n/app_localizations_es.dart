@@ -847,6 +847,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get importChooseFolder => 'Elegir carpeta';
 
   @override
+  String get importSubfolders => 'Incluir subcarpetas';
+
+  @override
+  String get importSubfoldersBody =>
+      'También lee las fotos y vídeos de las carpetas dentro de la elegida.';
+
+  @override
   String get importOpenShare => 'Abrir compartición cifrada';
 
   @override

@@ -222,6 +222,8 @@
   "importIntro": "Copia fotos y vídeos desde Archivos a tu Biblioteca. Los originales no se modifican, incluidas la ubicación y otros metadatos. No se elimina ni se comparte nada.",
   "importChooseFiles": "Elegir archivos",
   "importChooseFolder": "Elegir carpeta",
+  "importSubfolders": "Incluir subcarpetas",
+  "importSubfoldersBody": "También lee las fotos y vídeos de las carpetas dentro de la elegida.",
   "importOpenShare": "Abrir compartición cifrada",
   "importSharePassphraseTitle": "Frase de contraseña de esta compartición",
   "importSharePassphraseLabel": "Frase de contraseña",

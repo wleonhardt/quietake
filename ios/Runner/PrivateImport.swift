@@ -127,7 +127,9 @@ final class FolderImportPicker: NSObject, UIDocumentPickerDelegate {
 
   func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case "pick": pick(result)
+    case "pick":
+      let arguments = call.arguments as? [String: Any]
+      pick(result, subfolders: arguments?["subfolders"] as? Bool == true)
     case "copy":
       guard let arguments = call.arguments as? [String: Any],
             let id = arguments["id"] as? String,
@@ -147,7 +149,11 @@ final class FolderImportPicker: NSObject, UIDocumentPickerDelegate {
     scoped = false
   }
 
-  private func pick(_ result: @escaping FlutterResult) {
+  /// Also read folders inside the chosen one (decision 032); off unless the person asked.
+  private var subfolders = false
+  private static let maxDepth = 6
+
+  private func pick(_ result: @escaping FlutterResult, subfolders withSubfolders: Bool) {
     guard pending == nil else { result(FlutterError(code: "busy", message: "Folder import already open", details: nil)); return }
     guard let presenter = SceneDelegate.current?.window?.rootViewController else {
       result(FlutterError(code: "picker", message: "Could not open Files", details: nil)); return
@@ -157,6 +163,7 @@ final class FolderImportPicker: NSObject, UIDocumentPickerDelegate {
     picker.delegate = self
     setCancelled(false)
     release()
+    subfolders = withSubfolders
     pending = result
     presenter.present(picker, animated: true)
   }
@@ -170,27 +177,50 @@ final class FolderImportPicker: NSObject, UIDocumentPickerDelegate {
     guard let result = pending, let url = urls.first else { pending?(nil); pending = nil; return }
     folder = url
     scoped = url.startAccessingSecurityScopedResource()
+    let walk = subfolders
     DispatchQueue.global(qos: .userInitiated).async {
-      let names = try? FileManager.default.contentsOfDirectory(
-        at: url, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
+      let files = FolderImportPicker.list(url, subfolders: walk)
       DispatchQueue.main.async {
         self.pending = nil
-        guard let files = names else {
+        guard let files = files else {
           self.release()
           result(FlutterError(code: "list", message: "Could not read this folder", details: nil)); return
         }
-        // Direct children that are files; one past the Dart limit so it can refuse the folder.
-        let entries = files
-          .filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) != true }
-          .prefix(10001)
-          .map { ["id": $0.lastPathComponent, "name": $0.lastPathComponent] }
-        result(["identity": url.path, "entries": Array(entries)])
+        // One past the Dart limit so it can refuse the folder.
+        result(["identity": url.path, "entries": Array(files.prefix(10001))])
       }
     }
   }
 
+  /// Files directly in the folder, or also in folders inside it up to `maxDepth` levels down.
+  /// The entry ID is the path below the chosen folder. Symbolic links and hidden files are skipped.
+  private static func list(_ root: URL, subfolders: Bool) -> [[String: String]]? {
+    let manager = FileManager.default
+    let keys: [URLResourceKey] = [.isDirectoryKey, .isSymbolicLinkKey]
+    guard manager.isReadableFile(atPath: root.path) else { return nil }
+    var entries: [[String: String]] = []
+    func visit(_ directory: URL, _ prefix: String, _ depth: Int) -> Bool {
+      guard let children = try? manager.contentsOfDirectory(
+        at: directory, includingPropertiesForKeys: keys, options: [.skipsHiddenFiles]) else { return false }
+      for child in children.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }) {
+        let values = try? child.resourceValues(forKeys: Set(keys))
+        if values?.isSymbolicLink == true { continue }
+        let relative = prefix + child.lastPathComponent
+        if values?.isDirectory == true {
+          if subfolders && depth < maxDepth { _ = visit(child, relative + "/", depth + 1) }
+          continue
+        }
+        entries.append(["id": relative, "name": child.lastPathComponent])
+        if entries.count > 10001 { return true }
+      }
+      return true
+    }
+    return visit(root, "", 0) ? entries : nil
+  }
+
   private func copy(id: String, directory: String, result: @escaping FlutterResult) {
-    guard let folder = folder, !id.contains("/"), !id.contains("..") else {
+    // An ID is a path below the chosen folder; it must stay inside it.
+    guard let folder = folder, !id.hasPrefix("/"), !id.split(separator: "/").contains("..") else {
       result(FlutterError(code: "closed", message: "Choose the folder again", details: nil)); return
     }
     DispatchQueue.global(qos: .userInitiated).async {
