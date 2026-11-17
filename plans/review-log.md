@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 l10n check: es, fr and de each have all 512 keys of the English file, no extras, and every placeholder name matches English. Only two French strings equal the English ones (ICU plural patterns). Wording quality still needs native review.
+
 - 2026-11-17 memory read sweep: every whole-file read into memory in `lib/` is bounded (`Vault.readAll` stops at 32 MiB and its callers are photo paths; the import check reads files already limited by size; the restore keyfile fingerprint refuses over 64 KiB). No defect.
 
 - 2026-11-17 decode sweep: every other image decode is already bounded (`loadPreview` and the viewer scale to the screen, the import check refuses over 64 megapixels and decodes at 64 px). The two full-size decodes were the hidden-area ones, now capped at 40 megapixels, so a 64 megapixel import is shared at about 40 megapixels when areas are hidden.
