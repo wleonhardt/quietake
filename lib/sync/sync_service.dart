@@ -51,11 +51,20 @@ class SyncReport {
 
 /// The caller owns session serialization, including verification and cancellation.
 class SyncService {
-  SyncService(this.vault, this.dav, {this.isCancelled});
+  SyncService(
+    this.vault,
+    this.dav, {
+    this.isCancelled,
+    this.useRandomNames = false,
+  });
 
   /// A collection listing larger than this is not a vault we made.
   static const maxListingBytes = 16 * 1024 * 1024;
   final bool Function()? isCancelled;
+
+  /// New uploads get a random NAS name (decision 026). Captures already on the
+  /// NAS keep their name. Off until the recovery tool reads the mapping.
+  final bool useRandomNames;
   final Vault vault;
   final WebDavClient dav;
   String? authenticatedCatalogHash;
@@ -135,11 +144,15 @@ class SyncService {
           await dav.delete(entry.name);
         }
       }
+      final incomingCatalog = await _catalog(entries, work);
+      var names = vault.catalog.remoteNames;
+      if (incomingCatalog != null && !await vault.catalog.file.exists()) {
+        names = await vault.catalog.remoteNamesOf(incomingCatalog);
+      }
       final remote = {
         for (final e in entries)
-          if (e.name.endsWith('.shtr')) e.name: e,
+          if (e.name.endsWith('.shtr')) names.localFor(e.name): e,
       };
-      final incomingCatalog = await _catalog(entries, work);
       final incoming = <String, File>{};
       // Validate the entire prospective restore before any upload, removal or adoption.
       // A trashed capture keeps its NAS copy and must not come back as a new one.
@@ -156,7 +169,7 @@ class SyncService {
         final file = File('${work.path}/${entry.key}');
         // The listing bounds the download; a server that omits sizes says 0.
         await dav.get(
-          entry.key,
+          entry.value.name,
           file,
           maxBytes: entry.value.size > 0 ? entry.value.size : null,
         );
@@ -173,6 +186,7 @@ class SyncService {
       _checkCancelled();
       deleted.addAll(await vault.deletedNames());
       if (incomingCatalog != null) await vault.catalog.restore(incomingCatalog);
+      names = vault.catalog.remoteNames;
       var pulled = 0;
       for (final entry in incoming.entries) {
         _checkCancelled();
@@ -186,10 +200,17 @@ class SyncService {
       var removed = 0;
       for (final name in deleted) {
         _checkCancelled();
-        if (remote.remove(name) != null) {
-          await dav.delete(name);
+        final gone = remote.remove(name);
+        if (gone != null) {
+          await dav.delete(gone.name);
           removed++;
         }
+      }
+      if (useRandomNames) {
+        names = await vault.catalog.assignRemoteNames([
+          for (final e in local.entries)
+            if (!deleted.contains(e.key) && !remote.containsKey(e.key)) e.key,
+        ]);
       }
       var pushed = 0;
       for (final entry in local.entries) {
@@ -199,7 +220,7 @@ class SyncService {
         if (!await entry.value.exists()) continue;
         if (!deleted.contains(entry.key) && !remote.containsKey(entry.key)) {
           try {
-            await dav.putStaged(entry.key, entry.value);
+            await dav.putStaged(names.remoteFor(entry.key), entry.value);
           } on WebDavException catch (e) {
             // Appeared on the NAS since the listing: keep both copies.
             if (e.status == 412) throw BackupConflictException(entry.key);
@@ -212,7 +233,7 @@ class SyncService {
       for (final name in later) {
         await vault.delete(File('${vault.dir.path}/$name'));
         if (remote.containsKey(name) || local.containsKey(name)) {
-          await dav.delete(name);
+          await dav.delete(remote[name]?.name ?? names.remoteFor(name));
           removed++;
         }
       }
@@ -285,9 +306,11 @@ class SyncService {
             f.uri.pathSegments.last: f,
       };
       final entries = await dav.list(maxBytes: maxListingBytes);
+      await vault.catalog.load();
+      final names = vault.catalog.remoteNames;
       final remote = {
         for (final entry in entries)
-          if (entry.name.endsWith('.shtr')) entry.name: entry,
+          if (entry.name.endsWith('.shtr')) names.localFor(entry.name): entry,
       };
       if (deleted.any(remote.containsKey)) {
         throw const BackupCheckException(
@@ -322,7 +345,11 @@ class SyncService {
       for (final name in remote.keys) {
         final file = File('${work.path}/$name');
         final size = remote[name]!.size;
-        await dav.get(name, file, maxBytes: size > 0 ? size : null);
+        await dav.get(
+          remote[name]!.name,
+          file,
+          maxBytes: size > 0 ? size : null,
+        );
         await _authenticate(file);
         final own = local[name];
         if (own != null && !await _same(own, file)) {

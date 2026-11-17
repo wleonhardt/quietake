@@ -77,3 +77,18 @@ store the mapping compactly (the 16-byte random value as hex is already the mini
 Compatibility risk found: an older app version that saves the catalog drops `remoteNames`
 (documented in `docs/private-catalog.md`). Slice 2 must therefore also let `sync` rebuild a
 missing mapping by opening remote containers with the key before it adopts or deletes anything.
+
+## Slices 2 and 3 done together, behind a flag
+
+Push alone would make the next sync treat every randomly named file as a new remote capture, so
+push, pull, verify and delete moved together. `SyncService(useRandomNames: false)` is the switch;
+`SyncController` does not pass it, so the app still uploads under capture names. What changed:
+the remote listing is keyed by local name through `RemoteNames.localFor`, and every `dav` call
+uses the real remote name. A vault with no catalog reads the mapping from the incoming catalog
+before choosing names. New uploads are assigned in one catalog save (`assignRemoteNames`) before
+the first upload. Tests: `random_remote_names_test.dart` (default unchanged, random upload and a
+quiet second sync, fresh phone pull, confirmed delete, check backup); full host suite 770 passed.
+Not done: slice 4 (Go recovery reads the mapping) must land before the flag is wired to the
+controller; a lost mapping makes the next sync adopt randomly named files as new captures
+(duplicates, no data loss), so rebuild by matching ciphertext is still open; the 1 MiB catalog
+limit is unchanged; rename of existing remote files (slice 5).

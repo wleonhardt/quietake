@@ -359,19 +359,33 @@ class PrivateCatalog extends ChangeNotifier {
     await _save({..._albums}, {..._items}, covers: covers);
   });
 
+  /// Gives every capture in [locals] a NAS name, assigning random ones to
+  /// captures that have none, in one save. The mapping is saved before any
+  /// upload, so a crash leaves no orphan. Returns the resulting mapping.
+  Future<RemoteNames> assignRemoteNames(
+    Iterable<String> locals, [
+    Random? random,
+  ]) => _serial(() async {
+    await _ensure();
+    var names = _remoteNames;
+    final rng = random ?? Random.secure();
+    for (final local in locals) {
+      _mediaName(local);
+      if (names.remoteFor(local) == local) names = names.assign(local, rng);
+    }
+    if (names.toJson().length != _remoteNames.toJson().length) {
+      await _save({..._albums}, {..._items}, remoteNames: names);
+    }
+    return _remoteNames;
+  });
+
   /// The NAS name of [local]: assigns and saves a random one on first use.
-  /// The mapping is saved before any upload, so a crash leaves no orphan.
-  Future<String> assignRemoteName(String local, [Random? random]) =>
-      _serial(() async {
-        await _ensure();
-        _mediaName(local);
-        if (_remoteNames.remoteFor(local) != local) {
-          return _remoteNames.remoteFor(local);
-        }
-        final names = _remoteNames.assign(local, random ?? Random.secure());
-        await _save({..._albums}, {..._items}, remoteNames: names);
-        return names.remoteFor(local);
-      });
+  Future<String> assignRemoteName(String local, [Random? random]) async =>
+      (await assignRemoteNames([local], random)).remoteFor(local);
+
+  /// Read-only mapping of an incoming catalog, for a vault that has none yet.
+  Future<RemoteNames> remoteNamesOf(File source) async =>
+      (await _decode(source)).$4;
 
   /// Only the local deletion journal authorizes metadata cleanup.
   Future<void> forgetDeleted() => _serial(() async {

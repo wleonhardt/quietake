@@ -8,21 +8,20 @@ import '../vault/file_name.dart';
 /// uploaded captures keep working. New captures can get a random name so the
 /// NAS cannot read the capture time or media type from the file name.
 class RemoteNames {
-  const RemoteNames._(this._remoteByLocal);
-  const RemoteNames.empty() : _remoteByLocal = const {};
+  RemoteNames._(this._remoteByLocal)
+    : _localByRemote = {for (final e in _remoteByLocal.entries) e.value: e.key};
+  const RemoteNames.empty()
+    : _remoteByLocal = const {},
+      _localByRemote = const {};
 
   final Map<String, String> _remoteByLocal;
+  final Map<String, String> _localByRemote;
 
   bool get isEmpty => _remoteByLocal.isEmpty;
 
   String remoteFor(String local) => _remoteByLocal[local] ?? local;
 
-  String localFor(String remote) {
-    for (final e in _remoteByLocal.entries) {
-      if (e.value == remote) return e.key;
-    }
-    return remote;
-  }
+  String localFor(String remote) => _localByRemote[remote] ?? remote;
 
   /// Returns a copy with a fresh random remote name for [local].
   RemoteNames assign(String local, Random random) {
