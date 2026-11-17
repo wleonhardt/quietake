@@ -387,7 +387,7 @@ void main() {
     () async {
       await catalog.load();
       final names = {
-        for (var i = 0; i < 12000; i++) 'capture-${'x' * 30}-$i.shtr',
+        for (var i = 0; i < 24000; i++) 'capture-${'x' * 30}-$i.shtr',
       };
       await expectLater(
         catalog.organize(names, favorite: true),

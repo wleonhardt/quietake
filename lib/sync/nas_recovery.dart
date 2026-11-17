@@ -236,12 +236,18 @@ class NasRecovery {
         maxBytes: PrivateCatalog.maxBytes * 2,
       );
       await staged.catalog.validate(staged.catalog.file);
+      // Randomly named uploads (decision 026) go back to their capture names.
+      final names = await staged.catalog.remoteNamesOf(staged.catalog.file);
+      final local = [for (final e in media) names.localFor(e.name)];
+      if (local.toSet().length != local.length) {
+        throw const FormatException('Unsupported backup file count');
+      }
       for (var i = 0; i < media.length; i++) {
         _check();
         onProgress?.call(
           'Checking encrypted capture ${i + 1} of ${media.length}',
         );
-        final file = File('${work.path}/${media[i].name}');
+        final file = File('${work.path}/${local[i]}');
         await dav.get(
           media[i].name,
           file,

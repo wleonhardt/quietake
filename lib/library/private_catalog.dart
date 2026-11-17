@@ -24,7 +24,7 @@ class CaptureDetails {
 class PrivateCatalog extends ChangeNotifier {
   PrivateCatalog(this.vault);
   static const fileName = 'quietake.catalog';
-  static const maxBytes = 1024 * 1024;
+  static const maxBytes = 2 * 1024 * 1024;
   final Vault vault;
   File get file => File('${vault.dir.path}/$fileName');
   Map<String, String> _albums = {};

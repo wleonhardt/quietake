@@ -113,3 +113,16 @@ phone with a lost catalog still adopts randomly named files under their random n
 tool cannot rename them either without the catalog); two identical remote copies match one capture and
 the second stays unmapped on the NAS. Tests: `random_remote_names_test.dart` (rebuild, stray pulled),
 `remote_names_test.dart` (adopt); host suite 773 passed.
+
+## Restore fixed, catalog limit raised, controller option added
+
+Found while preparing to wire the flag: in-app NAS restore (`NasRecovery.restore`) used remote names as
+local names, which would have orphaned the catalog entries of a randomly named backup. It now maps names
+through the staged catalog's `remoteNames` (test in `nas_recovery_test.dart`) and rejects a mapping that
+would make two files share one name. The catalog plaintext budget is now 2 MiB (was 1 MiB) because each
+mapping costs about 85 bytes; the recovery tool's in-memory cap is 4 MiB; an older app version rejects a
+catalog over 1 MiB as too large (documented in `docs/private-catalog.md`). `SyncController` takes
+`useRandomNames` (default false, passed to `SyncService`, tested). The app still passes false.
+Before turning it on: owner review of policy and `docs/container-format.md` wording, a look at the
+integration tests that assume capture names on the NAS (`integration_test/`), and a Settings switch or
+a decision to enable it for all new uploads. Slice 5 (rename of existing remote files) is not built.

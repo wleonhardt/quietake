@@ -66,7 +66,8 @@ Confirmed removal also prunes matching metadata during deletion, library reload
 and sync, retaining other captures and albums. Damaged metadata is preserved for
 repair and cannot block confirmed media removal; cleanup resumes after repair.
 
-The plaintext budget is 1 MiB. Unknown schemas, invalid references and failed
+The plaintext budget is 2 MiB (1 MiB before the optional `remoteNames` field; an older app
+version rejects a larger catalog as too large). Unknown schemas, invalid references and failed
 container authentication are rejected before adoption. There is no automatic
 reset or lossy migration. Missing manifests represent an empty library. Mutations
 are serialized, encrypted directly from memory to a temporary sibling, and

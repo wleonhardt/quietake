@@ -63,6 +63,19 @@ void main() {
     expect(server.files.keys, contains('a.jpg.shtr'));
   });
 
+  test('the controller passes the random name option to uploads', () async {
+    final random = SyncController(
+      vault,
+      loadSettings: () async => settings,
+      useRandomNames: true,
+    );
+    addTearDown(random.close);
+    await capture('r.jpg');
+    await random.sync();
+    expect(server.files.keys.any((n) => n.contains('r.jpg')), isFalse);
+    expect(server.files.keys.where((n) => n.endsWith('.shtr')), hasLength(1));
+  });
+
   test('saving settings reports busy during recovery', () async {
     final entered = Completer<void>(), release = Completer<void>();
     final operation = controller.recoveryOperation((_) async {

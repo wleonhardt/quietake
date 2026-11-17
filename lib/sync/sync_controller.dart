@@ -15,11 +15,14 @@ enum SyncState { idle, unconfigured, syncing, synced, pending }
 
 /// One serialized sync queue for automatic saves and the gallery's manual action.
 class SyncController extends ChangeNotifier {
+  /// Passed to [SyncService]; off in the app until the owner enables decision 026.
+  final bool useRandomNames;
   SyncController(
     this.vault, {
     Future<SyncSettings> Function()? loadSettings,
     BackgroundUploads? background,
     DateTime Function() clock = DateTime.now,
+    this.useRandomNames = false,
   }) : // A named parameter cannot be private.
        // ignore: prefer_initializing_formals
        _clock = clock,
@@ -166,6 +169,7 @@ class SyncController extends ChangeNotifier {
               vault,
               client,
               isCancelled: () => _cancelled || _closed,
+              useRandomNames: useRandomNames,
             );
             if (checking) {
               final report = await service.verify(
