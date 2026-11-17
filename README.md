@@ -29,18 +29,22 @@ first release target; iOS development is ongoing.
   Settings switch turns this off.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
   copies keep only their orientation by default: all other EXIF fields, XMP,
-  Photoshop data and comments are removed. PNG and video copies remain
+  Photoshop data, comments and any data after the image end are removed. PNG and video copies remain
   unchanged, so this is not complete metadata anonymization. The share dialog
   can instead make one encrypted `.quietake-share` bundle with a fresh six-word
   passphrase, shown once; send the passphrase by another route. Import has
-  "Open encrypted share" and `quietake-recover -share` opens a bundle too.
+  "Open encrypted share", another app can open a `.quietake-share` file with
+  Quietake (kept privately until you unlock, then offered in Import), and
+  `quietake-recover -share` opens a bundle too.
   The passphrase protects the bundle only as well as it is kept secret.
 - The lock screen has a Camera button, shown once the vault has been unlocked
   after this feature shipped. A photo taken there is sealed to a public key
   without the vault key and becomes a normal capture at the next unlock; the
   locked camera shows no library, tags or settings. On Android a Quick Settings
   tile, "Quietake camera", opens the same locked camera (also over the phone
-  lock screen); it locks the app first and shows nothing else.
+  lock screen); it locks the app first and shows nothing else. On iOS 18 a Lock
+  Screen or Control Center control named "Camera" does the same once the phone
+  is unlocked.
 - Settings can switch the launcher to a plain gray icon (and, on Android, the
   name Tools). This does not hide Quietake from the app list or system settings.
 - Casting sends decrypted media over local HTTP to the selected receiver. It is
