@@ -12,7 +12,10 @@ import '../vault/vault.dart';
 /// folder that library and sync listings never read. The next unlock
 /// publishes them as ordinary containers.
 class LockedCaptureStore {
-  LockedCaptureStore(this.crypto, this.vaultDir);
+  LockedCaptureStore(this.crypto, this.vaultDir, {DateTime Function()? clock})
+    : _clock = clock ?? DateTime.now;
+
+  final DateTime Function() _clock;
 
   final PendingCrypto crypto;
   final Directory vaultDir;
@@ -34,8 +37,16 @@ class LockedCaptureStore {
         'Could not exclude pending captures from backup',
       );
     }
-    final id = DateTime.now().toUtc().toIso8601String().replaceAll(':', '-');
-    final out = File('${directory.path}/$id.$extension.pending');
+    // The name is the capture time; a clash moves on by a microsecond so a
+    // sealed capture is never overwritten.
+    var when = _clock().toUtc();
+    File out;
+    while (true) {
+      final id = when.toIso8601String().replaceAll(':', '-');
+      out = File('${directory.path}/$id.$extension.pending');
+      if (!await out.exists()) break;
+      when = when.add(const Duration(microseconds: 1));
+    }
     final tmp = File('${out.path}.part');
     try {
       await crypto.seal(source, tmp, publicKey);

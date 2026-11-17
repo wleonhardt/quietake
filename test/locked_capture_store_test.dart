@@ -54,6 +54,28 @@ void main() {
     expect(await locked.count(), 1);
   });
 
+  test('two saves in the same instant never overwrite each other', () async {
+    final pub = (await keys.publicKey())!;
+    final fixed = DateTime.utc(2026, 11, 16, 12);
+    final same = LockedCaptureStore(
+      PendingCrypto(sodium),
+      root,
+      clock: () => fixed,
+    );
+    final a = await same.save(
+      await source([1], 'a.jpg'),
+      extension: 'jpg',
+      publicKey: pub,
+    );
+    final b = await same.save(
+      await source([2], 'b.jpg'),
+      extension: 'jpg',
+      publicKey: pub,
+    );
+    expect(a.path, isNot(b.path));
+    expect(await same.count(), 2);
+  });
+
   test('a pending capture never shows in the library listing', () async {
     final pub = (await keys.publicKey())!;
     await locked.save(
