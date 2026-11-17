@@ -2,6 +2,7 @@
 
 ## Queue
 
+- Work through `plans/review-fixes.md` (whole-project review of 2026-11-17): take the first `planned` item, one small verified commit each, nothing pushed. Three ship blockers are already fixed (decisions 033, 034 and the 029 correction); their device evidence is listed there.
 - Complete protected source acceptance for 1.0.0+5. The Android Back correction
   keeps native Back routed to the restored content navigator after lock/unlock.
   Source regression, focused Android/iOS lock/privacy checks and native Android
