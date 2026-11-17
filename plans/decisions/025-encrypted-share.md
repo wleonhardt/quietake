@@ -75,3 +75,5 @@ Slices, each with tests and its own commit:
 
 Risks: entry names and sizes inside the stream are hidden but the total size is visible; passphrase
 strength is the only protection against guessing; iPhone recipients need the app or the Go tool.
+
+Owner answer 2026-11-16: the proposed `SHSB` layout is approved. Slice 1 is the format document `docs/share-bundle.md`; vectors are produced by the first Dart writer in slice 2 and then frozen, because libsodium chooses the secretstream header at random.

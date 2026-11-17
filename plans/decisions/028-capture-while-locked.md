@@ -55,3 +55,5 @@ Review fix: two locked saves with the same clock reading overwrote each other's 
 Review fix: when sealing fails in the locked camera, the camera's plaintext photo is now deleted and the screen says "Could not save the photo." (test makes the pending folder path a file). Unlike the unlocked camera, a locked failure has no pending retry copy, so keeping plaintext would only leave an unprotected file behind.
 
 Interop check: `tool/check_interop.dart` now also publishes captures sealed while locked (0, 1, one chunk and 300000 bytes) and the Go recovery tool restores them byte for byte, which proves the published result is an ordinary v1 container. Go tests and `gofmt`/`go vet` were clean and nothing under `recover/` changed.
+
+Owner answer 2026-11-16: build the OS-level entry on both platforms (Android lock screen shortcut, iOS Lock Screen control), in addition to the in-app lock screen button.
