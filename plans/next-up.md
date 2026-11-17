@@ -67,7 +67,7 @@ Ideas from related privacy camera and vault projects (added 2026-11-16, none sta
 
 Build-on ideas (added 2026-11-17, none started; each extends a finished decision and needs its own decision record or a slice in the existing one). Not re-proposed: size padding (026 option B, out) and provenance proof (027, rejected).
 
-- Open a share from other apps (extends 025): register `.quietake-share` so "Open with Quietake" from Files, mail or a chat app lands in the open-share dialog after unlock. Android VIEW intent filter and iOS document type; today the bundle must be picked from inside Import. The file stays in private storage until decrypted.
+- NEXT (owner chose it first, 2026-11-17; take after the iOS Lock Screen control of 028). Open a share from other apps (extends 025): register `.quietake-share` so "Open with Quietake" from Files, mail or a chat app lands in the open-share dialog after unlock. Android VIEW intent filter and iOS document type; today the bundle must be picked from inside Import. The file stays in private storage until decrypted.
 - Passphrase handoff in person (extends 025): offer to show the one-time share passphrase as an on-screen QR code, so it travels by a different path than the bundle. Shown once, never saved; no camera scanning needed on the sender.
 - Videos in the locked camera (extends 028): the lock screen camera is photo-only. Recording while locked needs a sealed streaming path, a size cap and a stop on screen-off; decide whether it is worth the larger plaintext window first.
 - Waiting-photo count after unlock (extends 028): after unlock, say how many locked captures were published, so the owner knows the lock screen camera worked. Never show the count while locked.
