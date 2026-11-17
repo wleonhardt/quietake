@@ -74,7 +74,6 @@ Build-on ideas (added 2026-11-17, none started; each extends a finished decision
 - Several photos at once in redaction (extends 024): apply hidden areas to each selected photo in one share, one editor page per photo. Optional later: on-device face boxes as suggestions only (ML Kit on Android, Vision on iOS), needing a dependency decision.
 - Subfolders in folder import (extends 020): walk one level of subfolders, or all, with the existing 10,000-file limit and encrypted resume ledger, and optionally turn each folder name into a tag.
 - Tag from the viewer (extends 018): set a capture as its tag's cover from the viewer, the shortcut decision 018 left out.
-- Background job names (extends 026): let the Android background uploader assign random names itself and report the pairs back at the next foreground sync, so new captures no longer wait for the app to open. Owner call recorded in 026.
 
 ## Done
 
