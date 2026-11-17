@@ -3,7 +3,7 @@
 ## Open
 
 - Store release timing remains undecided.
-- Wording approval: the loop drafts the privacy policy sentences (plain icon, lock screen camera, hidden photo areas, encrypted share) inside decision records for owner approval; the website and in-app owner-reviewed text stay unchanged until approved.
+- Wording approval: policy sentence drafts are in `plans/decisions/030-policy-wording-drafts.md` (plain icon, lock screen camera, hidden areas, encrypted share, random NAS names). Mark each approved, edited or rejected; the website and in-app policy stay unchanged until then. The existing sentence that NAS names show capture time is already out of date for new uploads.
 - Decision 029: look at the generated gray icon on a real launcher.
 - NAS restore dry run: the agent shell still sees `bw` locked; unlock it (the agent never types the master password) and hand over an empty test folder.
 
