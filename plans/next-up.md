@@ -15,7 +15,7 @@
   separate empty targets. Source CI is not signed-artifact or store evidence.
 - Keep both protected checks and the existing scoped validation/deadline rules.
   Do not bypass failures or repeat full suites without a concrete reason. Seen twice at load average ~6 (emulator and Chrome running): `sync_controller_test` (fake WebDAV "Connection closed") and `camera_recovery_status_test` failed in the full run, passed alone and in `--concurrency=4` (722 passed); treat as load flakes, not defects.
-- Coverage: last measured 92.6% (iteration 91); the per-file notes and the lowest files are in `plans/review-log.md`. Take the lowest files next.
+- Coverage: last measured 80.0% of all lines on 2026-11-17 (859 host tests passing; an earlier 92.6% used a narrower file set); the per-file notes and the lowest files are in `plans/review-log.md`. Take the lowest files next.
 - Open: a host test that drives real first-run Setup through the recovery screen while
   `Session.start` fails (documents path is a file) segfaults flutter_tester. Calling
   `SetupScreen.onUnlocked` directly after writing the keyfile does not. Cause unfound; the
