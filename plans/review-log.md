@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 review of `withoutMetadata` (JPEG share copies): bytes after the first end of image marker, such as a motion photo video or a second picture with its own EXIF, were passed through untouched, so a shared copy could still carry metadata. They are now cut (red and green test in `exif_strip_test.dart`, decision 019 updated); host suite 866 passed, analyzer clean. Not run on a device.
+
 - 2026-11-17 review of `ShareBundle.extract` (untrusted input): the reader capped total bytes but not entry count, so a bundle of millions of empty uniquely named entries (the sender must give the passphrase) could fill private storage with files. The Dart reader now rejects more than 100 entries (`ShareBundle.maxEntries`), with tests at the limit and one over, and `docs/share-bundle.md` says so. The Go reader now enforces the same limit (`ShareMaxEntries`, parser test at the limit and one over; `gofmt`, `go vet`, `go test` pass). Host suite 865 passed, analyzer clean, `check_interop` passes.
 
 - 2026-11-17 read the iOS Lock Screen control (`QuietakeControl.swift`, `LockedCameraIntent.swift`, scene observer): the intent holds no secret, a cold launch is covered because the request sets a `pending` flag the Dart lock screen reads once, and both targets compile the intent file. It assumes the intent runs in the app process (`openAppWhenRun`); that, the control tap and the signing profile are still unchecked on a real device.

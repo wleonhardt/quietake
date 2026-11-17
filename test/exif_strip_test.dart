@@ -132,6 +132,17 @@ void main() {
     expect(stripped, cleanJpeg());
   });
 
+  test('bytes after the end of image marker are removed', () async {
+    final trailing = Uint8List.fromList([
+      ...cleanJpeg(),
+      ...jpegWithGps(),
+      ...'MOTIONPHOTO lat=1.5'.codeUnits,
+    ]);
+    final stripped = withoutMetadata(trailing);
+    expect(stripped, cleanJpeg());
+    await expectDecodes(stripped);
+  });
+
   test('an invalid orientation value is dropped', () {
     final original = jpegWithGps(orientation: 9);
     expect(contains(withoutMetadata(original), 'Exif'), isFalse);

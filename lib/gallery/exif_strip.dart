@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 /// Removes personal metadata from a JPEG without re-encoding its pixels: every
 /// EXIF field except orientation, XMP, Photoshop/IPTC, comments and the
-/// multi-picture directory. Orientation is rewritten into a minimal EXIF segment
+/// multi-picture directory, plus any data after the end of image marker. Orientation is rewritten into a minimal EXIF segment
 /// so the photo keeps its rotation. Other formats, and JPEGs with nothing to
-/// remove, are returned unchanged. A damaged layout throws before a copy is shared.
+/// remove, are returned unchanged. Bytes after the end of image marker are cut. A damaged layout throws before a copy is shared.
 Uint8List withoutMetadata(Uint8List jpeg) {
   if (jpeg.length < 4 || jpeg[0] != 0xff || jpeg[1] != 0xd8) return jpeg;
   // Each entry is a marker start, its end and the bytes that replace it.
@@ -23,7 +23,12 @@ Uint8List withoutMetadata(Uint8List jpeg) {
     if (position == jpeg.length) throw const FormatException('Truncated JPEG');
     final marker = jpeg[position++];
     final markerStart = position - 2;
-    if (marker == 0xd9) break;
+    if (marker == 0xd9) {
+      // Whatever follows the end of image (a motion photo video, a second
+      // picture with its own EXIF) is not shown by viewers and is dropped.
+      if (position < jpeg.length) edits.add((position, jpeg.length, const []));
+      break;
+    }
     if (marker == 0 && scanning ||
         marker >= 0xd0 && marker <= 0xd7 ||
         marker == 1) {

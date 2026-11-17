@@ -14,7 +14,8 @@ personal metadata from JPEG copies and is on by default. `withoutMetadata` in
   orientation (1 to 8) is written at the first EXIF position. No orientation, or a
   value outside 1 to 8, leaves no EXIF segment.
 - XMP, Photoshop/IPTC (APP13), comments (COM) and the multi-picture directory
-  (MPF) are removed. JFIF, ICC profiles, quantization and scan data are untouched,
+  (MPF) are removed, and so is any data after the end of image marker (a motion
+  photo video or a second picture with its own EXIF; added 2026-11-17). JFIF, ICC profiles, quantization and scan data are untouched,
   so pixels are never re-encoded.
 - A damaged JPEG or EXIF layout still throws before any copy reaches the chooser.
 - PNG and video copies are unchanged. Video metadata removal stays a later item.
