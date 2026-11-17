@@ -47,3 +47,7 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
   `share_dialog_test.dart`. `sharing_test.dart` drives the editor through a section chip
   on Android and iOS (shared copy is a PNG, vault original unchanged); the drag gesture
   itself is covered by host tests only.
+- Policy wording: `website/app-privacy.html` (Optional sharing) and the in-app policy do not mention
+  hiding areas. They say PNG copies are not changed, which stays true for ordinary copies; a
+  redacted copy is a new PNG without metadata. This is not a contradiction, but the owner should
+  decide whether to add a sentence. Policy text is owner-reviewed, so it is not edited here.
