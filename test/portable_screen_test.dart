@@ -194,6 +194,29 @@ void main() {
     expect(calls, ['pick']);
   });
 
+  testWidgets('typed secrets are cleared when the app pauses', (tester) async {
+    await open(tester);
+    await tester.tap(find.byKey(Keys.portablePick));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(Keys.portableRecovery), 'secret-key');
+    await tester.enterText(find.byKey(Keys.portablePasscode), 'abcdef');
+    await tester.enterText(find.byKey(Keys.portableConfirm), 'abcdef');
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    for (final key in [
+      Keys.portableRecovery,
+      Keys.portablePasscode,
+      Keys.portableConfirm,
+    ]) {
+      expect(tester.widget<TextField>(find.byKey(key)).controller!.text, '');
+    }
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+  });
+
   testWidgets('wrong recovery key clears secrets and the private copy', (
     tester,
   ) async {

@@ -79,9 +79,12 @@ class _PortableScreenState extends State<PortableScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused && _preparing && !_committing) {
-      _cancel();
-    }
+    if (state != AppLifecycleState.paused) return;
+    // The content stays alive behind the lock screen, so typed secrets must not.
+    _recovery.clear();
+    _pass.clear();
+    _confirm.clear();
+    if (_preparing && !_committing) _cancel();
   }
 
   void _cancel() {
@@ -157,6 +160,9 @@ class _PortableScreenState extends State<PortableScreen>
       _preparing = true;
       _result = (l10n) => l10n.portablePreparing;
     });
+    // Read before any await: a pause clears the fields while this runs.
+    final passcode = _pass.text;
+    final recoveryText = _recovery.text;
     SecureKey? key;
     Directory? staged;
     Vault? temporary;
@@ -164,7 +170,7 @@ class _PortableScreenState extends State<PortableScreen>
       if (_restoring) {
         final transaction = RestoreTransaction(widget.store);
         await transaction.requireFresh();
-        key = widget.store.importRecovery(_recovery.text);
+        key = widget.store.importRecovery(recoveryText);
         temporary = Vault(
           VaultCrypto(widget.store.sodium),
           key.copy(),
@@ -196,7 +202,7 @@ class _PortableScreenState extends State<PortableScreen>
         await transaction.commit(
           staged,
           key,
-          _pass.text,
+          passcode,
           isCancelled: () => _cancelled,
           onProgress: (phase) => _status((_) => '$phase…'),
           onCommitting: () => _committing = true,
@@ -204,7 +210,7 @@ class _PortableScreenState extends State<PortableScreen>
         _status((l10n) => l10n.portableRestored);
         if (mounted) widget.onRestored?.call();
       } else {
-        key = await widget.store.unlockWithPasscode(_pass.text);
+        key = await widget.store.unlockWithPasscode(passcode);
         if (_cancelled) throw StateError('Backup cancelled');
         final root = await Directory(
           '${(await getTemporaryDirectory()).path}/quietake-backup',
