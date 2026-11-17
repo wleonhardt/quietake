@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 review of the incoming share path in `ImportScreen`: the received file is deleted when the screen finishes, so one mistyped passphrase forced a new Open with. The passphrase dialog now returns up to three times after a wrong one, then shows the existing error. Red and green host tests in `import_screen_test.dart` (the wrong-passphrase test now types three wrong ones); host suite 863 passed, analyzer clean, Android `import_test.dart` passes 5 of 5. Wording unchanged; behavior change to the 025 flow is small and awaits owner awareness.
+
 - 2026-11-17 review of `GalleryScreen._checkIncomingShare`: a share that arrived while the Import screen was open was missed, because the gallery regained focus before the first check had cleared its guard, so it waited for the next app resume. A recheck flag now looks once more after the guard clears. Red and green host test in `gallery_selection_test.dart`; host suite 862 passed, analyzer clean. Not run on a device.
 
 - 2026-11-17 review of iOS `IncomingShare`: same single-flag race as Android, and copies ran on the concurrent global queue so two opens could write the same `incoming.part`. It now uses a counter and a serial queue, and answers by whether the file exists. The iOS import device test passes (5 of 5); two quick opens were not run on a device.

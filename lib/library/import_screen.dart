@@ -33,6 +33,7 @@ class ImportScreen extends StatefulWidget {
 class _ImportScreenState extends State<ImportScreen> {
   final _results = <ImportResult>[];
   var _busy = false;
+  static const _passphraseTries = 3;
   var _cancelled = false;
   var _subfolders = false;
   var _total = 0;
@@ -143,22 +144,27 @@ class _ImportScreenState extends State<ImportScreen> {
     Directory root,
   ) async {
     if (inputs.isEmpty || inputs.first.error != null) return inputs;
-    final passphrase = await _askPassphrase();
-    if (passphrase == null) return [];
     final dest = Directory('${root.path}/quietake-import/opened');
-    if (dest.existsSync()) dest.deleteSync(recursive: true);
-    dest.createSync(recursive: true);
-    try {
-      final names = await ShareBundle(widget.session.vault.crypto.sodium)
-          .extract(File(inputs.first.path!), passphrase, dest);
-      return [
-        for (final name in names)
-          ImportInput(name: name, path: '${dest.path}/$name'),
-      ];
-    } on ShareBundleException {
-      if (mounted) setState(() => _error = (l10n) => l10n.importShareFailed);
-      return [];
+    // The received file is deleted when this screen finishes, so a mistyped
+    // passphrase gets a few more tries instead of a new Open with.
+    for (var attempt = 0; attempt < _passphraseTries; attempt++) {
+      final passphrase = await _askPassphrase();
+      if (passphrase == null) return [];
+      if (dest.existsSync()) dest.deleteSync(recursive: true);
+      dest.createSync(recursive: true);
+      try {
+        final names = await ShareBundle(widget.session.vault.crypto.sodium)
+            .extract(File(inputs.first.path!), passphrase, dest);
+        if (mounted) setState(() => _error = null);
+        return [
+          for (final name in names)
+            ImportInput(name: name, path: '${dest.path}/$name'),
+        ];
+      } on ShareBundleException {
+        if (mounted) setState(() => _error = (l10n) => l10n.importShareFailed);
+      }
     }
+    return [];
   }
 
   Future<String?> _askPassphrase() => showDialog<String>(

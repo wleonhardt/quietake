@@ -148,7 +148,11 @@ void main() {
     },
   );
 
-  Future<void> openShare(WidgetTester tester, String typed) async {
+  Future<void> openShare(
+    WidgetTester tester,
+    String typed, {
+    List<String> then = const [],
+  }) async {
     late File bundle;
     await open(tester);
     await tester.runAsync(() async {
@@ -169,8 +173,16 @@ void main() {
     ];
     await tester.tap(find.byKey(Keys.importShare));
     await tester.pump(const Duration(milliseconds: 50));
-    await tester.enterText(find.byKey(Keys.importSharePassphrase), typed);
-    await tester.tap(find.byKey(Keys.importShareOpen));
+    for (final attempt in [typed, ...then]) {
+      await tester.enterText(find.byKey(Keys.importSharePassphrase), attempt);
+      await tester.tap(find.byKey(Keys.importShareOpen));
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
     for (var i = 0; i < 150 && calls.length < 2; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 20)),
@@ -237,10 +249,21 @@ void main() {
   });
 
   testWidgets('a wrong passphrase imports nothing and says so', (tester) async {
-    await openShare(tester, 'wrong');
+    await openShare(tester, 'wrong', then: ['wrong', 'wrong']);
     expect(text(tester, Keys.importError), contains('Check the passphrase'));
     expect(find.byKey(Keys.importSummary), findsNothing);
     expect(await tester.runAsync(session.vault.list), isEmpty);
+  });
+
+  testWidgets('a mistyped passphrase can be corrected without opening again', (
+    tester,
+  ) async {
+    await openShare(tester, 'wrong', then: ['blue table']);
+    expect(find.byKey(Keys.importError), findsNothing);
+    expect(
+      text(tester, Keys.importSummary),
+      '1 imported · 0 duplicates skipped',
+    );
   });
 
   testWidgets('the right passphrase imports the shared photo', (tester) async {
