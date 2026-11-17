@@ -262,6 +262,50 @@ void main() {
       reason: 'Swipe down must return to the preceding capture',
     );
   });
+  testWidgets('Details makes the shown photo the cover of its tag', (
+    tester,
+  ) async {
+    final catalog = vault.catalog;
+    final photo = (await vault.list())
+        .map((f) => f.uri.pathSegments.last)
+        .firstWhere((n) => n.contains('tiny.jpg'));
+    final tag = await catalog.createAlbum('Cover check');
+    await catalog.organize({photo}, tagIds: {tag});
+    try {
+      await tester.pumpWidget(app.widget());
+      await pumpUntil(
+        tester,
+        () => find.byKey(Keys.openGallery).evaluate().isNotEmpty,
+      );
+      await tester.tap(find.byKey(Keys.openGallery));
+      await pumpUntil(
+        tester,
+        () => find.byKey(Keys.galleryTile(0)).evaluate().isNotEmpty,
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.byKey(Keys.galleryTile(0)));
+      await pumpUntil(
+        tester,
+        () => find.byKey(Keys.viewerInfo).evaluate().isNotEmpty,
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.byKey(Keys.viewerInfo));
+      await pumpUntil(
+        tester,
+        () => find.byKey(Keys.viewerCover(tag)).evaluate().isNotEmpty,
+      );
+      await tester.tap(find.byKey(Keys.viewerCover(tag)));
+      await pumpUntil(tester, () => catalog.covers[tag] == photo);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(Keys.viewerInfoDialog), findsNothing);
+      expect(tester.takeException(), isNull);
+    } finally {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 500));
+      await catalog.deleteAlbum(tag);
+    }
+  });
+
   testWidgets('damaged media stays navigable and can be deleted', (
     tester,
   ) async {
@@ -387,10 +431,18 @@ void main() {
         final args = call.arguments as Map;
         final mime = (args['mimeTypes'] as List).single as String;
         final file = File((args['paths'] as List).single as String);
-        expect(
-          await file.readAsBytes(),
-          fixtureBytes(mime == 'image/jpeg' ? 'tiny.jpg' : 'tiny.mp4'),
-        );
+        final bytes = await file.readAsBytes();
+        if (mime == 'image/jpeg') {
+          // Location and metadata are removed by default, so the copy may be
+          // smaller than the stored original but is still the same JPEG.
+          expect(bytes.sublist(0, 3), [255, 216, 255]);
+          expect(
+            bytes.length,
+            lessThanOrEqualTo(fixtureBytes('tiny.jpg').length),
+          );
+        } else {
+          expect(bytes, fixtureBytes('tiny.mp4'));
+        }
         sent.add(mime);
         final cache = await Directory('${temp.path}/share_plus').create();
         await file.copy('${cache.path}/${file.uri.pathSegments.last}');
