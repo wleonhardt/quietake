@@ -69,4 +69,18 @@ void main() {
       expect(() => RemoteNames.fromJson(bad), throwsFormatException);
     });
   }
+
+  test('adopt maps a known NAS name and refuses clashes', () {
+    const remote = '3f9c0a7e5b1d44c2a86e0d1f7b92c4aa.shtr';
+    final names = const RemoteNames.empty().adopt(local, remote);
+    expect(names.remoteFor(local), remote);
+    expect(names.localFor(remote), local);
+    expect(() => names.adopt(local, 'x.shtr'), throwsStateError);
+    expect(() => names.adopt('b.shtr', remote), throwsStateError);
+    expect(() => names.adopt('b.shtr', local), throwsStateError);
+    expect(
+      () => const RemoteNames.empty().adopt(local, local),
+      throwsStateError,
+    );
+  });
 }

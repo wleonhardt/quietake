@@ -101,3 +101,15 @@ claims, non-`.shtr` or path-like local names and output collisions all keep the 
 fail the run. Tests: `recover/names_test.go` (table) and a new Dart-to-Go case in
 `tool/check_interop.dart`; Go checks and interop pass. Next: wire `useRandomNames` into
 `SyncController` (default decision needed: on for new uploads only), then the lost-mapping rebuild.
+
+## Lost mapping rebuild done
+
+When an unmapped remote file has a random-looking name (32 hex digits plus `.shtr`) and no phone
+copy under that name, sync compares its ciphertext with phone captures that have no NAS copy. A match
+records the mapping (`PrivateCatalog.adoptRemoteNames`) and the file is neither adopted as a copy nor
+deleted. No match means the file is pulled as a new capture, as before. This also repairs a vault whose
+catalog an older app version saved without `remoteNames`. Limits: it needs the phone copy, so a fresh
+phone with a lost catalog still adopts randomly named files under their random names (the recovery
+tool cannot rename them either without the catalog); two identical remote copies match one capture and
+the second stays unmapped on the NAS. Tests: `random_remote_names_test.dart` (rebuild, stray pulled),
+`remote_names_test.dart` (adopt); host suite 773 passed.

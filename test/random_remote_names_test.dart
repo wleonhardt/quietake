@@ -99,4 +99,52 @@ void main() {
     expect(report.media, 1);
     expect(report.catalog, isTrue);
   });
+
+  test(
+    'a lost mapping is rebuilt by matching ciphertext, not adopted as a copy',
+    () async {
+      final sync = SyncService(vault, dav, useRandomNames: true);
+      await sync.sync();
+      final remoteName = server.files.keys.firstWhere(
+        (n) => n != 'quietake.catalog',
+      );
+      // An older app version saved the catalog without the mapping.
+      server.files.remove('quietake.catalog');
+      await vault.catalog.file.delete();
+      final fresh = open('again', key);
+      addTearDown(fresh.dispose);
+      // Same captures on the phone, but its catalog never knew the mapping.
+      await File('${vault.dir.path}/photo.jpg.shtr')
+          .copy('${fresh.dir.path}/photo.jpg.shtr');
+      final report = await SyncService(fresh, dav, useRandomNames: true).sync();
+      expect(report.pulled, 0);
+      expect(report.pushed, 0);
+      expect(report.remoteTotal, 1);
+      expect((await fresh.list()).length, 1);
+      expect(fresh.catalog.remoteNames.remoteFor('photo.jpg.shtr'), remoteName);
+      expect(server.files.keys.where((n) => n.endsWith('.shtr')), [remoteName]);
+    },
+  );
+
+  test(
+    'a randomly named file that matches no phone capture is still pulled',
+    () async {
+      await SyncService(vault, dav, useRandomNames: true).sync();
+      final stray = '00112233445566778899aabbccddeeff.shtr';
+      final other = open('other', key);
+      addTearDown(other.dispose);
+      final plain = await File('${root.path}/other.jpg')
+          .writeAsBytes([255, 216, 255, 2, 3]);
+      final file = await other.ingestAs(plain, 'other.jpg');
+      server.files[stray] = await file.readAsBytes();
+      final fresh = open('fresh2', key);
+      addTearDown(fresh.dispose);
+      await File('${vault.dir.path}/photo.jpg.shtr')
+          .copy('${fresh.dir.path}/photo.jpg.shtr');
+      server.files.remove('quietake.catalog');
+      final report = await SyncService(fresh, dav, useRandomNames: true).sync();
+      expect(report.pulled, 1);
+      expect((await fresh.list()).length, 2);
+    },
+  );
 }

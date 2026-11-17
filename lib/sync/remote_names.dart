@@ -41,6 +41,19 @@ class RemoteNames {
     return RemoteNames._({..._remoteByLocal, local: name});
   }
 
+  /// Returns a copy that maps [local] to an existing NAS name [remote].
+  RemoteNames adopt(String local, String remote) {
+    checkedFileName(local);
+    checkedFileName(remote);
+    if (_remoteByLocal.containsKey(local) ||
+        _localByRemote.containsKey(remote) ||
+        _remoteByLocal.containsKey(remote) ||
+        local == remote) {
+      throw StateError('Name already mapped');
+    }
+    return RemoteNames._({..._remoteByLocal, local: remote});
+  }
+
   RemoteNames forget(String local) =>
       RemoteNames._({..._remoteByLocal}..remove(local));
 

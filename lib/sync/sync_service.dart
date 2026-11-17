@@ -109,6 +109,23 @@ class SyncService {
     return listEquals(await digest(a), await digest(b));
   }
 
+  static final _randomName = RegExp(r'^[0-9a-f]{32}\.shtr$');
+  bool _looksRandom(String name) => _randomName.hasMatch(name);
+
+  /// The phone capture with no NAS copy whose bytes equal [remoteCopy], if any.
+  Future<String?> _phoneCopyOf(
+    File remoteCopy,
+    Map<String, File> local,
+    Map<String, RemoteEntry> remote,
+    Set<String> skip,
+  ) async {
+    for (final e in local.entries) {
+      if (remote.containsKey(e.key) || skip.contains(e.key)) continue;
+      if (await _same(e.value, remoteCopy)) return e.key;
+    }
+    return null;
+  }
+
   Future<File?> _catalog(List<RemoteEntry> entries, Directory work) async {
     LegacyIdentity.rejectBackupWrites(entries.map((e) => e.name));
     final matches = entries.where((e) => e.name == PrivateCatalog.fileName);
@@ -157,6 +174,7 @@ class SyncService {
       // Validate the entire prospective restore before any upload, removal or adoption.
       // A trashed capture keeps its NAS copy and must not come back as a new one.
       final held = (await vault.trashedAt()).keys.toSet();
+      final rebuilt = <String, String>{};
       for (final entry in remote.entries) {
         if (held.contains(entry.key)) continue;
         final own = local[entry.key];
@@ -177,6 +195,19 @@ class SyncService {
         if (own != null && !await _same(own, file)) {
           throw BackupConflictException(entry.key);
         }
+        if (own == null && _looksRandom(entry.key)) {
+          // A mapping lost to an older app version: the same ciphertext on the
+          // phone proves this is that capture, not a new one.
+          final match = await _phoneCopyOf(file, local, remote, {
+            ...deleted,
+            ...rebuilt.keys,
+          });
+          if (match != null) {
+            rebuilt[match] = entry.key;
+            await file.delete();
+            continue;
+          }
+        }
         if (own == null && !deleted.contains(entry.key)) {
           incoming[entry.key] = file;
         } else {
@@ -184,6 +215,13 @@ class SyncService {
         }
       }
       _checkCancelled();
+      if (rebuilt.isNotEmpty) {
+        names = await vault.catalog.adoptRemoteNames(rebuilt);
+        for (final e in rebuilt.entries) {
+          final entry = remote.remove(e.value);
+          if (entry != null) remote[e.key] = entry;
+        }
+      }
       deleted.addAll(await vault.deletedNames());
       if (incomingCatalog != null) await vault.catalog.restore(incomingCatalog);
       names = vault.catalog.remoteNames;

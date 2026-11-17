@@ -383,6 +383,19 @@ class PrivateCatalog extends ChangeNotifier {
   Future<String> assignRemoteName(String local, [Random? random]) async =>
       (await assignRemoteNames([local], random)).remoteFor(local);
 
+  /// Records NAS names that sync proved belong to [pairs] (local to remote).
+  Future<RemoteNames> adoptRemoteNames(Map<String, String> pairs) =>
+      _serial(() async {
+        await _ensure();
+        var names = _remoteNames;
+        for (final e in pairs.entries) {
+          _mediaName(e.key);
+          names = names.adopt(e.key, e.value);
+        }
+        await _save({..._albums}, {..._items}, remoteNames: names);
+        return _remoteNames;
+      });
+
   /// Read-only mapping of an incoming catalog, for a vault that has none yet.
   Future<RemoteNames> remoteNamesOf(File source) async =>
       (await _decode(source)).$4;
