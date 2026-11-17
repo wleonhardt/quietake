@@ -1809,4 +1809,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsRenameRemoteFailed =>
       'Renaming stopped. Run it again to continue. Nothing was lost.';
+
+  @override
+  String get shareEncryptedTitle => 'Encrypt with a passphrase';
+
+  @override
+  String get shareEncryptedBody =>
+      'The copies go into one file that only a passphrase opens. Quietake shows the passphrase once. Send it by a different route than the file.';
+
+  @override
+  String get sharePassphraseTitle => 'Passphrase for this share';
+
+  @override
+  String get sharePassphraseBody =>
+      'Write it down or send it separately now. Quietake does not keep it and cannot show it again.';
+
+  @override
+  String get sharePassphraseContinue => 'Choose app';
 }

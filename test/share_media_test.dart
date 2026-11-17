@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/crypto/share_bundle.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/item.dart';
 import 'package:quietake/gallery/share_media.dart';
@@ -72,6 +73,56 @@ void main() {
     expect(await vault.list(), hasLength(1));
     expect(await vault.readAll(item.file), original);
   });
+
+  test(
+    'a passphrase shares one bundle with neutral names and no plain copies',
+    () async {
+      final second = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/b.mp4').writeAsBytes([1, 2, 3]),
+          'second.mp4',
+        ),
+      );
+      late File bundleCopy;
+      var shared = 0;
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        shared++;
+        final args = call.arguments as Map;
+        final file = File((args['paths'] as List).single as String);
+        expect(file.path, endsWith('.quietake-share'));
+        expect(args['mimeTypes'], ['application/octet-stream']);
+        // Nothing but the bundle may be in the folder handed to the chooser.
+        expect(file.parent.listSync().map((e) => e.path), [file.path]);
+        bundleCopy = await file.copy('${root.path}/copy.quietake-share');
+        return '';
+      });
+      await shareMediaCopies(
+        vault,
+        [item, second],
+        origin: origin,
+        passphrase: 'correct horse battery staple',
+        isActive: () => true,
+      );
+      expect(shared, 1);
+      expect(await Directory('${root.path}/quietake-share').exists(), isFalse);
+      final out = await Directory('${root.path}/opened').create();
+      final names = await ShareBundle(vault.crypto.sodium)
+          .extract(bundleCopy, 'correct horse battery staple', out);
+      expect(names, ['video-01.mp4', 'video-02.mp4']);
+      expect(await File('${out.path}/video-01.mp4').readAsBytes(), original);
+      expect(await File('${out.path}/video-02.mp4').readAsBytes(), [1, 2, 3]);
+      await expectLater(
+        ShareBundle(vault.crypto.sodium).extract(
+          bundleCopy,
+          'wrong passphrase wrong',
+          await Directory('${root.path}/nope').create(),
+        ),
+        throwsA(isA<ShareBundleException>()),
+      );
+    },
+  );
 
   test('leaving the viewer during export prevents the share sheet', () async {
     binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (_) async {

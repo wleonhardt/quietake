@@ -490,5 +490,10 @@
   "settingsRenameRemoteBody": "{count} verschlüsselte Dateien auf dem NAS erhalten zufällige Namen, sodass ihre Namen und Zeiten dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.",
   "settingsRenameRemoteAction": "Umbenennen",
   "settingsRenameRemoteDone": "{count} Dateien auf dem NAS umbenannt.",
-  "settingsRenameRemoteFailed": "Das Umbenennen wurde angehalten. Starte es erneut, um fortzufahren. Es ging nichts verloren."
+  "settingsRenameRemoteFailed": "Das Umbenennen wurde angehalten. Starte es erneut, um fortzufahren. Es ging nichts verloren.",
+  "shareEncryptedTitle": "Mit Passphrase verschlüsseln",
+  "shareEncryptedBody": "Die Kopien kommen in eine Datei, die nur eine Passphrase öffnet. Quietake zeigt die Passphrase einmal an. Sende sie auf einem anderen Weg als die Datei.",
+  "sharePassphraseTitle": "Passphrase für diese Freigabe",
+  "sharePassphraseBody": "Schreibe sie jetzt auf oder sende sie getrennt. Quietake speichert sie nicht und kann sie nicht erneut zeigen.",
+  "sharePassphraseContinue": "App wählen"
 }

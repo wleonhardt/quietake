@@ -1847,4 +1847,21 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get settingsRenameRemoteFailed =>
       'El cambio de nombres se detuvo. Vuelve a ejecutarlo para continuar. No se perdió nada.';
+
+  @override
+  String get shareEncryptedTitle => 'Cifrar con una contraseña';
+
+  @override
+  String get shareEncryptedBody =>
+      'Las copias van en un solo archivo que solo se abre con una contraseña. Quietake la muestra una vez. Envíala por una vía distinta a la del archivo.';
+
+  @override
+  String get sharePassphraseTitle => 'Contraseña de este envío';
+
+  @override
+  String get sharePassphraseBody =>
+      'Anótala o envíala por separado ahora. Quietake no la guarda y no puede mostrarla otra vez.';
+
+  @override
+  String get sharePassphraseContinue => 'Elegir app';
 }

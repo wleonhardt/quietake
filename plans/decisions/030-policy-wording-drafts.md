@@ -30,7 +30,7 @@ Facts checked in code: `redactToPng`, `RedactScreen`, copy is a metadata-free PN
 
 ## D. Encrypted share (decision 025, not built in the app yet)
 
-Section: Optional sharing. Do not publish until slices 4 and 5 ship; the format and the command-line reader exist, the share dialog does not.
+Section: Optional sharing. The share dialog now offers it (slice 4); publish with slice 5 (opening a bundle in the app) or earlier if the owner accepts the command-line tool as the only reader.
 
 > Besides sharing normal copies, Quietake will be able to share a bundle that is encrypted with a passphrase made only for that share. Quietake shows the passphrase once; send it to the recipient by a different route from the file. The bundle never uses your vault key, recovery key or NAS credentials, so opening it reveals nothing about your vault. The file shows that it is a Quietake share, its total size and its encryption cost, and nothing else: names, counts and sizes of the items inside are encrypted. Anyone who has the file can try passphrase guesses offline, so the passphrase protects only as well as it is kept secret. Quietake and the open-source recovery tool can open a bundle with the passphrase.
 

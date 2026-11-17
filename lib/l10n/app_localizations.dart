@@ -3047,6 +3047,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Renaming stopped. Run it again to continue. Nothing was lost.'**
   String get settingsRenameRemoteFailed;
+
+  /// No description provided for @shareEncryptedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypt with a passphrase'**
+  String get shareEncryptedTitle;
+
+  /// No description provided for @shareEncryptedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The copies go into one file that only a passphrase opens. Quietake shows the passphrase once. Send it by a different route than the file.'**
+  String get shareEncryptedBody;
+
+  /// No description provided for @sharePassphraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase for this share'**
+  String get sharePassphraseTitle;
+
+  /// No description provided for @sharePassphraseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Write it down or send it separately now. Quietake does not keep it and cannot show it again.'**
+  String get sharePassphraseBody;
+
+  /// No description provided for @sharePassphraseContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose app'**
+  String get sharePassphraseContinue;
 }
 
 class _AppLocalizationsDelegate

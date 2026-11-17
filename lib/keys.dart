@@ -269,6 +269,10 @@ abstract final class Keys {
   static const shareConfirm = Key('share.confirm');
   static const shareStripLocation = Key('share.stripLocation');
   static const shareRedact = Key('share.redact');
+  static const shareEncrypted = Key('share.encrypted');
+  static const sharePassphrase = Key('share.passphrase');
+  static const sharePassphraseCancel = Key('share.passphraseCancel');
+  static const sharePassphraseContinue = Key('share.passphraseContinue');
   static const redactCanvas = Key('redact.canvas');
   static const redactUndo = Key('redact.undo');
   static const redactDone = Key('redact.done');

@@ -22,6 +22,7 @@ void main() {
   late VaultItem item;
   late VaultItem photo;
   List<dynamic> sharedMimes = const [];
+  List<dynamic> sharedPaths = const [];
   var shareCalls = 0;
   var shareFails = false;
 
@@ -49,6 +50,7 @@ void main() {
       ..setMockMethodCallHandler(share, (call) async {
         shareCalls++;
         sharedMimes = (call.arguments as Map)['mimeTypes'] as List;
+        sharedPaths = (call.arguments as Map)['paths'] as List;
         if (shareFails) throw PlatformException(code: 'unavailable');
         return '';
       });
@@ -189,6 +191,46 @@ void main() {
     expect(find.byKey(Keys.shareDialog), findsNothing);
     expect(shareCalls, 1);
   });
+
+  testWidgets(
+    'an encrypted share shows a six word passphrase once, then shares one bundle',
+    (tester) async {
+      await open(tester);
+      await tester.tap(find.byKey(Keys.shareEncrypted));
+      await tester.pump();
+      Future<String> askPassphrase() async {
+        await tester.tap(find.byKey(Keys.shareConfirm));
+        await settleReal(
+          tester,
+          () => find.byKey(Keys.sharePassphrase).evaluate().isNotEmpty,
+        );
+        return tester
+            .widget<SelectableText>(find.byKey(Keys.sharePassphrase))
+            .data!;
+      }
+
+      // Backing out shares nothing and keeps the dialog open.
+      await askPassphrase();
+      await tester.tap(find.byKey(Keys.sharePassphraseCancel));
+      await tester.pumpAndSettle();
+      expect(shareCalls, 0);
+      expect(find.byKey(Keys.shareDialog), findsOneWidget);
+
+      final phrase = await askPassphrase();
+      expect(phrase.split(' '), hasLength(6));
+      expect(shareCalls, 0, reason: 'nothing is shared before it is shown');
+      await tester.tap(find.byKey(Keys.sharePassphraseContinue));
+      await settleReal(
+        tester,
+        () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+      );
+      await tester.pumpAndSettle();
+      expect(shareCalls, 1);
+      expect(sharedMimes, ['application/octet-stream']);
+      expect(sharedPaths.single, endsWith('.quietake-share'));
+      expect(find.text(phrase), findsNothing);
+    },
+  );
 
   testWidgets('damaged capture names the item, keeps dialog, never shares', (
     tester,

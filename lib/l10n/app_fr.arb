@@ -490,5 +490,10 @@
   "settingsRenameRemoteBody": "{count} fichiers chiffrés du NAS reçoivent des noms aléatoires, leurs noms et heures n'y apparaissent donc plus. Mettez d'abord à jour Quietake sur les autres téléphones : les anciennes versions ne retrouvent pas les fichiers renommés. Vos originaux restent sur ce téléphone.",
   "settingsRenameRemoteAction": "Renommer",
   "settingsRenameRemoteDone": "{count} fichiers renommés sur le NAS.",
-  "settingsRenameRemoteFailed": "Le renommage s'est arrêté. Relancez-le pour continuer. Rien n'a été perdu."
+  "settingsRenameRemoteFailed": "Le renommage s'est arrêté. Relancez-le pour continuer. Rien n'a été perdu.",
+  "shareEncryptedTitle": "Chiffrer avec une phrase secrète",
+  "shareEncryptedBody": "Les copies sont réunies dans un seul fichier que seule une phrase secrète ouvre. Quietake l'affiche une seule fois. Envoyez-la par un autre moyen que le fichier.",
+  "sharePassphraseTitle": "Phrase secrète de ce partage",
+  "sharePassphraseBody": "Notez-la ou envoyez-la séparément maintenant. Quietake ne la conserve pas et ne peut plus l'afficher.",
+  "sharePassphraseContinue": "Choisir l'app"
 }

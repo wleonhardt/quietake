@@ -1851,4 +1851,21 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get settingsRenameRemoteFailed =>
       'Le renommage s\'est arrêté. Relancez-le pour continuer. Rien n\'a été perdu.';
+
+  @override
+  String get shareEncryptedTitle => 'Chiffrer avec une phrase secrète';
+
+  @override
+  String get shareEncryptedBody =>
+      'Les copies sont réunies dans un seul fichier que seule une phrase secrète ouvre. Quietake l\'affiche une seule fois. Envoyez-la par un autre moyen que le fichier.';
+
+  @override
+  String get sharePassphraseTitle => 'Phrase secrète de ce partage';
+
+  @override
+  String get sharePassphraseBody =>
+      'Notez-la ou envoyez-la séparément maintenant. Quietake ne la conserve pas et ne peut plus l\'afficher.';
+
+  @override
+  String get sharePassphraseContinue => 'Choisir l\'app';
 }

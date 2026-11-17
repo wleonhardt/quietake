@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../crypto/random_token.dart';
+import '../crypto/share_bundle.dart';
 import '../vault/vault.dart';
 import 'exif_strip.dart';
 import 'item.dart';
@@ -52,6 +53,11 @@ Future<void> shareMediaCopies(
   /// Areas to pixelate per photo, keyed by capture name. A redacted copy is a
   /// PNG without metadata; the vault original is never changed.
   Map<String, List<Rect>> redactions = const {},
+
+  /// When set, the prepared copies go into one `.quietake-share` bundle
+  /// encrypted with this passphrase (decision 025) and only the bundle is
+  /// handed to the chooser, with neutral entry names.
+  String? passphrase,
   required bool Function() isActive,
   void Function(int prepared, int total)? onProgress,
 }) async {
@@ -148,10 +154,39 @@ Future<void> shareMediaCopies(
       onProgress?.call(files.length, items.length);
     }
     if (!isActive()) return;
+    if (passphrase != null) {
+      final bundle = File(
+        '${directory.path}/captures-${randomHexToken(vault.crypto.sodium)}.quietake-share',
+      );
+      final entries = <ShareEntry>[
+        for (var i = 0; i < files.length; i++)
+          ShareEntry(
+            '${items[i].isVideo ? 'video' : 'photo'}-${(i + 1).toString().padLeft(2, '0')}.${files[i].path.split('.').last}',
+            File(files[i].path),
+          ),
+      ];
+      try {
+        await ShareBundle(vault.crypto.sodium)
+            .write(bundle, passphrase, entries);
+      } catch (_) {
+        throw const SharePreparationException(
+          'Could not prepare the encrypted share. Try again.',
+        );
+      }
+      for (final e in entries) {
+        await e.file.delete();
+      }
+      files
+        ..clear()
+        ..add(XFile(bundle.path, mimeType: 'application/octet-stream'));
+      if (!isActive()) return;
+    }
     await SharePlus.instance.share(
       ShareParams(
         files: files,
-        title: items.length == 1
+        title: passphrase != null
+            ? 'Share encrypted bundle'
+            : items.length == 1
             ? (items.single.isVideo ? 'Share video' : 'Share photo')
             : 'Share ${items.length} captures',
         sharePositionOrigin: origin,

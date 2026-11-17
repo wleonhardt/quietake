@@ -992,5 +992,10 @@
       }
     }
   },
-  "settingsRenameRemoteFailed": "Renaming stopped. Run it again to continue. Nothing was lost."
+  "settingsRenameRemoteFailed": "Renaming stopped. Run it again to continue. Nothing was lost.",
+  "shareEncryptedTitle": "Encrypt with a passphrase",
+  "shareEncryptedBody": "The copies go into one file that only a passphrase opens. Quietake shows the passphrase once. Send it by a different route than the file.",
+  "sharePassphraseTitle": "Passphrase for this share",
+  "sharePassphraseBody": "Write it down or send it separately now. Quietake does not keep it and cannot show it again.",
+  "sharePassphraseContinue": "Choose app"
 }

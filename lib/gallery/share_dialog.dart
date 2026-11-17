@@ -4,6 +4,7 @@ import '../keys.dart';
 import '../l10n/l10n.dart';
 import '../privacy/privacy_controller.dart';
 import '../privacy/privacy_scope.dart';
+import '../vault/backup_passphrase.dart';
 import '../vault/vault.dart';
 import 'item.dart';
 import 'redact_screen.dart';
@@ -41,6 +42,7 @@ class _ShareDialogState extends State<_ShareDialog> {
   bool _cancelled = false;
   int _prepared = 0;
   bool _stripLocation = true;
+  bool _encrypted = false;
   List<Rect> _regions = const [];
   String Function(AppLocalizations)? _error;
   PrivacyController? _privacy;
@@ -85,7 +87,58 @@ class _ShareDialogState extends State<_ShareDialog> {
     }
   }
 
+  /// Shows a fresh passphrase once; null when the person backs out.
+  Future<String?> _askPassphrase() async {
+    final phrase = await BackupPassphrase.generate(widget.vault.crypto.sodium);
+    if (!mounted) return null;
+    final go = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Text(context.l10n.sharePassphraseTitle),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SelectableText(
+              phrase,
+              key: Keys.sharePassphrase,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Text(context.l10n.sharePassphraseBody),
+          ],
+        ),
+        actions: [
+          TextButton(
+            key: Keys.sharePassphraseCancel,
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            key: Keys.sharePassphraseContinue,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.l10n.sharePassphraseContinue),
+          ),
+        ],
+      ),
+    );
+    return go == true ? phrase : null;
+  }
+
   Future<void> _share() async {
+    String? phrase;
+    if (_encrypted) {
+      try {
+        phrase = await _askPassphrase();
+      } catch (_) {
+        if (mounted) setState(() => _error = (l10n) => l10n.shareFailed);
+        return;
+      }
+      if (phrase == null) return;
+    }
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -100,6 +153,7 @@ class _ShareDialogState extends State<_ShareDialog> {
         widget.items,
         origin: widget.origin,
         stripLocation: _stripLocation,
+        passphrase: phrase,
         redactions: _regions.isEmpty
             ? const {}
             : {widget.items.single.name: _regions},
@@ -176,6 +230,16 @@ class _ShareDialogState extends State<_ShareDialog> {
                 _stripLocation ? l10n.shareStripOn : l10n.shareStripOff,
               ),
             ),
+          CheckboxListTile(
+            key: Keys.shareEncrypted,
+            contentPadding: EdgeInsets.zero,
+            value: _encrypted,
+            onChanged: _busy
+                ? null
+                : (value) => setState(() => _encrypted = value ?? false),
+            title: Text(l10n.shareEncryptedTitle),
+            subtitle: Text(l10n.shareEncryptedBody),
+          ),
           if (widget.items.length > 1)
             Padding(
               padding: const EdgeInsets.only(top: 12),
