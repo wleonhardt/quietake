@@ -422,7 +422,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 key: Keys.settingsPlainIcon,
                 contentPadding: EdgeInsets.zero,
                 title: Text(l10n.settingsPlainIcon),
-                subtitle: Text(l10n.settingsPlainIconBody),
+                subtitle: Text(
+                  Platform.isIOS
+                      ? l10n.settingsPlainIconBodyIos
+                      : l10n.settingsPlainIconBody,
+                ),
                 value: _plainIcon!,
                 onChanged: (value) async {
                   PrivacyScope.maybeOf(context)?.activity();

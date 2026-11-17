@@ -380,6 +380,7 @@
   "settingsSizeMb": "{value} MB",
   "settingsPlainIcon": "Schlichtes Symbol und Namen verwenden",
   "settingsPlainIconBody": "Zeigt ein graues Symbol mit dem Namen Werkzeuge statt Quietake. Die App kann beim Wechseln kurz schließen. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.",
+  "settingsPlainIconBodyIos": "Zeigt ein anderes graues Symbol. Der Name bleibt Quietake, und iOS zeigt beim Wechsel einen Hinweis. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.",
   "settingsPlainIconFailed": "Das App-Symbol konnte nicht geändert werden.",
   "settingsKeepDeleted": "Gelöschte Aufnahmen 30 Tage aufbewahren",
   "settingsKeepDeletedBody": "Löschen verschiebt eine Aufnahme zunächst nach Zuletzt gelöscht. Sie bleibt verschlüsselt.",

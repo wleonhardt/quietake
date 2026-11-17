@@ -2382,6 +2382,12 @@ abstract class AppLocalizations {
   /// **'Shows a gray icon named Tools instead of Quietake. The app may close for a moment when you switch. This does not hide Quietake from the app list or system settings.'**
   String get settingsPlainIconBody;
 
+  /// No description provided for @settingsPlainIconBodyIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows a different gray icon. The name stays Quietake, and iOS shows a notice when the icon changes. This does not hide Quietake from the app list or system settings.'**
+  String get settingsPlainIconBodyIos;
+
   /// No description provided for @settingsPlainIconFailed.
   ///
   /// In en, this message translates to:

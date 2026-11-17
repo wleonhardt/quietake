@@ -1449,6 +1449,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zeigt ein graues Symbol mit dem Namen Werkzeuge statt Quietake. Die App kann beim Wechseln kurz schließen. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.';
 
   @override
+  String get settingsPlainIconBodyIos =>
+      'Zeigt ein anderes graues Symbol. Der Name bleibt Quietake, und iOS zeigt beim Wechsel einen Hinweis. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.';
+
+  @override
   String get settingsPlainIconFailed =>
       'Das App-Symbol konnte nicht geändert werden.';
 

@@ -1445,6 +1445,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Muestra un icono gris llamado Herramientas en lugar de Quietake. La app puede cerrarse un momento al cambiar. Quietake sigue apareciendo en la lista de apps y en los ajustes del sistema.';
 
   @override
+  String get settingsPlainIconBodyIos =>
+      'Muestra otro icono gris. El nombre sigue siendo Quietake y iOS muestra un aviso al cambiar. Quietake sigue apareciendo en la lista de apps y en los ajustes del sistema.';
+
+  @override
   String get settingsPlainIconFailed =>
       'No se pudo cambiar el icono de la app.';
 
