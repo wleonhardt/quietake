@@ -149,6 +149,34 @@ void main() {
       expect(calls, isEmpty);
     });
 
+    test('mapped names reach the channel only when given', () async {
+      final seen = <Map<Object?, Object?>>[];
+      messenger.setMockMethodCallHandler(BackgroundUploads.channel, (
+        call,
+      ) async {
+        if (call.method == 'begin') return 'lease';
+        if (call.method == 'configure') {
+          seen.add((call.arguments as Map)['config'] as Map<Object?, Object?>);
+        }
+        return null;
+      });
+      final background = BackgroundUploads(enabled: true);
+      await background.foreground(() async {
+        await background.configure(settings, vault, 'proof', {'a'});
+        await background.configure(
+          settings,
+          vault,
+          'proof',
+          {'a'},
+          remoteNames: {'b.shtr': '0123456789abcdef0123456789abcdef.shtr'},
+        );
+      });
+      expect(seen.first.containsKey('remoteNames'), isFalse);
+      expect(seen.last['remoteNames'], {
+        'b.shtr': '0123456789abcdef0123456789abcdef.shtr',
+      });
+    });
+
     test('a missing lease stops foreground work before it starts', () async {
       messenger.setMockMethodCallHandler(
         BackgroundUploads.channel,

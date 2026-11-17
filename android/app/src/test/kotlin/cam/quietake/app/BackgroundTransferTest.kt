@@ -24,6 +24,7 @@ class BackgroundTransferTest {
 
     private fun fixture(cancelled: () -> Boolean = { false }, committed: (String) -> Unit = {},
                         removed: MutableSet<String> = linkedSetOf(), rememberRemoved: (Set<String>) -> Unit = {},
+                        remoteNames: Map<String, String>? = null,
                         test: (File, MockWebServer, BackgroundTransfer) -> Unit) {
         val root = Files.createTempDirectory("background-test").toFile()
         val server = MockWebServer()
@@ -36,7 +37,7 @@ class BackgroundTransferTest {
             BackgroundTransfer.digest(keyfile),
             BackgroundTransfer.digest(File(vault, "quietake.catalog")),
             File(root, "owned"), cancelled, committed,
-            removed = removed, rememberRemoved = rememberRemoved,
+            removed = removed, rememberRemoved = rememberRemoved, remoteNames = remoteNames,
         )
         try { test(vault, server, transfer) }
         finally { server.shutdown(); root.deleteRecursively() }
@@ -101,6 +102,38 @@ class BackgroundTransferTest {
         assertFalse(error is BackgroundConflict)
         assertEquals("encrypted capture", File(vault, "one.shtr").readText())
     }
+
+    @Test fun mappedCaptureUploadsUnderItsRandomNameAndUnmappedWaitsForForeground() =
+        fixture(remoteNames = mapOf("one.shtr" to "0123456789abcdef0123456789abcdef.shtr")) { vault, server, transfer ->
+            File(vault, "one.shtr").writeText("encrypted one")
+            File(vault, "two.shtr").writeText("encrypted two")
+            server.enqueue(MockResponse().setBody("encrypted catalog"))
+            server.enqueue(MockResponse().setResponseCode(404)) // No legacy catalog.
+            server.enqueue(MockResponse().setResponseCode(404)) // No legacy recovery envelope.
+            server.enqueue(MockResponse().setResponseCode(404))
+            server.enqueue(MockResponse().setResponseCode(201))
+            server.enqueue(MockResponse().setResponseCode(201))
+            assertEquals(1, transfer.run())
+            val seen = generateSequence { server.takeRequest(100, java.util.concurrent.TimeUnit.MILLISECONDS) }
+                .toList().map { it.method + " " + it.path }
+            assertTrue(seen.toString(), seen.none { it.contains("one.shtr") || it.contains("two.shtr") })
+            assertTrue(seen.toString(), seen.any { it.startsWith("MOVE") })
+        }
+
+    @Test fun deletedMappedCaptureRemovesItsRandomNameToo() =
+        fixture(remoteNames = mapOf("one.shtr" to "0123456789abcdef0123456789abcdef.shtr")) { vault, server, transfer ->
+            File(vault, ".deletions").mkdir()
+            File(vault, ".deletions/one.del").writeText("")
+            server.enqueue(MockResponse().setBody("encrypted catalog"))
+            server.enqueue(MockResponse().setResponseCode(404))
+            server.enqueue(MockResponse().setResponseCode(404))
+            server.enqueue(MockResponse().setResponseCode(204))
+            server.enqueue(MockResponse().setResponseCode(204))
+            assertEquals(0, transfer.run())
+            val seen = generateSequence { server.takeRequest(100, java.util.concurrent.TimeUnit.MILLISECONDS) }
+                .toList().filter { it.method == "DELETE" }.map { it.path }
+            assertEquals(listOf("/vault/one.shtr", "/vault/0123456789abcdef0123456789abcdef.shtr"), seen)
+        }
 
     @Test fun removedReceiptStopsRepeatedDeletes() {
         val receipts = mutableListOf<Set<String>>()

@@ -212,6 +212,7 @@ class SyncController extends ChangeNotifier {
                 vault,
                 service.authenticatedCatalogHash,
                 service.confirmedMedia,
+                remoteNames: await _backgroundNames(service.confirmedMedia),
               );
             } on PlatformException {
               // The pass finished; native scheduling is repaired on the next
@@ -342,6 +343,24 @@ class SyncController extends ChangeNotifier {
       // Captures/edits during this exclusive operation must not lose their retry.
       if (!_closed) unawaited(sync());
     }
+  }
+
+  /// Mapped NAS names for captures the native job may still upload or delete
+  /// (decision 026). Null while names are not random, so the job keeps the
+  /// capture names it always used.
+  Future<Map<String, String>?> _backgroundNames(Set<String> confirmed) async {
+    if (!useRandomNames) return null;
+    final deleted = await vault.deletedNames();
+    final waiting = [
+      for (final f in await vault.list())
+        if (!confirmed.contains(f.uri.pathSegments.last))
+          f.uri.pathSegments.last,
+    ];
+    final names = await vault.catalog.assignRemoteNames(waiting.take(20000));
+    return {
+      for (final n in [...waiting.take(20000), ...deleted.take(20000)])
+        if (names.remoteFor(n) != n) n: names.remoteFor(n),
+    };
   }
 
   /// Gives readable NAS file names random ones (decision 026). Uses the

@@ -126,6 +126,7 @@ class BackgroundUploadWorker(context: Context, parameters: WorkerParameters) : W
                 },
                 store.receipts(generation), { names -> store.receipts(generation, names) },
                 store.receipts("$generation-removed"), { names -> store.receipts("$generation-removed", names) },
+                config.optJSONObject("remoteNames")?.let { o -> o.keys().asSequence().associateWith { o.getString(it) } },
             )
             BackgroundGate.transfer = transfer
             runningTransfer = transfer
@@ -233,6 +234,14 @@ class BackgroundUploads(private val context: Context) {
         val target = data.getString("url") + "\u0000" + data.getString("username")
         data.put("generation", MessageDigest.getInstance("SHA-256")
             .digest(target.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) })
+        data.optJSONObject("remoteNames")?.let { o ->
+            require(o.length() <= 20000)
+            o.keys().forEach { local ->
+                require(BackgroundTransfer.validName(local) && local.endsWith(".shtr"))
+                val remote = o.getString(local)
+                require(BackgroundTransfer.validName(remote) && remote.endsWith(".shtr"))
+            }
+        }
         val confirmed = data.getJSONArray("confirmed")
         require(confirmed.length() <= 100000)
         val names = (0 until confirmed.length()).map { confirmed.getString(it) }.asReversed().toCollection(linkedSetOf())

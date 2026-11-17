@@ -38,8 +38,9 @@ class BackgroundUploads {
     SyncSettings settings,
     Vault vault,
     String? proof,
-    Set<String> confirmedMedia,
-  ) async {
+    Set<String> confirmedMedia, {
+    Map<String, String>? remoteNames,
+  }) async {
     if (!enabled || !settings.backgroundUploads || proof == null) return;
     await channel.invokeMethod<void>('configure', {
       'lease': _lease,
@@ -52,6 +53,10 @@ class BackgroundUploads {
         'ownership': proof,
         'mobileData': settings.mobileData,
         'confirmed': confirmedMedia.take(100000).toList(),
+        // Present only when NAS names are random (decision 026): the native
+        // job uploads a capture under its mapped name and leaves unmapped
+        // captures to the foreground sync, so no capture name reaches the NAS.
+        'remoteNames': ?remoteNames,
       },
     });
   }

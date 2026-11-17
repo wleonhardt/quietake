@@ -711,6 +711,41 @@ void main() {
   });
 
   test(
+    'the native job gets mapped names only while names are random',
+    () async {
+      final readable = _RecordingScheduler();
+      final random = _RecordingScheduler();
+      final plain = SyncController(
+        vault,
+        loadSettings: () async => settings,
+        background: readable,
+      );
+      final mapped = SyncController(
+        vault,
+        loadSettings: () async => settings,
+        background: random,
+        useRandomNames: true,
+      );
+      addTearDown(plain.close);
+      addTearDown(mapped.close);
+      final file = await capture('photo.jpg');
+      await plain.sync();
+      expect(readable.calls, [null]);
+      await mapped.sync();
+      expect(random.calls, [isEmpty]);
+      // A deleted capture keeps its mapping so the job can remove the random name.
+      await vault.catalog.assignRemoteNames(['photo.jpg.shtr']);
+      await vault.delete(file);
+      await mapped.sync();
+      expect(random.calls.last!.keys, ['photo.jpg.shtr']);
+      expect(
+        random.calls.last!['photo.jpg.shtr'],
+        matches(RegExp(r'^[0-9a-f]{32}\.shtr$')),
+      );
+    },
+  );
+
+  test(
     'renaming NAS files runs through the controller: dry run, then move',
     () async {
       await capture('photo.jpg');
@@ -736,6 +771,23 @@ void main() {
   );
 }
 
+/// Records what the foreground pass hands to the native scheduler.
+class _RecordingScheduler extends BackgroundUploads {
+  _RecordingScheduler() : super(enabled: false);
+  final calls = <Map<String, String>?>[];
+
+  @override
+  Future<void> configure(
+    SyncSettings settings,
+    Vault vault,
+    String? proof,
+    Set<String> confirmedMedia, {
+    Map<String, String>? remoteNames,
+  }) async {
+    calls.add(remoteNames);
+  }
+}
+
 /// Native scheduling that always fails after a successful foreground pass.
 class _FailingScheduler extends BackgroundUploads {
   _FailingScheduler() : super(enabled: false);
@@ -745,8 +797,9 @@ class _FailingScheduler extends BackgroundUploads {
     SyncSettings settings,
     Vault vault,
     String? proof,
-    Set<String> confirmedMedia,
-  ) async {
+    Set<String> confirmedMedia, {
+    Map<String, String>? remoteNames,
+  }) async {
     throw PlatformException(code: 'background');
   }
 }
