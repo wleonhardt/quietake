@@ -116,6 +116,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockedCameraClose => 'Close camera';
 
   @override
+  String lockedCapturesPublished(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count photos from the lock screen camera are now in your library.',
+      one: '1 photo from the lock screen camera is now in your library.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get recoveryKeyLabel => 'Recovery key';
 
   @override

@@ -27,6 +27,7 @@
   "lockedCameraSaved": "Foto versiegelt. Es erscheint nach dem Entsperren in Ihrer Bibliothek.",
   "lockedCameraFailed": "Das Foto konnte nicht gespeichert werden.",
   "lockedCameraClose": "Kamera schließen",
+  "lockedCapturesPublished": "{count, plural, =1{1 Foto der Sperrbildschirm-Kamera ist jetzt in Ihrer Bibliothek.} other{{count} Fotos der Sperrbildschirm-Kamera sind jetzt in Ihrer Bibliothek.}}",
   "recoveryKeyLabel": "Wiederherstellungsschlüssel",
   "recoveryKeyIntro": "Bewahren Sie diesen Schlüssel in Ihrem Passwortmanager auf, getrennt von Ihren verschlüsselten Dateien. Sie benötigen beide, um Ihre Aufnahmen wiederherzustellen, wenn Sie den Zugangscode vergessen oder dieses Gerät verlieren. Eine NAS-Backup-Passphrase ist nur dann eine weitere Wiederherstellungsoption, wenn Sie sie aktiviert haben.",
   "recoveryFingerprint": "Fingerabdruck {fingerprint}",

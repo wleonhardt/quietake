@@ -264,6 +264,12 @@ abstract class AppLocalizations {
   /// **'Close camera'**
   String get lockedCameraClose;
 
+  /// No description provided for @lockedCapturesPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo from the lock screen camera is now in your library.} other{{count} photos from the lock screen camera are now in your library.}}'**
+  String lockedCapturesPublished(int count);
+
   /// No description provided for @recoveryKeyLabel.
   ///
   /// In en, this message translates to:

@@ -27,6 +27,7 @@
   "lockedCameraSaved": "Photo scellée. Elle apparaît dans votre bibliothèque après le déverrouillage.",
   "lockedCameraFailed": "Impossible d'enregistrer la photo.",
   "lockedCameraClose": "Fermer l'appareil photo",
+  "lockedCapturesPublished": "{count, plural, =1{1 photo prise depuis l'écran verrouillé est maintenant dans votre bibliothèque.} other{{count} photos prises depuis l'écran verrouillé sont maintenant dans votre bibliothèque.}}",
   "recoveryKeyLabel": "Clé de récupération",
   "recoveryKeyIntro": "Conservez cette clé dans votre gestionnaire de mots de passe, séparément de vos fichiers chiffrés. Il vous faut les deux pour récupérer vos captures si vous oubliez le code d'accès ou perdez cet appareil. Une phrase secrète de sauvegarde NAS est une autre option de récupération, uniquement si vous l'avez activée.",
   "recoveryFingerprint": "Empreinte {fingerprint}",

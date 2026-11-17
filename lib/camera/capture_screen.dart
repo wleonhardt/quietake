@@ -107,10 +107,23 @@ class _CaptureScreenState extends State<CaptureScreen>
     WidgetsBinding.instance.addObserver(this);
     widget.session.cast.addListener(_onCast);
     widget.session.vault.catalog.addListener(_onCatalog);
+    widget.session.takeLockedPublished().then(_noticeLockedPublished);
     BurstSetting.load().then((size) {
       if (mounted) setState(() => _burstSize = size);
     });
     _init();
+  }
+
+  /// Tells the owner that photos taken on the lock screen camera are now in
+  /// the library. It runs only after unlock, so nothing is revealed while locked.
+  void _noticeLockedPublished(int count) {
+    if (count <= 0 || !mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(
+        key: Keys.lockedPublishedNotice,
+        content: Text(_l10n.lockedCapturesPublished(count)),
+      ),
+    );
   }
 
   void _onCatalog() {

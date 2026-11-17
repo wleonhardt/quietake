@@ -51,6 +51,14 @@
   "lockedCameraSaved": "Photo sealed. It appears in your library after you unlock.",
   "lockedCameraFailed": "Could not save the photo.",
   "lockedCameraClose": "Close camera",
+  "lockedCapturesPublished": "{count, plural, =1{1 photo from the lock screen camera is now in your library.} other{{count} photos from the lock screen camera are now in your library.}}",
+  "@lockedCapturesPublished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "recoveryKeyLabel": "Recovery key",
   "recoveryKeyIntro": "Keep this key in your password manager, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A NAS backup passphrase is another recovery option only if you have enabled it.",
   "recoveryFingerprint": "Fingerprint {fingerprint}",

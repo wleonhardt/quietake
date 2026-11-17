@@ -211,6 +211,9 @@ void main() {
       }
       expect(await locked.count(), 0);
       expect(await session.vault.list(), hasLength(1));
+      expect(await session.takeLockedPublished(), 1);
+      // The notice is given once per session.
+      expect(await session.takeLockedPublished(), 0);
     } finally {
       await session.close();
       await dir.delete(recursive: true);

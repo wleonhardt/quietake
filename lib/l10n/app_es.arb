@@ -27,6 +27,7 @@
   "lockedCameraSaved": "Foto sellada. Aparece en tu biblioteca después de desbloquear.",
   "lockedCameraFailed": "No se pudo guardar la foto.",
   "lockedCameraClose": "Cerrar la cámara",
+  "lockedCapturesPublished": "{count, plural, =1{1 foto de la cámara de la pantalla de bloqueo ya está en tu biblioteca.} other{{count} fotos de la cámara de la pantalla de bloqueo ya están en tu biblioteca.}}",
   "recoveryKeyLabel": "Clave de recuperación",
   "recoveryKeyIntro": "Guarda esta clave en tu gestor de contraseñas, separada de tus archivos cifrados. Necesitas ambos para recuperar tus capturas si olvidas el código de acceso o pierdes este dispositivo. Una frase de contraseña de copia en el NAS es otra opción de recuperación solo si la has activado.",
   "recoveryFingerprint": "Huella {fingerprint}",

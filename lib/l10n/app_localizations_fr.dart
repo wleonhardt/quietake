@@ -118,6 +118,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get lockedCameraClose => 'Fermer l\'appareil photo';
 
   @override
+  String lockedCapturesPublished(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count photos prises depuis l\'écran verrouillé sont maintenant dans votre bibliothèque.',
+      one: '1 photo prise depuis l\'écran verrouillé est maintenant dans votre bibliothèque.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get recoveryKeyLabel => 'Clé de récupération';
 
   @override
