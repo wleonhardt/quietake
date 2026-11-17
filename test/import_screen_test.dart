@@ -194,6 +194,39 @@ void main() {
     expect(await tester.runAsync(session.vault.list), hasLength(1));
   });
 
+  testWidgets('the typed share passphrase is cleared when the app pauses', (
+    tester,
+  ) async {
+    await open(tester);
+    pick = () async => [
+      {'name': 'a.quietake-share', 'path': '${dir.path}/none'},
+    ];
+    await tester.tap(find.byKey(Keys.importShare));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.enterText(find.byKey(Keys.importSharePassphrase), 'secret');
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(Keys.importSharePassphrase))
+          .controller!
+          .text,
+      '',
+    );
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.tap(find.byKey(Keys.importShareCancel));
+    for (var i = 0; i < 100 && calls.length < 2; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+  });
+
   testWidgets('backing out of the passphrase imports nothing', (tester) async {
     await open(tester);
     pick = () async => [

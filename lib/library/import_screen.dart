@@ -138,38 +138,11 @@ class _ImportScreenState extends State<ImportScreen> {
     }
   }
 
-  Future<String?> _askPassphrase() {
-    final controller = TextEditingController();
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.importSharePassphraseTitle),
-        content: TextField(
-          key: Keys.importSharePassphrase,
-          controller: controller,
-          autofocus: true,
-          autocorrect: false,
-          enableSuggestions: false,
-          decoration: InputDecoration(
-            labelText: context.l10n.importSharePassphraseLabel,
-          ),
-        ),
-        actions: [
-          TextButton(
-            key: Keys.importShareCancel,
-            onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.cancel),
-          ),
-          FilledButton(
-            key: Keys.importShareOpen,
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: Text(context.l10n.importShareOpenButton),
-          ),
-        ],
-      ),
-    ).whenComplete(controller.dispose);
-  }
+  Future<String?> _askPassphrase() => showDialog<String>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const _SharePassphraseDialog(),
+  );
 
   /// Copies the supported files of one folder in chunks. The summary stays on
   /// screen; running it again on the same folder resumes where it stopped.
@@ -365,6 +338,65 @@ class _ImportScreenState extends State<ImportScreen> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Asks for the passphrase of a received share. The content stays alive behind
+/// the lock screen, so the typed text is cleared when the app pauses.
+class _SharePassphraseDialog extends StatefulWidget {
+  const _SharePassphraseDialog();
+  @override
+  State<_SharePassphraseDialog> createState() => _SharePassphraseDialogState();
+}
+
+class _SharePassphraseDialogState extends State<_SharePassphraseDialog>
+    with WidgetsBindingObserver {
+  final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(l10n.importSharePassphraseTitle),
+      content: TextField(
+        key: Keys.importSharePassphrase,
+        controller: _controller,
+        autofocus: true,
+        autocorrect: false,
+        enableSuggestions: false,
+        decoration: InputDecoration(labelText: l10n.importSharePassphraseLabel),
+      ),
+      actions: [
+        TextButton(
+          key: Keys.importShareCancel,
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          key: Keys.importShareOpen,
+          onPressed: () => Navigator.pop(context, _controller.text.trim()),
+          child: Text(l10n.importShareOpenButton),
+        ),
+      ],
     );
   }
 }
