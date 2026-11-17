@@ -256,16 +256,17 @@ final class IncomingShare {
   private let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
     .appendingPathComponent("quietake-incoming", isDirectory: true)
   private var file: URL { directory.appendingPathComponent("incoming.quietake-share") }
-  private var copying = false
+  /// Copies started and not yet finished; two quick opens must both finish before Dart looks.
+  private var copies = 0
+  private let queue = DispatchQueue(label: "cam.quietake.incoming", qos: .userInitiated)
   private var waiting: [FlutterResult] = []
   static let limit = 513 * 1024 * 1024
 
   private init() { try? FileManager.default.removeItem(at: directory) }
 
   func accept(_ source: URL) {
-    copying = true
-    DispatchQueue.global(qos: .userInitiated).async {
-      var ok = false
+    copies += 1
+    queue.async {
       let part = self.directory.appendingPathComponent("incoming.part")
       do {
         try FileManager.default.createDirectory(at: self.directory, withIntermediateDirectories: true)
@@ -274,24 +275,26 @@ final class IncomingShare {
         _ = try copyBounded(from: source, to: part, limit: IncomingShare.limit, isCancelled: { false })
         try? FileManager.default.removeItem(at: self.file)
         try FileManager.default.moveItem(at: part, to: self.file)
-        ok = true
       } catch {
         try? FileManager.default.removeItem(at: part)
       }
       // The system copy of a file opened from another app lives in the app's Inbox.
       if source.path.contains("/Inbox/") { try? FileManager.default.removeItem(at: source) }
       DispatchQueue.main.async {
-        self.copying = false
-        let waiters = self.waiting
-        self.waiting = []
-        waiters.forEach { $0(ok) }
+        self.copies -= 1
+        if self.copies == 0 {
+          let ready = FileManager.default.fileExists(atPath: self.file.path)
+          let waiters = self.waiting
+          self.waiting = []
+          waiters.forEach { $0(ready) }
+        }
       }
     }
   }
 
   /// True once a copy is ready; waits for a copy that is still running.
   func available(_ result: @escaping FlutterResult) {
-    if copying { waiting.append(result) } else { result(FileManager.default.fileExists(atPath: file.path)) }
+    if copies > 0 { waiting.append(result) } else { result(FileManager.default.fileExists(atPath: file.path)) }
   }
 
   /// Moves the copy into the import folder so the normal cleanup removes it.
