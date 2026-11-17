@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 staleness sweep on the Android emulator, all passing: `library_test` 1, `lock_test` 7, `settings_icon_test` 1, `startup_test` 6, `privacy_test` 8. Still to sweep: `delete_test`, `recently_deleted_test`, `appearance_test`, `library_layout_test`, `library_recovery_test`, `backup_test`, `sync_test`, `portable_test`, `capture_*`.
+
 - 2026-11-17 device check on the Android emulator: `locked_camera_test.dart` 1 of 1 and `viewer_interaction_test.dart` 5 of 5 pass after the waiting-photo count and the viewer cover button. `viewer_test.dart` now drives the Details cover button on a device (Android and iOS 6 of 6). That run also found `viewer_test.dart`'s share test stale: it expected the shared JPEG to equal the stored fixture byte for byte, but location and metadata stripping is on by default, so the copy is smaller (5888 against 5905 bytes). The test now checks a JPEG header and a size no larger than the original. The waiting-photo notice is still host-tested only.
 
 - 2026-11-17 device check: `integration_test/sharing_test.dart` passed 6 of 6 on the Android emulator after the multi-photo redaction change, including hiding an area of one photo. A new device test now hides an area in each of two photos: both Android and iOS pass 7 of 7 (two PNGs shared, both originals unchanged).
