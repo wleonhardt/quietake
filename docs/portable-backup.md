@@ -1,6 +1,6 @@
 # Portable encrypted backup
 
-Settings → Create encrypted ZIP checks the current passcode and saves a copy
+Settings → Portable encrypted backup → Create encrypted ZIP checks the current passcode and saves a copy
 through the system Files picker. Keep the independent recovery key separately.
 The archive does not contain the recovery key, local passcode, wrapped keyfile,
 NAS credentials or deletion journal. Export leaves vault originals unchanged.

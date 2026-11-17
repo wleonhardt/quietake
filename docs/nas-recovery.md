@@ -6,7 +6,7 @@ does not add a server or publisher-operated recovery service.
 
 ## Enable, change or disable
 
-Complete one successful foreground sync first, then open Settings → Backup
+Complete one successful foreground sync first, then open Settings → NAS backup
 passphrase. Enter the current local passcode, generate six random words or enter
 a strong phrase, confirm it and approve saving. Save the phrase separately from
 the phone. Generated words come from the attributed EFF long list; app licenses

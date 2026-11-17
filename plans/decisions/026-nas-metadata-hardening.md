@@ -1,6 +1,6 @@
 # 026 NAS metadata hardening
 
-Status: accepted 2026-11-16 (owner): option A, random remote names, plus a later owner-approved rename of existing remote files. Option B stays out. No code yet.
+Status: accepted 2026-11-16 (owner): option A, random remote names, plus a later owner-approved rename of existing remote files. Option B stays out. Built: new uploads use random names, and Settings has the rename action for older files (see the slice notes below and `plans/next-up.md`).
 
 ## Problem
 

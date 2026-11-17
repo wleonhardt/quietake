@@ -101,7 +101,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R80 planned: Website: Cast sentence, status line size and place, who it is for, call to action, 12 px text floor, hero size on narrow screens, descriptions, sitemap, social tags, 404 page.
 - R81 blocked: Website screenshots need owner-approved images.
 - R82 planned: In-app wording drafts for owner review: missing plurals, "backup server" instead of three names, "check code" instead of "fingerprint", where to keep the recovery key, passcode-loss warning, error sentences.
-- R83 planned: Documents: stale statement about random remote names, decision 026 status, UI labels quoted wrongly, references to decisions 038 to 040 that are not in the repository.
+- R83 complete: Documents. Fixed the stale random-name sentence in `docs/container-format.md`, the status lines of decisions 026 and 029, and the two Settings paths quoted in `docs/portable-backup.md` and `docs/nas-recovery.md`. Blocked part, now in `open-questions.md`: code and tests cite decisions 027 and 036 to 040 from the private history, which are not in this repository and whose numbers the public records will reach.
 - R84 planned: Add a threat model and an architecture overview; give the README a no-device quick start.
 - R85 planned: Recovery tool README for someone without developer tools (prebuilt binaries are an owner release step).
 

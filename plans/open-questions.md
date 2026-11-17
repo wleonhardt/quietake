@@ -16,6 +16,8 @@
 
 - Share bundle entry names: refuse a colon and Windows device names (`CON`, `NUL`, a trailing dot) in both readers? It tightens `docs/share-bundle.md`, so it needs the owner. Today a bundle opened by the recovery tool on Windows could name such a file.
 
+- Decision numbers: code and tests cite decisions 027 and 036 to 040 from the private history (clipboard rule, search scope, application ID, staged MOVE, lock clears plaintext). The public records restarted at 001 and are now at 034, so public 027 already means something else and 036 onward will collide. Publish short public records for those rules and renumber the citations, or continue the public numbers from 041?
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).

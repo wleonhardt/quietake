@@ -2,7 +2,7 @@
 
 One encrypted media file. The NAS cannot read its content, but sees the container name and
 length. The app's names include capture time and media extension, unless the optional random-name setting
-(decision 026, `remoteNames` in `docs/private-catalog.md`) is on; it is not wired into the app yet. The plaintext length can be
+(decision 026, `remoteNames` in `docs/private-catalog.md`) is on. The app uses random names for new uploads; older files keep their names until the Settings rename action is run. The plaintext length can be
 calculated exactly from the public header and ciphertext length; v1 does not pad media sizes.
 
 All integers big-endian. Primitives are libsodium 1.0.22:
