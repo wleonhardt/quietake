@@ -1,6 +1,6 @@
 # 025 Encrypted share
 
-Status: proposed. Waiting for the owner's go or no-go and a choice of option. No code.
+Status: accepted 2026-11-16 (owner): option B, the Quietake share container, as a later step; option A is not chosen. No code yet; B needs a container version decision, frozen vectors and Go support before building.
 
 ## Problem
 

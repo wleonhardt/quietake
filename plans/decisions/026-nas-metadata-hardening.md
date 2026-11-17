@@ -1,6 +1,6 @@
 # 026 NAS metadata hardening
 
-Status: proposed. Waiting for the owner's go or no-go and a choice of option. No code.
+Status: accepted 2026-11-16 (owner): option A, random remote names, plus a later owner-approved rename of existing remote files. Option B stays out. No code yet.
 
 ## Problem
 

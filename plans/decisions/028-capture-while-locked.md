@@ -1,6 +1,6 @@
 # 028 Capture while locked
 
-Status: proposed. Waiting for the owner's go or no-go. No code.
+Status: accepted 2026-11-16 (owner): build on both Android and iOS, split over several iterations. No code yet.
 
 ## Problem
 

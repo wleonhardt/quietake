@@ -1,6 +1,6 @@
 # 029 Neutral app icon
 
-Status: proposed. Waiting for the owner's go or no-go and artwork. No code.
+Status: accepted 2026-11-16 (owner): build the optional plain icon and name; the owner asked for the artwork to be generated, so it needs an owner look before shipping. No code yet.
 
 ## Proposal
 

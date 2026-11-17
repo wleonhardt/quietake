@@ -1,6 +1,6 @@
 # 027 Provenance proof
 
-Status: proposed. Waiting for the owner's go or no-go. No code.
+Status: rejected 2026-11-16 (owner): the per-vault key makes proofs linkable. No code.
 
 ## Problem
 
