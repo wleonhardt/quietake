@@ -106,19 +106,46 @@ Future<_Booted> _boot(
 }
 
 void main() {
-  testWidgets('with reduced motion the capture flash appears without a fade', (
-    tester,
-  ) async {
-    final booted = await _boot(tester, _CastCamera.new, reduceMotion: true);
-    Duration? seen;
-    await tester.runAsync(() => tester.tap(find.byKey(Keys.shutter)));
-    await booted.until(() {
-      final flash = find.byKey(Keys.captureFlash);
-      if (flash.evaluate().isNotEmpty) {
-        seen = tester.widget<AnimatedContainer>(flash).duration;
-      }
-      return seen != null;
-    });
-    expect(seen, Duration.zero);
-  });
+  testWidgets(
+    'the capture flash has no fade with reduced motion and fades away otherwise',
+    (tester) async {
+      final booted = await _boot(tester, _CastCamera.new, reduceMotion: true);
+      Duration? seen;
+      await tester.runAsync(() => tester.tap(find.byKey(Keys.shutter)));
+      await booted.until(() {
+        final flash = find.byKey(Keys.captureFlash);
+        if (flash.evaluate().isNotEmpty) {
+          seen = tester.widget<AnimatedContainer>(flash).duration;
+        }
+        return seen != null;
+      });
+      expect(seen, Duration.zero);
+
+      // Same screen with normal motion: the cue fades, then goes away.
+      await tester.runAsync(
+        () => tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(),
+            child: MaterialApp(home: CaptureScreen(session: booted.session)),
+          ),
+        ),
+      );
+      await booted.until(
+        () => find.byKey(Keys.captureFlash).evaluate().isEmpty,
+      );
+      seen = null;
+      await tester.runAsync(() => tester.tap(find.byKey(Keys.shutter)));
+      await booted.until(() {
+        final flash = find.byKey(Keys.captureFlash);
+        if (flash.evaluate().isNotEmpty) {
+          seen = tester.widget<AnimatedContainer>(flash).duration;
+        }
+        return seen != null;
+      });
+      expect(seen, greaterThan(Duration.zero));
+      await booted.until(
+        () => find.byKey(Keys.captureFlash).evaluate().isEmpty,
+      );
+    },
+  );
 }

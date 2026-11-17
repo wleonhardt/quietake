@@ -9,7 +9,7 @@
   the signed successor and its Play-delivered upgrade still need separate proof.
 - Keep brief capture-confirmation timing in controlled-clock widget coverage.
   Device capture checks verify encrypted media, playback and catalog persistence;
-  a loaded device can miss the 180 ms flash between test frames.
+  a loaded device can miss the 180 ms flash between test frames. `capture_flash_motion_test.dart` now covers both the fade and its removal.
 - Finish internal Play validation, report coverage and data-preserving upgrades.
   Preserve original vaults and encrypted backups; restore old backups only into
   separate empty targets. Source CI is not signed-artifact or store evidence.
