@@ -344,6 +344,17 @@ class SyncController extends ChangeNotifier {
     }
   }
 
+  /// Gives readable NAS file names random ones (decision 026). Uses the
+  /// exclusive recovery gate so no sync runs at the same time.
+  Future<RenameReport> renameRemote({bool dryRun = false}) => recoveryOperation(
+    (client) => SyncService(
+      vault,
+      client,
+      isCancelled: () => _cancelled || _closed,
+      useRandomNames: useRandomNames,
+    ).renameRemote(dryRun: dryRun),
+  );
+
   bool get recoveryCancelled => _closed || _cancelled;
 
   void cancelVerification() {

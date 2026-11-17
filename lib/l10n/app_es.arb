@@ -483,5 +483,12 @@
   "shareRedactEdit": "Zonas ocultas: {count}. Cambiar…",
   "shareRedactNote": "La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda.",
   "redactCell": "Fila {row}, columna {column}",
-  "redactSections": "O oculta una sección de la foto"
+  "redactSections": "O oculta una sección de la foto",
+  "settingsRenameRemote": "Dar nombres aleatorios a los archivos del NAS",
+  "settingsRenameRemoteNone": "Ningún archivo del NAS necesita un nombre nuevo.",
+  "settingsRenameRemoteTitle": "¿Renombrar los archivos del NAS?",
+  "settingsRenameRemoteBody": "{count} archivos cifrados del NAS reciben nombres aleatorios, así que sus nombres y horas ya no se ven allí. Actualiza antes Quietake en los demás teléfonos: las versiones antiguas no encuentran los archivos renombrados. Tus originales se quedan en este teléfono.",
+  "settingsRenameRemoteAction": "Renombrar",
+  "settingsRenameRemoteDone": "Se renombraron {count} archivos en el NAS.",
+  "settingsRenameRemoteFailed": "El cambio de nombres se detuvo. Vuelve a ejecutarlo para continuar. No se perdió nada."
 }

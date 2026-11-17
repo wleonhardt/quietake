@@ -483,5 +483,12 @@
   "shareRedactEdit": "Zones masquées : {count}. Modifier…",
   "shareRedactNote": "La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L'original reste inchangé dans votre coffre.",
   "redactCell": "Ligne {row}, colonne {column}",
-  "redactSections": "Ou masquez une section de la photo"
+  "redactSections": "Ou masquez une section de la photo",
+  "settingsRenameRemote": "Donner des noms aléatoires aux fichiers du NAS",
+  "settingsRenameRemoteNone": "Aucun fichier du NAS n'a besoin d'un nouveau nom.",
+  "settingsRenameRemoteTitle": "Renommer les fichiers du NAS ?",
+  "settingsRenameRemoteBody": "{count} fichiers chiffrés du NAS reçoivent des noms aléatoires, leurs noms et heures n'y apparaissent donc plus. Mettez d'abord à jour Quietake sur les autres téléphones : les anciennes versions ne retrouvent pas les fichiers renommés. Vos originaux restent sur ce téléphone.",
+  "settingsRenameRemoteAction": "Renommer",
+  "settingsRenameRemoteDone": "{count} fichiers renommés sur le NAS.",
+  "settingsRenameRemoteFailed": "Le renommage s'est arrêté. Relancez-le pour continuer. Rien n'a été perdu."
 }

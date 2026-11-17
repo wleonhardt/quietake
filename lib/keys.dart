@@ -186,6 +186,9 @@ abstract final class Keys {
   static const settingsTest = Key('settings.test');
   static const settingsSave = Key('settings.save');
   static const backupOpen = Key('backup.open');
+  static const settingsRenameRemote = Key('settings.renameRemote');
+  static const renameRemoteConfirm = Key('settings.renameRemoteConfirm');
+  static const renameRemoteCancel = Key('settings.renameRemoteCancel');
   static const backupScreen = Key('backup.screen');
   static const backupVerify = Key('backup.verify');
   static const backupCancel = Key('backup.cancel');

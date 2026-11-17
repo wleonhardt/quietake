@@ -1819,4 +1819,32 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get redactSections => 'O oculta una sección de la foto';
+
+  @override
+  String get settingsRenameRemote =>
+      'Dar nombres aleatorios a los archivos del NAS';
+
+  @override
+  String get settingsRenameRemoteNone =>
+      'Ningún archivo del NAS necesita un nombre nuevo.';
+
+  @override
+  String get settingsRenameRemoteTitle => '¿Renombrar los archivos del NAS?';
+
+  @override
+  String settingsRenameRemoteBody(int count) {
+    return '$count archivos cifrados del NAS reciben nombres aleatorios, así que sus nombres y horas ya no se ven allí. Actualiza antes Quietake en los demás teléfonos: las versiones antiguas no encuentran los archivos renombrados. Tus originales se quedan en este teléfono.';
+  }
+
+  @override
+  String get settingsRenameRemoteAction => 'Renombrar';
+
+  @override
+  String settingsRenameRemoteDone(int count) {
+    return 'Se renombraron $count archivos en el NAS.';
+  }
+
+  @override
+  String get settingsRenameRemoteFailed =>
+      'El cambio de nombres se detuvo. Vuelve a ejecutarlo para continuar. No se perdió nada.';
 }

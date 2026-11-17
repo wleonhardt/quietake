@@ -483,5 +483,12 @@
   "shareRedactEdit": "Verborgene Bereiche: {count}. Ändern …",
   "shareRedactNote": "Die geteilte Kopie wird ein PNG mit verpixelten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert.",
   "redactCell": "Zeile {row}, Spalte {column}",
-  "redactSections": "Oder einen Abschnitt des Fotos verbergen"
+  "redactSections": "Oder einen Abschnitt des Fotos verbergen",
+  "settingsRenameRemote": "NAS-Dateien zufällige Namen geben",
+  "settingsRenameRemoteNone": "Keine Datei auf dem NAS braucht einen neuen Namen.",
+  "settingsRenameRemoteTitle": "Dateien auf dem NAS umbenennen?",
+  "settingsRenameRemoteBody": "{count} verschlüsselte Dateien auf dem NAS erhalten zufällige Namen, sodass ihre Namen und Zeiten dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.",
+  "settingsRenameRemoteAction": "Umbenennen",
+  "settingsRenameRemoteDone": "{count} Dateien auf dem NAS umbenannt.",
+  "settingsRenameRemoteFailed": "Das Umbenennen wurde angehalten. Starte es erneut, um fortzufahren. Es ging nichts verloren."
 }

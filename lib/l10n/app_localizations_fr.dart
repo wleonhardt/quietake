@@ -1823,4 +1823,32 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get redactSections => 'Ou masquez une section de la photo';
+
+  @override
+  String get settingsRenameRemote =>
+      'Donner des noms aléatoires aux fichiers du NAS';
+
+  @override
+  String get settingsRenameRemoteNone =>
+      'Aucun fichier du NAS n\'a besoin d\'un nouveau nom.';
+
+  @override
+  String get settingsRenameRemoteTitle => 'Renommer les fichiers du NAS ?';
+
+  @override
+  String settingsRenameRemoteBody(int count) {
+    return '$count fichiers chiffrés du NAS reçoivent des noms aléatoires, leurs noms et heures n\'y apparaissent donc plus. Mettez d\'abord à jour Quietake sur les autres téléphones : les anciennes versions ne retrouvent pas les fichiers renommés. Vos originaux restent sur ce téléphone.';
+  }
+
+  @override
+  String get settingsRenameRemoteAction => 'Renommer';
+
+  @override
+  String settingsRenameRemoteDone(int count) {
+    return '$count fichiers renommés sur le NAS.';
+  }
+
+  @override
+  String get settingsRenameRemoteFailed =>
+      'Le renommage s\'est arrêté. Relancez-le pour continuer. Rien n\'a été perdu.';
 }

@@ -709,6 +709,31 @@ void main() {
     await controller.verify();
     expect(controller.verificationCurrent, isTrue);
   });
+
+  test(
+    'renaming NAS files runs through the controller: dry run, then move',
+    () async {
+      await capture('photo.jpg');
+      await controller.sync();
+      expect(server.files.keys, contains('photo.jpg.shtr'));
+
+      final preview = await controller.renameRemote(dryRun: true);
+      expect(preview.candidates, 1);
+      expect(preview.renamed, 0);
+      expect(server.files.keys, contains('photo.jpg.shtr'));
+
+      final done = await controller.renameRemote();
+      expect(done.renamed, 1);
+      expect(server.files.keys, isNot(contains('photo.jpg.shtr')));
+      expect(
+        server.files.keys.where(
+          (n) => RegExp(r'^[0-9a-f]{32}\.shtr$').hasMatch(n),
+        ),
+        hasLength(1),
+      );
+      expect((await controller.renameRemote(dryRun: true)).candidates, 0);
+    },
+  );
 }
 
 /// Native scheduling that always fails after a successful foreground pass.

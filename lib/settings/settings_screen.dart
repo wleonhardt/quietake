@@ -242,6 +242,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  /// Decision 026: counts first, asks, then renames; nothing moves on a dry run.
+  Future<void> _renameRemote() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final sync = widget.session.sync;
+      final preview = await sync.renameRemote(dryRun: true);
+      if (!mounted) return;
+      if (preview.candidates == 0) {
+        setState(() => _result = (l10n) => l10n.settingsRenameRemoteNone);
+        return;
+      }
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.l10n.settingsRenameRemoteTitle),
+          scrollable: true,
+          content: Text(
+            context.l10n.settingsRenameRemoteBody(preview.candidates),
+          ),
+          actions: [
+            TextButton(
+              key: Keys.renameRemoteCancel,
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              key: Keys.renameRemoteConfirm,
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(context.l10n.settingsRenameRemoteAction),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final done = await sync.renameRemote();
+      if (mounted) {
+        setState(
+          () => _result = (l10n) => l10n.settingsRenameRemoteDone(done.renamed),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _result = (l10n) => l10n.settingsRenameRemoteFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _disconnect() async {
     if (_busy) return;
     final confirmed = await showDialog<bool>(
@@ -544,6 +594,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ? null
                   : _openBackupCheck,
               icon: const Icon(Icons.verified_outlined),
+            ),
+            OutlinedButton.icon(
+              key: Keys.settingsRenameRemote,
+              label: Text(l10n.settingsRenameRemote),
+              onPressed: _busy || !widget.initial.isConfigured
+                  ? null
+                  : _renameRemote,
+              icon: const Icon(Icons.drive_file_rename_outline),
             ),
             TextButton.icon(
               key: Keys.settingsDisconnect,

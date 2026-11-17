@@ -969,5 +969,28 @@
       }
     }
   },
-  "redactSections": "Or hide a section of the photo"
+  "redactSections": "Or hide a section of the photo",
+  "settingsRenameRemote": "Give NAS files random names",
+  "settingsRenameRemoteNone": "No files on the NAS need new names.",
+  "settingsRenameRemoteTitle": "Rename files on the NAS?",
+  "settingsRenameRemoteBody": "{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.",
+  "@settingsRenameRemoteBody": {
+    "description": "Confirmation before renaming NAS files; count is the number of files.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsRenameRemoteAction": "Rename",
+  "settingsRenameRemoteDone": "Renamed {count} files on the NAS.",
+  "@settingsRenameRemoteDone": {
+    "description": "Result after renaming NAS files.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsRenameRemoteFailed": "Renaming stopped. Run it again to continue. Nothing was lost."
 }

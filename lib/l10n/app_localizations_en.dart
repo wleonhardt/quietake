@@ -1783,4 +1783,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get redactSections => 'Or hide a section of the photo';
+
+  @override
+  String get settingsRenameRemote => 'Give NAS files random names';
+
+  @override
+  String get settingsRenameRemoteNone => 'No files on the NAS need new names.';
+
+  @override
+  String get settingsRenameRemoteTitle => 'Rename files on the NAS?';
+
+  @override
+  String settingsRenameRemoteBody(int count) {
+    return '$count encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.';
+  }
+
+  @override
+  String get settingsRenameRemoteAction => 'Rename';
+
+  @override
+  String settingsRenameRemoteDone(int count) {
+    return 'Renamed $count files on the NAS.';
+  }
+
+  @override
+  String get settingsRenameRemoteFailed =>
+      'Renaming stopped. Run it again to continue. Nothing was lost.';
 }

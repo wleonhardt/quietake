@@ -22,6 +22,7 @@ import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_cast_backend.dart';
+import '../test_support/fake_webdav_server.dart';
 
 const _passcode = 'test-passcode';
 
@@ -561,6 +562,72 @@ void main() {
         isFalse,
       );
       expect(find.text('Could not change the app icon.'), findsOneWidget);
+    });
+  });
+
+  group('rename NAS files', () {
+    testWidgets('the action is disabled until a NAS is saved', (tester) async {
+      await open(
+        tester,
+        initial: const SyncSettings(url: '', username: '', password: ''),
+      );
+      await settle(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(Keys.settingsRenameRemote),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(
+        tester
+            .widget<OutlinedButton>(find.byKey(Keys.settingsRenameRemote))
+            .onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('previews, asks, renames and reports', (tester) async {
+      // Widget tests answer every HTTP request with 400 unless overrides are off.
+      HttpOverrides.global = null;
+      await open(tester, captures: 1);
+      late FakeWebDavServer server;
+      await tester.runAsync(() async {
+        server = await FakeWebDavServer.start();
+        FlutterSecureStorage.setMockInitialValues({
+          'sync.url': server.url.toString(),
+          'sync.username': 'vaultapp',
+          'sync.password': 'secret',
+        });
+        await session.sync.sync();
+      });
+      addTearDown(() => tester.runAsync(server.close));
+      expect(server.files.keys, contains('p0.jpg.shtr'));
+      await tester.scrollUntilVisible(
+        find.byKey(Keys.settingsRenameRemote),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(Keys.settingsRenameRemote));
+        for (var i = 0; i < 100; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          await tester.pump();
+          if (find.byKey(Keys.renameRemoteConfirm).evaluate().isNotEmpty) break;
+        }
+      });
+      expect(find.textContaining('1 encrypted files'), findsOneWidget);
+      expect(server.files.keys, contains('p0.jpg.shtr'));
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(Keys.renameRemoteConfirm));
+        for (var i = 0; i < 100; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          await tester.pump();
+          if (find.text('Renamed 1 files on the NAS.').evaluate().isNotEmpty) {
+            break;
+          }
+        }
+      });
+      expect(find.text('Renamed 1 files on the NAS.'), findsOneWidget);
+      expect(server.files.keys, isNot(contains('p0.jpg.shtr')));
     });
   });
 }

@@ -3005,6 +3005,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Or hide a section of the photo'**
   String get redactSections;
+
+  /// No description provided for @settingsRenameRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Give NAS files random names'**
+  String get settingsRenameRemote;
+
+  /// No description provided for @settingsRenameRemoteNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No files on the NAS need new names.'**
+  String get settingsRenameRemoteNone;
+
+  /// No description provided for @settingsRenameRemoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename files on the NAS?'**
+  String get settingsRenameRemoteTitle;
+
+  /// Confirmation before renaming NAS files; count is the number of files.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.'**
+  String settingsRenameRemoteBody(int count);
+
+  /// No description provided for @settingsRenameRemoteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get settingsRenameRemoteAction;
+
+  /// Result after renaming NAS files.
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed {count} files on the NAS.'**
+  String settingsRenameRemoteDone(int count);
+
+  /// No description provided for @settingsRenameRemoteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Renaming stopped. Run it again to continue. Nothing was lost.'**
+  String get settingsRenameRemoteFailed;
 }
 
 class _AppLocalizationsDelegate
