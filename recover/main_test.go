@@ -381,3 +381,27 @@ func TestRunShareOpensVectorBundle(t *testing.T) {
 		t.Fatalf("entry missing: %v", err)
 	}
 }
+
+func TestKeyfileReadIsBounded(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "vault.keyfile.json")
+	if err := os.WriteFile(path, bytes.Repeat([]byte{'x'}, maxKeyfileBytes+1), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := masterKey("", path, "passcode", false, false, nil); err == nil || err.Error() != "keyfile is too large" {
+		t.Fatalf("oversized keyfile: %v", err)
+	}
+}
+
+func TestUnreadableCatalogIsReported(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "quietake.catalog"), []byte("not a container"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	mapped, readable := catalogOutputNames(dirSource(dir), []string{"quietake.catalog"}, new([32]byte))
+	if readable || len(mapped) != 0 {
+		t.Fatal("a damaged catalog must be reported and give no names")
+	}
+	if _, readable := catalogOutputNames(dirSource(dir), []string{"a.jpg.shtr"}, new([32]byte)); !readable {
+		t.Fatal("a listing without a catalog has nothing to report")
+	}
+}

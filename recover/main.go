@@ -74,6 +74,9 @@ func main() {
 			fail(err)
 		}
 	}
+	if *key != "" {
+		fmt.Fprintln(os.Stderr, "warning: -key is visible in the process list and shell history; prefer -key-prompt")
+	}
 	var master *[32]byte
 	if *backupPrompt {
 		master, err = backupMasterKey(src, readSecret)
@@ -94,7 +97,10 @@ func main() {
 			fail(err)
 		}
 	}
-	mapped := catalogOutputNames(src, names, master)
+	mapped, readable := catalogOutputNames(src, names, master)
+	if !readable {
+		fmt.Fprintln(os.Stderr, "warning: the catalog could not be read; files keep the names they have on the server")
+	}
 	okN, badN := 0, 0
 	for _, name := range names {
 		output := recoveryOutputName(name)
@@ -192,7 +198,7 @@ func masterKey(key, keyfile, passcode string, prompt, keyPrompt bool, read func(
 	case key != "":
 		return shtr.MasterKeyFromRecovery(key)
 	case keyfile != "":
-		data, err := os.ReadFile(keyfile)
+		data, err := readKeyfile(keyfile)
 		if err != nil {
 			return nil, err
 		}
@@ -211,6 +217,25 @@ func masterKey(key, keyfile, passcode string, prompt, keyPrompt bool, read func(
 	default:
 		return nil, errors.New("give -backup-passphrase-prompt, -key-prompt, -key, or -keyfile + passcode")
 	}
+}
+
+// The app refuses a keyfile over 64 KiB too; a real one is a few hundred bytes.
+const maxKeyfileBytes = 64 * 1024
+
+func readKeyfile(path string) ([]byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	data, err := io.ReadAll(io.LimitReader(f, maxKeyfileBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > maxKeyfileBytes {
+		return nil, errors.New("keyfile is too large")
+	}
+	return data, nil
 }
 
 func readSecret(label string) ([]byte, error) {

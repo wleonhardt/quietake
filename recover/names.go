@@ -63,23 +63,24 @@ func (b *limitedBuffer) Write(p []byte) (int, error) {
 }
 
 // catalogOutputNames decrypts quietake.catalog in memory, if listed, and returns
-// mappedOutputNames. Any failure returns no mapping; the catalog's own recovery
-// result is still reported by the normal pass.
-func catalogOutputNames(src source, listing []string, master *[32]byte) map[string]string {
+// mappedOutputNames. Any failure returns no mapping and readable false, so the
+// caller can say that server names are kept; the catalog's own recovery result
+// is still reported by the normal pass.
+func catalogOutputNames(src source, listing []string, master *[32]byte) (mapped map[string]string, readable bool) {
 	for _, name := range listing {
 		if name != "quietake.catalog" {
 			continue
 		}
 		r, err := src.open(name)
 		if err != nil {
-			return map[string]string{}
+			return map[string]string{}, false
 		}
 		defer r.Close()
 		var buf limitedBuffer
 		if shtr.Decrypt(r, master, &buf) != nil {
-			return map[string]string{}
+			return map[string]string{}, false
 		}
-		return mappedOutputNames(buf.data, listing)
+		return mappedOutputNames(buf.data, listing), true
 	}
-	return map[string]string{}
+	return map[string]string{}, true
 }

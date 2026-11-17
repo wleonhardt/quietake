@@ -93,7 +93,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R69 planned: iOS has no privacy manifest, no export-compliance key and English-only permission prompts.
 - R70 planned: `Podfile` has no platform line.
 - R71 blocked: Release build has no code shrinking; turning it on needs a signed-build check by the owner.
-- R72 planned: Recovery tool: silent overwrite, secrets in arguments, unbounded keyfile read, Windows names in share entries, silent fallback when the catalog cannot be read, undocumented exit codes, fixed `.part` name, key bytes not cleared, no folder entry cap.
+- R72 complete: Recovery tool. Done: keyfile read bounded at 64 KiB, a warning for `-key` in arguments, a warning when the catalog cannot be read, recovery key bytes cleared, exit codes and overwrite rule documented. Tests `TestKeyfileReadIsBounded` and `TestUnreadableCatalogIsReported`; `gofmt`, `go vet`, `go test` pass. Not changed, with reasons: replacing an existing output with a verified recovery is deliberate and tested (`TestRecoveryWritesOnlyVerifiedMedia`); stricter share entry names (colon, Windows device names) would change the share bundle contract for both readers, so that is an owner question; the fixed `.part` name and the missing folder cap only concern the user's own output and input folders.
 - R73 planned: Tool tests: timing-dependent `run_bounded_test`, shared `/tmp` path, `grant-on-phone.sh` taps any "allow" button.
 
 ## F. Website, wording, documents

@@ -55,7 +55,13 @@ FINAL chunk verified. If the folder holds a readable `quietake.catalog` with the
 under its capture name instead. A mapping is ignored, and the generic name kept, when its file is
 not listed, its name is not a plain `.shtr` name, two captures claim one file, or the output name
 would collide with another output. A wrong key, a flipped byte, a swapped chunk or a missing FINAL chunk fails
-that file and the exit code is 1.
+that file and the exit code is 1. When a listed `quietake.catalog` cannot be read, a warning says
+that files keep the names they have on the server.
+
+Exit codes: 0 when every file was recovered or checked, 1 when at least one file failed (the others
+are still written), 2 for a usage error or a failure before any file was read (wrong options,
+unreachable server, wrong key or passcode). A file that already exists in `-out` is replaced only
+by a fully verified recovery of the same name; a failed file leaves it untouched.
 
 `go test ./...` checks the implementation against the frozen public synthetic fixtures in
 `docs/vectors/`. Never regenerate v1 vectors. The Dart test `test/vectors_freeze_test.dart`

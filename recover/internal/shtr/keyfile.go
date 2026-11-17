@@ -78,5 +78,6 @@ func MasterKeyFromRecovery(s string) (*[32]byte, error) {
 	}
 	var out [32]byte
 	copy(out[:], raw)
+	clear(raw)
 	return &out, nil
 }
