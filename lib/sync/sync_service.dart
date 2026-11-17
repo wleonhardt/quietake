@@ -49,6 +49,15 @@ class SyncReport {
       '${deleted == 0 ? '' : '$deleted deleted · '}$remoteTotal on NAS';
 }
 
+/// Result of [SyncService.renameRemote].
+class RenameReport {
+  const RenameReport({required this.candidates, required this.renamed});
+
+  /// NAS captures that kept their readable name and are on the phone too.
+  final int candidates;
+  final int renamed;
+}
+
 /// The caller owns session serialization, including verification and cancellation.
 class SyncService {
   SyncService(
@@ -322,6 +331,64 @@ class SyncService {
     } finally {
       await work.delete(recursive: true);
     }
+  }
+
+  /// Gives captures that already sit on the NAS under their readable name a
+  /// random one (decision 026, slice 5). Only captures with an identical copy
+  /// on the phone qualify, so nothing is renamed on trust. The mapping is saved
+  /// in the catalog first, each file is then moved on the server without
+  /// overwriting, and a closing listing must show every new name at the same
+  /// size before the catalog is uploaded by a normal sync. An interrupted run
+  /// resumes with the saved mapping. [dryRun] only counts.
+  Future<RenameReport> renameRemote({bool dryRun = false}) async {
+    await vault.catalog.load();
+    final deleted = await vault.deletedNames();
+    final held = (await vault.trashedAt()).keys.toSet();
+    final local = {
+      for (final f in await vault.list()) f.uri.pathSegments.last: f,
+    };
+    await dav.ensureCollection();
+    final entries = await dav.list(maxBytes: maxListingBytes);
+    var names = vault.catalog.remoteNames;
+    final todo = <String, RemoteEntry>{};
+    for (final e in entries) {
+      if (!e.name.endsWith('.shtr') ||
+          e.name.startsWith(WebDavClient.stagePrefix) ||
+          names.localFor(e.name) != e.name ||
+          _looksRandom(e.name) ||
+          deleted.contains(e.name) ||
+          held.contains(e.name)) {
+        continue;
+      }
+      final own = local[e.name];
+      if (own == null || e.size != await own.length()) continue;
+      todo[e.name] = e;
+    }
+    if (dryRun || todo.isEmpty) {
+      return RenameReport(candidates: todo.length, renamed: 0);
+    }
+    names = await vault.catalog.assignRemoteNames([
+      for (final k in todo.keys)
+        if (names.remoteFor(k) == k) k,
+    ]);
+    for (final e in todo.entries) {
+      _checkCancelled();
+      await dav.move(e.value.name, names.remoteFor(e.key), replace: false);
+    }
+    final after = {
+      for (final e in await dav.list(maxBytes: maxListingBytes)) e.name: e,
+    };
+    for (final e in todo.entries) {
+      final moved = after[names.remoteFor(e.key)];
+      if (moved == null ||
+          moved.size != e.value.size ||
+          after.containsKey(e.key)) {
+        throw StateError('Rename could not be confirmed for ${e.key}');
+      }
+    }
+    // Uploads the catalog that carries the new names.
+    await sync();
+    return RenameReport(candidates: todo.length, renamed: todo.length);
   }
 
   /// Reads every remote copy without repairing, deleting or adopting any original.

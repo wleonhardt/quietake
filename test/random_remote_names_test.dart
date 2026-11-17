@@ -147,4 +147,69 @@ void main() {
       expect((await fresh.list()).length, 2);
     },
   );
+
+  group('renaming files already on the NAS', () {
+    test('a dry run counts candidates and changes nothing', () async {
+      await SyncService(vault, dav).sync();
+      final before = server.files.keys.toSet();
+      final report = await SyncService(vault, dav).renameRemote(dryRun: true);
+      expect(report.candidates, 1);
+      expect(report.renamed, 0);
+      expect(server.files.keys.toSet(), before);
+    });
+
+    test(
+      'a rename moves the file, keeps the bytes and the next sync is quiet',
+      () async {
+        await SyncService(vault, dav).sync();
+        final bytes = server.files['photo.jpg.shtr']!.toList();
+        final report = await SyncService(vault, dav).renameRemote();
+        expect(report.renamed, 1);
+        expect(server.files.keys, isNot(contains('photo.jpg.shtr')));
+        final media = server.files.keys.where((n) => n != 'quietake.catalog');
+        expect(media.single, matches(hexName));
+        expect(server.files[media.single]!.toList(), bytes);
+        final quiet = await SyncService(vault, dav).sync();
+        expect(quiet.pushed, 0);
+        expect(quiet.pulled, 0);
+        // A fresh phone restores the capture under its own name.
+        final fresh = open('fresh', key);
+        addTearDown(fresh.dispose);
+        final restored = await SyncService(fresh, dav).sync();
+        expect(restored.pulled, 1);
+        expect((await fresh.list()).map((f) => f.uri.pathSegments.last), [
+          'photo.jpg.shtr',
+        ]);
+      },
+    );
+
+    test('a second run has nothing left to rename', () async {
+      await SyncService(vault, dav).sync();
+      await SyncService(vault, dav).renameRemote();
+      final again = await SyncService(vault, dav).renameRemote();
+      expect(again.candidates, 0);
+      expect(again.renamed, 0);
+    });
+
+    test(
+      'a run interrupted after saving the mapping resumes with it',
+      () async {
+        await SyncService(vault, dav).sync();
+        final saved = await vault.catalog.assignRemoteNames(['photo.jpg.shtr']);
+        final report = await SyncService(vault, dav).renameRemote();
+        expect(report.renamed, 1);
+        expect(server.files.keys, contains(saved.remoteFor('photo.jpg.shtr')));
+        expect(server.files.keys, isNot(contains('photo.jpg.shtr')));
+      },
+    );
+
+    test('a capture missing on the phone is never renamed', () async {
+      await SyncService(vault, dav).sync();
+      final fresh = open('fresh', key);
+      addTearDown(fresh.dispose);
+      final report = await SyncService(fresh, dav).renameRemote();
+      expect(report.renamed, 0);
+      expect(server.files.keys, contains('photo.jpg.shtr'));
+    });
+  });
 }
