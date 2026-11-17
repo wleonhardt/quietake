@@ -17,8 +17,8 @@ class RestoreTransaction {
   Directory get target => Directory('${store.dir.path}/vault');
 
   Future<void> requireFresh() async {
+    // A keystore entry without a keyfile is not a vault (decision 033).
     if (await store.hasKeyfile ||
-        await store.hasCachedKey ||
         (await target.exists() && !await target.list().isEmpty)) {
       throw const FormatException('Restore requires a fresh empty vault');
     }

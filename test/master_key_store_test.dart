@@ -395,11 +395,35 @@ void main() {
     },
   );
 
-  test('adopts a key that was already in the keystore', () async {
-    final legacy = sodium.crypto.secretBox.keygen();
-    mem.map[MasterKeyStore.cacheName] = base64Encode(legacy.extractBytes());
-    final key = await store.createWithPasscode('pw');
-    expect(key.extractBytes(), legacy.extractBytes());
+  test('setup never adopts a key left in the keystore', () async {
+    final stale = sodium.crypto.secretBox.keygen();
+    mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());
+    final key = await store.prepareKey();
+    try {
+      expect(key.extractBytes(), isNot(stale.extractBytes()));
+      // Nothing is committed yet, so the stale entry must be gone too.
+      expect(await store.hasCachedKey, isFalse);
+    } finally {
+      key.dispose();
+      stale.dispose();
+    }
+  });
+
+  test('portable restore passes a stale keystore entry and removes it',
+      () async {
+    final stale = sodium.crypto.secretBox.keygen();
+    mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());
+    stale.dispose();
+    final key = sodium.crypto.secretBox.keygen();
+    try {
+      final stage = await restoreStage(key);
+      await RestoreTransaction(store)
+          .commit(stage, key, 'new portable passcode');
+      expect(await store.hasKeyfile, isTrue);
+      expect(await store.hasCachedKey, isFalse);
+    } finally {
+      key.dispose();
+    }
   });
 
   group('unlock throttling', () {
