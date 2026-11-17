@@ -292,7 +292,9 @@ class _CaptureScreenState extends State<CaptureScreen>
       );
       controller = CameraController(
         selected,
-        ResolutionPreset.high,
+        // Photos use the full sensor; a recording camera keeps the video
+        // preset, which also binds its stills (decision 034).
+        enableAudio ? ResolutionPreset.high : ResolutionPreset.max,
         enableAudio: enableAudio,
       );
       await controller.initialize();
@@ -673,7 +675,11 @@ class _CaptureScreenState extends State<CaptureScreen>
       var c = _controller;
       if (c == null) return;
       if (_recording) {
-        await _stopRecording(c);
+        try {
+          await _stopRecording(c);
+        } finally {
+          await _reopenForPhotos(c);
+        }
       } else {
         final granted = await const MethodChannel('quietake/camera')
             .invokeMethod<bool>('requestMicrophone');
@@ -719,6 +725,16 @@ class _CaptureScreenState extends State<CaptureScreen>
         if (mounted) setState(() {});
       }
     });
+  }
+
+  /// The recording camera is bound to the video preset, so photos get their
+  /// own camera back after every recording, saved or not (decision 034). This
+  /// also releases the microphone.
+  Future<void> _reopenForPhotos(CameraController recorder) async {
+    if (!mounted || !identical(_controller, recorder)) return;
+    setState(() => _controller = null);
+    await recorder.dispose();
+    await _init(recover: false);
   }
 
   /// The recording frame and timer start with the first recorded data, not

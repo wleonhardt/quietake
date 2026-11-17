@@ -53,7 +53,7 @@ class _LockedCameraScreenState extends State<LockedCameraScreen>
       );
       controller = CameraController(
         back,
-        ResolutionPreset.high,
+        ResolutionPreset.max,
         enableAudio: false,
       );
       await controller.initialize();

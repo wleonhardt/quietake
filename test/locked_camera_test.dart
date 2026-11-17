@@ -89,6 +89,7 @@ void main() {
     });
     await tester.pump();
     expect(find.byKey(Keys.lockedStatus), findsOneWidget);
+    expect(b.camera.opened, [(ResolutionPreset.max, false)]);
     final pending = Directory('${b.dir.path}/.pending');
     final sealed = pending.listSync().whereType<File>().toList();
     expect(sealed, hasLength(1));
