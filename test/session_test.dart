@@ -28,6 +28,41 @@ class _ObservedKey implements SecureKey {
 }
 
 void main() {
+  test(
+    'a session uploads under random NAS names unless told otherwise',
+    () async {
+      final sodium = await SodiumSumoInit.init();
+      final crypto = VaultCrypto(sodium);
+      final dir = await Directory.systemTemp.createTemp(
+        'quietake-session-names',
+      );
+      addTearDown(() => dir.delete(recursive: true));
+      for (final random in [null, false]) {
+        final vault = Vault(
+          crypto,
+          crypto.generateMasterKey(),
+          Directory('${dir.path}/v$random')..createSync(),
+        );
+        final session = random == null
+            ? Session(
+                vault: vault,
+                server: await MediaServer.start(vault),
+                cast: CastController(vault, FakeCastBackend()),
+                store: MasterKeyStore(sodium, dir),
+              )
+            : Session(
+                vault: vault,
+                server: await MediaServer.start(vault),
+                cast: CastController(vault, FakeCastBackend()),
+                store: MasterKeyStore(sodium, dir),
+                randomRemoteNames: random,
+              );
+        expect(session.sync.useRandomNames, random ?? true);
+        await session.close();
+      }
+    },
+  );
+
   test('lock drops decrypted previews and ends an active cast', () async {
     final sodium = await SodiumSumoInit.init();
     final crypto = VaultCrypto(sodium);

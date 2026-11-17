@@ -1,4 +1,5 @@
 import '../test_support/test_vault.dart';
+
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/cast/cast_controller.dart';
@@ -34,17 +35,18 @@ class TestApp {
       server: await MediaServer.start(vault),
       cast: CastController(vault, backend),
       store: store,
+      randomRemoteNames: false,
     );
     return TestApp._(session, backend, FakeAuthenticator());
   }
 
   Widget widget({Duration? idleTimeout}) => QuietakeApp(
-        idleTimeout: idleTimeout,
-        store: session.store,
-        auth: auth,
-        castBackend: backend,
-        session: session,
-      );
+    idleTimeout: idleTimeout,
+    store: session.store,
+    auth: auth,
+    castBackend: backend,
+    session: session,
+  );
 
   Future<void> close() async {
     await session.close();

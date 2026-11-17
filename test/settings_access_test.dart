@@ -93,6 +93,7 @@ void main() {
         server: await MediaServer.start(vault),
         cast: CastController(vault, FakeCastBackend()),
         store: store,
+        randomRemoteNames: false,
       );
       for (var i = 0; i < captures; i++) {
         final input = await File('test_fixtures/tiny.jpg')

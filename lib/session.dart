@@ -22,7 +22,10 @@ class Session {
     required this.server,
     required this.cast,
     required this.store,
-  }) : sync = SyncController(vault) {
+    // Decision 026: new NAS uploads get random file names. Device tests that
+    // read capture names on a fake server turn this off.
+    bool randomRemoteNames = true,
+  }) : sync = SyncController(vault, useRandomNames: randomRemoteNames) {
     vault.catalog.addListener(_catalogChanged);
   }
 
