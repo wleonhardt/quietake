@@ -18,7 +18,8 @@ class IncomingShare(private val activity: Activity) {
     private val directory = File(activity.cacheDir, "quietake-incoming").apply { deleteRecursively() }
     private val worker = Executors.newSingleThreadExecutor()
     private val file = File(directory, "incoming.quietake-share")
-    private var copying = false
+    /** Copies started and not yet finished; two quick opens must both finish before Dart looks. */
+    private var copies = 0
     private var waiting = mutableListOf<MethodChannel.Result>()
 
     /** Starts a bounded copy for a VIEW intent that carries a content or file URI. */
@@ -27,7 +28,7 @@ class IncomingShare(private val activity: Activity) {
         if (uri.scheme != "content") return
         intent.data = null
         intent.action = null
-        copying = true
+        copies++
         worker.execute {
             var ok = false
             try {
@@ -53,17 +54,19 @@ class IncomingShare(private val activity: Activity) {
                 File(directory, "incoming.part").delete()
             }
             activity.runOnUiThread {
-                copying = false
-                val ready = ok
-                waiting.forEach { it.success(ready) }
-                waiting = mutableListOf()
+                copies--
+                if (copies == 0) {
+                    val ready = file.isFile
+                    waiting.forEach { it.success(ready) }
+                    waiting = mutableListOf()
+                }
             }
         }
     }
 
     /** True once a copy is ready; waits for a copy that is still running. */
     fun available(result: MethodChannel.Result) {
-        if (copying) waiting.add(result) else result.success(file.isFile)
+        if (copies > 0) waiting.add(result) else result.success(file.isFile)
     }
 
     /** Moves the copy into the import folder so the normal cleanup removes it. */
