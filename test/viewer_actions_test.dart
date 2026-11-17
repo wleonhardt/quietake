@@ -151,6 +151,32 @@ void main() {
     expect(find.byKey(Keys.viewerInfoDialog), findsNothing);
   });
 
+  testWidgets('Details can make this capture the cover of one of its tags', (
+    tester,
+  ) async {
+    late String tag;
+    await open(tester);
+    await tester.runAsync(() async {
+      final catalog = session.vault.catalog;
+      tag = await catalog.createAlbum('Trips');
+      await catalog.organize({items[0].name}, tagIds: {tag});
+    });
+    await tester.tap(find.byKey(Keys.viewerInfo));
+    await until(
+      tester,
+      () => find.byKey(Keys.viewerCover(tag)).evaluate().isNotEmpty,
+    );
+    expect(find.text('Use as cover of Trips'), findsOneWidget);
+    await tester.runAsync(() => tester.tap(find.byKey(Keys.viewerCover(tag))));
+    await until(
+      tester,
+      () => session.vault.catalog.covers[tag] == items[0].name,
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.viewerInfoDialog), findsNothing);
+    expect(find.text('Cover of Trips updated.'), findsOneWidget);
+  });
+
   testWidgets('viewer tooltips and Details follow the device language', (
     tester,
   ) async {

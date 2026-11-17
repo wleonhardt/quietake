@@ -143,10 +143,11 @@ class _ViewerScreenState extends State<ViewerScreen> {
   void _showDetails() {
     final item = _current;
     final catalog = widget.session.vault.catalog;
-    final tags = [
+    final tagIds = [
       for (final id in catalog.details(item.name).albums)
-        if (catalog.albums[id] != null) catalog.albums[id]!,
-    ]..sort();
+        if (catalog.albums[id] != null) id,
+    ]..sort((a, b) => catalog.albums[a]!.compareTo(catalog.albums[b]!));
+    final tags = [for (final id in tagIds) catalog.albums[id]!];
     final at = item.capturedAt?.toLocal();
     String two(int v) => v.toString().padLeft(2, '0');
     showDialog<void>(
@@ -177,6 +178,12 @@ class _ViewerScreenState extends State<ViewerScreen> {
                   tags.isEmpty ? context.l10n.viewerNone : tags.join(', '),
                 ),
               ),
+              for (final id in tagIds)
+                TextButton(
+                  key: Keys.viewerCover(id),
+                  onPressed: () => _setCover(context, id),
+                  child: Text(context.l10n.viewerSetCover(catalog.albums[id]!)),
+                ),
               if (size.hasData)
                 Text(context.l10n.viewerSize(size.data!))
               else if (size.hasError)
@@ -192,6 +199,25 @@ class _ViewerScreenState extends State<ViewerScreen> {
         ],
       ),
     );
+  }
+
+  /// Makes the shown capture the cover of one of its tags (decision 018, slice 3).
+  Future<void> _setCover(BuildContext dialog, String tagId) async {
+    final item = _current;
+    final catalog = widget.session.vault.catalog;
+    final name = catalog.albums[tagId];
+    Navigator.pop(dialog);
+    if (name == null) return;
+    var done = false;
+    await updateLibrary(context, () async {
+      await catalog.setCover(tagId, item.name);
+      done = true;
+    });
+    if (done && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.viewerCoverSet(name))),
+      );
+    }
   }
 
   Future<void> _delete() async {

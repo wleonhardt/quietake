@@ -264,6 +264,8 @@
   "viewerSize": "Tamaño cifrado: {bytes} bytes",
   "viewerSizeUnavailable": "Tamaño cifrado: no disponible",
   "viewerClose": "Cerrar",
+  "viewerSetCover": "Usar como portada de {tag}",
+  "viewerCoverSet": "Portada de {tag} actualizada.",
   "viewerDeletePhotoTitle": "¿Eliminar esta foto?",
   "viewerDeleteVideoTitle": "¿Eliminar este vídeo?",
   "viewerDeleteKeepNas": "«Eliminados recientemente» la conserva en este teléfono, cifrada, durante {days} días para que puedas restaurarla. Tu copia en el NAS se mantiene hasta entonces. «Eliminar ahora» la quita de forma permanente de este teléfono y de tu NAS configurado.",

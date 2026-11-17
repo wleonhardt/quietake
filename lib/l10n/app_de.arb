@@ -264,6 +264,8 @@
   "viewerSize": "Verschlüsselte Größe: {bytes} Byte",
   "viewerSizeUnavailable": "Verschlüsselte Größe: nicht verfügbar",
   "viewerClose": "Schließen",
+  "viewerSetCover": "Als Titelbild von {tag} verwenden",
+  "viewerCoverSet": "Titelbild von {tag} aktualisiert.",
   "viewerDeletePhotoTitle": "Dieses Foto löschen?",
   "viewerDeleteVideoTitle": "Dieses Video löschen?",
   "viewerDeleteKeepNas": "„Zuletzt gelöscht“ behält sie {days} Tage verschlüsselt auf diesem Telefon, damit Sie sie wiederherstellen können. Ihre NAS-Kopie bleibt bis dahin erhalten. „Jetzt löschen“ entfernt sie dauerhaft von diesem Telefon und von Ihrem konfigurierten NAS.",

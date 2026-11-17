@@ -264,6 +264,8 @@
   "viewerSize": "Taille chiffrée : {bytes} octets",
   "viewerSizeUnavailable": "Taille chiffrée : indisponible",
   "viewerClose": "Fermer",
+  "viewerSetCover": "Utiliser comme couverture de {tag}",
+  "viewerCoverSet": "Couverture de {tag} mise à jour.",
   "viewerDeletePhotoTitle": "Supprimer cette photo ?",
   "viewerDeleteVideoTitle": "Supprimer cette vidéo ?",
   "viewerDeleteKeepNas": "« Supprimés récemment » la conserve sur ce téléphone, chiffrée, pendant {days} jours pour que vous puissiez la restaurer. Votre copie NAS reste jusque-là. « Supprimer maintenant » la retire définitivement de ce téléphone et de votre NAS configuré.",

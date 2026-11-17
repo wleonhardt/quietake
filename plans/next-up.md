@@ -73,7 +73,7 @@ Build-on ideas (added 2026-11-17, none started; each extends a finished decision
 - Waiting-photo count after unlock (extends 028): DONE (decision 028 note): one snackbar after unlock with the published count, en/es/fr/de; host suite 848 passed; translations need native review.
 - Several photos at once in redaction (extends 024): apply hidden areas to each selected photo in one share, one editor page per photo. Optional later: on-device face boxes as suggestions only (ML Kit on Android, Vision on iOS), needing a dependency decision.
 - Subfolders in folder import (extends 020): walk one level of subfolders, or all, with the existing 10,000-file limit and encrypted resume ledger, and optionally turn each folder name into a tag.
-- Tag from the viewer (extends 018): set a capture as its tag's cover from the viewer, the shortcut decision 018 left out.
+- Tag from the viewer (extends 018): DONE (decision 018 slice 3): Details dialog button per tag sets the capture as that tag's cover; host suite 849 passed; translations need native review.
 
 ## Done
 

@@ -995,6 +995,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewerClose => 'Close';
 
   @override
+  String viewerSetCover(String tag) {
+    return 'Use as cover of $tag';
+  }
+
+  @override
+  String viewerCoverSet(String tag) {
+    return 'Cover of $tag updated.';
+  }
+
+  @override
   String get viewerDeletePhotoTitle => 'Delete this photo?';
 
   @override

@@ -263,6 +263,7 @@ abstract final class Keys {
   static const viewerInfo = Key('viewer.info');
   static const viewerSlideshow = Key('viewer.slideshow');
   static const viewerInfoDialog = Key('viewer.info.dialog');
+  static Key viewerCover(String tagId) => Key('viewer.cover.$tagId');
   static const viewerDelete = Key('viewer.delete');
   static const deleteTrash = Key('delete.trash');
   static const deleteDialog = Key('delete.dialog');

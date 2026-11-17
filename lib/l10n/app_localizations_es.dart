@@ -1016,6 +1016,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get viewerClose => 'Cerrar';
 
   @override
+  String viewerSetCover(String tag) {
+    return 'Usar como portada de $tag';
+  }
+
+  @override
+  String viewerCoverSet(String tag) {
+    return 'Portada de $tag actualizada.';
+  }
+
+  @override
   String get viewerDeletePhotoTitle => '¿Eliminar esta foto?';
 
   @override

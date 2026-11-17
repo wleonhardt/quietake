@@ -589,6 +589,22 @@
   },
   "viewerSizeUnavailable": "Encrypted size: unavailable",
   "viewerClose": "Close",
+  "viewerSetCover": "Use as cover of {tag}",
+  "viewerCoverSet": "Cover of {tag} updated.",
+  "@viewerSetCover": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "@viewerCoverSet": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
   "viewerDeletePhotoTitle": "Delete this photo?",
   "viewerDeleteVideoTitle": "Delete this video?",
   "viewerDeleteKeepNas": "Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Your NAS copy stays until then. Delete now removes it from this phone and your configured NAS permanently.",

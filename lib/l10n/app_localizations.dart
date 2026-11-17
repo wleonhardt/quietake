@@ -1686,6 +1686,18 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get viewerClose;
 
+  /// No description provided for @viewerSetCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Use as cover of {tag}'**
+  String viewerSetCover(String tag);
+
+  /// No description provided for @viewerCoverSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover of {tag} updated.'**
+  String viewerCoverSet(String tag);
+
   /// No description provided for @viewerDeletePhotoTitle.
   ///
   /// In en, this message translates to:

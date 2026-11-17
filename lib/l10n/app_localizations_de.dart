@@ -1018,6 +1018,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get viewerClose => 'Schließen';
 
   @override
+  String viewerSetCover(String tag) {
+    return 'Als Titelbild von $tag verwenden';
+  }
+
+  @override
+  String viewerCoverSet(String tag) {
+    return 'Titelbild von $tag aktualisiert.';
+  }
+
+  @override
   String get viewerDeletePhotoTitle => 'Dieses Foto löschen?';
 
   @override

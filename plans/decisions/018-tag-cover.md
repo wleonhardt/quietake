@@ -30,4 +30,4 @@ null, clears it.
    missing from the library shows the plain tag icon. Covered by the device test
    `integration_test/library_test.dart`; the host test covers only the empty
    picker because a catalog write from a widget test hangs `Session.close`.
-3. Viewer shortcut to use the current capture: not built; add only if asked.
+3. Viewer shortcut (done 2026-11-17): the Details dialog lists one button per tag of the shown capture, "Use as cover of {tag}" (key `viewer.cover.<tagId>`), which calls `setCover`, closes the dialog and confirms with a snackbar; failures use the shared `updateLibrary` message. en/es/fr/de strings; translations need native review. Host test `viewer_actions_test.dart` covers it (suite 849 passed); iOS `library_test.dart` passes.
