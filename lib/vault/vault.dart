@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../crypto/pending_crypto.dart';
 import '../crypto/vault_crypto.dart';
 import '../library/private_catalog.dart';
 import 'file_name.dart';
@@ -268,6 +269,15 @@ class Vault {
     final trashMarker = _trashMarker(name);
     if (await trashMarker.exists()) await trashMarker.delete();
   }
+
+  /// Turns a sealed capture into a container under this vault's key.
+  Future<void> publishPending(
+    PendingCrypto pending,
+    File sealed,
+    File out,
+    Uint8List publicKey,
+    SecureKey secretKey,
+  ) => pending.publish(sealed, out, publicKey, secretKey, _masterKey);
 
   /// Exposed for tests that build containers with a custom chunk size.
   @visibleForTesting

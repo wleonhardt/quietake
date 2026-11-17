@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/camera/locked_capture_store.dart';
 import 'package:quietake/cast/cast_backend.dart';
+import 'package:quietake/crypto/pending_crypto.dart';
 import 'package:quietake/cast/cast_controller.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/item.dart';
@@ -149,4 +151,34 @@ void main() {
       }
     },
   );
+
+  test('starting a session publishes captures sealed while locked', () async {
+    final sodium = await SodiumSumoInit.init();
+    final dir = await Directory.systemTemp.createTemp('quietake-session-pend');
+    final key = sodium.crypto.secretBox.keygen();
+    final keys = PendingKeyStore(sodium, dir);
+    await keys.ensure(key);
+    final locked = LockedCaptureStore(PendingCrypto(sodium), dir);
+    await locked.save(
+      await File('${dir.path}/c.jpg').writeAsBytes([7, 7, 7]),
+      extension: 'jpg',
+      publicKey: (await keys.publicKey())!,
+    );
+    final session = await Session.start(
+      MasterKeyStore(sodium, dir),
+      key,
+      FakeCastBackend(),
+      vaultDir: dir,
+    );
+    try {
+      for (var i = 0; i < 100 && await locked.count() > 0; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+      }
+      expect(await locked.count(), 0);
+      expect(await session.vault.list(), hasLength(1));
+    } finally {
+      await session.close();
+      await dir.delete(recursive: true);
+    }
+  });
 }

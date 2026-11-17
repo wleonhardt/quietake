@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:sodium/sodium_sumo.dart';
 
+import 'camera/locked_capture_store.dart';
 import 'cast/cast_backend.dart';
 import 'cast/cast_controller.dart';
+import 'crypto/pending_crypto.dart';
 import 'crypto/vault_crypto.dart';
 import 'gallery/preview.dart';
 import 'media/media_server.dart';
@@ -82,12 +84,10 @@ class Session {
         // Captures past their 30 days go now. A failure retries next unlock.
         await vault.purgeTrash();
       } catch (_) {}
-      // Key pair for captures taken while locked (decision 028). Not awaited so
-      // unlock never waits for it; a failure or a key disposed by an early lock
-      // leaves it for the next unlock.
-      unawaited(
-        PendingKeyStore(store.sodium, store.dir).ensure(key).catchError((_) {}),
-      );
+      // Key pair and publication of captures taken while locked (decision
+      // 028). Not awaited so unlock never waits for it; a failure or a key
+      // disposed by an early lock leaves the work for the next unlock.
+      unawaited(_publishLocked(store, key, vault).catchError((_) {}));
       return Session(
         vault: vault,
         server: await MediaServer.start(vault),
@@ -97,6 +97,25 @@ class Session {
     } catch (_) {
       (vault?.dispose ?? key.dispose)();
       rethrow;
+    }
+  }
+
+  static Future<void> _publishLocked(
+    MasterKeyStore store,
+    SecureKey key,
+    Vault vault,
+  ) async {
+    final keys = PendingKeyStore(store.sodium, store.dir);
+    await keys.ensure(key);
+    final locked = LockedCaptureStore(PendingCrypto(store.sodium), vault.dir);
+    if (await locked.count() == 0) return;
+    final publicKey = await keys.publicKey();
+    if (publicKey == null) return;
+    final secret = await keys.secretKey(key);
+    try {
+      await locked.publishAll(vault, publicKey, secret);
+    } finally {
+      secret.dispose();
     }
   }
 }
