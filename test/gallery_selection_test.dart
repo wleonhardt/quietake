@@ -10,6 +10,8 @@ import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/gallery_screen.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/library/albums_screen.dart';
+import 'package:quietake/library/import_media.dart';
+import 'package:quietake/library/import_screen.dart';
 import 'package:quietake/library/private_catalog.dart';
 import 'package:quietake/gallery/viewer_screen.dart';
 import 'package:quietake/media/media_server.dart';
@@ -74,6 +76,7 @@ void main() {
     bool vaultMissing = false,
     List<String> names = const ['a.jpg', 'b.jpg'],
     DateTime? month,
+    bool locked = false,
   }) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
@@ -116,13 +119,16 @@ void main() {
     await tester.runAsync(() async {
       await tester.pumpWidget(
         MaterialApp(
-          home: month == null
-              ? GalleryScreen(session: session)
-              : GalleryScreen(
-                  session: session,
-                  searchMode: true,
-                  initialMonth: month,
-                ),
+          home: TickerMode(
+            enabled: !locked,
+            child: month == null
+                ? GalleryScreen(session: session)
+                : GalleryScreen(
+                    session: session,
+                    searchMode: true,
+                    initialMonth: month,
+                  ),
+          ),
         ),
       );
     });
@@ -443,4 +449,51 @@ void main() {
       expect(find.byKey(Keys.libraryRemoveMonth), findsNothing);
     },
   );
+
+  group('a share another app opened', () {
+    late List<String> calls;
+    setUp(() {
+      calls = [];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(importChannel, (call) async {
+            calls.add(call.method);
+            return switch (call.method) {
+              'incomingShare' => true,
+              'takeIncomingShare' => <Object?>[],
+              _ => null,
+            };
+          });
+    });
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(importChannel, null);
+    });
+
+    testWidgets('opens the import screen once the app is unlocked', (
+      tester,
+    ) async {
+      await open(tester);
+      await until(
+        tester,
+        () => find.byType(ImportScreen).evaluate().isNotEmpty,
+      );
+      expect(calls, contains('incomingShare'));
+      expect(
+        tester.widget<ImportScreen>(find.byType(ImportScreen)).openIncoming,
+        isTrue,
+      );
+    });
+
+    testWidgets('is neither asked for nor opened while the app is locked', (
+      tester,
+    ) async {
+      await open(tester, locked: true);
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      );
+      await tester.pump();
+      expect(calls, isEmpty);
+      expect(find.byType(ImportScreen), findsNothing);
+    });
+  });
 }

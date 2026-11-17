@@ -16,8 +16,16 @@ import 'import_media.dart';
 bool _importInProgress = false;
 
 class ImportScreen extends StatefulWidget {
-  const ImportScreen({super.key, required this.session});
+  const ImportScreen({
+    super.key,
+    required this.session,
+    this.openIncoming = false,
+  });
   final Session session;
+
+  /// Another app opened a `.quietake-share` file with Quietake (decision 031):
+  /// take that private copy and go straight to the passphrase dialog.
+  final bool openIncoming;
   @override
   State<ImportScreen> createState() => _ImportScreenState();
 }
@@ -31,6 +39,16 @@ class _ImportScreenState extends State<ImportScreen> {
   PickedFolder? _folder;
   FolderImportSummary? _folderSummary;
   String Function(AppLocalizations)? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.openIncoming) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _pick(share: true, incoming: true),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -48,7 +66,7 @@ class _ImportScreenState extends State<ImportScreen> {
     }
   }
 
-  Future<void> _pick({bool share = false}) async {
+  Future<void> _pick({bool share = false, bool incoming = false}) async {
     if (_busy) return;
     if (_importInProgress) {
       setState(() => _error = (l10n) => l10n.importBusyPrevious);
@@ -64,7 +82,11 @@ class _ImportScreenState extends State<ImportScreen> {
     try {
       final raw =
           await importChannel.invokeListMethod<dynamic>(
-            share ? 'pickShare' : 'pick',
+            incoming
+                ? 'takeIncomingShare'
+                : share
+                ? 'pickShare'
+                : 'pick',
           ) ??
           [];
       var inputs = raw.map((entry) {

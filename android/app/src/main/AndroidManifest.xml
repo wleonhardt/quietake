@@ -42,6 +42,18 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- "Open with Quietake" for a received encrypted share; see decision 031. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content" android:mimeType="application/vnd.quietake.share"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content" android:host="*" android:mimeType="application/octet-stream"
+                    android:pathPattern=".*\\.quietake-share"/>
+            </intent-filter>
         </activity>
         <!-- Optional plain launcher entry, disabled until Settings enables it; see decision 029. -->
         <activity-alias

@@ -14,6 +14,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.concurrent.Executors
 
 class MainActivity : FlutterFragmentActivity() {
@@ -22,6 +23,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var microphoneResult: MethodChannel.Result? = null
     private var privacyChannel: MethodChannel? = null
     private lateinit var privateImport: PrivateImport
+    private lateinit var incomingShare: IncomingShare
     private lateinit var folderImport: FolderImport
     private lateinit var portableFiles: PortableFiles
     private lateinit var videoPreparation: VideoPreparation
@@ -51,6 +53,7 @@ class MainActivity : FlutterFragmentActivity() {
      * there, and the flag is dropped as soon as the activity pauses.
      */
     private fun handleLaunch(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW) incomingShare.accept(intent)
         if (intent?.action != LOCKED_CAMERA) return
         intent.action = null
         lockedCameraRequested = true
@@ -78,6 +81,7 @@ class MainActivity : FlutterFragmentActivity() {
             .setMethodCallHandler(backgroundUploads::handle)
         videoPreparation = VideoPreparation(this)
         privateImport = PrivateImport(this)
+        incomingShare = IncomingShare(this)
         portableFiles = PortableFiles(this)
         folderImport = FolderImport(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/folder")
@@ -97,6 +101,8 @@ class MainActivity : FlutterFragmentActivity() {
                 when (call.method) {
                     "pick" -> privateImport.pick(result)
                     "pickShare" -> privateImport.pick(result, bundle = true)
+                    "incomingShare" -> incomingShare.available(result)
+                    "takeIncomingShare" -> incomingShare.take(File(cacheDir, "quietake-import"), result)
                     "clear" -> privateImport.clear(result)
                     "cancel" -> { privateImport.cancel(); result.success(null) }
                     else -> result.notImplemented()
@@ -213,6 +219,7 @@ class MainActivity : FlutterFragmentActivity() {
         if (LockBridge.channel === privacyChannel) LockBridge.channel = null
         backgroundUploads.close()
         privateImport.close()
+        incomingShare.close()
         folderImport.close()
         portableFiles.close()
         videoPreparation.close()

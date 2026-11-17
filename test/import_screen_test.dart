@@ -76,7 +76,7 @@ void main() {
       ..setMockMethodCallHandler(importChannel, (call) async {
         calls.add(call.method);
         return switch (call.method) {
-          'pick' || 'pickShare' => await pick(),
+          'pick' || 'pickShare' || 'takeIncomingShare' => await pick(),
           'clear' => await clear(),
           _ => null,
         };
@@ -176,6 +176,62 @@ void main() {
     }
     expect(calls, ['pickShare', 'clear']);
   }
+
+  testWidgets('a share opened from another app asks for its passphrase', (
+    tester,
+  ) async {
+    late File bundle;
+    await open(tester);
+    await tester.runAsync(() async {
+      final staging = Directory('${dir.path}/quietake-import')..createSync();
+      final photo = File('${dir.path}/p.jpg')
+        ..writeAsBytesSync(fixtureBytes('tiny.jpg'));
+      bundle = File('${staging.path}/incoming.quietake-share');
+      await ShareBundle(session.vault.crypto.sodium).write(
+        bundle,
+        'blue table',
+        [ShareEntry('photo-01.jpg', photo)],
+        ops: 1,
+        mem: 8192,
+      );
+    });
+    pick = () async => [
+      {'name': 'incoming.quietake-share', 'path': bundle.path},
+    ];
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: ImportScreen(
+          key: UniqueKey(),
+          session: session,
+          openIncoming: true,
+        ),
+      ),
+    );
+    for (
+      var i = 0;
+      i < 20 && find.byKey(Keys.importSharePassphrase).evaluate().isEmpty;
+      i++
+    ) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    await tester.enterText(
+      find.byKey(Keys.importSharePassphrase),
+      'blue table',
+    );
+    await tester.tap(find.byKey(Keys.importShareOpen));
+    for (var i = 0; i < 150 && calls.length < 2; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(calls, ['takeIncomingShare', 'clear']);
+  });
 
   testWidgets('a wrong passphrase imports nothing and says so', (tester) async {
     await openShare(tester, 'wrong');

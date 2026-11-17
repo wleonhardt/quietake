@@ -7,6 +7,7 @@ import '../brand.dart';
 import '../keys.dart';
 import '../l10n/l10n.dart';
 import '../library/albums_screen.dart';
+import '../library/import_media.dart' show importChannel;
 import '../library/import_screen.dart';
 import '../library/library_query.dart';
 import '../library/name_dialog.dart';
@@ -41,7 +42,8 @@ class GalleryScreen extends StatefulWidget {
   State<GalleryScreen> createState() => _GalleryScreenState();
 }
 
-class _GalleryScreenState extends State<GalleryScreen> {
+class _GalleryScreenState extends State<GalleryScreen>
+    with WidgetsBindingObserver {
   late Future<List<VaultItem>> _items = _load();
   final _search = TextEditingController();
   final _selected = <String>{};
@@ -98,6 +100,38 @@ class _GalleryScreenState extends State<GalleryScreen> {
     super.initState();
     widget.session.sync.addListener(_onSync);
     widget.session.vault.catalog.addListener(_onCatalog);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  var _incomingChecking = false;
+
+  /// Tickers are off while the app is locked, so a share another app opened
+  /// waits until unlock and is never taken or shown behind the lock screen.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkIncomingShare();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkIncomingShare();
+  }
+
+  Future<void> _checkIncomingShare() async {
+    if (_incomingChecking || !TickerMode.valuesOf(context).enabled) return;
+    _incomingChecking = true;
+    try {
+      final waiting =
+          await importChannel.invokeMethod<bool>('incomingShare') ?? false;
+      if (waiting && mounted && TickerMode.valuesOf(context).enabled) {
+        await _importFiles(openIncoming: true);
+      }
+    } catch (_) {
+      // No platform support, or nothing arrived: nothing to open.
+    } finally {
+      _incomingChecking = false;
+    }
   }
 
   late bool _wasSyncing = widget.session.sync.isSyncing;
@@ -117,6 +151,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.session.sync.removeListener(_onSync);
     widget.session.vault.catalog.removeListener(_onCatalog);
     _search.dispose();
@@ -660,11 +695,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   bool get _compactHeader => MediaQuery.sizeOf(context).width < 480;
 
-  Future<void> _importFiles() async {
+  Future<void> _importFiles({bool openIncoming = false}) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => ImportScreen(session: widget.session),
+        builder: (_) =>
+            ImportScreen(session: widget.session, openIncoming: openIncoming),
       ),
     );
     if (mounted) {
