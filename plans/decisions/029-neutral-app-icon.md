@@ -55,3 +55,13 @@ launcher entry (`MainActivity`), the alias is registered and disabled, and the a
 checked: how the plain icon looks on a launcher (needs the alias enabled). The shell cannot change
 component state (`SecurityException`), so slice 2 must be verified by an in-app call, for example a device
 test that switches and reads the state with `PackageManager`.
+
+## Slice 2 done (channel and switch)
+
+`LauncherAppearance` (`lib/settings/launcher_appearance.dart`) talks to a new `quietake/appearance` channel:
+`neutral` reads whether the alias is enabled and `setNeutral` enables the wanted entry first, then disables the
+other, both with `DONT_KILL_APP`. Missing channel or a native error reads as unsupported or failed, never as an
+exception. Tests: `launcher_appearance_test.dart` (mocked channel, 4 cases); `integration_test/launcher_icon_test.dart`
+passes on the Android emulator (switch on, read back, switch off, read back) and on the iOS simulator (reports
+no support). Not verified: what the launcher shows while the alias is enabled (the test restores the normal entry
+at once), and whether the running app survives the switch on every launcher. Slice 3 adds the Settings row.

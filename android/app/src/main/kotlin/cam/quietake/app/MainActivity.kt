@@ -1,5 +1,6 @@
 package cam.quietake.app
 
+import android.content.ComponentName
 import android.content.Intent
 import android.Manifest
 import android.content.pm.PackageManager
@@ -91,6 +92,28 @@ class MainActivity : FlutterFragmentActivity() {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
                 result.success(null)
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/appearance")
+            .setMethodCallHandler { call, result ->
+                val main = ComponentName(this, MainActivity::class.java)
+                val alias = ComponentName(this, "cam.quietake.app.NeutralAlias")
+                when (call.method) {
+                    "neutral" -> result.success(
+                        packageManager.getComponentEnabledSetting(alias) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    )
+                    "setNeutral" -> try {
+                        val on = call.arguments == true
+                        // Enable the wanted entry first so a launcher entry always exists.
+                        val enable = if (on) alias else main
+                        val disable = if (on) main else alias
+                        packageManager.setComponentEnabledSetting(enable, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+                        packageManager.setComponentEnabledSetting(disable, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        result.error("failed", "Could not switch the launcher entry", null)
+                    }
+                    else -> result.notImplemented()
+                }
             }
         val privacy = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/privacy")
         privacyChannel = privacy
