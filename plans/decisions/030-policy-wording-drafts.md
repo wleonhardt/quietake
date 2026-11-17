@@ -1,6 +1,6 @@
 # 030 Privacy policy wording drafts
 
-Status: proposed 2026-11-16. The owner asked the agent to draft the privacy policy sentences for the features built since the policy was last updated, so the owner can approve, change or reject them. Nothing here is published: `website/app-privacy.html`, `website/privacy.html` and the in-app policy text are unchanged until the owner approves a sentence. Each draft says what the shipped code does today, names the section it would join, and lists what is not yet verified so the policy does not promise more than the app does.
+Status: A to E approved by the owner 2026-11-17 and published in `assets/privacy-policy.json` and `website/app-privacy.html` (updated date November 17, 2026). Proposed 2026-11-16. The owner asked the agent to draft the privacy policy sentences for the features built since the policy was last updated, so the owner can approve, change or reject them. Nothing here is published: `website/app-privacy.html`, `website/privacy.html` and the in-app policy text are unchanged until the owner approves a sentence. Each draft says what the shipped code does today, names the section it would join, and lists what is not yet verified so the policy does not promise more than the app does.
 
 How to use: mark each draft "approved", "approved with edits" (write the edit) or "rejected". Approved text is then copied into `website/app-privacy.html` and the in-app policy in one change, with the "Updated" date changed.
 
@@ -49,3 +49,10 @@ Also edit: the Android background-upload paragraph. Suggested added sentence: "W
 - Items A, B and C describe shipped behaviour and could be approved now. D must wait for the app dialog. E describes the current default and is the most important to publish, since the existing policy sentence about names including capture time is no longer true for new uploads.
 - The "Updated" date on the policy and the policy's in-app copy should change together when any draft is approved.
 - Nothing here has been reviewed by a lawyer or translated; the in-app policy is English only by decision 021.
+
+## Owner answers 2026-11-17
+
+- A, B, C, D and E approved as written, with two edits made when publishing: D says "can share" instead of "will be able to share" because the share dialog and Import now ship, and the lock-screen draft B omits the optional Quick Settings tile sentence, which was not part of the quoted text. The tile sentence stays available for a later edit.
+- Decision 026: the Android background job keeps its current rule and uploads only files whose random name a foreground sync already assigned.
+- Decision 028: the Quick Settings tile label should follow the plain icon (Tools when the plain icon is on). Not built yet.
+- Decision 028: build the iOS Lock Screen control (Xcode extension target, iOS 18). Not built yet; add its sentence to the policy when it ships.
