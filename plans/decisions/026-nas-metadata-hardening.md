@@ -74,3 +74,6 @@ must drop a mapping only after the remote delete succeeded.
 Limit found: each mapping adds about 85 bytes to the 1 MiB catalog (`maxBytes`), so around
 10,000 mapped captures would use most of it. Slice 2 must either raise the limit consciously or
 store the mapping compactly (the 16-byte random value as hex is already the minimum for the name).
+Compatibility risk found: an older app version that saves the catalog drops `remoteNames`
+(documented in `docs/private-catalog.md`). Slice 2 must therefore also let `sync` rebuild a
+missing mapping by opening remote containers with the key before it adopts or deletes anything.

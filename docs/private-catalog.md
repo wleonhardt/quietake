@@ -21,6 +21,7 @@ Decrypted UTF-8 JSON has this shape:
   "version": 1,
   "albums": {"opaque-album-id": "Album name"},
   "covers": {"opaque-album-id": "2026-10-26T12-30-00.000Z.jpg.shtr"},
+  "remoteNames": {"2026-10-26T12-30-00.000Z.jpg.shtr": "3f9c0a7e5b1d44c2a86e0d1f7b92c4aa.shtr"},
   "items": {
     "2026-10-26T12-30-00.000Z.jpg.shtr": {
       "title": "Optional display name",
@@ -40,6 +41,15 @@ when it has none; deleting a tag or confirmed media removal drops the matching
 cover. Clients from before this field read the file and ignore `covers`, but
 their next save drops it. The Go recovery CLI treats the catalog as opaque and
 exports it unchanged. See decision 018.
+
+`remoteNames` is optional and maps a capture's local name to the random `.shtr`
+name its container has on the NAS (decision 026). Both sides must be direct-child
+`.shtr` names, remote names must be unique and must not equal any local name in
+the map, otherwise the file is rejected. A capture without an entry uses its
+local name on the NAS. The key is omitted when the map is empty. The app does not
+write the field yet. Clients from before this field ignore it and their next save
+drops it, so a version that starts writing it must not be used alongside an older
+one on the same vault.
 
 Names are trimmed and limited to 120 characters. Empty capture titles use the
 immutable filename for name sorting. Album names are nonempty and unique ignoring
