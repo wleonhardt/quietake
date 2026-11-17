@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17: `merge_target.dart` is fully tested now. A `tag_cover.dart` test that waits for a decoded thumbnail never saw the `RawImage` within two seconds in a host test (the preview future does not complete in the widget zone), so its four loaded-image lines stay with device tests.
+
 - 2026-11-17: `restore_transaction.dart` resume paths now have `test/restore_resume_test.dart` (abandoned staging cleanup, missing or mismatched prepared credentials, a vault that gained files, an empty target replaced).
 
 - 2026-11-17: `import_media.dart` gained tests for cancelling during the duplicate scan and for the real validator's magic-byte checks; its remaining uncovered lines are the MP4 player probe and the Sodium failure catch.
