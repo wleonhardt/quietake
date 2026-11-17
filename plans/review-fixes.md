@@ -94,7 +94,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R70 planned: `Podfile` has no platform line.
 - R71 blocked: Release build has no code shrinking; turning it on needs a signed-build check by the owner.
 - R72 complete: Recovery tool. Done: keyfile read bounded at 64 KiB, a warning for `-key` in arguments, a warning when the catalog cannot be read, recovery key bytes cleared, exit codes and overwrite rule documented. Tests `TestKeyfileReadIsBounded` and `TestUnreadableCatalogIsReported`; `gofmt`, `go vet`, `go test` pass. Not changed, with reasons: replacing an existing output with a verified recovery is deliberate and tested (`TestRecoveryWritesOnlyVerifiedMedia`); stricter share entry names (colon, Windows device names) would change the share bundle contract for both readers, so that is an owner question; the fixed `.part` name and the missing folder cap only concern the user's own output and input folders.
-- R73 planned: Tool tests: timing-dependent `run_bounded_test`, shared `/tmp` path, `grant-on-phone.sh` taps any "allow" button.
+- R73 complete: Tool tests. `grant-on-phone.sh` now taps only buttons of the system permission dialog (package contains `permissioncontroller`); the matcher was checked on two sample screens, not on a phone. Not changed after reading: the `/tmp/quietake-nas-live-synthetic` path in `backup_prompt_check_test.py` is only validated, never created, and `run_bounded_test.py` reads its marker after the runner has already killed the child. Tool suite: 76 tests pass.
 
 ## F. Website, wording, documents
 

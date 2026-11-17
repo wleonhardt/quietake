@@ -31,9 +31,11 @@ for _ in $(seq 1 90); do
 import sys,re
 x=sys.stdin.read()
 best=None
-for m in re.finditer(r"<node[^>]*?text=\"([^\"]*)\"[^>]*?bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"", x):
+for m in re.finditer(r"<node[^>]*?text=\"([^\"]*)\"[^>]*?package=\"([^\"]*)\"[^>]*?bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"", x):
+    # Only the system permission dialog, never an Allow button of another app.
+    if "permissioncontroller" not in m.group(2): continue
     t=m.group(1).strip().lower()
-    c=((int(m.group(2))+int(m.group(4)))//2,(int(m.group(3))+int(m.group(5)))//2)
+    c=((int(m.group(3))+int(m.group(5)))//2,(int(m.group(4))+int(m.group(6)))//2)
     if "while using" in t: best=c; break
     if t.startswith("allow") and best is None: best=c
 if best: print(best[0], best[1])
