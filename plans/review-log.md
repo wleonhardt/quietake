@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 review of multi-photo redaction (`share_dialog.dart`) and the gallery incoming-share check: no defects found. Areas are keyed by capture name, an empty result removes that photo's entry, and `_incomingChecking` stops two checks from opening Import twice. Gap: a second share that arrives while Import is open is only noticed at the next resume or dependency change.
+
 - 2026-11-17 review of the subfolder walk (decision 032): the iOS walk kept visiting sibling folders after it passed the 10,001-entry limit, so a huge tree was read to the end for nothing; it now stops at the limit (syntax checked only, not run on a device). The Android walk already stops. Android entry names come from the last segment of the document ID, so a provider with opaque IDs (no extension) skips every file, as it already did for flat folders.
 
 - 2026-11-17 coverage run (851 tests, 80.0% of all lines with generated l10n excluded): lowest `nas_recovery_screen.dart` 73.0%, `portable_screen.dart` 75.4%, `moments_screen.dart` 83.3%. A host test of a successful portable export (right passcode, save channel mocked) hangs in the widget zone and was dropped, so that path stays with device tests. A confirmed Change without a saved connection is now tested (failure text and cleared fields). The Restore and successful Change branches still need a stub WebDAV server.
