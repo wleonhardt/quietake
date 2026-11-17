@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 device check: `tool/e2e.sh android integration_test/import_test.dart` passed all 5 tests on the emulator (including folder import) after the lazy incoming-share change in `MainActivity`. `android/.kotlin/` is Gradle cache and is now ignored.
+
 - 2026-11-17: `merge_target.dart` is fully tested now. A `tag_cover.dart` test that waits for a decoded thumbnail never saw the `RawImage` within two seconds in a host test (the preview future does not complete in the widget zone), so its four loaded-image lines stay with device tests.
 
 - 2026-11-17: `restore_transaction.dart` resume paths now have `test/restore_resume_test.dart` (abandoned staging cleanup, missing or mismatched prepared credentials, a vault that gained files, an empty target replaced).
