@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17 read the iOS Lock Screen control (`QuietakeControl.swift`, `LockedCameraIntent.swift`, scene observer): the intent holds no secret, a cold launch is covered because the request sets a `pending` flag the Dart lock screen reads once, and both targets compile the intent file. It assumes the intent runs in the app process (`openAppWhenRun`); that, the control tap and the signing profile are still unchecked on a real device.
+
 - 2026-11-17 read the multi-photo loop in `_ShareDialogState._redact`: an emptied photo drops its entry, backing out keeps earlier choices, and the per-photo map is keyed by capture name. A lock during the loop leaves the next editor page behind the lock screen until unlock (the content navigator stays alive offstage by design); it shows nothing while locked. No defect.
 
 - 2026-11-17 read `Session._publishLocked` and `LockedCaptureStore.publishAll`: an early lock disposes the master key, which throws a `StateError` out of the publish; the `catchError` returns 0, the derived secret key is still disposed in `finally`, and the pending files stay for the next unlock. Deleted names are dropped, and a pending copy goes only after its sealed file reads through FINAL. No defect.
