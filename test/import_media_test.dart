@@ -94,6 +94,50 @@ void main() {
     expect(await staging.exists(), isFalse);
   });
 
+  test('cancelling during the duplicate scan imports nothing', () async {
+    await importer.run([
+      await source('old.jpg', [1, 2, 3]),
+    ]);
+    staging = await Directory('${root.path}/quietake-import').create();
+    importer = MediaImporter(vault, staging, validate: (_, _) async {});
+    var calls = 0;
+    final result = await importer.run(
+      [
+        await source('new.jpg', [4, 5, 6]),
+      ],
+      // Not cancelled at the start, cancelled once the scan has begun.
+      isCancelled: () => ++calls > 1,
+    );
+    expect(result.single.status, ImportStatus.cancelled);
+    expect(await vault.list(), hasLength(1));
+  });
+
+  test('the real validator checks magic bytes before decoding', () async {
+    Future<Object?> check(String name, List<int> bytes) async {
+      final file = await File('${root.path}/$name').writeAsBytes(bytes);
+      try {
+        await validateImport(file, name.split('.').last);
+        return null;
+      } on FormatException catch (e) {
+        return e.message;
+      }
+    }
+
+    expect(await check('a.jpg', [1, 2, 3, 4]), 'Unsupported or damaged media.');
+    expect(
+      await check('a.png', [137, 80, 78, 71]),
+      'Unsupported or damaged media.',
+    );
+    expect(
+      await check('a.mp4', [0, 0, 0, 20, 102, 116, 121]),
+      'Unsupported or damaged media.',
+    );
+    expect(
+      await check('a.gif', List.filled(16, 1)),
+      'Unsupported or damaged media.',
+    );
+  });
+
   test('invalid formats, native copy failures and damaged media have separate outcomes', () async {
     importer = MediaImporter(
       vault,

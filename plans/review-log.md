@@ -4,6 +4,8 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 
 ## Coverage run notes
 
+- 2026-11-17: `import_media.dart` gained tests for cancelling during the duplicate scan and for the real validator's magic-byte checks; its remaining uncovered lines are the MP4 player probe and the Sodium failure catch.
+
 - 2026-11-17 review of multi-photo redaction (`share_dialog.dart`) and the gallery incoming-share check: no defects found. Areas are keyed by capture name, an empty result removes that photo's entry, and `_incomingChecking` stops two checks from opening Import twice. Gap: a second share that arrives while Import is open is only noticed at the next resume or dependency change.
 
 - 2026-11-17 review of the subfolder walk (decision 032): the iOS walk kept visiting sibling folders after it passed the 10,001-entry limit, so a huge tree was read to the end for nothing; it now stops at the limit (syntax checked only, not run on a device). The Android walk already stops. Android entry names come from the last segment of the document ID, so a provider with opaque IDs (no extension) skips every file, as it already did for flat folders.
