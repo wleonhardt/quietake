@@ -11,6 +11,9 @@
 - Decision 029: look at the generated gray icon on a real launcher.
 - NAS restore dry run: the agent shell still sees `bw` locked; unlock it (the agent never types the master password) and hand over an empty test folder.
 
+- Decision 033: bind the keystore copy of the master key to biometrics on both platforms and make biometric unlock an explicit choice in Settings? Today it is a prompt in the app, always on when the phone has biometrics. This changes the unlock flow and needs real devices with enrolled biometrics. Also: clear a saved NAS address and password when a new vault is created (they can survive an iOS reinstall)?
+- Decision 034: video still records at 720p. Record at 1080p, or add a choice? Larger videos meet the 2 GiB portable backup limit sooner.
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).

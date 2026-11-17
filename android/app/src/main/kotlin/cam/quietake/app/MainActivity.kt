@@ -139,19 +139,21 @@ class MainActivity : FlutterFragmentActivity() {
             }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/appearance")
             .setMethodCallHandler { call, result ->
-                val main = ComponentName(this, MainActivity::class.java)
-                val alias = ComponentName(this, "cam.quietake.app.NeutralAlias")
+                fun set(name: String, state: Int) = packageManager.setComponentEnabledSetting(
+                    ComponentName(this, name), state, PackageManager.DONT_KILL_APP
+                )
                 when (call.method) {
                     "neutral" -> result.success(
-                        packageManager.getComponentEnabledSetting(alias) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        packageManager.getComponentEnabledSetting(ComponentName(this, LauncherEntries.NEUTRAL)) ==
+                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                     )
                     "setNeutral" -> try {
-                        val on = call.arguments == true
                         // Enable the wanted entry first so a launcher entry always exists.
-                        val enable = if (on) alias else main
-                        val disable = if (on) main else alias
-                        packageManager.setComponentEnabledSetting(enable, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
-                        packageManager.setComponentEnabledSetting(disable, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                        val (enable, disable) = LauncherEntries.switchTo(call.arguments == true)
+                        set(enable, PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
+                        set(disable, PackageManager.COMPONENT_ENABLED_STATE_DISABLED)
+                        // Earlier development builds disabled the activity itself; put it back.
+                        set(MainActivity::class.java.name, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
                         result.success(null)
                     } catch (e: Exception) {
                         result.error("failed", "Could not switch the launcher entry", null)

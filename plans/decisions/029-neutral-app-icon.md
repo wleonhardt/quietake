@@ -80,3 +80,23 @@ the Settings UI on a device (the channel itself is device tested), and how the l
 Slice 4 is done: the iOS alternate icon `NeutralIcon` (1024 px bitmap, generated) and the same `quietake/appearance` channel through `setAlternateIconName`. iOS changes only the icon, never the name, and the system shows an alert that only a person can dismiss, so the iOS device test checks the read path and the switch itself is not driven in the simulator (a manual tap verified the icon changed). The Settings row wording says the name changes; on iOS it does not, so iOS shows its own wording (`settingsPlainIconBodyIos`) that says the name stays Quietake; the wording awaits owner review.
 
 Device check of the Settings row: `integration_test/settings_icon_test.dart` opens Settings through the real app, turns the switch on and off and reads the launcher state back through the channel on the Android emulator. On iOS it checks the row and the read path only, because of the system alert. Not checked: how a real launcher draws the plain icon and name.
+
+## Correction 2026-11-17: the switch must not disable the activity
+
+Slice 2 switched entries by disabling `MainActivity` itself and enabling `.NeutralAlias`. Checked on the
+Android emulator (API 33) with the plain entry on: the launcher entry still opened the app, but an explicit
+start of `MainActivity` failed with "Activity class does not exist" (this is what the camera tile does) and
+"Open with Quietake" for a `.quietake-share` file was no longer offered, because both belong to the disabled
+activity. The risk named in the slice plan was never checked with the alias enabled.
+
+Now the launcher filter lives only on two aliases: `.NormalAlias` (enabled) and `.NeutralAlias` (disabled).
+`LauncherEntries.switchTo` picks which alias to enable and which to disable, and the activity is never
+disabled. The switch also puts the activity back to its default state, which repairs a development install
+that used the old switch. After the change, on the same emulator with the plain entry on: one launcher entry
+(`.NeutralAlias`), `MainActivity` starts by explicit intent, the share file filter resolves, and `MainActivity`
+is no longer listed as disabled. Tests: `LauncherEntriesTest` (JVM: the switch never names the activity, and
+only the two aliases carry the launcher filter in the manifest); `integration_test/launcher_icon_test.dart`.
+
+Limits: an existing home screen shortcut that points at `MainActivity` disappears when a build with this
+change replaces an older one, because the launcher entry is now `.NormalAlias`. Not checked: a real tile tap
+and a real "Open with" while the plain entry is on, and any launcher other than the emulator's.
