@@ -31,6 +31,12 @@ first release target; iOS development is ongoing.
   copies keep only their orientation by default: all other EXIF fields, XMP,
   Photoshop data and comments are removed. PNG and video copies remain
   unchanged, so this is not complete metadata anonymization.
+- The lock screen has a Camera button, shown once the vault has been unlocked
+  after this feature shipped. A photo taken there is sealed to a public key
+  without the vault key and becomes a normal capture at the next unlock; the
+  locked camera shows no library, tags or settings.
+- Settings can switch the launcher to a plain gray icon (and, on Android, the
+  name Tools). This does not hide Quietake from the app list or system settings.
 - Casting sends decrypted media over local HTTP to the selected receiver. It is
   not end-to-end encrypted. Locking stops casting and clears decrypted caches.
 - Android blocks screenshots through platform protection. iOS hides inactive
