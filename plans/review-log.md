@@ -84,3 +84,4 @@ Status: moved out of `plans/next-up.md` on 2026-11-17 so the queue stays near 10
 - 2026-11-17: JSON-decode sweep. Bug fixed: a damaged folder-import ledger made `ImportLedger.load` throw, so that folder could never import again; it now starts empty and exact-duplicate detection skips what was imported (red/green `folder_import_test.dart`). Other decoders already catch or validate.
 - 2026-11-17: Follow-up to the ledger fix: restore journal, backup passphrase file and remote name mapping decoders fail closed on damage on purpose (they guard credentials or NAS file identity, and losing them would orphan data); no change.
 - 2026-11-17: Android emulator `import_test.dart` (5 cases, 76.6 s) passes with the ledger fix; `LockedCaptureStore.publishAll` reviewed, per-file try keeps one bad pending file from blocking the rest, no defect.
+- 2026-11-17: iOS simulator `import_test.dart` (5 cases, 86.3 s) also passes with the ledger fix.
