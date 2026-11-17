@@ -2,6 +2,7 @@ import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import '../test_support/test_vault.dart';
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
@@ -12,7 +13,9 @@ import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart';
 import 'package:quietake/lock/lock_screen.dart';
 import 'package:quietake/lock/setup_screen.dart';
+import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/vault/master_key_store.dart';
+import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_authenticator.dart';
@@ -51,8 +54,9 @@ class _DelayedUnlockStore extends MasterKeyStore {
 }
 
 /// Setup, lock, biometric and passcode unlock, recovery export and restore,
-/// all through the UI. Starts from a wiped key state and a vault that holds
-/// one container, which must survive every step.
+/// all through the UI. Starts with no keyfile and a key left in the keystore,
+/// which setup must not use (decision 033). The first test adds one container,
+/// which must survive every later step.
 void main() {
   initializeIntegrationBinding();
 
@@ -60,6 +64,7 @@ void main() {
   late FakeAuthenticator auth;
   late FakeCastBackend backend;
   late String recoveryKey;
+  late String staleKey;
 
   setUpAll(() async {
     final sodium = await SodiumSumoInit.init();
@@ -67,15 +72,10 @@ void main() {
     store = MasterKeyStore(sodium, docs);
     await store.clearCache();
     if (await store.hasKeyfile) await store.keyfile.delete();
-    // A pre-passcode install: key in the keystore, one container on disk.
     final vault = await openTestVault();
     for (final f in await vault.list()) {
       await f.delete();
     }
-    final tmp = await getTemporaryDirectory();
-    final data = fixtureBytes('tiny.jpg');
-    final f = File('${tmp.path}/legacy.jpg')..writeAsBytesSync(data);
-    await vault.ingestAs(f, '2026-01.legacy.jpg');
     auth = FakeAuthenticator();
     backend = FakeCastBackend();
     // How long Argon2id (moderate) takes here; the first call also spawns the isolate.
@@ -84,7 +84,11 @@ void main() {
       (await store.createWithPasscode('timing')).dispose();
       debugPrint('KDF createWithPasscode #$i: ${sw.elapsedMilliseconds} ms');
     }
-    await store.keyfile.delete(); // back to the pre-passcode state
+    // An earlier install's leftovers: a key in the keystore and no keyfile.
+    await store.keyfile.delete();
+    final stale = (await store.cachedKey())!;
+    staleKey = base64Encode(stale.extractBytes());
+    stale.dispose();
   });
 
   bool has(Key k) => find.byKey(k).evaluate().isNotEmpty;
@@ -148,7 +152,7 @@ void main() {
     }
   }
 
-  testWidgets('setup adopts the existing key and shows the recovery key', (
+  testWidgets('setup creates a new key and shows the recovery key', (
     tester,
   ) async {
     await tester.pumpWidget(app());
@@ -196,12 +200,30 @@ void main() {
       44,
       reason: '32 bytes of base64',
     );
+    expect(
+      recoveryKey.replaceAll(' ', ''),
+      isNot(staleKey),
+      reason: 'setup must not hand out a key left in the keystore',
+    );
     expect(find.byKey(Keys.recoveryFingerprint), findsOneWidget);
     await tap(tester, Keys.recoveryDone);
     await pumpUntil(tester, () => has(Keys.openGallery));
     expect(await store.hasKeyfile, isTrue);
 
-    // The legacy container still decrypts under the adopted key.
+    // One container under the new key, for this and every later test.
+    final tmp = await getTemporaryDirectory();
+    final f = File('${tmp.path}/first.jpg')
+      ..writeAsBytesSync(fixtureBytes('tiny.jpg'));
+    final vault = Vault(
+      VaultCrypto(store.sodium),
+      store.importRecovery(recoveryKey),
+      await Vault.defaultDir(),
+    );
+    try {
+      await vault.ingestAs(f, '2026-01.first.jpg');
+    } finally {
+      vault.dispose();
+    }
     await tap(tester, Keys.openGallery);
     await pumpUntil(tester, () => has(Keys.galleryTile(0)));
     await settle(tester);
@@ -442,7 +464,10 @@ void main() {
     testWidgets(
       'backgrounding invalidates a pending real ${restoring ? 'restore' : 'passcode'} result',
       (tester) async {
-        (await store.createWithPasscode('pending-passcode')).dispose();
+        // Same vault key, new passcode: a new vault would get a new key
+        // (decision 033) that the container on disk cannot prove.
+        (await store.restoreFromRecovery(recoveryKey, 'pending-passcode'))
+            .dispose();
         final delayed = _DelayedUnlockStore(store);
         var unlocked = false;
         final key = (await store.cachedKey())!;
