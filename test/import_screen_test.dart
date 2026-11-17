@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/cast/cast_controller.dart';
+import 'package:quietake/crypto/share_bundle.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/l10n/l10n.dart';
@@ -18,6 +19,7 @@ import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_cast_backend.dart';
+import '../test_support/fixtures.dart';
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -74,7 +76,7 @@ void main() {
       ..setMockMethodCallHandler(importChannel, (call) async {
         calls.add(call.method);
         return switch (call.method) {
-          'pick' => await pick(),
+          'pick' || 'pickShare' => await pick(),
           'clear' => await clear(),
           _ => null,
         };
@@ -142,6 +144,73 @@ void main() {
       );
     },
   );
+
+  Future<void> openShare(WidgetTester tester, String typed) async {
+    late File bundle;
+    await open(tester);
+    await tester.runAsync(() async {
+      final staging = Directory('${dir.path}/quietake-import')..createSync();
+      final photo = File('${dir.path}/p.jpg')
+        ..writeAsBytesSync(fixtureBytes('tiny.jpg'));
+      bundle = File('${staging.path}/item-1.quietake-share');
+      await ShareBundle(session.vault.crypto.sodium).write(
+        bundle,
+        'blue table',
+        [ShareEntry('photo-01.jpg', photo)],
+        ops: 1,
+        mem: 8192,
+      );
+    });
+    pick = () async => [
+      {'name': 'a.quietake-share', 'path': bundle.path},
+    ];
+    await tester.tap(find.byKey(Keys.importShare));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.enterText(find.byKey(Keys.importSharePassphrase), typed);
+    await tester.tap(find.byKey(Keys.importShareOpen));
+    for (var i = 0; i < 150 && calls.length < 2; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(calls, ['pickShare', 'clear']);
+  }
+
+  testWidgets('a wrong passphrase imports nothing and says so', (tester) async {
+    await openShare(tester, 'wrong');
+    expect(text(tester, Keys.importError), contains('Check the passphrase'));
+    expect(find.byKey(Keys.importSummary), findsNothing);
+    expect(await tester.runAsync(session.vault.list), isEmpty);
+  });
+
+  testWidgets('the right passphrase imports the shared photo', (tester) async {
+    await openShare(tester, ' blue table ');
+    expect(find.byKey(Keys.importError), findsNothing);
+    expect(
+      text(tester, Keys.importSummary),
+      '1 imported · 0 duplicates skipped',
+    );
+    expect(await tester.runAsync(session.vault.list), hasLength(1));
+  });
+
+  testWidgets('backing out of the passphrase imports nothing', (tester) async {
+    await open(tester);
+    pick = () async => [
+      {'name': 'a.quietake-share', 'path': '${dir.path}/none'},
+    ];
+    await tester.tap(find.byKey(Keys.importShare));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.byKey(Keys.importShareCancel));
+    for (var i = 0; i < 100 && calls.length < 2; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(calls, ['pickShare', 'clear']);
+    expect(find.byKey(Keys.importError), findsNothing);
+  });
 
   testWidgets('the import screen follows the device language', (tester) async {
     pick = () async => [

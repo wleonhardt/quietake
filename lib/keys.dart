@@ -68,6 +68,10 @@ abstract final class Keys {
   static const libraryImport = Key('library.import');
   static const importChoose = Key('import.choose');
   static const importFolder = Key('import.folder');
+  static const importShare = Key('import.share');
+  static const importSharePassphrase = Key('import.sharePassphrase');
+  static const importShareOpen = Key('import.shareOpen');
+  static const importShareCancel = Key('import.shareCancel');
   static const importFolderSummary = Key('import.folderSummary');
   static const importFolderCount = Key('import.folderCount');
   static const importCancel = Key('import.cancel');

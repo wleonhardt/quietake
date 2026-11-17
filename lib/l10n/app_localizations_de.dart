@@ -838,6 +838,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get importChooseFolder => 'Ordner auswählen';
 
   @override
+  String get importOpenShare => 'Verschlüsselte Freigabe öffnen';
+
+  @override
+  String get importSharePassphraseTitle => 'Passphrase für diese Freigabe';
+
+  @override
+  String get importSharePassphraseLabel => 'Passphrase';
+
+  @override
+  String get importShareOpenButton => 'Öffnen';
+
+  @override
+  String get importShareFailed =>
+      'Die Freigabe konnte nicht geöffnet werden. Prüfe die Passphrase und die Datei.';
+
+  @override
   String get importSupportedTitle => 'Unterstützte Dateien und Grenzen';
 
   @override

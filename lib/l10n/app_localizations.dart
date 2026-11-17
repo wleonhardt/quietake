@@ -1428,6 +1428,36 @@ abstract class AppLocalizations {
   /// **'Choose folder'**
   String get importChooseFolder;
 
+  /// No description provided for @importOpenShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Open encrypted share'**
+  String get importOpenShare;
+
+  /// No description provided for @importSharePassphraseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase for this share'**
+  String get importSharePassphraseTitle;
+
+  /// No description provided for @importSharePassphraseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get importSharePassphraseLabel;
+
+  /// No description provided for @importShareOpenButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get importShareOpenButton;
+
+  /// No description provided for @importShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the share. Check the passphrase and the file.'**
+  String get importShareFailed;
+
   /// No description provided for @importSupportedTitle.
   ///
   /// In en, this message translates to:

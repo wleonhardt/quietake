@@ -835,6 +835,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get importChooseFolder => 'Choisir un dossier';
 
   @override
+  String get importOpenShare => 'Ouvrir un partage chiffré';
+
+  @override
+  String get importSharePassphraseTitle => 'Phrase secrète de ce partage';
+
+  @override
+  String get importSharePassphraseLabel => 'Phrase secrète';
+
+  @override
+  String get importShareOpenButton => 'Ouvrir';
+
+  @override
+  String get importShareFailed =>
+      'Impossible d\'ouvrir le partage. Vérifiez la phrase secrète et le fichier.';
+
+  @override
   String get importSupportedTitle => 'Fichiers pris en charge et limites';
 
   @override

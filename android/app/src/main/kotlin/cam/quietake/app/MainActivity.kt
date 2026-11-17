@@ -96,6 +96,7 @@ class MainActivity : FlutterFragmentActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "pick" -> privateImport.pick(result)
+                    "pickShare" -> privateImport.pick(result, bundle = true)
                     "clear" -> privateImport.clear(result)
                     "cancel" -> { privateImport.cancel(); result.success(null) }
                     else -> result.notImplemented()

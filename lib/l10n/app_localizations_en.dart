@@ -816,6 +816,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importChooseFolder => 'Choose folder';
 
   @override
+  String get importOpenShare => 'Open encrypted share';
+
+  @override
+  String get importSharePassphraseTitle => 'Passphrase for this share';
+
+  @override
+  String get importSharePassphraseLabel => 'Passphrase';
+
+  @override
+  String get importShareOpenButton => 'Open';
+
+  @override
+  String get importShareFailed =>
+      'Could not open the share. Check the passphrase and the file.';
+
+  @override
   String get importSupportedTitle => 'Supported files and limits';
 
   @override

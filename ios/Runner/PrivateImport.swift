@@ -7,6 +7,8 @@ final class PrivateImport: NSObject, UIDocumentPickerDelegate {
   private let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
     .appendingPathComponent("quietake-import", isDirectory: true)
   private var pending: FlutterResult?
+  /// One received `.quietake-share` file instead of photos and videos (decision 025).
+  private var bundleMode = false
   private let cancellation = NSLock()
   private var cancelled = false
   private var isCancelled: Bool {
@@ -33,7 +35,8 @@ final class PrivateImport: NSObject, UIDocumentPickerDelegate {
       } catch { result(FlutterError(code: "storage", message: "Could not clear temporary import copies", details: nil)) }
       return
     }
-    guard call.method == "pick" else { result(FlutterMethodNotImplemented); return }
+    guard call.method == "pick" || call.method == "pickShare" else { result(FlutterMethodNotImplemented); return }
+    let bundle = call.method == "pickShare"
     guard pending == nil else { result(FlutterError(code: "busy", message: "Import already open", details: nil)); return }
     guard let presenter = SceneDelegate.current?.window?.rootViewController else {
       result(FlutterError(code: "picker", message: "Could not open Files", details: nil)); return
@@ -41,10 +44,12 @@ final class PrivateImport: NSObject, UIDocumentPickerDelegate {
     do {
       if FileManager.default.fileExists(atPath: directory.path) { try FileManager.default.removeItem(at: directory) }
       try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-      let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.jpeg, .png, .mpeg4Movie], asCopy: false)
-      picker.allowsMultipleSelection = true
+      let picker = UIDocumentPickerViewController(
+        forOpeningContentTypes: bundle ? [.data] : [.jpeg, .png, .mpeg4Movie], asCopy: false)
+      picker.allowsMultipleSelection = !bundle
       picker.delegate = self
       setCancelled(false)
+      bundleMode = bundle
       pending = result
       presenter.present(picker, animated: true)
     } catch { result(FlutterError(code: "storage", message: "Could not prepare import storage", details: nil)) }
@@ -58,8 +63,9 @@ final class PrivateImport: NSObject, UIDocumentPickerDelegate {
   func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
     guard let result = pending else { return }
     let target = directory
+    let bundle = bundleMode
     DispatchQueue.global(qos: .userInitiated).async {
-      var remaining = 512 * 1024 * 1024
+      var remaining = bundle ? 513 * 1024 * 1024 : 512 * 1024 * 1024
       let entries: [[String: String]]
       if urls.count > 20 {
         entries = [["name": "Selection", "error": "Choose up to 20 files."]]
@@ -68,13 +74,19 @@ final class PrivateImport: NSObject, UIDocumentPickerDelegate {
           let name = source.lastPathComponent
           if self.isCancelled { return ["name": name, "error": "Cancelled"] }
           let suffix = source.pathExtension.lowercased()
-          guard ["jpg", "jpeg", "png", "mp4"].contains(suffix) else {
-            return ["name": name, "error": "Use JPEG, PNG or MP4."]
+          if bundle {
+            guard suffix == "quietake-share" else {
+              return ["name": name, "error": "Choose a .quietake-share file."]
+            }
+          } else {
+            guard ["jpg", "jpeg", "png", "mp4"].contains(suffix) else {
+              return ["name": name, "error": "Use JPEG, PNG or MP4."]
+            }
           }
           let access = source.startAccessingSecurityScopedResource()
           defer { if access { source.stopAccessingSecurityScopedResource() } }
           let output = target.appendingPathComponent(UUID().uuidString).appendingPathExtension(suffix)
-          let limit = min(remaining, suffix == "mp4" ? 512 * 1024 * 1024 : 32 * 1024 * 1024)
+          let limit = bundle ? remaining : min(remaining, suffix == "mp4" ? 512 * 1024 * 1024 : 32 * 1024 * 1024)
           do {
             let count = try copyBounded(from: source, to: output, limit: limit, isCancelled: { self.isCancelled })
             remaining -= count

@@ -835,6 +835,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get importChooseFolder => 'Elegir carpeta';
 
   @override
+  String get importOpenShare => 'Abrir compartición cifrada';
+
+  @override
+  String get importSharePassphraseTitle =>
+      'Frase de contraseña de esta compartición';
+
+  @override
+  String get importSharePassphraseLabel => 'Frase de contraseña';
+
+  @override
+  String get importShareOpenButton => 'Abrir';
+
+  @override
+  String get importShareFailed =>
+      'No se pudo abrir la compartición. Revisa la frase de contraseña y el archivo.';
+
+  @override
   String get importSupportedTitle => 'Archivos admitidos y límites';
 
   @override

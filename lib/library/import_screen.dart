@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../crypto/share_bundle.dart';
 import '../keys.dart';
 import '../l10n/l10n.dart';
 import '../form_body.dart';
@@ -47,7 +48,7 @@ class _ImportScreenState extends State<ImportScreen> {
     }
   }
 
-  Future<void> _pick() async {
+  Future<void> _pick({bool share = false}) async {
     if (_busy) return;
     if (_importInProgress) {
       setState(() => _error = (l10n) => l10n.importBusyPrevious);
@@ -61,8 +62,12 @@ class _ImportScreenState extends State<ImportScreen> {
       _results.clear();
     });
     try {
-      final raw = await importChannel.invokeListMethod<dynamic>('pick') ?? [];
-      final inputs = raw.map((entry) {
+      final raw =
+          await importChannel.invokeListMethod<dynamic>(
+            share ? 'pickShare' : 'pick',
+          ) ??
+          [];
+      var inputs = raw.map((entry) {
         final value = entry as Map;
         return ImportInput(
           name: value['name'] as String,
@@ -70,8 +75,9 @@ class _ImportScreenState extends State<ImportScreen> {
           error: value['error'] as String?,
         );
       }).toList();
-      if (mounted) setState(() => _total = inputs.length);
       final root = await getTemporaryDirectory();
+      if (share) inputs = await _openShare(inputs, root);
+      if (mounted) setState(() => _total = inputs.length);
       await MediaImporter(
         widget.session.vault,
         Directory('${root.path}/quietake-import'),
@@ -104,6 +110,65 @@ class _ImportScreenState extends State<ImportScreen> {
       _importInProgress = false;
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Decrypts one picked share bundle into the private import folder and
+  /// returns its photos and videos. Returns nothing when the person backs out
+  /// or the bundle cannot be opened; the reason then shows on screen.
+  Future<List<ImportInput>> _openShare(
+    List<ImportInput> inputs,
+    Directory root,
+  ) async {
+    if (inputs.isEmpty || inputs.first.error != null) return inputs;
+    final passphrase = await _askPassphrase();
+    if (passphrase == null) return [];
+    final dest = Directory('${root.path}/quietake-import/opened');
+    if (dest.existsSync()) dest.deleteSync(recursive: true);
+    dest.createSync(recursive: true);
+    try {
+      final names = await ShareBundle(widget.session.vault.crypto.sodium)
+          .extract(File(inputs.first.path!), passphrase, dest);
+      return [
+        for (final name in names)
+          ImportInput(name: name, path: '${dest.path}/$name'),
+      ];
+    } on ShareBundleException {
+      if (mounted) setState(() => _error = (l10n) => l10n.importShareFailed);
+      return [];
+    }
+  }
+
+  Future<String?> _askPassphrase() {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.importSharePassphraseTitle),
+        content: TextField(
+          key: Keys.importSharePassphrase,
+          controller: controller,
+          autofocus: true,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: InputDecoration(
+            labelText: context.l10n.importSharePassphraseLabel,
+          ),
+        ),
+        actions: [
+          TextButton(
+            key: Keys.importShareCancel,
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            key: Keys.importShareOpen,
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: Text(context.l10n.importShareOpenButton),
+          ),
+        ],
+      ),
+    ).whenComplete(controller.dispose);
   }
 
   /// Copies the supported files of one folder in chunks. The summary stays on
@@ -206,6 +271,13 @@ class _ImportScreenState extends State<ImportScreen> {
             onPressed: _busy ? null : _pickFolder,
             icon: const Icon(Icons.folder_open_outlined),
             label: Text(l10n.importChooseFolder),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            key: Keys.importShare,
+            onPressed: _busy ? null : () => _pick(share: true),
+            icon: const Icon(Icons.lock_open_outlined),
+            label: Text(l10n.importOpenShare),
           ),
           const SizedBox(height: 12),
           ExpansionTile(
