@@ -51,3 +51,15 @@ original never changes. Step 1 adds `redactToPng` in `lib/gallery/redact.dart`:
   hiding areas. They say PNG copies are not changed, which stays true for ordinary copies; a
   redacted copy is a new PNG without metadata. This is not a contradiction, but the owner should
   decide whether to add a sentence. Policy text is owner-reviewed, so it is not edited here.
+
+## Proposed policy sentence (draft, awaits owner review, not yet published)
+
+Insert after "...PNG and video copies are not changed." in the Optional sharing section of
+`website/app-privacy.html` and the matching in-app policy text:
+
+> For a single photo you can also hide areas before sharing. The shared copy is then a new PNG in
+> which those areas are replaced by coarse blocks and which carries no metadata; the original in
+> your vault is not changed. Anything you leave visible, and the picture's own content, can still
+> identify a place or person.
+
+The policy tests and the in-app policy copy (with es/fr/de if translated) must change together with the website.
