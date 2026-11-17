@@ -7,6 +7,7 @@
 - Decision 028 iOS: the Lock Screen control opens the app only after the phone is unlocked. Build the LockedCameraCapture extension (native Swift sealing, App Group, entitlement) or keep this? Also add the control to a real Lock Screen, and create a provisioning profile for the `.control` bundle id.
 - Policy sentences F (received share kept privately until unlock) and G (Include subfolders switch; must be published before a release that ships it) in decision 030: approve, edit or reject. Also: should folder names become tags on subfolder import?
 - Decision 031 Android: the "Open with Quietake" filter is narrow, so Files, Gmail and most chat apps will often not list Quietake (their URIs carry no file name). Widen it to every `application/octet-stream` file, at the cost of showing Quietake for any unknown binary, or keep it narrow?
+- Share metadata: PNG copies keep text, XMP and EXIF chunks, and the approved policy, website and share dialog say PNG and video copies are unchanged. Strip PNG metadata chunks too (needs those sentences changed)? Also JPEG copies now lose any data after the end of image marker (motion photo video, second picture); the policy sentence "without changing the picture" still holds, but the owner may want it mentioned.
 - Decision 029: look at the generated gray icon on a real launcher.
 - NAS restore dry run: the agent shell still sees `bw` locked; unlock it (the agent never types the master password) and hand over an empty test folder.
 
