@@ -7,6 +7,7 @@ import '../keys.dart';
 import '../l10n/l10n.dart';
 import '../privacy/privacy_controller.dart';
 import '../privacy/privacy_scope.dart';
+import 'redact.dart';
 
 /// Lets the owner drag rectangles over a photo. Pops the chosen areas in 0..1
 /// image fractions, or null when the owner goes back. The photo stays in memory
@@ -28,14 +29,7 @@ class _RedactScreenState extends State<RedactScreen> {
   Rect? _draft;
   PrivacyController? _privacy;
 
-  static Future<ui.Image> _decode(Uint8List bytes) async {
-    final codec = await ui.instantiateImageCodec(bytes);
-    try {
-      return (await codec.getNextFrame()).image;
-    } finally {
-      codec.dispose();
-    }
-  }
+  static Future<ui.Image> _decode(Uint8List bytes) => decodeBounded(bytes);
 
   void _onPrivacy() {
     if (_privacy?.enabled == false && mounted) Navigator.maybePop(context);

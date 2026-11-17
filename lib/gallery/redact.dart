@@ -12,18 +12,7 @@ Future<Uint8List> redactToPng(
   List<ui.Rect> regions, {
   int maxPixels = defaultMaxRedactPixels,
 }) async {
-  final scale = await _decodeScale(source, maxPixels);
-  final codec = await ui.instantiateImageCodec(
-    source,
-    targetWidth: scale?.$1,
-    targetHeight: scale?.$2,
-  );
-  final ui.Image image;
-  try {
-    image = (await codec.getNextFrame()).image;
-  } finally {
-    codec.dispose();
-  }
+  final image = await decodeBounded(source, maxPixels: maxPixels);
   final width = image.width, height = image.height;
   final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
   image.dispose();
@@ -50,6 +39,24 @@ Future<Uint8List> redactToPng(
     out.dispose();
     descriptor.dispose();
     buffer.dispose();
+  }
+}
+
+/// Decodes [source], scaled down when it has more than [maxPixels] pixels.
+Future<ui.Image> decodeBounded(
+  Uint8List source, {
+  int maxPixels = defaultMaxRedactPixels,
+}) async {
+  final scale = await _decodeScale(source, maxPixels);
+  final codec = await ui.instantiateImageCodec(
+    source,
+    targetWidth: scale?.$1,
+    targetHeight: scale?.$2,
+  );
+  try {
+    return (await codec.getNextFrame()).image;
+  } finally {
+    codec.dispose();
   }
 }
 
