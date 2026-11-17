@@ -39,3 +39,27 @@ C. Do nothing and keep the documented exposure.
 
 - Go or no-go on A, and whether renaming existing remote files is ever wanted.
 - Whether the recovery tool should print generic names or read the catalog.
+
+## Accepted 2026-11-16: slice plan (owner chose A plus later rename)
+
+Reading `lib/sync/sync_service.dart` shows the remote name is the identity everywhere: the
+listing, the deleted-name journal, `local` and `remote` maps, pull, verify and delete all
+compare a remote name with a local file name. Random names therefore need a mapping layer, not
+a rename at the upload call. Slices, each with tests and its own commit:
+
+1. `RemoteNames`: a pure class mapping local name to remote name and back, with a generator
+   (128-bit random hex plus `.shtr`), plus an optional `remoteNames` catalog field that old
+   readers ignore. No sync change yet. Tests: round trip, uniqueness, rejects bad names.
+2. Push: a new capture gets a random remote name that is saved in the local catalog before
+   the upload starts, so a crash between upload and catalog upload leaves a mapped file, not an
+   orphan. Captures already on the NAS keep their name (mapping maps a name to itself).
+3. Pull, verify, delete and the deleted-name journal go through the mapping. A remote name
+   missing from the authenticated catalog is never adopted or deleted without opening it with
+   the key, and absence never means deletion (AGENTS.md).
+4. Go recovery tool reads the catalog mapping, and prints generic names when the catalog is
+   missing. Frozen vectors stay; `docs/nas-recovery.md` and `docs/container-format.md` change.
+5. Rename of existing remote files: separate, owner-approved action in Settings with a
+   dry run; copy under the new name, verify, then delete the old one.
+
+Open risk for slice 3: restore on a fresh phone needs the catalog first to learn local names.
+If the catalog is lost, media can still be opened by key but only under generic names.
