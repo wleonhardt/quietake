@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
@@ -94,6 +96,53 @@ void main() {
     }
     expect(await (await vault.list()).single.readAsBytes(), before);
   });
+
+  test(
+    'random damage to an entry payload is refused and leaves no staging',
+    () async {
+      await backup.export(archive);
+      final good = await archive.readAsBytes();
+      // Only the encrypted payload of each entry is authenticated. ZIP framing
+      // such as times, data descriptors and attributes is not, and readers use
+      // the central directory instead of it.
+      final payloads = <(int, int)>[];
+      final input = InputFileStream(archive.path);
+      try {
+        for (final h in (ZipDirectory()..read(input)).fileHeaders) {
+          final start =
+              h.localHeaderOffset +
+              30 +
+              utf8.encode(h.filename).length +
+              (h.extraField?.length ?? 0);
+          payloads.add((start, h.compressedSize));
+        }
+      } finally {
+        await input.close();
+      }
+      final random = Random(20261117);
+      for (var run = 0; run < 40; run++) {
+        final bad = Uint8List.fromList(good);
+        final (start, length) = payloads[random.nextInt(payloads.length)];
+        bad[start + random.nextInt(length)] ^= 1 + random.nextInt(255);
+        await archive.writeAsBytes(bad);
+        try {
+          await backup.stage(archive, root);
+          fail('run $run: a changed payload byte was accepted');
+        } on TestFailure {
+          rethrow;
+        } on Exception {
+          // Refused; an Error would escape and fail the test.
+        }
+        expect(
+          root.listSync().whereType<Directory>().map(
+            (d) => d.uri.pathSegments.where((s) => s.isNotEmpty).last,
+          ),
+          ['vault'],
+          reason: 'run $run',
+        );
+      }
+    },
+  );
 
   test('wrong key rejects before staging becomes visible and preserves source archive', () async {
     await backup.export(archive);
