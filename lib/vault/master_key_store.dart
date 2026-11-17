@@ -131,8 +131,18 @@ class MasterKeyStore {
 
   /// The future vault key, persisted nowhere yet. Adopts a key already in the
   /// keystore (pre-passcode installs) so existing containers stay readable.
-  Future<SecureKey> prepareKey() async =>
-      await cachedKey() ?? sodium.crypto.secretBox.keygen();
+  Future<SecureKey> prepareKey() async {
+    await _forgetRecoveryChecked();
+    return await cachedKey() ?? sodium.crypto.secretBox.keygen();
+  }
+
+  /// A new or restored vault starts without the old vault's check date; the
+  /// iOS keychain can outlive an uninstall. Best effort: the date is only a hint.
+  Future<void> _forgetRecoveryChecked() async {
+    try {
+      await _storage.delete(key: _recoveryCheckedName);
+    } catch (_) {}
+  }
 
   /// Makes [key] the vault identity: keyfile wrapped by [passcode], then the
   /// best-effort biometric cache.
@@ -490,6 +500,7 @@ class MasterKeyStore {
     }
     final target = File('${dir.path}/.portable-restore/vault.keyfile.json');
     await _writeKeyfile(key, passcode, destination: target);
+    await _forgetRecoveryChecked();
     return target;
   }
 

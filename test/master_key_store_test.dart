@@ -96,6 +96,24 @@ void main() {
     return validated;
   }
 
+  test('a new or restored vault does not inherit an old recovery check date',
+      () async {
+    await store.saveRecoveryChecked();
+    expect(await store.loadRecoveryChecked(), isNotNull);
+    (await store.prepareKey()).dispose();
+    expect(await store.loadRecoveryChecked(), isNull);
+
+    await store.saveRecoveryChecked();
+    final key = sodium.crypto.secretBox.keygen();
+    await Directory('${dir.path}/.portable-restore').create();
+    try {
+      await store.preparePortableKeyfile(key, 'new portable passcode');
+      expect(await store.loadRecoveryChecked(), isNull);
+    } finally {
+      key.dispose();
+    }
+  });
+
   test('portable restore adopts only a fresh empty vault and preserves recovered identity', () async {
     final key = sodium.crypto.secretBox.keygen();
     try {
