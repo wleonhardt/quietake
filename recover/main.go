@@ -4,6 +4,7 @@
 //	quietake-recover -key-prompt -dir /Volumes/vault -out ./restored
 //	quietake-recover -key-prompt -webdav https://nas.example.com/vault/ -user backup-user -out ./restored
 //	quietake-recover -keyfile vault.keyfile.json -passcode-prompt -dir ./vault -out ./restored
+//	quietake-recover -share photos.quietake-share -out ./opened    # asks for the share passphrase
 //	quietake-recover -key ... -check -dir ./vault        # verify every container, write nothing
 package main
 
@@ -35,7 +36,18 @@ func main() {
 	pass := flag.String("pass", "", "WebDAV password (or set QUIETAKE_WEBDAV_PASS)")
 	out := flag.String("out", "", "output folder; plaintext names are the container names minus .shtr")
 	check := flag.Bool("check", false, "decrypt and verify only, write nothing")
+	share := flag.String("share", "", "open a .quietake-share bundle into -out; asks for its passphrase without echo")
 	flag.Parse()
+
+	if *share != "" {
+		if *dir != "" || *dav != "" || *key != "" || *keyPrompt || *keyfile != "" || *backupPrompt || *check {
+			fail(errors.New("-share takes only -out"))
+		}
+		if err := runShare(*share, *out, readSecret); err != nil {
+			fail(err)
+		}
+		return
+	}
 
 	if (*dir == "") == (*dav == "") {
 		fail(errors.New("give exactly one of -dir or -webdav"))

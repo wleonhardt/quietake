@@ -25,7 +25,12 @@ cd recover && go build -o quietake-recover .
 
 # verify every container, write nothing
 ./quietake-recover -key-prompt -dir ./vault -check
+
+# open a .quietake-share bundle; the share passphrase is asked without echo
+./quietake-recover -share photos.quietake-share -out ~/opened
 ```
+
+`-share` needs only the bundle's own passphrase and `-out`; it never touches a vault key, keyfile or NAS. See `docs/share-bundle.md`.
 
 `-key-prompt` reads the recovery key privately from the terminal without echo.
 Paste it only into that prompt, never into a shell command. The prompt requires

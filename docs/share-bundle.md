@@ -74,8 +74,7 @@ applies the share pipeline (metadata removal, redaction) before bundling.
 
 ## Recipients
 
-Quietake opens a bundle with the passphrase. The Go recovery tool gains a `-share` mode in a later
-slice so anyone can open a bundle from the command line. Neither needs the sender's vault.
+Quietake opens a bundle with the passphrase. The Go recovery tool opens a bundle with `quietake-recover -share FILE -out DIR` and a masked passphrase prompt, so anyone can open one from the command line. Neither needs the sender's vault.
 
 ## Status
 
@@ -83,4 +82,4 @@ Layout approved by the owner on 2026-11-16. The Dart writer and reader are in
 `lib/crypto/share_bundle.dart`. Frozen vectors are in `docs/vectors/share.json` (test parameters:
 Argon2id ops 1, memory 8192, chunk size 64; the stream header is random, so the vectors are the
 bytes the first writer produced and must not be regenerated). Each case lists the passphrase's
-entries as hex; the Go `-share` reader must open them.
+entries as hex; the Go reader opens them in `recover/internal/shtr/share_test.go`.
