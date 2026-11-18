@@ -53,7 +53,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 ## C. Library and viewer
 
 - R30 complete: The selection bar has Delete. With Recently deleted on, the whole selection moves there after one confirmation; with it off, the confirmation states that the captures are removed for good. Strings in en, de, es, fr. Host test for the dialog and Cancel in `test/gallery_selection_test.dart`; device test "deleting a selection in the library moves all of it to Recently deleted" in `integration_test/recently_deleted_test.dart` passes on the Android emulator and the iOS simulator, with `delete_test` and `library_test`. Host suite 887 passed.
-- R31 planned: Import and Sync are unlabeled icons at the bottom of the actions sheet.
+- R31 complete: Import and Sync in the library actions sheet are labelled rows like the others ("Import copies from Files", "Sync with NAS" / "Set up backup" / "Cancel sync"); keys unchanged. Host layout, selection, query and accessibility tests pass after three tests were changed from tooltip to text lookups.
 - R32 planned: The grid has no date headers.
 - R33 planned: The viewer pages vertically and has no swipe-down to close; check decisions 002 and 008 first.
 - R34 planned: Six unlabeled viewer actions with Delete between Share and Cast; group the rare ones under More.
@@ -116,7 +116,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## H. Added from the owner's answers of 2026-11-18
 
-- Evidence for R05, R06, R16, R17, R93, R97 and the batch delete, 2026-11-18, at commit `40ac3ca`: analyzer clean; host suite 893 passed in the full run except `camera_recovery_status_test`, which passed alone (the load flake already noted in `next-up.md`). Android emulator and iOS simulator, all passing on both: `sharing_test` 7, `lock_test` 7, `startup_test`, `sync_test`, `delete_test`, `portable_test`, `library_recovery_test`. `sync_test` first failed on both because one case still expected a readable server name; that test was stale since decision 026 and now checks the uploaded bytes. Not driven on a device: the restore gate's Discard button and a skipped server file.
+- Evidence for R05, R06, R16, R17, R93, R97 and the batch delete, 2026-11-18, at commit `40ac3ca`: analyzer clean; host suite 892 passed and one failed in the full run, `camera_recovery_status_test`, which passed alone (the load flake already noted in `next-up.md`). Android emulator and iOS simulator, all passing on both: `sharing_test` 7, `lock_test` 7, `startup_test`, `sync_test`, `delete_test`, `portable_test`, `library_recovery_test`. `sync_test` first failed on both because one case still expected a readable server name; that test was stale since decision 026 and now checks the uploaded bytes. Not driven on a device: the restore gate's Discard button and a skipped server file.
 
 - R93 complete: Creating a brand-new vault clears any saved backup server address and password before the keyfile is written; a failure to clear stops setup like a failed save. Restores keep or set their own details. Red and green in `test/setup_screen_test.dart` ("a new vault starts without a saved backup server").
 - R94 planned: Video quality setting with 720p, 1080p and 4K, 1080p by default (decision 034).

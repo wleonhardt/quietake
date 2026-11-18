@@ -405,9 +405,8 @@ class _GalleryScreenState extends State<GalleryScreen>
             ),
             ListenableBuilder(
               listenable: widget.session.sync,
-              builder: (_, _) => Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 16,
+              builder: (_, _) => Column(
+                mainAxisSize: MainAxisSize.min,
                 children: _secondaryActions(sheetContext),
               ),
             ),
@@ -824,34 +823,39 @@ class _GalleryScreenState extends State<GalleryScreen>
     ),
   );
 
-  List<Widget> _secondaryActions(BuildContext sheetContext) => [
-    IconButton(
-      key: Keys.libraryImport,
-      tooltip: context.l10n.galleryImportTooltip,
-      icon: const Icon(Icons.add_photo_alternate_outlined),
-      onPressed: () {
-        Navigator.pop(sheetContext);
-        _importFiles();
-      },
-    ),
-    IconButton(
-      key: Keys.gallerySync,
-      tooltip: widget.session.sync.isSyncing
-          ? context.l10n.gallerySyncCancel
-          : widget.session.sync.state == SyncState.unconfigured
-          ? context.l10n.gallerySyncSetup
-          : context.l10n.gallerySyncNow,
-      icon: Icon(widget.session.sync.isSyncing ? Icons.close : Icons.sync),
-      onPressed: widget.session.sync.isSyncing
-          ? widget.session.sync.cancel
-          : widget.session.sync.state == SyncState.unconfigured
-          ? () {
-              Navigator.pop(sheetContext);
-              _openSettings();
-            }
-          : widget.session.sync.sync,
-    ),
-  ];
+  List<Widget> _secondaryActions(BuildContext sheetContext) {
+    final sync = widget.session.sync;
+    return [
+      ListTile(
+        key: Keys.libraryImport,
+        leading: const Icon(Icons.add_photo_alternate_outlined),
+        title: Text(context.l10n.galleryImportTooltip),
+        onTap: () {
+          Navigator.pop(sheetContext);
+          _importFiles();
+        },
+      ),
+      ListTile(
+        key: Keys.gallerySync,
+        leading: Icon(sync.isSyncing ? Icons.close : Icons.sync),
+        title: Text(
+          sync.isSyncing
+              ? context.l10n.gallerySyncCancel
+              : sync.state == SyncState.unconfigured
+              ? context.l10n.gallerySyncSetup
+              : context.l10n.gallerySyncNow,
+        ),
+        onTap: sync.isSyncing
+            ? sync.cancel
+            : sync.state == SyncState.unconfigured
+            ? () {
+                Navigator.pop(sheetContext);
+                _openSettings();
+              }
+            : sync.sync,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(

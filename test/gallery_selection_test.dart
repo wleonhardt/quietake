@@ -382,7 +382,7 @@ void main() {
     await tester.pump();
     expect(session.sync.state, SyncState.unconfigured);
     await revealLibraryControl(tester, Keys.gallerySync);
-    expect(find.byTooltip('Set up backup'), findsOneWidget);
+    expect(find.text('Set up backup'), findsOneWidget);
     await tester.runAsync(() => tester.tap(find.byKey(Keys.gallerySync)));
     for (
       var i = 0;
