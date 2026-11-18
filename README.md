@@ -71,6 +71,10 @@ go vet ./...
 go test ./...
 ```
 
+Those commands need no phone or emulator: install [Flutter](https://docs.flutter.dev/get-started/install)
+and [Go](https://go.dev/dl/) at the pinned versions and they run on the host. The host suite takes
+about two minutes. Changes to app screens or vault code also need the device tests below.
+
 Run Flutter commands sequentially in each checkout. Synthetic device tests use
 `tool/e2e.sh android` and `tool/e2e.sh ios`. For focused diagnosis, use
 `tool/e2e.sh android integration_test/lock_test.dart`; each file has a five-minute
@@ -85,6 +89,8 @@ iOS and physical/Play-delivered release checks remain separate gates.
 
 ## Recovery and documentation
 
+- [Threat model](docs/threat-model.md)
+- [Architecture overview](docs/architecture.md)
 - [Recovery CLI](recover/README.md)
 - [Container contract](docs/container-format.md)
 - [Private catalog](docs/private-catalog.md)
