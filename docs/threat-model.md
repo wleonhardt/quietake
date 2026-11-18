@@ -36,8 +36,8 @@ that encrypts them.
   itself bound to biometrics, and it is written at every passcode unlock. See decision 033.
 - Locking hides the app and clears decoded previews and the cast stream, but the vault key stays
   in memory until the app process ends.
-- The library index is one encrypted file of at most 2 MiB, which bounds the library at roughly
-  ten thousand captures.
+- The library index is one encrypted file of at most 8 MiB, which bounds the library at roughly
+  forty thousand captures; a restore from a server accepts the same number.
 - Seeking in a video decrypts from the start of the file (see `container-format.md`).
 - The recovery key is the vault key itself. Anyone who has it and a copy of the encrypted files
   can read them.

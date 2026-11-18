@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 
+import '../limits.dart' as limits;
 import '../vault/vault.dart';
 import '../compat/legacy_identity.dart';
 import '../library/private_catalog.dart';
@@ -74,7 +75,7 @@ class SyncService {
   });
 
   /// A collection listing larger than this is not a vault we made.
-  static const maxListingBytes = 16 * 1024 * 1024;
+  static const maxListingBytes = limits.maxListingBytes;
 
   /// Bound for a download whose size the server did not report.
   static const maxUnknownSizeBytes = 4 * 1024 * 1024 * 1024;

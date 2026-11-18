@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+import '../limits.dart';
 import '../vault/file_name.dart';
 import '../sync/remote_names.dart';
 import '../vault/vault.dart';
@@ -24,7 +25,7 @@ class CaptureDetails {
 class PrivateCatalog extends ChangeNotifier {
   PrivateCatalog(this.vault);
   static const fileName = 'quietake.catalog';
-  static const maxBytes = 2 * 1024 * 1024;
+  static const maxBytes = maxCatalogBytes;
   final Vault vault;
   File get file => File('${vault.dir.path}/$fileName');
   Map<String, String> _albums = {};

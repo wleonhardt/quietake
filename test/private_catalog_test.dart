@@ -386,8 +386,10 @@ void main() {
     'a library too large to save is refused and leaves state unchanged',
     () async {
       await catalog.load();
+      // Enough long names to pass the size limit, whatever it is.
       final names = {
-        for (var i = 0; i < 24000; i++) 'capture-${'x' * 30}-$i.shtr',
+        for (var i = 0; i < PrivateCatalog.maxBytes ~/ 200; i++)
+          'capture-${'x' * 200}-$i.shtr',
       };
       await expectLater(
         catalog.organize(names, favorite: true),

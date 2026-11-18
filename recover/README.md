@@ -111,7 +111,7 @@ mapped to display names, favorite flags and album IDs. See
 `../docs/private-catalog.md`. Older recovery versions still recover media but skip
 this manifest. Metadata never instructs the recovery tool to delete media.
 
-WebDAV recovery listings are limited to 16 MiB and 10,000 capture entries, matching
+WebDAV recovery listings are limited to 64 MiB and 40,000 capture entries, matching
 the app. Oversized directory responses fail before recovery output is opened.
 Media still authenticates incrementally; valid large captures require disk space.
 

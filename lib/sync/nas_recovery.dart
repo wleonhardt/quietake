@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import '../backup/restore_transaction.dart';
 import '../compat/legacy_identity.dart';
 import '../library/private_catalog.dart';
+import '../limits.dart';
 import '../vault/backup_passphrase.dart';
 import '../vault/master_key_store.dart';
 import '../vault/vault.dart';
@@ -55,7 +56,7 @@ class NasRecovery {
       _check();
       lease = await dav.lockCollection();
       LegacyIdentity.rejectBackupWrites(
-        (await dav.list(maxBytes: 16 * 1024 * 1024)).map((e) => e.name),
+        (await dav.list(maxBytes: maxListingBytes)).map((e) => e.name),
       );
       // Key management changes only recovery material, never capture backup state.
       await for (final entry in vault.dir.list()) {
@@ -197,7 +198,7 @@ class NasRecovery {
     if (newPasscode.length < MasterKeyStore.minPasscodeLength) {
       throw const FormatException(MasterKeyStore.passcodeTooShort);
     }
-    final entries = await dav.list(maxBytes: 16 * 1024 * 1024);
+    final entries = await dav.list(maxBytes: maxListingBytes);
     final names = entries.map((e) => e.name).toSet();
     final legacy =
         names.contains(LegacyIdentity.catalog) ||
@@ -226,7 +227,7 @@ class NasRecovery {
     try {
       _check();
       final media = entries.where((e) => e.name.endsWith('.shtr')).toList();
-      if (media.length > 10000 ||
+      if (media.length > maxBackupCaptures ||
           media.map((e) => e.name).toSet().length != media.length) {
         throw const FormatException('Unsupported backup file count');
       }

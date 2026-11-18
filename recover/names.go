@@ -8,8 +8,8 @@ import (
 	"quietake/recover/internal/shtr"
 )
 
-// maxCatalogBytes bounds the catalog read for name recovery. The app limit is 2 MiB.
-const maxCatalogBytes = 4 << 20
+// maxCatalogBytes bounds the catalog read for name recovery. The app limit is 8 MiB.
+const maxCatalogBytes = 16 << 20
 
 // mappedOutputNames returns output names for randomly named containers, read from
 // the decrypted private catalog's optional remoteNames object (local name to NAS

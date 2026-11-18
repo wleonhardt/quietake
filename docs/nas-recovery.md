@@ -41,7 +41,7 @@ envelope, encrypted catalog and every media container before adopting the staged
 vault. A metadata-only backup is supported. Restore requires an empty vault;
 there is no merge or live identity replacement. Wrong credentials/passphrases,
 damaged captures and unsupported schema fail without replacing originals.
-The list is bounded to 16 MiB and 10,000 captures. Incoming media is
+The list is bounded to 64 MiB and 40,000 captures. Incoming media is
 authenticated incrementally while copying ciphertext into private staging;
 malformed media streams and GET error responses are terminated without downloading
 their remaining bodies. Unused WebDAV control response bodies are capped at

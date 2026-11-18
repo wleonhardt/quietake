@@ -66,8 +66,9 @@ Confirmed removal also prunes matching metadata during deletion, library reload
 and sync, retaining other captures and albums. Damaged metadata is preserved for
 repair and cannot block confirmed media removal; cleanup resumes after repair.
 
-The plaintext budget is 2 MiB (1 MiB before the optional `remoteNames` field; an older app
-version rejects a larger catalog as too large). Unknown schemas, invalid references and failed
+The plaintext budget is 8 MiB (2 MiB until 2026-11-18, and 1 MiB before the optional
+`remoteNames` field; an older app version rejects a larger catalog as too large). It moves
+together with the 40,000-capture and 64 MiB listing limits of a restore; see `lib/limits.dart`. Unknown schemas, invalid references and failed
 container authentication are rejected before adoption. There is no automatic
 reset or lossy migration. Missing manifests represent an empty library. Mutations
 are serialized, encrypted directly from memory to a temporary sibling, and
