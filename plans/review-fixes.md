@@ -122,6 +122,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## H. Added from the owner's answers of 2026-11-18
 
+- Evidence for R91 and the viewer changes, 2026-11-18, at commit `3437891`: analyzer clean, host suite 902 passed. Android emulator and iOS simulator, all passing on both: `viewer_test` 6, `delete_test`, `recently_deleted_test`, `sync_test`, `portable_test` 6, `nas_recovery_test` 6, `backup_test` 4. On iOS the first start of `nas_recovery_test` never connected after the build and hit the five-minute deadline; one unchanged retry passed.
+
 - Evidence for R05, R06, R16, R17, R93, R97 and the batch delete, 2026-11-18, at commit `40ac3ca`: analyzer clean; host suite 892 passed and one failed in the full run, `camera_recovery_status_test`, which passed alone (the load flake already noted in `next-up.md`). Android emulator and iOS simulator, all passing on both: `sharing_test` 7, `lock_test` 7, `startup_test`, `sync_test`, `delete_test`, `portable_test`, `library_recovery_test`. `sync_test` first failed on both because one case still expected a readable server name; that test was stale since decision 026 and now checks the uploaded bytes. Not driven on a device: the restore gate's Discard button and a skipped server file.
 
 - R93 complete: Creating a brand-new vault clears any saved backup server address and password before the keyfile is written; a failure to clear stops setup like a failed save. Restores keep or set their own details. Red and green in `test/setup_screen_test.dart` ("a new vault starts without a saved backup server").
