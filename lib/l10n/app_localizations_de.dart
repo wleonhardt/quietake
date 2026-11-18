@@ -750,6 +750,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get galleryCancelSelection => 'Auswahl abbrechen';
 
   @override
+  String galleryDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aufnahmen löschen?',
+      one: '1 Aufnahme löschen?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String galleryDeleteKeepBody(int days) {
+    return 'Die Auswahl wird in „Zuletzt gelöscht“ verschoben und bleibt $days Tage verschlüsselt auf diesem Telefon, damit Sie sie wiederherstellen können. Eine NAS-Kopie bleibt bis dahin erhalten.';
+  }
+
+  @override
+  String get galleryDeleteMove => 'In „Zuletzt gelöscht“ verschieben';
+
+  @override
   String gallerySelectedCount(int count) {
     return '$count ausgewählt';
   }

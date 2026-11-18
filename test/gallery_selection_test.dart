@@ -174,6 +174,35 @@ void main() {
     expect(find.byKey(Keys.libraryRename), findsNothing);
   });
 
+  testWidgets('Delete on a selection asks first and Cancel keeps everything', (
+    tester,
+  ) async {
+    await open(tester);
+    await revealLibraryControl(tester, Keys.librarySelect);
+    await tester.tap(find.byKey(Keys.librarySelect));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(
+      tester.widget<TextButton>(find.byKey(Keys.libraryDelete)).onPressed,
+      isNull,
+      reason: 'nothing is selected yet',
+    );
+    await tester.tap(find.byKey(Keys.librarySelectAll));
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(Keys.libraryDelete));
+    await tester.tap(find.byKey(Keys.libraryDelete));
+    await until(
+      tester,
+      () => find.text('Delete 2 captures?').evaluate().isNotEmpty,
+    );
+    expect(find.text('Move to Recently deleted'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.libraryDeleteCancel));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('2 selected'), findsOneWidget);
+    expect(find.byKey(Keys.galleryTile(1)), findsOneWidget);
+  });
+
   testWidgets('favoriting the selection persists and flips the action', (
     tester,
   ) async {

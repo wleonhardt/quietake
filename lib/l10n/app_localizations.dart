@@ -1266,6 +1266,24 @@ abstract class AppLocalizations {
   /// **'Cancel selection'**
   String get galleryCancelSelection;
 
+  /// No description provided for @galleryDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete 1 capture?} other{Delete {count} captures?}}'**
+  String galleryDeleteTitle(int count);
+
+  /// No description provided for @galleryDeleteKeepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The selection moves to Recently deleted and stays on this phone, encrypted, for {days} days so you can restore it. Any NAS copy stays until then.'**
+  String galleryDeleteKeepBody(int days);
+
+  /// No description provided for @galleryDeleteMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Recently deleted'**
+  String get galleryDeleteMove;
+
   /// No description provided for @gallerySelectedCount.
   ///
   /// In en, this message translates to:

@@ -367,6 +367,23 @@
   "galleryAddTag": "Add a tag",
   "galleryAddTagHint": "Choose existing tags, or search names with the text above.",
   "galleryCancelSelection": "Cancel selection",
+  "galleryDeleteTitle": "{count, plural, =1{Delete 1 capture?} other{Delete {count} captures?}}",
+  "@galleryDeleteTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryDeleteKeepBody": "The selection moves to Recently deleted and stays on this phone, encrypted, for {days} days so you can restore it. Any NAS copy stays until then.",
+  "@galleryDeleteKeepBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryDeleteMove": "Move to Recently deleted",
   "gallerySelectedCount": "{count} selected",
   "@gallerySelectedCount": {
     "placeholders": {

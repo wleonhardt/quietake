@@ -116,6 +116,9 @@ abstract final class Keys {
   static const librarySave = Key('library.save');
   static const libraryFavorite = Key('library.favorite');
   static const libraryRename = Key('library.rename');
+  static const libraryDelete = Key('library.delete');
+  static const libraryDeleteConfirm = Key('library.deleteConfirm');
+  static const libraryDeleteCancel = Key('library.deleteCancel');
   static const libraryAddAlbum = Key('library.addAlbum');
   static const libraryRemoveAlbum = Key('library.removeAlbum');
   static const libraryCancelSelection = Key('library.cancelSelection');

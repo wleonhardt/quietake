@@ -19,6 +19,8 @@ import '../session.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_settings.dart';
 import '../sync/sync_controller.dart';
+import '../vault/trash_setting.dart';
+import '../vault/vault.dart';
 import 'item.dart';
 import 'preview.dart';
 import 'share_dialog.dart';
@@ -48,6 +50,7 @@ class _GalleryScreenState extends State<GalleryScreen>
   final _search = TextEditingController();
   final _selected = <String>{};
   var _selecting = false;
+  var _deleting = false;
   late bool _composing =
       widget.searchMode &&
       widget.initialTags.isEmpty &&
@@ -227,6 +230,70 @@ class _GalleryScreenState extends State<GalleryScreen>
       context,
       () => catalog.organize(selected, tagIds: tags, remove: remove),
     );
+  }
+
+  /// Deletes the selection. With Recently deleted on, everything goes there
+  /// and stays restorable; permanent removal of many captures at once is
+  /// only offered when the owner has turned that off (decision 015).
+  Future<void> _deleteSelected(List<VaultItem> visible) async {
+    if (_deleting) return;
+    final items = visible.where((i) => _selected.contains(i.name)).toList();
+    if (items.isEmpty) return;
+    setState(() => _deleting = true);
+    try {
+      final keep = await TrashSetting.load();
+      if (!mounted) return;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.l10n.galleryDeleteTitle(items.length)),
+          content: Text(
+            keep
+                ? context.l10n.galleryDeleteKeepBody(Vault.trashKeep.inDays)
+                : context.l10n.recentlyDeletedAllBody(items.length),
+          ),
+          actions: [
+            TextButton(
+              key: Keys.libraryDeleteCancel,
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              key: Keys.libraryDeleteConfirm,
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(
+                keep
+                    ? context.l10n.galleryDeleteMove
+                    : context.l10n.viewerDelete,
+              ),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final cast = widget.session.cast;
+      if (cast.isCasting || cast.isConnecting) await cast.stop();
+      var failed = false;
+      for (final item in items) {
+        try {
+          keep
+              ? await widget.session.sync.trash(item.file)
+              : await widget.session.sync.delete(item.file);
+          widget.session.previews.evict(item.name);
+        } catch (_) {
+          failed = true;
+        }
+      }
+      if (!mounted) return;
+      if (failed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.recentlyDeletedDeleteFailed)),
+        );
+      }
+      _scope(() => _items = _load());
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
   }
 
   Future<void> _openSearch({
@@ -565,7 +632,7 @@ class _GalleryScreenState extends State<GalleryScreen>
     final allFavorite =
         _selected.isNotEmpty &&
         _selected.every((name) => catalog.details(name).favorite);
-    final enabled = _selected.isNotEmpty;
+    final enabled = _selected.isNotEmpty && !_deleting;
     return SafeArea(
       top: false,
       child: Padding(
@@ -658,6 +725,12 @@ class _GalleryScreenState extends State<GalleryScreen>
                   label: Text(context.l10n.pickerRemoveTitle),
                   icon: const Icon(Icons.playlist_remove),
                   onPressed: !enabled ? null : () => _chooseTags(remove: true),
+                ),
+                TextButton.icon(
+                  key: Keys.libraryDelete,
+                  label: Text(context.l10n.viewerDelete),
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: !enabled ? null : () => _deleteSelected(visible),
                 ),
                 if (_selected.length == 1)
                   TextButton.icon(

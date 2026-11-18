@@ -52,7 +52,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## C. Library and viewer
 
-- R30 planned: Multi-select has no delete (decision 015 rules apply).
+- R30 complete: The selection bar has Delete. With Recently deleted on, the whole selection moves there after one confirmation; with it off, the confirmation states that the captures are removed for good. Strings in en, de, es, fr. Host test for the dialog and Cancel in `test/gallery_selection_test.dart`; device test "deleting a selection in the library moves all of it to Recently deleted" in `integration_test/recently_deleted_test.dart` passes on the Android emulator and the iOS simulator, with `delete_test` and `library_test`. Host suite 887 passed.
 - R31 planned: Import and Sync are unlabeled icons at the bottom of the actions sheet.
 - R32 planned: The grid has no date headers.
 - R33 planned: The viewer pages vertically and has no swipe-down to close; check decisions 002 and 008 first.

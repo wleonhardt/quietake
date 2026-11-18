@@ -748,6 +748,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get galleryCancelSelection => 'Cancelar selección';
 
   @override
+  String galleryDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '¿Eliminar $count capturas?',
+      one: '¿Eliminar 1 captura?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String galleryDeleteKeepBody(int days) {
+    return 'La selección pasa a «Eliminados recientemente» y se conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. La copia del NAS se mantiene hasta entonces.';
+  }
+
+  @override
+  String get galleryDeleteMove => 'Mover a «Eliminados recientemente»';
+
+  @override
   String gallerySelectedCount(int count) {
     return '$count seleccionadas';
   }

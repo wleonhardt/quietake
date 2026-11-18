@@ -138,4 +138,40 @@ void main() {
       expect(await app.vault.list(), isEmpty);
     },
   );
+
+  testWidgets(
+    'deleting a selection in the library moves all of it to Recently deleted',
+    (tester) async {
+      final temp = await getTemporaryDirectory();
+      for (final day in ['04', '05']) {
+        final plain = await File('${temp.path}/batch.jpg')
+            .writeAsBytes(fixtureBytes('tiny.jpg'));
+        await app.vault.ingestAs(plain, '2031-03-$day.batch.jpg');
+      }
+      await app.session.sync.sync();
+      expect(mediaOnNas(), hasLength(2));
+
+      await tester.pumpWidget(app.widget());
+      await tap(tester, Keys.openGallery);
+      await until(
+        tester,
+        () => find.byKey(Keys.galleryTile(1)).evaluate().isNotEmpty,
+      );
+      await tester.longPress(find.byKey(Keys.galleryTile(0)));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tap(tester, Keys.galleryTile(1));
+      await tester.ensureVisible(find.byKey(Keys.libraryDelete));
+      await tap(tester, Keys.libraryDelete);
+      await tap(tester, Keys.libraryDeleteConfirm);
+      await until(
+        tester,
+        () => find.byKey(Keys.galleryEmpty).evaluate().isNotEmpty,
+      );
+      expect(await app.vault.list(), isEmpty);
+      expect((await app.vault.trashedAt()).keys, hasLength(2));
+      // The server copies stay while the captures are only in Recently deleted.
+      await app.session.sync.sync();
+      expect(mediaOnNas(), hasLength(2));
+    },
+  );
 }
