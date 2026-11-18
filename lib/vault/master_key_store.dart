@@ -155,10 +155,20 @@ class MasterKeyStore {
     await _refreshCache(key);
   }
 
+  /// The attempt is counted before the slow key derivation, so attempts
+  /// started together cannot all pass the lock check. (No future is kept on
+  /// this object: the derivation isolate receives a copy of it.)
   Future<SecureKey> unlockWithPasscode(String passcode) async {
     final until = _lockedUntil;
     if (until != null && _clock().isBefore(until)) {
       throw PasscodeLockedException(until.difference(_clock()));
+    }
+    final failuresBefore = _failures;
+    final lockedBefore = _lockedUntil;
+    _failures++;
+    if (_failures >= _freeTries) {
+      final lock = _firstLock * (1 << (_failures - _freeTries).clamp(0, 10));
+      _lockedUntil = _clock().add(lock > _longestLock ? _longestLock : lock);
     }
     try {
       final key = await _unlockWithPasscode(passcode);
@@ -166,11 +176,11 @@ class MasterKeyStore {
       _lockedUntil = null;
       return key;
     } on WrongPasscodeException {
-      _failures++;
-      if (_failures >= _freeTries) {
-        final lock = _firstLock * (1 << (_failures - _freeTries).clamp(0, 10));
-        _lockedUntil = _clock().add(lock > _longestLock ? _longestLock : lock);
-      }
+      rethrow;
+    } catch (_) {
+      // An unreadable keyfile is not a guess.
+      _failures = failuresBefore;
+      _lockedUntil = lockedBefore;
       rethrow;
     }
   }

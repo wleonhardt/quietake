@@ -453,6 +453,20 @@ void main() {
       );
     }
 
+    test('attempts started together are still counted one by one', () async {
+      for (var i = 0; i < 4; i++) {
+        await wrong();
+      }
+      final results = await Future.wait([
+        for (var i = 0; i < 3; i++)
+          timed
+              .unlockWithPasscode('wrong')
+              .then<Object>((key) => key, onError: (Object e) => e),
+      ]);
+      // The fifth failure starts the lock; the two behind it must see it.
+      expect(results.whereType<PasscodeLockedException>(), hasLength(2));
+    });
+
     test(
       'five wrong passcodes lock further tries, even a correct one',
       () async {
