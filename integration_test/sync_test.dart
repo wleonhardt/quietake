@@ -3,6 +3,7 @@ import '../test_support/library_controls.dart';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
@@ -325,7 +326,12 @@ void main() {
     final plain = File('${tmp.path}/retry.jpg');
     await plain.writeAsBytes([255, 216, 255, 7]);
     final local = await vault.ingestAs(plain, '2099-retry.jpg');
-    expect(dav.files.containsKey('2099-retry.jpg.shtr'), isFalse);
+    final sealed = await local.readAsBytes();
+    // The app's own session uploads under a random name (decision 026), so
+    // the copy is recognised by its bytes, not by its name.
+    bool uploaded() =>
+        dav.files.values.any((bytes) => listEquals(bytes, sealed));
+    expect(uploaded(), isFalse);
     await tester.pumpWidget(
       QuietakeApp(
         store: app.session.store,
@@ -342,11 +348,11 @@ void main() {
     await pumpUntil(
       tester,
       () =>
-          dav.files.containsKey('2099-retry.jpg.shtr') &&
+          uploaded() &&
           find.byKey(Keys.captureBackup).evaluate().isNotEmpty &&
           backupLabel(tester) == 'Synced with NAS · not verified',
     );
-    expect(dav.files['2099-retry.jpg.shtr'], await local.readAsBytes());
+    expect(dav.files.containsKey('2099-retry.jpg.shtr'), isFalse);
     expect(await plain.exists(), isFalse);
     await tester.pumpWidget(const SizedBox());
     await settle(tester);
