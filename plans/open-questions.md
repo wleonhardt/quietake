@@ -11,7 +11,6 @@
 - Decision 029: look at the generated gray icon on a real launcher.
 - NAS restore dry run: the agent shell still sees `bw` locked; unlock it (the agent never types the master password) and hand over an empty test folder.
 - Real-device checks nobody has done yet: the saved photo size after decision 034, a tile tap and "Open with" while the plain icon is on, pinch zoom, the flash button, biometric unlock once decision 033's second part is built.
-
 - Recovery key words (decision 041): the app shows 21 words from the EFF list it already ships, not the 24 BIP39 words named in the option you chose. Fewer words, no second word list, but no wallet tool reads them. Keep 21 EFF words, or switch to 24 BIP39 words before release? Default: keep 21.
 
 ## Resolved

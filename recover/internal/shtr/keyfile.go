@@ -70,11 +70,25 @@ func MasterKeyFromKeyfile(data []byte, passcode string) (*[32]byte, error) {
 
 var recoverySep = regexp.MustCompile(`[\s-]`)
 
+var listNumber = regexp.MustCompile(`^\d+[.)]?$`)
+
+// recoveryTokens splits typed text and drops list numbers such as "7", "7."
+// or "7)": the app shows the words numbered (decision 042).
+func recoveryTokens(s string) []string {
+	var tokens []string
+	for _, field := range strings.Fields(s) {
+		if !listNumber.MatchString(field) {
+			tokens = append(tokens, field)
+		}
+	}
+	return tokens
+}
+
 // MasterKeyFromRecovery parses the recovery key as shown by the app: 21 words,
 // or base64 of 32 bytes in groups of four. The base64 form has at most eleven
 // groups, so more tokens than that are read as words.
 func MasterKeyFromRecovery(s string) (*[32]byte, error) {
-	if tokens := strings.Fields(s); len(tokens) > 11 {
+	if tokens := recoveryTokens(s); len(tokens) > 11 {
 		return masterKeyFromWords(tokens)
 	}
 	raw, err := base64.StdEncoding.DecodeString(recoverySep.ReplaceAllString(s, ""))

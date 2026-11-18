@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -48,7 +49,11 @@ func TestRecoveryWordsMatchFrozenVectors(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		for _, text := range []string{c.Words, "  " + strings.ToUpper(c.Words) + "\n", strings.ReplaceAll(c.Words, " ", "\n")} {
+		numbered := ""
+		for i, word := range strings.Fields(c.Words) {
+			numbered += fmt.Sprintf("%d\u00a0%s   ", i+1, word)
+		}
+		for _, text := range []string{c.Words, "  " + strings.ToUpper(c.Words) + "\n", strings.ReplaceAll(c.Words, " ", "\n"), numbered, strings.ReplaceAll(numbered, "\u00a0", ". ")} {
 			key, err := MasterKeyFromRecovery(text)
 			if err != nil {
 				t.Fatal(err)

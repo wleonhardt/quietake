@@ -22,8 +22,9 @@ To read the word form, reverse the steps. Refuse input that is not 21 words, hol
 is not in the list, encodes a number of more than 264 bits, or has a wrong check byte. Words are
 separated by any whitespace and compared in lower case.
 
-Input with more than eleven whitespace-separated tokens is treated as the word form; the text
-form has at most eleven groups.
+Tokens that are only a list number (`7`, `7.` or `7)`) are ignored, so a numbered list of words
+can be pasted. Input with more than eleven remaining tokens is treated as the word form; the
+text form has at most eleven groups.
 
 Test vectors: [recovery-vectors/words.json](recovery-vectors/words.json). The all-zero key is
 `abacus` twenty times and then `ahoy`.
