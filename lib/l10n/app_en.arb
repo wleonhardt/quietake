@@ -88,7 +88,7 @@
   },
   "recoveryKeyLabel": "Recovery key",
   "recoveryKeyIntro": "Keep this key in your password manager, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A NAS backup passphrase is another recovery option only if you have enabled it.",
-  "recoveryFingerprint": "Fingerprint {fingerprint}",
+  "recoveryFingerprint": "Check code {fingerprint}",
   "@recoveryFingerprint": {
     "placeholders": {
       "fingerprint": {
@@ -96,7 +96,7 @@
       }
     }
   },
-  "recoveryFingerprintNote": "Save the fingerprint with the key. A new phone shows it so you can check the key you typed.",
+  "recoveryFingerprintNote": "Save the check code with the key. A new phone shows it so you can check the key you typed.",
   "recoverySaved": "I saved it",
   "recoveryShowText": "Show as text",
   "recoveryShowWords": "Show as words",
@@ -151,7 +151,7 @@
   "changePasscodeFailed": "Could not change passcode. Try again.",
   "changePasscodeBusy": "Changing…",
   "setupConfirmKeyTitle": "Confirm recovery key",
-  "setupConfirmKeyBody": "This phone has no captures yet, so the key cannot be checked against them. Compare this fingerprint with the one saved next to your recovery key.",
+  "setupConfirmKeyBody": "This phone has no captures yet, so the key cannot be checked against them. Compare this check code with the one saved next to your recovery key.",
   "setupNotMine": "Not mine",
   "setupMatches": "Matches",
   "setupCreateFailed": "Could not create the vault. Check storage and try again.",
@@ -569,7 +569,7 @@
       }
     }
   },
-  "importDuplicates": "{count} duplicates skipped",
+  "importDuplicates": "{count, plural, =1{1 duplicate skipped} other{{count} duplicates skipped}}",
   "@importDuplicates": {
     "placeholders": {
       "count": {
@@ -1155,7 +1155,7 @@
   "settingsRenameRemote": "Give NAS files random names",
   "settingsRenameRemoteNone": "No files on the NAS need new names.",
   "settingsRenameRemoteTitle": "Rename files on the NAS?",
-  "settingsRenameRemoteBody": "{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.",
+  "settingsRenameRemoteBody": "{count, plural, =1{1 encrypted file on the NAS gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.} other{{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.}}",
   "@settingsRenameRemoteBody": {
     "description": "Confirmation before renaming NAS files; count is the number of files.",
     "placeholders": {
@@ -1165,7 +1165,7 @@
     }
   },
   "settingsRenameRemoteAction": "Rename",
-  "settingsRenameRemoteDone": "Renamed {count} files on the NAS.",
+  "settingsRenameRemoteDone": "{count, plural, =1{Renamed 1 file on the NAS.} other{Renamed {count} files on the NAS.}}",
   "@settingsRenameRemoteDone": {
     "description": "Result after renaming NAS files.",
     "placeholders": {

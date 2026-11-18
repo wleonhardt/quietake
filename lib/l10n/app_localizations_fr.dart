@@ -176,12 +176,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String recoveryFingerprint(String fingerprint) {
-    return 'Empreinte $fingerprint';
+    return 'Code de vérification $fingerprint';
   }
 
   @override
   String get recoveryFingerprintNote =>
-      'Conservez l\'empreinte avec la clé. Un nouveau téléphone l\'affiche pour vous permettre de vérifier la clé saisie.';
+      'Conservez le code de vérification avec la clé. Un nouveau téléphone l\'affiche pour vous permettre de vérifier la clé saisie.';
 
   @override
   String get recoverySaved => 'Je l\'ai enregistrée';
@@ -277,7 +277,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get setupConfirmKeyBody =>
-      'Ce téléphone n\'a pas encore de captures, la clé ne peut donc pas être vérifiée avec elles. Comparez cette empreinte à celle conservée avec votre clé de récupération.';
+      'Ce téléphone n\'a pas encore de captures, la clé ne peut donc pas être vérifiée avec elles. Comparez ce code de vérification à celui conservé avec votre clé de récupération.';
 
   @override
   String get setupNotMine => 'Ce n\'est pas la mienne';
@@ -1073,7 +1073,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String importDuplicates(int count) {
-    return '$count doublons ignorés';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count doublons ignorés',
+      one: '1 doublon ignoré',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2118,7 +2124,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String settingsRenameRemoteBody(int count) {
-    return '$count fichiers chiffrés du NAS reçoivent des noms aléatoires, leurs noms et heures n\'y apparaissent donc plus. Mettez d\'abord à jour Quietake sur les autres téléphones : les anciennes versions ne retrouvent pas les fichiers renommés. Vos originaux restent sur ce téléphone.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count fichiers chiffrés du NAS reçoivent des noms aléatoires, leurs noms et heures n\'y apparaissent donc plus. Mettez d\'abord à jour Quietake sur les autres téléphones : les anciennes versions ne retrouvent pas les fichiers renommés. Vos originaux restent sur ce téléphone.',
+      one: '1 fichier chiffré du NAS reçoit un nom aléatoire, son nom et son heure n\'y apparaissent donc plus. Mettez d\'abord à jour Quietake sur les autres téléphones : les anciennes versions ne retrouvent pas les fichiers renommés. Vos originaux restent sur ce téléphone.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2126,7 +2139,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String settingsRenameRemoteDone(int count) {
-    return '$count fichiers renommés sur le NAS.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers renommés sur le NAS.',
+      one: '1 fichier renommé sur le NAS.',
+    );
+    return '$_temp0';
   }
 
   @override

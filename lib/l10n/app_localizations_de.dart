@@ -177,12 +177,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String recoveryFingerprint(String fingerprint) {
-    return 'Fingerabdruck $fingerprint';
+    return 'Prüfcode $fingerprint';
   }
 
   @override
   String get recoveryFingerprintNote =>
-      'Speichern Sie den Fingerabdruck zusammen mit dem Schlüssel. Ein neues Telefon zeigt ihn an, damit Sie den eingegebenen Schlüssel prüfen können.';
+      'Speichern Sie den Prüfcode zusammen mit dem Schlüssel. Ein neues Telefon zeigt ihn an, damit Sie den eingegebenen Schlüssel prüfen können.';
 
   @override
   String get recoverySaved => 'Ich habe ihn gespeichert';
@@ -277,7 +277,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupConfirmKeyBody =>
-      'Dieses Telefon hat noch keine Aufnahmen, daher kann der Schlüssel nicht damit geprüft werden. Vergleichen Sie diesen Fingerabdruck mit dem, der neben Ihrem Wiederherstellungsschlüssel gespeichert ist.';
+      'Dieses Telefon hat noch keine Aufnahmen, daher kann der Schlüssel nicht damit geprüft werden. Vergleichen Sie diesen Prüfcode mit dem, der neben Ihrem Wiederherstellungsschlüssel gespeichert ist.';
 
   @override
   String get setupNotMine => 'Nicht meiner';
@@ -1077,7 +1077,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String importDuplicates(int count) {
-    return '$count Duplikate übersprungen';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Duplikate übersprungen',
+      one: '1 Duplikat übersprungen',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2119,7 +2125,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String settingsRenameRemoteBody(int count) {
-    return '$count verschlüsselte Dateien auf dem NAS erhalten zufällige Namen, sodass ihre Namen und Zeiten dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count verschlüsselte Dateien auf dem NAS erhalten zufällige Namen, sodass ihre Namen und Zeiten dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.',
+      one: '1 verschlüsselte Datei auf dem NAS erhält einen zufälligen Namen, sodass ihr Name und ihre Zeit dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2127,7 +2140,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String settingsRenameRemoteDone(int count) {
-    return '$count Dateien auf dem NAS umbenannt.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Dateien auf dem NAS umbenannt.',
+      one: '1 Datei auf dem NAS umbenannt.',
+    );
+    return '$_temp0';
   }
 
   @override

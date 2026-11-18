@@ -321,13 +321,13 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryFingerprint.
   ///
   /// In en, this message translates to:
-  /// **'Fingerprint {fingerprint}'**
+  /// **'Check code {fingerprint}'**
   String recoveryFingerprint(String fingerprint);
 
   /// No description provided for @recoveryFingerprintNote.
   ///
   /// In en, this message translates to:
-  /// **'Save the fingerprint with the key. A new phone shows it so you can check the key you typed.'**
+  /// **'Save the check code with the key. A new phone shows it so you can check the key you typed.'**
   String get recoveryFingerprintNote;
 
   /// No description provided for @recoverySaved.
@@ -489,7 +489,7 @@ abstract class AppLocalizations {
   /// No description provided for @setupConfirmKeyBody.
   ///
   /// In en, this message translates to:
-  /// **'This phone has no captures yet, so the key cannot be checked against them. Compare this fingerprint with the one saved next to your recovery key.'**
+  /// **'This phone has no captures yet, so the key cannot be checked against them. Compare this check code with the one saved next to your recovery key.'**
   String get setupConfirmKeyBody;
 
   /// No description provided for @setupNotMine.
@@ -1773,7 +1773,7 @@ abstract class AppLocalizations {
   /// No description provided for @importDuplicates.
   ///
   /// In en, this message translates to:
-  /// **'{count} duplicates skipped'**
+  /// **'{count, plural, =1{1 duplicate skipped} other{{count} duplicates skipped}}'**
   String importDuplicates(int count);
 
   /// No description provided for @importAlreadyDone.
@@ -3429,7 +3429,7 @@ abstract class AppLocalizations {
   /// Confirmation before renaming NAS files; count is the number of files.
   ///
   /// In en, this message translates to:
-  /// **'{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.'**
+  /// **'{count, plural, =1{1 encrypted file on the NAS gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.} other{{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.}}'**
   String settingsRenameRemoteBody(int count);
 
   /// No description provided for @settingsRenameRemoteAction.
@@ -3441,7 +3441,7 @@ abstract class AppLocalizations {
   /// Result after renaming NAS files.
   ///
   /// In en, this message translates to:
-  /// **'Renamed {count} files on the NAS.'**
+  /// **'{count, plural, =1{Renamed 1 file on the NAS.} other{Renamed {count} files on the NAS.}}'**
   String settingsRenameRemoteDone(int count);
 
   /// No description provided for @settingsRenameRemoteFailed.

@@ -722,19 +722,19 @@ void main() {
           if (find.byKey(Keys.renameRemoteConfirm).evaluate().isNotEmpty) break;
         }
       });
-      expect(find.textContaining('1 encrypted files'), findsOneWidget);
+      expect(find.textContaining('1 encrypted file on'), findsOneWidget);
       expect(server.files.keys, contains('p0.jpg.shtr'));
       await tester.runAsync(() async {
         await tester.tap(find.byKey(Keys.renameRemoteConfirm));
         for (var i = 0; i < 100; i++) {
           await Future<void>.delayed(const Duration(milliseconds: 50));
           await tester.pump();
-          if (find.text('Renamed 1 files on the NAS.').evaluate().isNotEmpty) {
+          if (find.text('Renamed 1 file on the NAS.').evaluate().isNotEmpty) {
             break;
           }
         }
       });
-      expect(find.text('Renamed 1 files on the NAS.'), findsOneWidget);
+      expect(find.text('Renamed 1 file on the NAS.'), findsOneWidget);
       expect(server.files.keys, isNot(contains('p0.jpg.shtr')));
     });
   });

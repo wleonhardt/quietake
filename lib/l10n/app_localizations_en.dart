@@ -172,12 +172,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recoveryFingerprint(String fingerprint) {
-    return 'Fingerprint $fingerprint';
+    return 'Check code $fingerprint';
   }
 
   @override
   String get recoveryFingerprintNote =>
-      'Save the fingerprint with the key. A new phone shows it so you can check the key you typed.';
+      'Save the check code with the key. A new phone shows it so you can check the key you typed.';
 
   @override
   String get recoverySaved => 'I saved it';
@@ -271,7 +271,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupConfirmKeyBody =>
-      'This phone has no captures yet, so the key cannot be checked against them. Compare this fingerprint with the one saved next to your recovery key.';
+      'This phone has no captures yet, so the key cannot be checked against them. Compare this check code with the one saved next to your recovery key.';
 
   @override
   String get setupNotMine => 'Not mine';
@@ -1052,7 +1052,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String importDuplicates(int count) {
-    return '$count duplicates skipped';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count duplicates skipped',
+      one: '1 duplicate skipped',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2072,7 +2078,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsRenameRemoteBody(int count) {
-    return '$count encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.',
+      one: '1 encrypted file on the NAS gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2080,7 +2093,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsRenameRemoteDone(int count) {
-    return 'Renamed $count files on the NAS.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Renamed $count files on the NAS.',
+      one: 'Renamed 1 file on the NAS.',
+    );
+    return '$_temp0';
   }
 
   @override

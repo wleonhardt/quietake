@@ -553,6 +553,9 @@ void main() {
     );
     expect(find.textContaining('encrypted files'), findsOneWidget);
     expect(find.textContaining('enabled'), findsOneWidget);
+    // "Fingerprint" is the finger on the sensor; the key has a check code.
+    expect(find.text('Check code abcd ef01'), findsOneWidget);
+    expect(find.textContaining('ingerprint'), findsNothing);
     expect(find.textContaining('There is no other way'), findsNothing);
     expect(find.textContaining('key alone'), findsNothing);
   });
