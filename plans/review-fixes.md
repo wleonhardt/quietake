@@ -14,6 +14,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - complete: Photos use the full sensor; recording keeps its preset (decision 034, commit `0a33f76`).
 - complete: The plain launcher entry switches between two aliases (decision 029 correction, commit `409ffd9`).
 - complete: Device tests no longer rely on key adoption (commits `3ffd05d` and the `TestApp.setPasscode` commit).
+- Evidence for these four, 2026-11-17: analyzer clean and host suite 875 passed after all of them. Android emulator (API 33), all passing: `launcher_icon_test`, `settings_icon_test`, `lock_test` 7, `startup_test` 6, `recovery_identity_test`, `portable_test` 6, `appearance_test`, `library_layout_test`, `import_test` 5, `privacy_test` 8, `sharing_test` 7, `capture_test`, `capture_failure_test`, `camera_lifecycle_test`, `locked_camera_test`. iOS simulator, all passing: the same files except the two icon tests (`capture_test` skips 2 without a camera, `startup_test` skips 2). Android JVM tests pass. Not run: `backup_test`, `sync_test`, `nas_recovery_test` (they need a server) and the other device files, which these changes do not touch. Not measured: the saved photo size on a real phone; a real tile tap and "Open with" while the plain entry is on.
 
 ## A. Small defects in app code
 
