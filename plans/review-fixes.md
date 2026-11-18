@@ -84,6 +84,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 - Evidence for R31, R38 and R45 to R48, 2026-11-18, at commit `27bd9a6`: analyzer clean, host suite 894 passed. Android emulator and iOS simulator, all passing on both: `lock_test` 7, `startup_test`, `privacy_test` 8, `library_layout_test`, `import_test` 5, `viewer_test` 6.
 
+- Evidence for R52 to R55 and R53, 2026-11-18, at commit `a43423f`: analyzer clean, host suite 899 passed before the message change and the focused lock, setup, change-passcode and accessibility tests after it. Android emulator and iOS simulator, all passing on both: `lock_test` 7, `startup_test`, `privacy_test` 8, `portable_test` 6, `settings_icon_test`, `appearance_test`.
+
 ## E. Android, iOS, recovery tool, CI
 
 - R60 complete: `INTERNET` is declared in the main Android manifest, and `tool/check_bundle.py` refuses a release manifest without it (red and green in `tool/check_bundle_test.py`).
