@@ -36,6 +36,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R16 blocked: When a pending restore cannot resume (a journal from another version, a fingerprint mismatch), startup offers only Retry and the app cannot be reached. Offering "Discard the unfinished restore" would delete prepared data on purpose, so it needs the owner; see `open-questions.md`.
 - R17 deferred: A server object that does not authenticate stops the whole pass by design (ownership is checked before anything is uploaded, removed or adopted). Skipping such objects and capping downloads from a server that reports no sizes both change that rule; left for the owner with the sync design.
 
+- Evidence for groups A and B, 2026-11-17, after the last camera commit (`e8a0aa0`): analyzer clean, host suite 886 passed. Android emulator and iOS simulator, all passing on both: `capture_test`, `capture_failure_test`, `camera_lifecycle_test`, `locked_camera_test`, `appearance_test`, `startup_test`, `lock_test`, `privacy_test`, `sharing_test`, `import_test`, `cast_test`. The emulator camera exercised zoom-capable opening, flash start value and the recording swap only as far as those tests go; pinch, the flash button and Retry were not driven on a device.
+
 ## B. Camera
 
 - R20 complete: The camera screen asks for light status bar icons in every theme (the lock-screen camera already gets them from its black app bar). Red and green in `test/capture_chrome_test.dart`.
