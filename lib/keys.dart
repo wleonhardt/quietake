@@ -57,6 +57,7 @@ abstract final class Keys {
   static const status = Key('capture.status');
   static const captureRetry = Key('capture.retry');
   static const captureZoom = Key('capture.zoom');
+  static const cameraFlashMode = Key('camera.flashMode');
   static const captureBackup = Key('capture.backup');
   static const preview = Key('capture.preview');
   static const openGallery = Key('capture.openGallery');

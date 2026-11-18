@@ -372,6 +372,18 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get camFlashOff => 'Flash desactivado';
+
+  @override
+  String get camFlashAuto => 'Flash automático';
+
+  @override
+  String get camFlashOn => 'Flash activado';
+
+  @override
+  String get camFlashUnavailable => 'Esta cámara no tiene flash.';
+
+  @override
   String get camTimerOff => 'Temporizador desactivado';
 
   @override

@@ -360,6 +360,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get camFlashOff => 'Flash off';
+
+  @override
+  String get camFlashAuto => 'Flash automatic';
+
+  @override
+  String get camFlashOn => 'Flash on';
+
+  @override
+  String get camFlashUnavailable => 'This camera has no flash.';
+
+  @override
   String get camTimerOff => 'Timer off';
 
   @override

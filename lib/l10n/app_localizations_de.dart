@@ -373,6 +373,18 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get camFlashOff => 'Blitz aus';
+
+  @override
+  String get camFlashAuto => 'Blitz automatisch';
+
+  @override
+  String get camFlashOn => 'Blitz an';
+
+  @override
+  String get camFlashUnavailable => 'Diese Kamera hat keinen Blitz.';
+
+  @override
   String get camTimerOff => 'Timer aus';
 
   @override

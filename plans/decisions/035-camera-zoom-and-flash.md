@@ -1,7 +1,7 @@
 # 035 Camera zoom and flash
 
 Status: accepted 2026-11-17 by the review loop as the obvious default (the owner asked for the
-review findings to be fixed). Zoom is built; flash is the second slice.
+review findings to be fixed). Zoom and flash are built.
 
 ## Problem
 
@@ -30,3 +30,9 @@ photo of something small or dark could not be taken well.
 
 Zoom: `test/capture_chrome_test.dart` ("pinching the preview zooms within the camera range", "a
 camera without zoom ignores the pinch"). Not tried on a phone.
+
+Flash, built 2026-11-17: the button is in the top row next to Cast. The app now sets the mode
+itself when a camera opens, because the plugin's own start value differs by platform; a recording
+camera is always set to off. Tests in the same file ("the flash starts off and cycles automatic,
+on, off", "a camera without a flash says so and stays off"). There is no torch for video. Not
+tried on a phone.

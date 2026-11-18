@@ -60,6 +60,9 @@ class _CaptureScreenState extends State<CaptureScreen>
   bool _recording = false;
   bool _grid = false;
 
+  /// Photo flash; off at every launch because the app is meant to be quiet.
+  FlashMode _flashMode = FlashMode.off;
+
   /// Zoom of the open camera and its range; all 1 when it cannot zoom.
   double _zoom = 1, _minZoom = 1, _maxZoom = 1;
   double _zoomAtPinchStart = 1;
@@ -312,6 +315,14 @@ class _CaptureScreenState extends State<CaptureScreen>
       } catch (_) {
         // This camera cannot zoom; the pinch does nothing.
       }
+      // The plugin's own start value differs by platform. A recording camera
+      // never fires the photo flash.
+      var flashMode = enableAudio ? FlashMode.off : _flashMode;
+      try {
+        await controller.setFlashMode(flashMode);
+      } catch (_) {
+        flashMode = FlashMode.off; // No flash on this camera.
+      }
       if (!mounted || !_foreground || !widget.active || epoch != _cameraEpoch) {
         await controller.dispose();
         return;
@@ -328,6 +339,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       setState(() {
         _controller = controller;
         _lens = selected.lensDirection;
+        if (!enableAudio) _flashMode = flashMode;
         // A newly opened camera starts without zoom.
         _minZoom = minZoom;
         _maxZoom = maxZoom < minZoom ? minZoom : maxZoom;
@@ -503,6 +515,26 @@ class _CaptureScreenState extends State<CaptureScreen>
       await controller.setExposurePoint(point);
     } catch (_) {
       // Best effort: no manual focus on this camera.
+    }
+  }
+
+  /// Off, automatic, on (decision 035).
+  Future<void> _cycleFlash(CameraController controller) async {
+    final next = switch (_flashMode) {
+      FlashMode.off => FlashMode.auto,
+      FlashMode.auto => FlashMode.always,
+      _ => FlashMode.off,
+    };
+    try {
+      await controller.setFlashMode(next);
+      if (mounted) setState(() => _flashMode = next);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _flashMode = FlashMode.off;
+          _status = _l10n.camFlashUnavailable;
+        });
+      }
     }
   }
 
@@ -1013,6 +1045,24 @@ class _CaptureScreenState extends State<CaptureScreen>
                                       },
                                     ),
                                     const Spacer(),
+                                    // In the top row: the bottom row has no
+                                    // room left on a 320 px wide screen.
+                                    IconButton(
+                                      key: Keys.cameraFlashMode,
+                                      tooltip: switch (_flashMode) {
+                                        FlashMode.auto => l10n.camFlashAuto,
+                                        FlashMode.always => l10n.camFlashOn,
+                                        _ => l10n.camFlashOff,
+                                      },
+                                      onPressed: c == null || _recording || busy
+                                          ? null
+                                          : () => _cycleFlash(c),
+                                      icon: Icon(switch (_flashMode) {
+                                        FlashMode.auto => Icons.flash_auto,
+                                        FlashMode.always => Icons.flash_on,
+                                        _ => Icons.flash_off,
+                                      }),
+                                    ),
                                     CastButton(
                                       key: Keys.captureCast,
                                       cast: cast,

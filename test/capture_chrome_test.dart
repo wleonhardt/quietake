@@ -39,6 +39,15 @@ class _ZoomCamera extends ControlledCamera {
   Future<void> setZoomLevel(int cameraId, double zoom) async => zooms.add(zoom);
 }
 
+/// A camera with a flash, recording the modes the screen sets.
+class _FlashCamera extends ControlledCamera {
+  _FlashCamera(super.directory);
+  final modes = <FlashMode>[];
+  @override
+  Future<void> setFlashMode(int cameraId, FlashMode mode) async =>
+      modes.add(mode);
+}
+
 typedef _Booted = ({
   ControlledCamera camera,
   Future<void> Function(bool Function()) until,
@@ -166,6 +175,35 @@ void main() {
     await b.up();
     await tester.pump();
     expect(find.byKey(Keys.captureZoom), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the flash starts off and cycles automatic, on, off', (
+    tester,
+  ) async {
+    final booted = await _boot(tester, _FlashCamera.new);
+    final camera = booted.camera as _FlashCamera;
+    expect(camera.modes, [FlashMode.off]);
+    for (final expected in [FlashMode.auto, FlashMode.always, FlashMode.off]) {
+      await tester.tap(find.byKey(Keys.cameraFlashMode));
+      await booted.until(() => camera.modes.last == expected);
+    }
+    expect(camera.modes, [
+      FlashMode.off,
+      FlashMode.auto,
+      FlashMode.always,
+      FlashMode.off,
+    ]);
+    expect(find.byTooltip('Flash off'), findsOneWidget);
+  });
+
+  testWidgets('a camera without a flash says so and stays off', (tester) async {
+    final booted = await _boot(tester, ControlledCamera.new);
+    await tester.tap(find.byKey(Keys.cameraFlashMode));
+    await booted.until(
+      () => find.text('This camera has no flash.').evaluate().isNotEmpty,
+    );
+    expect(find.byTooltip('Flash off'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

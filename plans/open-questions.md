@@ -29,6 +29,8 @@
 - Restore gate: when an unfinished restore cannot resume, startup shows only Retry and the app is unreachable. Add "Discard the unfinished restore" (the backup file itself is never touched) after a failed retry?
 - Sync: skip and report a server object that does not authenticate instead of stopping the whole pass, and cap a download when the server reports no size?
 
+- Camera wording drafts (decision 035, en/de/es/fr, translations need native review): "Flash off", "Flash automatic", "Flash on", "This camera has no flash."
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).

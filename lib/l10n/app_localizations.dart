@@ -660,6 +660,30 @@ abstract class AppLocalizations {
   /// **'{count} tags'**
   String camTagCount(int count);
 
+  /// No description provided for @camFlashOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash off'**
+  String get camFlashOff;
+
+  /// No description provided for @camFlashAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash automatic'**
+  String get camFlashAuto;
+
+  /// No description provided for @camFlashOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash on'**
+  String get camFlashOn;
+
+  /// No description provided for @camFlashUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This camera has no flash.'**
+  String get camFlashUnavailable;
+
   /// No description provided for @camTimerOff.
   ///
   /// In en, this message translates to:

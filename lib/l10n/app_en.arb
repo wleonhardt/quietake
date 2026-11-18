@@ -173,6 +173,10 @@
       }
     }
   },
+  "camFlashOff": "Flash off",
+  "camFlashAuto": "Flash automatic",
+  "camFlashOn": "Flash on",
+  "camFlashUnavailable": "This camera has no flash.",
   "camTimerOff": "Timer off",
   "camTimerSeconds": "Timer {seconds} seconds",
   "@camTimerSeconds": {
