@@ -30,11 +30,11 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R10 complete: The file key of a lock-screen capture is now cleared even when re-wrapping it throws. No new test (a memory wipe is not observable); `pending_crypto_test.dart` and the interop check pass.
 - R11 complete: The passphrase change path lists the server with the same 16 MiB bound as restore. No new test; the bound itself is covered for sync.
 - R12 complete, no change: every path that sets the busy flag ends in a sync (`saveSettings`) or leaves the backup unconfigured (`disconnect`), so a request dropped meanwhile is not lost.
-- R13 planned: `forgetDeleted` never removes remote-name entries of deleted captures (`lib/library/private_catalog.dart`).
-- R14 planned: The share bundle writer accepts a one-byte passphrase (`lib/crypto/share_bundle.dart`); the app only writes its own six-word phrase, so enforce the rule in the writer.
-- R15 planned: `VaultCrypto.decrypt` may accept bytes after the final chunk; check and add the same refusal the share reader has (`lib/crypto/vault_crypto.dart`). Frozen vectors must keep passing.
-- R16 planned: The restore startup gate offers only Retry when resume keeps failing (`lib/backup/restore_startup_gate.dart`).
-- R17 planned: One unreadable server object fails the whole sync pass, and a listing that reports size 0 has no download bound (`lib/sync/sync_service.dart`).
+- R13 deferred: Remote-name entries of deleted captures stay in the catalog. Sync needs such an entry to remove the server copy later, so it can only be dropped after the server deletion is confirmed; that belongs with the catalog storage change (R91). Each entry is about 80 bytes.
+- R14 complete, no change: the app never takes a typed share passphrase; it generates six words itself (`_askPassphrase`). Enforcing the backup passphrase rule in the writer could reject a generated phrase of short words.
+- R15 complete, no change: trailing data is already refused and tested (`vault_crypto_test.dart`, "rejects trailing data, reordered chunks and malformed headers"; Go `TestRecoveryWritesOnlyVerifiedMedia` mode `trailing`).
+- R16 blocked: When a pending restore cannot resume (a journal from another version, a fingerprint mismatch), startup offers only Retry and the app cannot be reached. Offering "Discard the unfinished restore" would delete prepared data on purpose, so it needs the owner; see `open-questions.md`.
+- R17 deferred: A server object that does not authenticate stops the whole pass by design (ownership is checked before anything is uploaded, removed or adopted). Skipping such objects and capping downloads from a server that reports no sizes both change that rule; left for the owner with the sync design.
 
 ## B. Camera
 

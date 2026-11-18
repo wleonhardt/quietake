@@ -26,6 +26,9 @@
 
 - Hidden areas (decision 024): draw each hidden area as one flat block instead of up to four coarse blocks across, and say "covered" instead of "pixelated" in the app, so the app matches the policy sentence "solid blocks" exactly?
 
+- Restore gate: when an unfinished restore cannot resume, startup shows only Retry and the app is unreachable. Add "Discard the unfinished restore" (the backup file itself is never touched) after a failed retry?
+- Sync: skip and report a server object that does not authenticate instead of stopping the whole pass, and cap a download when the server reports no size?
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).
