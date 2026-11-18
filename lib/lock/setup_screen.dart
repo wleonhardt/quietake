@@ -10,6 +10,7 @@ import '../vault/master_key_store.dart';
 import 'recovery_screen.dart';
 import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
+import '../sync/sync_settings.dart';
 
 /// First run: choose a passcode, then save the recovery key. Also the way in
 /// on a new phone with an existing recovery key.
@@ -120,6 +121,9 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
         return;
       }
       try {
+        // A new vault has no backup server. Details saved by an earlier
+        // install can outlive an iOS reinstall (decision 033).
+        await SyncSettings.clear();
         await widget.store.commitPasscode(key, _pass.text);
       } catch (_) {
         key.dispose();

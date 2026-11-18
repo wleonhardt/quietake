@@ -43,8 +43,8 @@ The adoption was written for installs that had a keystore key but no passcode. N
   (iOS access control, Android user-authentication-required keys) and making biometric unlock an
   explicit choice are the next steps. They change the unlock flow on both platforms and need
   checks on real devices with enrolled biometrics, so they are not part of this change.
-- A stale NAS address and password can still survive an iOS reinstall. With a new key the old
-  backup cannot be read, but the new vault could try to use that server. Not changed here.
+- A saved backup server address and password could survive an iOS reinstall. Since 2026-11-18
+  (owner's answer) creating a brand-new vault clears them; restores keep or set their own.
 
 ## Evidence
 

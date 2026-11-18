@@ -9,6 +9,7 @@ import 'package:quietake/keys.dart';
 import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/sync/nas_recovery_screen.dart';
+import 'package:quietake/sync/sync_settings.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -181,6 +182,37 @@ void main() {
       });
     },
   );
+
+  testWidgets('a new vault starts without a saved backup server', (
+    tester,
+  ) async {
+    // Left by an earlier install: the iOS keychain outlives an uninstall.
+    await tester.runAsync(
+      () => const SyncSettings(
+        url: 'https://nas.example.com/vault/',
+        username: 'old-user',
+        password: 'old-password',
+      ).save(),
+    );
+    final store = MasterKeyStore(sodium, dir);
+    SecureKey? unlocked;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SetupScreen(store: store, onUnlocked: (k) => unlocked = k),
+      ),
+    );
+    await submit(tester);
+    await tester.tap(find.byKey(Keys.recoveryDone));
+    await tester.runAsync(() async {
+      for (var i = 0; i < 100 && unlocked == null; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        await tester.pump();
+      }
+      expect(unlocked, isNotNull);
+      unlocked!.dispose();
+      expect((await SyncSettings.load()).isConfigured, isFalse);
+    });
+  });
 
   testWidgets('a failed commit shows a message and keeps setup open', (
     tester,
