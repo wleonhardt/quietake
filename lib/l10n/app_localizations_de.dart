@@ -1905,7 +1905,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get shareRedactNote =>
-      'Die geteilte Kopie wird ein PNG mit verpixelten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert.';
+      'Die geteilte Kopie wird ein PNG mit schwarz abgedeckten Bereichen und ohne Metadaten. Das Original bleibt in Ihrem Tresor unverändert.';
 
   @override
   String get shareRedactButtonMany => 'Teile dieser Fotos verbergen…';
@@ -1923,7 +1923,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get shareRedactNoteMany =>
-      'Fotos mit verborgenen Bereichen werden als PNG-Kopien geteilt, mit verpixelten Bereichen und ohne Metadaten. Die Originale bleiben in Ihrem Tresor unverändert.';
+      'Fotos mit verborgenen Bereichen werden als PNG-Kopien geteilt, mit schwarz abgedeckten Bereichen und ohne Metadaten. Die Originale bleiben in Ihrem Tresor unverändert.';
 
   @override
   String redactCell(int row, int column) {

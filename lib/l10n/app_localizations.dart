@@ -3111,7 +3111,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareRedactNote.
   ///
   /// In en, this message translates to:
-  /// **'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.'**
+  /// **'The shared copy becomes a PNG with those areas covered in black and no metadata. The original stays unchanged in your vault.'**
   String get shareRedactNote;
 
   /// No description provided for @shareRedactButtonMany.
@@ -3129,7 +3129,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareRedactNoteMany.
   ///
   /// In en, this message translates to:
-  /// **'Photos with hidden areas are shared as PNG copies with those areas pixelated and no metadata. The originals stay unchanged in your vault.'**
+  /// **'Photos with hidden areas are shared as PNG copies with those areas covered in black and no metadata. The originals stay unchanged in your vault.'**
   String get shareRedactNoteMany;
 
   /// No description provided for @redactCell.

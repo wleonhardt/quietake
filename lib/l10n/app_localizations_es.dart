@@ -1900,7 +1900,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shareRedactNote =>
-      'La copia compartida será un PNG con esas zonas pixeladas y sin metadatos. El original no cambia en tu bóveda.';
+      'La copia compartida será un PNG con esas zonas cubiertas de negro y sin metadatos. El original no cambia en tu bóveda.';
 
   @override
   String get shareRedactButtonMany => 'Ocultar partes de estas fotos…';
@@ -1918,7 +1918,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get shareRedactNoteMany =>
-      'Las fotos con zonas ocultas se comparten como copias PNG con esas zonas pixeladas y sin metadatos. Los originales no cambian en tu bóveda.';
+      'Las fotos con zonas ocultas se comparten como copias PNG con esas zonas cubiertas de negro y sin metadatos. Los originales no cambian en tu bóveda.';
 
   @override
   String redactCell(int row, int column) {

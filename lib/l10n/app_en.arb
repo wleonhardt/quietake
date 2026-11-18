@@ -1026,7 +1026,7 @@
       }
     }
   },
-  "shareRedactNote": "The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.",
+  "shareRedactNote": "The shared copy becomes a PNG with those areas covered in black and no metadata. The original stays unchanged in your vault.",
   "shareRedactButtonMany": "Hide parts of these photos…",
   "shareRedactEditMany": "Hidden areas: {areas} in {photos, plural, =1{1 photo} other{{photos} photos}}. Change…",
   "@shareRedactEditMany": {
@@ -1039,7 +1039,7 @@
       }
     }
   },
-  "shareRedactNoteMany": "Photos with hidden areas are shared as PNG copies with those areas pixelated and no metadata. The originals stay unchanged in your vault.",
+  "shareRedactNoteMany": "Photos with hidden areas are shared as PNG copies with those areas covered in black and no metadata. The originals stay unchanged in your vault.",
   "redactCell": "Row {row}, column {column}",
   "@redactCell": {
     "placeholders": {

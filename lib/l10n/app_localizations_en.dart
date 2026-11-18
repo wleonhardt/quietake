@@ -1863,7 +1863,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareRedactNote =>
-      'The shared copy becomes a PNG with those areas pixelated and no metadata. The original stays unchanged in your vault.';
+      'The shared copy becomes a PNG with those areas covered in black and no metadata. The original stays unchanged in your vault.';
 
   @override
   String get shareRedactButtonMany => 'Hide parts of these photos…';
@@ -1881,7 +1881,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareRedactNoteMany =>
-      'Photos with hidden areas are shared as PNG copies with those areas pixelated and no metadata. The originals stay unchanged in your vault.';
+      'Photos with hidden areas are shared as PNG copies with those areas covered in black and no metadata. The originals stay unchanged in your vault.';
 
   @override
   String redactCell(int row, int column) {

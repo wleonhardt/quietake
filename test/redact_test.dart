@@ -24,7 +24,7 @@ List<int> _at(Uint8List px, int x, int y) {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('a region is pixelated and the rest keeps its pixels', () async {
+  test('a region becomes one black block and the rest keeps its pixels', () async {
     final source = await gradientPng();
     final before = await _pixels(source);
     final out = await redactToPng(source, [
@@ -34,15 +34,13 @@ void main() {
     // Outside the region nothing changed.
     expect(_at(after, 2, 2), _at(before, 2, 2));
     expect(_at(after, 62, 40), _at(before, 62, 40));
-    // Inside, neighbouring pixels of one block are identical and differ from the source.
-    expect(_at(after, 20, 20), _at(after, 21, 21));
-    expect(_at(after, 20, 20), isNot(_at(before, 20, 20)));
-    // Detail is gone: the region holds at most 4 x 4 distinct blocks.
+    // Inside, every pixel is opaque black: nothing of the source remains,
+    // not even an average colour (decision 024, owner 2026-11-18).
     final colors = {
       for (var y = 16; y < 48; y++)
         for (var x = 16; x < 48; x++) _at(after, x, y).join(','),
     };
-    expect(colors.length, lessThanOrEqualTo(16));
+    expect(colors, {'0,0,0,255'});
   });
 
   test(

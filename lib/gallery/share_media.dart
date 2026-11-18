@@ -56,7 +56,7 @@ Future<void> shareMediaCopies(
   required Rect origin,
   bool stripLocation = true,
 
-  /// Areas to pixelate per photo, keyed by capture name. A redacted copy is a
+  /// Areas to cover per photo, keyed by capture name. A redacted copy is a
   /// PNG without metadata; the vault original is never changed.
   Map<String, List<Rect>> redactions = const {},
 

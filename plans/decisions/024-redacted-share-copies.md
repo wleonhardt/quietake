@@ -67,3 +67,12 @@ Insert after "...PNG and video copies are not changed." in the Optional sharing 
 > identify a place or person.
 
 The policy tests and the in-app policy copy (with es/fr/de if translated) must change together with the website.
+
+## Change 2026-11-18: a hidden area is one black block
+
+The owner chose a flat black block over the coarse averaged blocks described above. The averaged
+blocks still carried the colours of what they covered, and the approved policy sentence says
+"solid blocks". `redactToPng` now paints every pixel of a hidden area opaque black, and the
+share dialog says "covered in black" instead of "pixelated" (en, de, es, fr; translations need
+native review). Test: `test/redact_test.dart`, "a region becomes one black block and the rest
+keeps its pixels".

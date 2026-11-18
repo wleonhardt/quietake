@@ -2,7 +2,8 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-/// Pixelates [regions] (rectangles in 0..1 image coordinates) of a decoded image
+/// Covers [regions] (rectangles in 0..1 image coordinates) of a decoded image
+/// with black
 /// and returns a PNG built from raw pixels, so no metadata is carried over.
 ///
 /// A photo with more than [maxPixels] pixels is scaled down while it is decoded,
@@ -19,7 +20,7 @@ Future<Uint8List> redactToPng(
   if (data == null) throw const FormatException('Image could not be decoded');
   final pixels = data.buffer.asUint8List().sublist(0);
   for (final region in regions) {
-    _pixelate(pixels, width, height, region);
+    _cover(pixels, width, height, region);
   }
   final buffer = await ui.ImmutableBuffer.fromUint8List(pixels);
   final descriptor = ui.ImageDescriptor.raw(
@@ -84,40 +85,19 @@ Future<(int, int)?> _decodeScale(Uint8List source, int maxPixels) async {
   }
 }
 
-void _pixelate(Uint8List px, int width, int height, ui.Rect region) {
+/// One opaque black block: nothing under it survives, not even a colour.
+void _cover(Uint8List px, int width, int height, ui.Rect region) {
   final left = (region.left * width).floor().clamp(0, width);
   final right = (region.right * width).ceil().clamp(0, width);
   final top = (region.top * height).floor().clamp(0, height);
   final bottom = (region.bottom * height).ceil().clamp(0, height);
-  final w = right - left, h = bottom - top;
-  if (w <= 0 || h <= 0) return;
-  final longer = w > h ? w : h;
-  // At most 4 blocks across, at least 16 px, never larger than the region.
-  final block = min(max(16, (longer / 4).ceil()), longer);
-  for (var by = top; by < bottom; by += block) {
-    for (var bx = left; bx < right; bx += block) {
-      final ex = bx + block < right ? bx + block : right;
-      final ey = by + block < bottom ? by + block : bottom;
-      var r = 0, g = 0, b = 0, a = 0;
-      for (var y = by; y < ey; y++) {
-        for (var x = bx; x < ex; x++) {
-          final i = (y * width + x) * 4;
-          r += px[i];
-          g += px[i + 1];
-          b += px[i + 2];
-          a += px[i + 3];
-        }
-      }
-      final n = (ex - bx) * (ey - by);
-      for (var y = by; y < ey; y++) {
-        for (var x = bx; x < ex; x++) {
-          final i = (y * width + x) * 4;
-          px[i] = r ~/ n;
-          px[i + 1] = g ~/ n;
-          px[i + 2] = b ~/ n;
-          px[i + 3] = a ~/ n;
-        }
-      }
+  for (var y = top; y < bottom; y++) {
+    for (var x = left; x < right; x++) {
+      final i = (y * width + x) * 4;
+      px[i] = 0;
+      px[i + 1] = 0;
+      px[i + 2] = 0;
+      px[i + 3] = 255;
     }
   }
 }

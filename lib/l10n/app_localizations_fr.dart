@@ -1903,7 +1903,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shareRedactNote =>
-      'La copie partagée devient un PNG dont ces zones sont pixellisées, sans métadonnées. L\'original reste inchangé dans votre coffre.';
+      'La copie partagée devient un PNG dont ces zones sont recouvertes de noir, sans métadonnées. L\'original reste inchangé dans votre coffre.';
 
   @override
   String get shareRedactButtonMany => 'Masquer des parties de ces photos…';
@@ -1921,7 +1921,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shareRedactNoteMany =>
-      'Les photos avec des zones masquées sont partagées en copies PNG dont ces zones sont pixellisées, sans métadonnées. Les originaux restent inchangés dans votre coffre.';
+      'Les photos avec des zones masquées sont partagées en copies PNG dont ces zones sont recouvertes de noir, sans métadonnées. Les originaux restent inchangés dans votre coffre.';
 
   @override
   String redactCell(int row, int column) {
