@@ -96,6 +96,34 @@ void main() {
       await until(() => find.byKey(Keys.galleryGrid).evaluate().isNotEmpty);
       expect(count(), 3);
       checkpoint('seeded-gallery');
+      // A shown photo leaves an encrypted thumbnail (decision 045). The
+      // platform encodes its JPEG, so this runs the native encoder.
+      var photoThumbnails = <File>[];
+      await until(() {
+        final thumbs = Directory('${app.vault.dir.path}/.thumbs');
+        photoThumbnails = thumbs.existsSync()
+            ? thumbs
+                  .listSync()
+                  .whereType<File>()
+                  .where((f) => f.path.endsWith('.jpg.shtr.thumb'))
+                  .toList()
+            : [];
+        return photoThumbnails.isNotEmpty;
+      });
+      for (final thumbnail in photoThumbnails) {
+        final name = thumbnail.uri.pathSegments.last;
+        final plain = (await app.vault.readThumbnail(
+          File('${app.vault.dir.path}/${name.substring(0, name.length - 6)}'),
+        ))!;
+        expect(plain[0], 1);
+        expect(plain.sublist(5, 7), [0xff, 0xd8], reason: 'a JPEG inside');
+        expect(
+          (await thumbnail.readAsBytes()).sublist(0, 2),
+          isNot([0xff, 0xd8]),
+          reason: 'encrypted on disk',
+        );
+      }
+      checkpoint('thumbnails-stored');
       await tester.binding.setSurfaceSize(const Size(320, 360));
       await tester.pump(const Duration(milliseconds: 500));
       await tester.drag(find.byKey(Keys.galleryGrid), const Offset(0, -160));
