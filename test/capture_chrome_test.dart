@@ -257,6 +257,74 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
   });
 
+  testWidgets('upright, the controls sit in bars outside the picture', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final booted = await _boot(tester, ControlledCamera.new);
+    const cameraChannel = MethodChannel('quietake/camera');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      cameraChannel,
+      (_) async => true,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        cameraChannel,
+        null,
+      ),
+    );
+    Rect rect(Key key) => tester.getRect(find.byKey(key));
+    final picture = rect(Keys.preview);
+    expect(picture.height, greaterThan(500));
+    void expectOutside() {
+      for (final key in [
+        Keys.captureBackup,
+        Keys.cameraFlashMode,
+        Keys.captureCast,
+      ]) {
+        expect(
+          rect(key).bottom,
+          lessThanOrEqualTo(picture.top),
+          reason: '$key',
+        );
+      }
+      for (final key in [
+        Keys.captureAlbum,
+        Keys.captureDelay,
+        Keys.cameraGrid,
+        Keys.videoToggle,
+        Keys.shutter,
+        Keys.openGallery,
+      ]) {
+        expect(
+          rect(key).top,
+          greaterThanOrEqualTo(picture.bottom),
+          reason: '$key',
+        );
+      }
+    }
+
+    expectOutside();
+    // The recording timer joins the top bar; the picture keeps its place.
+    await tester.tap(find.byKey(Keys.videoToggle));
+    await booted.until(
+      () => find.byKey(Keys.captureTimer).evaluate().isNotEmpty,
+    );
+    expect(rect(Keys.captureTimer).bottom, lessThanOrEqualTo(picture.top));
+    expect(rect(Keys.preview), picture);
+    expectOutside();
+    await tester.tap(find.byKey(Keys.videoToggle));
+    await booted.until(
+      () =>
+          booted.camera.opened.length == 3 &&
+          find.byKey(Keys.preview).evaluate().isNotEmpty,
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+  });
+
   testWidgets('a missing camera offers Retry, which opens it', (tester) async {
     final booted = await _boot(
       tester,

@@ -309,11 +309,7 @@ class _CaptureScreenState extends State<CaptureScreen>
       if (!mounted || !_foreground || !widget.active || epoch != _cameraEpoch) {
         return;
       }
-      controller = CameraController(
-        selected,
-        preset,
-        enableAudio: enableAudio,
-      );
+      controller = CameraController(selected, preset, enableAudio: enableAudio);
       await controller.initialize();
       var minZoom = 1.0, maxZoom = 1.0;
       try {
@@ -914,6 +910,396 @@ class _CaptureScreenState extends State<CaptureScreen>
       ),
       l10n.camPhoto,
     );
+    // Upright, the controls sit in bars above and below the picture, so
+    // nothing covers the viewfinder (decision 044). Sideways the bars would
+    // leave too little picture, so the controls stay on panels over it.
+    final view = MediaQuery.sizeOf(context);
+    final bars = view.height >= view.width;
+    final picture = <Widget>[
+      if (c != null)
+        Center(
+          key: Keys.preview,
+          child: Builder(
+            builder: (box) => Semantics(
+              label: l10n.camPreview,
+              hint: l10n.camPreviewHint,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapUp: (tap) => _focusAt(box, tap, c),
+                onLongPressStart: (press) => _lockAt(box, press, c),
+                onScaleStart: (_) => _zoomAtPinchStart = _zoom,
+                onScaleUpdate: (pinch) {
+                  if (pinch.pointerCount > 1) {
+                    _setZoom(_zoomAtPinchStart * pinch.scale, c);
+                  }
+                },
+                child: CameraPreview(c),
+              ),
+            ),
+          ),
+        ),
+      if (_countdown != null)
+        IgnorePointer(
+          child: Center(
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                '$_countdown',
+                key: Keys.captureCountdown,
+                style: const TextStyle(
+                  color: onMediaCanvas,
+                  fontSize: 96,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(blurRadius: 8)],
+                ),
+              ),
+            ),
+          ),
+        ),
+    ];
+    final ring = <Widget>[
+      if (_focusRing != null &&
+          (_lockedController == null || identical(_lockedController, c)))
+        Positioned(
+          left: _focusRing!.dx - 32,
+          top: _focusRing!.dy - 32,
+          child: IgnorePointer(
+            child: Column(
+              children: [
+                Container(
+                  key: Keys.captureFocusRing,
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: flashRing, width: 2),
+                  ),
+                ),
+                if (_lockedController != null)
+                  Text(
+                    l10n.camFocusLocked,
+                    key: Keys.captureLock,
+                    style: TextStyle(
+                      color: onMediaCanvas,
+                      shadows: [Shadow(blurRadius: 8)],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+    ];
+    final grid = <Widget>[
+      if (c != null && _grid)
+        const IgnorePointer(
+          child: CustomPaint(
+            key: Keys.cameraGridOverlay,
+            size: Size.infinite,
+            painter: _GridPainter(),
+          ),
+        ),
+    ];
+    final cue = <Widget>[
+      // Edge cues: a white flash after a capture, a red frame while recording.
+      if (_flash || _recordStarted != null)
+        IgnorePointer(
+          child: AnimatedContainer(
+            key: _flash ? Keys.captureFlash : Keys.captureRecordingFrame,
+            // Reduced motion: the cue appears and goes without a fade.
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 160),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: _flash ? flashRing : recordRing,
+                width: _flash ? 6 : 3,
+              ),
+            ),
+          ),
+        ),
+    ];
+    // Built only while a recording runs.
+    Widget recTimer() => Text(
+      l10n.camRecTimer(
+        '${DateTime.now().difference(_recordStarted!).inMinutes}:${(DateTime.now().difference(_recordStarted!).inSeconds % 60).toString().padLeft(2, '0')}',
+      ),
+      key: Keys.captureTimer,
+      style: const TextStyle(color: recordAccent, fontWeight: FontWeight.bold),
+    );
+    final topRow = Row(
+      children: [
+        ListenableBuilder(
+          listenable: widget.session.sync,
+          builder: (context, _) {
+            final sync = widget.session.sync;
+            final (icon, color) = switch (sync.state) {
+              SyncState.idle => (Icons.cloud_outlined, onMediaCanvasMuted),
+              SyncState.unconfigured => (
+                Icons.smartphone_outlined,
+                onMediaCanvasMuted,
+              ),
+              SyncState.syncing => (
+                sync.isVerifying
+                    ? Icons.fact_check_outlined
+                    : Icons.cloud_upload_outlined,
+                onMediaCanvasMuted,
+              ),
+              SyncState.synced => (
+                sync.verificationCurrent
+                    ? Icons.verified_outlined
+                    : Icons.cloud_done_outlined,
+                okAccent,
+              ),
+              SyncState.pending => (Icons.cloud_sync_outlined, warnAccent),
+            };
+            return Tooltip(
+              key: Keys.captureBackup,
+              message: sync.label,
+              triggerMode: TooltipTriggerMode.tap,
+              excludeFromSemantics: true,
+              child: Semantics(
+                label: sync.label,
+                // Only a backup that needs
+                // attention interrupts a shoot.
+                liveRegion: sync.state == SyncState.pending,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    color: mediaScrimCircle,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color),
+                ),
+              ),
+            );
+          },
+        ),
+        // In a bar the timer shares the top row, so it never covers the picture.
+        if (bars && _recordStarted != null)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: recTimer(),
+              ),
+            ),
+          )
+        else
+          const Spacer(),
+        // In the top row: the bottom row has no
+        // room left on a 320 px wide screen.
+        IconButton(
+          key: Keys.cameraFlashMode,
+          tooltip: switch (_flashMode) {
+            FlashMode.auto => l10n.camFlashAuto,
+            FlashMode.always => l10n.camFlashOn,
+            _ => l10n.camFlashOff,
+          },
+          onPressed: c == null || _recording || busy
+              ? null
+              : () => _cycleFlash(c),
+          icon: Icon(switch (_flashMode) {
+            FlashMode.auto => Icons.flash_auto,
+            FlashMode.always => Icons.flash_on,
+            _ => Icons.flash_off,
+          }),
+        ),
+        CastButton(key: Keys.captureCast, cast: cast),
+        const LockButton(),
+      ],
+    );
+    final notices = <Widget>[
+      if (_recordStarted != null) ...[
+        if (!bars) Padding(padding: const EdgeInsets.all(8), child: recTimer()),
+      ] else if (_recording)
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Semantics(
+            liveRegion: true,
+            child: Text(
+              l10n.camStartingVideo,
+              key: Keys.captureStarting,
+              style: const TextStyle(
+                color: recordAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      if (_status != null && !_recording)
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Semantics(
+            liveRegion: true,
+            child: Text(_status!, key: Keys.status),
+          ),
+        ),
+      if (c == null &&
+          !busy &&
+          _foreground &&
+          widget.active &&
+          (_status == l10n.camNone || _status == l10n.camUnavailable))
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            key: Keys.captureRetry,
+            onPressed: () {
+              setState(() => _status = null);
+              _init(recover: false);
+            },
+            child: Text(l10n.castRetry),
+          ),
+        ),
+      if (cast.isCasting || cast.error != null)
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+            cast.error != null
+                ? l10n.camCastFailed
+                : l10n.camCasting(cast.device!.name),
+            key: Keys.captureCastState,
+          ),
+        ),
+    ];
+    final zoom = <Widget>[
+      if (c != null && _zoom > _minZoom)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: TextButton(
+            key: Keys.captureZoom,
+            style: TextButton.styleFrom(
+              backgroundColor: cameraCanvas,
+              foregroundColor: onMediaCanvas,
+            ),
+            onPressed: () => _setZoom(_minZoom, c),
+            child: Text(
+              '${NumberFormat.decimalPatternDigits(locale: l10n.localeName, decimalDigits: 1).format(_zoom)}×',
+            ),
+          ),
+        ),
+    ];
+    final secondary = Row(
+      children: [
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Tooltip(
+              message: l10n.camChooseTags,
+              child: TextButton.icon(
+                key: Keys.captureAlbum,
+                style: TextButton.styleFrom(
+                  backgroundColor: cameraCanvas,
+                  foregroundColor: onMediaCanvas,
+                  disabledForegroundColor: onMediaCanvasMuted,
+                  disabledBackgroundColor: const Color(0xff121923),
+                  minimumSize: const Size(48, 48),
+                ),
+                onPressed: _recording || busy || !_foreground || !widget.active
+                    ? null
+                    : _chooseAlbum,
+                icon: const Icon(Icons.sell_outlined, size: 20),
+                label: Text(
+                  _tagIds.isEmpty
+                      ? l10n.camTags
+                      : _tagIds.length == 1
+                      ? widget.session.vault.catalog.albums[_tagIds.single] ??
+                            l10n.camTags
+                      : l10n.camTagCount(_tagIds.length),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton.filledTonal(
+          key: Keys.captureDelay,
+          style: IconButton.styleFrom(
+            backgroundColor: cameraCanvas,
+            foregroundColor: onMediaCanvas,
+          ),
+          tooltip: _delay == 0
+              ? l10n.camTimerOff
+              : l10n.camTimerSeconds(_delay),
+          onPressed: _recording || _countdown != null
+              ? null
+              : () => setState(
+                  () => _delay = switch (_delay) {
+                    0 => 3,
+                    3 => 10,
+                    _ => 0,
+                  },
+                ),
+          icon: Icon(switch (_delay) {
+            3 => Icons.timer_3,
+            10 => Icons.timer_10,
+            _ => Icons.timer_off_outlined,
+          }),
+        ),
+        const SizedBox(width: 8),
+        IconButton.filledTonal(
+          key: Keys.cameraGrid,
+          style: IconButton.styleFrom(
+            backgroundColor: cameraCanvas,
+            foregroundColor: onMediaCanvas,
+          ),
+          tooltip: _grid ? l10n.camGridHide : l10n.camGridShow,
+          onPressed: () => setState(() => _grid = !_grid),
+          icon: Icon(_grid ? Icons.grid_off : Icons.grid_on),
+        ),
+        const SizedBox(width: 8),
+        if (canFlip)
+          IconButton.filledTonal(
+            key: Keys.cameraFlip,
+            style: IconButton.styleFrom(
+              backgroundColor: cameraCanvas,
+              foregroundColor: onMediaCanvas,
+            ),
+            tooltip: _lens == CameraLensDirection.front
+                ? l10n.camSwitchRear
+                : l10n.camSwitchFront,
+            onPressed:
+                c == null ||
+                    _recording ||
+                    busy ||
+                    !_foreground ||
+                    !widget.active
+                ? null
+                : _flipCamera,
+            icon: const Icon(Icons.cameraswitch),
+          ),
+      ],
+    );
+    final mainBar = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...(_recording
+            ? [photoControl, videoControl]
+            : [videoControl, photoControl]),
+        _labeledControl(
+          IconButton(
+            key: Keys.openGallery,
+            iconSize: 36,
+            color: onMediaCanvas,
+            icon: const Icon(Icons.photo_library_outlined),
+            tooltip: l10n.camOpenLibrary,
+            onPressed:
+                _recording ||
+                    _busy ||
+                    _choosingAlbum ||
+                    _releasing != null ||
+                    _galleryRequested
+                ? null
+                : _openGallery,
+          ),
+          l10n.camLibrary,
+        ),
+      ],
+    );
     return Scaffold(
       backgroundColor: mediaCanvas,
       // The camera has no text field of its own; a keyboard under a dialog or
@@ -921,424 +1307,109 @@ class _CaptureScreenState extends State<CaptureScreen>
       resizeToAvoidBottomInset: false,
       body: Stack(
         fit: StackFit.expand,
-        children: [
-          if (c != null)
-            Center(
-              key: Keys.preview,
-              child: Builder(
-                builder: (box) => Semantics(
-                  label: l10n.camPreview,
-                  hint: l10n.camPreviewHint,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTapUp: (tap) => _focusAt(box, tap, c),
-                    onLongPressStart: (press) => _lockAt(box, press, c),
-                    onScaleStart: (_) => _zoomAtPinchStart = _zoom,
-                    onScaleUpdate: (pinch) {
-                      if (pinch.pointerCount > 1) {
-                        _setZoom(_zoomAtPinchStart * pinch.scale, c);
-                      }
-                    },
-                    child: CameraPreview(c),
-                  ),
-                ),
-              ),
-            ),
-          if (_countdown != null)
-            IgnorePointer(
-              child: Center(
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    '$_countdown',
-                    key: Keys.captureCountdown,
-                    style: const TextStyle(
-                      color: onMediaCanvas,
-                      fontSize: 96,
-                      fontWeight: FontWeight.bold,
-                      shadows: [Shadow(blurRadius: 8)],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (_focusRing != null &&
-              (_lockedController == null || identical(_lockedController, c)))
-            Positioned(
-              left: _focusRing!.dx - 32,
-              top: _focusRing!.dy - 32,
-              child: IgnorePointer(
-                child: Column(
+        children: bars
+            ? [
+                Column(
                   children: [
-                    Container(
-                      key: Keys.captureFocusRing,
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: flashRing, width: 2),
-                      ),
-                    ),
-                    if (_lockedController != null)
-                      Text(
-                        l10n.camFocusLocked,
-                        key: Keys.captureLock,
-                        style: TextStyle(
-                          color: onMediaCanvas,
-                          shadows: [Shadow(blurRadius: 8)],
+                    _bar(
+                      SafeArea(
+                        bottom: false,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          child: topRow,
                         ),
                       ),
-                  ],
-                ),
-              ),
-            ),
-          if (c != null && _grid)
-            const IgnorePointer(
-              child: CustomPaint(
-                key: Keys.cameraGridOverlay,
-                size: Size.infinite,
-                painter: _GridPainter(),
-              ),
-            ),
-          // Edge cues: a white flash after a capture, a red frame while recording.
-          if (_flash || _recordStarted != null)
-            IgnorePointer(
-              child: AnimatedContainer(
-                key: _flash ? Keys.captureFlash : Keys.captureRecordingFrame,
-                // Reduced motion: the cue appears and goes without a fade.
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 160),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: _flash ? flashRing : recordRing,
-                    width: _flash ? 6 : 3,
-                  ),
-                ),
-              ),
-            ),
-          Positioned.fill(
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
+                    ),
                     Expanded(
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: SingleChildScrollView(
-                          child: _controlSurface(
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  children: [
-                                    ListenableBuilder(
-                                      listenable: widget.session.sync,
-                                      builder: (context, _) {
-                                        final sync = widget.session.sync;
-                                        final (
-                                          icon,
-                                          color,
-                                        ) = switch (sync.state) {
-                                          SyncState.idle => (
-                                            Icons.cloud_outlined,
-                                            onMediaCanvasMuted,
-                                          ),
-                                          SyncState.unconfigured => (
-                                            Icons.smartphone_outlined,
-                                            onMediaCanvasMuted,
-                                          ),
-                                          SyncState.syncing => (
-                                            sync.isVerifying
-                                                ? Icons.fact_check_outlined
-                                                : Icons.cloud_upload_outlined,
-                                            onMediaCanvasMuted,
-                                          ),
-                                          SyncState.synced => (
-                                            sync.verificationCurrent
-                                                ? Icons.verified_outlined
-                                                : Icons.cloud_done_outlined,
-                                            okAccent,
-                                          ),
-                                          SyncState.pending => (
-                                            Icons.cloud_sync_outlined,
-                                            warnAccent,
-                                          ),
-                                        };
-                                        return Tooltip(
-                                          key: Keys.captureBackup,
-                                          message: sync.label,
-                                          triggerMode: TooltipTriggerMode.tap,
-                                          excludeFromSemantics: true,
-                                          child: Semantics(
-                                            label: sync.label,
-                                            // Only a backup that needs
-                                            // attention interrupts a shoot.
-                                            liveRegion:
-                                                sync.state == SyncState.pending,
-                                            child: Container(
-                                              width: 48,
-                                              height: 48,
-                                              decoration: const BoxDecoration(
-                                                color: mediaScrimCircle,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: Icon(icon, color: color),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    const Spacer(),
-                                    // In the top row: the bottom row has no
-                                    // room left on a 320 px wide screen.
-                                    IconButton(
-                                      key: Keys.cameraFlashMode,
-                                      tooltip: switch (_flashMode) {
-                                        FlashMode.auto => l10n.camFlashAuto,
-                                        FlashMode.always => l10n.camFlashOn,
-                                        _ => l10n.camFlashOff,
-                                      },
-                                      onPressed: c == null || _recording || busy
-                                          ? null
-                                          : () => _cycleFlash(c),
-                                      icon: Icon(switch (_flashMode) {
-                                        FlashMode.auto => Icons.flash_auto,
-                                        FlashMode.always => Icons.flash_on,
-                                        _ => Icons.flash_off,
-                                      }),
-                                    ),
-                                    CastButton(
-                                      key: Keys.captureCast,
-                                      cast: cast,
-                                    ),
-                                    const LockButton(),
-                                  ],
-                                ),
-                                if (_recordStarted != null)
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      l10n.camRecTimer(
-                                        '${DateTime.now().difference(_recordStarted!).inMinutes}:${(DateTime.now().difference(_recordStarted!).inSeconds % 60).toString().padLeft(2, '0')}',
-                                      ),
-                                      key: Keys.captureTimer,
-                                      style: const TextStyle(
-                                        color: recordAccent,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  )
-                                else if (_recording)
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Semantics(
-                                      liveRegion: true,
-                                      child: Text(
-                                        l10n.camStartingVideo,
-                                        key: Keys.captureStarting,
-                                        style: const TextStyle(
-                                          color: recordAccent,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ...picture,
+                          ...grid,
+                          // Notices pass; they may cover the top of the picture.
+                          if (notices.isNotEmpty)
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.all(8),
+                                child: _controlSurface(
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: notices,
                                   ),
-                                if (_status != null && !_recording)
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Semantics(
-                                      liveRegion: true,
-                                      child: Text(_status!, key: Keys.status),
-                                    ),
-                                  ),
-                                if (c == null &&
-                                    !busy &&
-                                    _foreground &&
-                                    widget.active &&
-                                    (_status == l10n.camNone ||
-                                        _status == l10n.camUnavailable))
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: TextButton(
-                                      key: Keys.captureRetry,
-                                      onPressed: () {
-                                        setState(() => _status = null);
-                                        _init(recover: false);
-                                      },
-                                      child: Text(l10n.castRetry),
-                                    ),
-                                  ),
-                                if (cast.isCasting || cast.error != null)
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      cast.error != null
-                                          ? l10n.camCastFailed
-                                          : l10n.camCasting(cast.device!.name),
-                                      key: Keys.captureCastState,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (c != null && _zoom > _minZoom)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: TextButton(
-                          key: Keys.captureZoom,
-                          style: TextButton.styleFrom(
-                            backgroundColor: cameraCanvas,
-                            foregroundColor: onMediaCanvas,
-                          ),
-                          onPressed: () => _setZoom(_minZoom, c),
-                          child: Text(
-                            '${NumberFormat.decimalPatternDigits(locale: l10n.localeName, decimalDigits: 1).format(_zoom)}×',
-                          ),
-                        ),
-                      ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Tooltip(
-                              message: l10n.camChooseTags,
-                              child: TextButton.icon(
-                                key: Keys.captureAlbum,
-                                style: TextButton.styleFrom(
-                                  backgroundColor: cameraCanvas,
-                                  foregroundColor: onMediaCanvas,
-                                  disabledForegroundColor: onMediaCanvasMuted,
-                                  disabledBackgroundColor: const Color(
-                                    0xff121923,
-                                  ),
-                                  minimumSize: const Size(48, 48),
-                                ),
-                                onPressed:
-                                    _recording ||
-                                        busy ||
-                                        !_foreground ||
-                                        !widget.active
-                                    ? null
-                                    : _chooseAlbum,
-                                icon: const Icon(Icons.sell_outlined, size: 20),
-                                label: Text(
-                                  _tagIds.isEmpty
-                                      ? l10n.camTags
-                                      : _tagIds.length == 1
-                                      ? widget
-                                                .session
-                                                .vault
-                                                .catalog
-                                                .albums[_tagIds.single] ??
-                                            l10n.camTags
-                                      : l10n.camTagCount(_tagIds.length),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton.filledTonal(
-                          key: Keys.captureDelay,
-                          style: IconButton.styleFrom(
-                            backgroundColor: cameraCanvas,
-                            foregroundColor: onMediaCanvas,
-                          ),
-                          tooltip: _delay == 0
-                              ? l10n.camTimerOff
-                              : l10n.camTimerSeconds(_delay),
-                          onPressed: _recording || _countdown != null
-                              ? null
-                              : () => setState(
-                                  () => _delay = switch (_delay) {
-                                    0 => 3,
-                                    3 => 10,
-                                    _ => 0,
-                                  },
-                                ),
-                          icon: Icon(switch (_delay) {
-                            3 => Icons.timer_3,
-                            10 => Icons.timer_10,
-                            _ => Icons.timer_off_outlined,
-                          }),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton.filledTonal(
-                          key: Keys.cameraGrid,
-                          style: IconButton.styleFrom(
-                            backgroundColor: cameraCanvas,
-                            foregroundColor: onMediaCanvas,
-                          ),
-                          tooltip: _grid ? l10n.camGridHide : l10n.camGridShow,
-                          onPressed: () => setState(() => _grid = !_grid),
-                          icon: Icon(_grid ? Icons.grid_off : Icons.grid_on),
-                        ),
-                        const SizedBox(width: 8),
-                        if (canFlip)
-                          IconButton.filledTonal(
-                            key: Keys.cameraFlip,
-                            style: IconButton.styleFrom(
-                              backgroundColor: cameraCanvas,
-                              foregroundColor: onMediaCanvas,
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: zoom,
                             ),
-                            tooltip: _lens == CameraLensDirection.front
-                                ? l10n.camSwitchRear
-                                : l10n.camSwitchFront,
-                            onPressed:
-                                c == null ||
-                                    _recording ||
-                                    busy ||
-                                    !_foreground ||
-                                    !widget.active
-                                ? null
-                                : _flipCamera,
-                            icon: const Icon(Icons.cameraswitch),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _controlSurface(
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...(_recording
-                              ? [photoControl, videoControl]
-                              : [videoControl, photoControl]),
-                          _labeledControl(
-                            IconButton(
-                              key: Keys.openGallery,
-                              iconSize: 36,
-                              color: onMediaCanvas,
-                              icon: const Icon(Icons.photo_library_outlined),
-                              tooltip: l10n.camOpenLibrary,
-                              onPressed:
-                                  _recording ||
-                                      _busy ||
-                                      _choosingAlbum ||
-                                      _releasing != null ||
-                                      _galleryRequested
-                                  ? null
-                                  : _openGallery,
-                            ),
-                            l10n.camLibrary,
                           ),
                         ],
                       ),
                     ),
+                    _bar(
+                      SafeArea(
+                        top: false,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              secondary,
+                              const SizedBox(height: 4),
+                              mainBar,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ),
-          ),
-        ],
+                ...ring,
+                ...cue,
+              ]
+            : [
+                ...picture,
+                ...ring,
+                ...grid,
+                ...cue,
+                Positioned.fill(
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.topCenter,
+                              child: SingleChildScrollView(
+                                child: _controlSurface(
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [topRow, ...notices],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          ...zoom,
+                          secondary,
+                          const SizedBox(height: 12),
+                          _controlSurface(mainBar),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
       ),
     );
   }
@@ -1346,16 +1417,20 @@ class _CaptureScreenState extends State<CaptureScreen>
   Widget _controlSurface(Widget child) => Material(
     color: cameraCanvas,
     borderRadius: BorderRadius.circular(24),
-    child: Padding(
-      padding: const EdgeInsets.all(8),
-      child: IconTheme(
-        data: const IconThemeData(color: onMediaCanvas),
-        child: DefaultTextStyle(
-          style: Theme.of(context).textTheme.bodyMedium!
-              .copyWith(color: onMediaCanvas),
-          child: child,
-        ),
-      ),
+    child: Padding(padding: const EdgeInsets.all(8), child: _onCanvas(child)),
+  );
+
+  /// An opaque bar beside the picture: its controls never sit on preview
+  /// pixels, so their contrast does not depend on the scene.
+  Widget _bar(Widget child) =>
+      Material(color: cameraCanvas, child: _onCanvas(child));
+
+  Widget _onCanvas(Widget child) => IconTheme(
+    data: const IconThemeData(color: onMediaCanvas),
+    child: DefaultTextStyle(
+      style: Theme.of(context).textTheme.bodyMedium!
+          .copyWith(color: onMediaCanvas),
+      child: child,
     ),
   );
 
