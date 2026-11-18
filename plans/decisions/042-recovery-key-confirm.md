@@ -1,7 +1,7 @@
 # 042 Setup asks for one word of the saved recovery key
 
 Status: accepted as the default 2026-11-18 (review item R49; the owner has not seen the wording).
-Being built.
+Built.
 
 ## Problem
 
@@ -36,3 +36,10 @@ proving more. The check is a nudge, not proof: someone can go back, read the wor
   "Check my recovery key" in Settings remains the full check.
 - The wording is a draft for the owner; translations (de, es, fr) are drafts.
 - The typed word is shown in clear, like the key on the screen before it.
+
+## Evidence
+
+Host tests: `test/app_lock_test.dart` ("setup asks for one word of the saved key before Done
+counts", and Done stays final without the step), `test/recovery_words_test.dart` ("list numbers
+between the words are ignored"), Go `TestRecoveryWordsMatchFrozenVectors` with numbered input.
+Device runs are listed in `plans/review-fixes.md`.

@@ -23,11 +23,21 @@ class RecoveryWords {
   static const wordCount = 21;
   static const _keyBytes = 32;
 
+  static final _listNumber = RegExp(r'^\d+[.)]?$');
+
+  /// The typed words in lower case, without list numbers such as `7`, `7.`
+  /// or `7)`: the recovery screen shows the words numbered (decision 042).
+  static List<String> wordsOf(String text) => text
+      .trim()
+      .toLowerCase()
+      .split(RegExp(r'\s+'))
+      .where((token) => !_listNumber.hasMatch(token))
+      .toList();
+
   /// True when [text] is meant as the word form. The base64 form has at most
   /// eleven groups, so more tokens than that are words, and a miscounted list
   /// of words gets the word form's own message.
-  static bool looksLikeWords(String text) =>
-      text.trim().split(RegExp(r'\s+')).length > 11;
+  static bool looksLikeWords(String text) => wordsOf(text).length > 11;
 
   static String encode(Uint8List key, List<String> list) {
     if (key.length != _keyBytes) throw ArgumentError.value(key.length, 'key');
@@ -46,7 +56,7 @@ class RecoveryWords {
 
   /// The key bytes, or a [RecoveryWordsException].
   static Uint8List decode(String text, List<String> list) {
-    final tokens = text.trim().toLowerCase().split(RegExp(r'\s+'));
+    final tokens = wordsOf(text);
     if (tokens.length != wordCount) {
       throw const RecoveryWordsException(
         RecoveryWordsProblem.count,

@@ -14,6 +14,8 @@ import 'package:quietake/vault/backup_passphrase.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../test_support/recovery_key.dart';
+
 class _MemStorage extends FlutterSecureStoragePlatform {
   final map = <String, String>{};
   @override
@@ -176,8 +178,7 @@ void main() {
         expect(await store.hasKeyfile, isFalse);
         expect(await store.hasCachedKey, isFalse);
       });
-      await tester.ensureVisible(find.byKey(Keys.recoveryDone));
-      await tester.tap(find.byKey(Keys.recoveryDone));
+      await saveRecoveryKey(tester);
       await tester.runAsync(() async {
         for (var i = 0; i < 100 && unlocked == null; i++) {
           await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -212,8 +213,7 @@ void main() {
       ),
     );
     await submit(tester);
-    await tester.ensureVisible(find.byKey(Keys.recoveryDone));
-    await tester.tap(find.byKey(Keys.recoveryDone));
+    await saveRecoveryKey(tester);
     await tester.runAsync(() async {
       for (var i = 0; i < 100 && unlocked == null; i++) {
         await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -235,8 +235,7 @@ void main() {
       ),
     );
     await submit(tester);
-    await tester.ensureVisible(find.byKey(Keys.recoveryDone));
-    await tester.tap(find.byKey(Keys.recoveryDone));
+    await saveRecoveryKey(tester);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(

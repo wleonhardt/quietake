@@ -15,6 +15,7 @@ import 'package:quietake/lock/lock_screen.dart';
 import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/vault/master_key_store.dart';
+import 'package:quietake/vault/recovery_words.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -196,7 +197,8 @@ void main() {
         tester.widget<SelectableText>(find.byKey(Keys.recoveryKeyText)).data!;
     // The words are kept and typed back below; the text form is the same key.
     recoveryKey = shownKey();
-    expect(recoveryKey.split(' '), hasLength(21));
+    final words = RecoveryWords.wordsOf(recoveryKey);
+    expect(words, hasLength(21));
     await tap(tester, Keys.recoveryShowText);
     final textForm = shownKey();
     expect(
@@ -214,7 +216,24 @@ void main() {
       reason: 'setup must not hand out a key left in the keystore',
     );
     expect(find.byKey(Keys.recoveryFingerprint), findsOneWidget);
+    // Done asks for one word of the saved copy (decision 042).
     await tap(tester, Keys.recoveryDone);
+    await pumpUntil(tester, () => has(Keys.recoveryConfirmField));
+    expect(has(Keys.recoveryKeyText), isFalse);
+    expect(await store.hasKeyfile, isFalse);
+    final asked = int.parse(
+      tester
+          .widget<TextField>(find.byKey(Keys.recoveryConfirmField))
+          .decoration!
+          .labelText!
+          .split(' ')
+          .last,
+    );
+    await enter(tester, Keys.recoveryConfirmField, words[asked % 21]);
+    await tap(tester, Keys.recoveryConfirmOk);
+    await pumpUntil(tester, () => has(Keys.recoveryConfirmError));
+    await enter(tester, Keys.recoveryConfirmField, words[asked - 1]);
+    await tap(tester, Keys.recoveryConfirmOk);
     await pumpUntil(tester, () => has(Keys.openGallery));
     expect(await store.hasKeyfile, isTrue);
 

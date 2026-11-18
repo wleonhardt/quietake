@@ -87,6 +87,24 @@ void main() {
     expect(RecoveryWords.looksLikeWords(words.take(20).join(' ')), isTrue);
   });
 
+  test('list numbers between the words are ignored', () {
+    final key = Uint8List.fromList(List.generate(32, (i) => 255 - i));
+    final words = RecoveryWords.encode(key, list).split(' ');
+    for (final numbered in [
+      [for (final (i, w) in words.indexed) '${i + 1}\u00a0$w'].join('   '),
+      [for (final (i, w) in words.indexed) '${i + 1}. $w'].join('\n'),
+      [for (final (i, w) in words.indexed) '${i + 1}) $w'].join(' '),
+    ]) {
+      expect(RecoveryWords.looksLikeWords(numbered), isTrue);
+      expect(RecoveryWords.decode(numbered, list), key);
+    }
+    // A text form with groups of digits stays the text form.
+    expect(
+      RecoveryWords.looksLikeWords(List.filled(11, '1234').join(' ')),
+      isFalse,
+    );
+  });
+
   test('frozen vectors: the app and the recovery tool agree on the words', () {
     final vectors =
         (jsonDecode(File('docs/recovery-vectors/words.json').readAsStringSync())

@@ -20,6 +20,7 @@ import 'package:quietake/privacy/screen_privacy.dart';
 
 import '../test_support/fake_cast_backend.dart';
 import '../test_support/fake_authenticator.dart';
+import '../test_support/recovery_key.dart';
 
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
@@ -281,8 +282,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 500));
         if (!restoring) {
-          await tester.ensureVisible(find.byKey(Keys.recoveryDone));
-          await tester.tap(find.byKey(Keys.recoveryDone));
+          await saveRecoveryKey(tester);
           await tester.pump();
         }
         expect(unlocked, 1);

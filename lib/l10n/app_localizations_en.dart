@@ -215,6 +215,30 @@ class AppLocalizationsEn extends AppLocalizations {
       'A word is wrong or in the wrong place. Check the 21 words.';
 
   @override
+  String get recoveryConfirmTitle => 'Check your saved copy';
+
+  @override
+  String recoveryConfirmBody(int position) {
+    return 'Look at the copy you saved, not at this phone. Type word $position, or paste the whole key.';
+  }
+
+  @override
+  String recoveryConfirmField(int position) {
+    return 'Word $position';
+  }
+
+  @override
+  String get recoveryConfirmAction => 'Confirm';
+
+  @override
+  String get recoveryConfirmBack => 'Show the key again';
+
+  @override
+  String recoveryConfirmWrong(int position) {
+    return 'That is not word $position. Check your saved copy.';
+  }
+
+  @override
   String get changePasscodeTitle => 'Change passcode';
 
   @override

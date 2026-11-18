@@ -220,6 +220,30 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ein Wort ist falsch oder steht an der falschen Stelle. Prüfen Sie die 21 Wörter.';
 
   @override
+  String get recoveryConfirmTitle => 'Gespeicherte Kopie prüfen';
+
+  @override
+  String recoveryConfirmBody(int position) {
+    return 'Sehen Sie in Ihrer gespeicherten Kopie nach, nicht auf diesem Telefon. Geben Sie Wort $position ein oder fügen Sie den ganzen Schlüssel ein.';
+  }
+
+  @override
+  String recoveryConfirmField(int position) {
+    return 'Wort $position';
+  }
+
+  @override
+  String get recoveryConfirmAction => 'Bestätigen';
+
+  @override
+  String get recoveryConfirmBack => 'Schlüssel erneut anzeigen';
+
+  @override
+  String recoveryConfirmWrong(int position) {
+    return 'Das ist nicht Wort $position. Prüfen Sie Ihre gespeicherte Kopie.';
+  }
+
+  @override
   String get changePasscodeTitle => 'Zugangscode ändern';
 
   @override

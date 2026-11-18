@@ -219,6 +219,30 @@ class AppLocalizationsFr extends AppLocalizations {
       'Un mot est incorrect ou mal placé. Vérifiez les 21 mots.';
 
   @override
+  String get recoveryConfirmTitle => 'Vérifiez votre copie enregistrée';
+
+  @override
+  String recoveryConfirmBody(int position) {
+    return 'Regardez la copie que vous avez enregistrée, pas ce téléphone. Saisissez le mot $position ou collez la clé entière.';
+  }
+
+  @override
+  String recoveryConfirmField(int position) {
+    return 'Mot $position';
+  }
+
+  @override
+  String get recoveryConfirmAction => 'Confirmer';
+
+  @override
+  String get recoveryConfirmBack => 'Afficher de nouveau la clé';
+
+  @override
+  String recoveryConfirmWrong(int position) {
+    return 'Ce n\'est pas le mot $position. Vérifiez votre copie enregistrée.';
+  }
+
+  @override
   String get changePasscodeTitle => 'Changer le code d\'accès';
 
   @override

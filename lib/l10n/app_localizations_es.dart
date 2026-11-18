@@ -218,6 +218,30 @@ class AppLocalizationsEs extends AppLocalizations {
       'Una palabra es incorrecta o está en el lugar equivocado. Comprueba las 21 palabras.';
 
   @override
+  String get recoveryConfirmTitle => 'Comprueba tu copia guardada';
+
+  @override
+  String recoveryConfirmBody(int position) {
+    return 'Mira la copia que guardaste, no este teléfono. Escribe la palabra $position o pega la clave completa.';
+  }
+
+  @override
+  String recoveryConfirmField(int position) {
+    return 'Palabra $position';
+  }
+
+  @override
+  String get recoveryConfirmAction => 'Confirmar';
+
+  @override
+  String get recoveryConfirmBack => 'Mostrar la clave de nuevo';
+
+  @override
+  String recoveryConfirmWrong(int position) {
+    return 'Esa no es la palabra $position. Comprueba tu copia guardada.';
+  }
+
+  @override
   String get changePasscodeTitle => 'Cambiar código de acceso';
 
   @override

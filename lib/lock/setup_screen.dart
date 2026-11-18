@@ -118,6 +118,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (ctx) => RecoveryScreen(
+            confirm: true,
             recoveryWords: words,
             recoveryKey: widget.store.exportRecovery(key),
             fingerprint: widget.store.fingerprint(key),

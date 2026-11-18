@@ -390,6 +390,42 @@ abstract class AppLocalizations {
   /// **'A word is wrong or in the wrong place. Check the 21 words.'**
   String get recoveryWordsWrong;
 
+  /// No description provided for @recoveryConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your saved copy'**
+  String get recoveryConfirmTitle;
+
+  /// No description provided for @recoveryConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Look at the copy you saved, not at this phone. Type word {position}, or paste the whole key.'**
+  String recoveryConfirmBody(int position);
+
+  /// No description provided for @recoveryConfirmField.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {position}'**
+  String recoveryConfirmField(int position);
+
+  /// No description provided for @recoveryConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get recoveryConfirmAction;
+
+  /// No description provided for @recoveryConfirmBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the key again'**
+  String get recoveryConfirmBack;
+
+  /// No description provided for @recoveryConfirmWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not word {position}. Check your saved copy.'**
+  String recoveryConfirmWrong(int position);
+
   /// No description provided for @changePasscodeTitle.
   ///
   /// In en, this message translates to:

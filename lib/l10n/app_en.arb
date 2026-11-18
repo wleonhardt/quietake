@@ -114,6 +114,33 @@
     }
   },
   "recoveryWordsWrong": "A word is wrong or in the wrong place. Check the 21 words.",
+  "recoveryConfirmTitle": "Check your saved copy",
+  "recoveryConfirmBody": "Look at the copy you saved, not at this phone. Type word {position}, or paste the whole key.",
+  "@recoveryConfirmBody": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryConfirmField": "Word {position}",
+  "@recoveryConfirmField": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryConfirmAction": "Confirm",
+  "recoveryConfirmBack": "Show the key again",
+  "recoveryConfirmWrong": "That is not word {position}. Check your saved copy.",
+  "@recoveryConfirmWrong": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
   "changePasscodeTitle": "Change passcode",
   "changePasscodeNote": "Your captures and recovery key stay the same.",
   "currentPasscodeLabel": "Current passcode",
