@@ -24,6 +24,8 @@
 
 - Recovery tool: publish ready-made `quietake-recover` binaries (macOS, Windows, Linux) with checksums on each release, so recovery needs no Go install? It is a release step for the owner.
 
+- Hidden areas (decision 024): draw each hidden area as one flat block instead of up to four coarse blocks across, and say "covered" instead of "pixelated" in the app, so the app matches the policy sentence "solid blocks" exactly?
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).
