@@ -103,7 +103,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R82 planned: In-app wording drafts for owner review: missing plurals, "backup server" instead of three names, "check code" instead of "fingerprint", where to keep the recovery key, passcode-loss warning, error sentences.
 - R83 complete: Documents. Fixed the stale random-name sentence in `docs/container-format.md`, the status lines of decisions 026 and 029, and the two Settings paths quoted in `docs/portable-backup.md` and `docs/nas-recovery.md`. Blocked part, now in `open-questions.md`: code and tests cite decisions 027 and 036 to 040 from the private history, which are not in this repository and whose numbers the public records will reach.
 - R84 complete: `docs/threat-model.md` and `docs/architecture.md` are written from the source and linked from the README, which now says the listed commands need no device. The threat model states the current limits (keystore copy not bound to biometrics, key stays in memory while locked, 2 MiB library index). Checked with the repository content checks only.
-- R85 planned: Recovery tool README for someone without developer tools (prebuilt binaries are an owner release step).
+- R85 complete in part: `recover/README.md` opens with numbered steps for someone who has never built a program (install Go, download, build, run on macOS, Linux or Windows) and says what each message means. The Windows commands were written from the tool's behavior and not run on Windows. Blocked part, in `open-questions.md`: publishing ready-made binaries so that no build is needed.
 
 ## G. Structure (each needs a decision record and an owner answer before building)
 

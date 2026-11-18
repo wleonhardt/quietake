@@ -5,6 +5,37 @@ Build the recovery command as `quietake-recover`.
 Reads `.shtr` containers with the recovery key or an explicitly enabled NAS backup passphrase. Pure Go, no libsodium, no app: the
 tool you reach for when the phone is gone and the NAS share is all that is left.
 
+## If you have never built a program
+
+There is no ready-made download yet, so the tool has to be built once. It takes about five minutes.
+
+1. Install Go from <https://go.dev/dl/> (the standard installer for your computer).
+2. Download this project: on the project page choose Code, then Download ZIP, and unpack it.
+3. Copy your backup files (the ones ending in `.shtr`, plus `quietake.catalog` if it is there)
+   from your server into one folder, for example `backup` inside your home folder.
+4. Open a terminal (Terminal on macOS, PowerShell on Windows), go into the unpacked project's
+   `recover` folder and build the tool:
+   `cd recover` then `go build -o quietake-recover .` (on Windows: `go build -o quietake-recover.exe .`).
+5. Run it and paste your recovery key when it asks. Nothing shows while you paste; that is intended.
+   macOS and Linux: `./quietake-recover -key-prompt -dir ~/backup -out ~/restored`
+   Windows: `.\quietake-recover.exe -key-prompt -dir $HOME\backup -out $HOME\restored`
+6. Your photos and videos are now in the `restored` folder under their capture names.
+
+What the messages mean:
+
+- `ok "name"`: that file was recovered and checked.
+- `FAIL "name"`: that file is damaged or was encrypted with a different key. The others are still
+  written. If every file fails, the recovery key is not the one for this backup.
+- `recovery key is not 32 bytes of base64`: the key was mistyped or cut short. It is 44 characters
+  in groups of four and can end in `=`. Capital and small letters matter.
+- `interactive prompt requires a terminal`: run the command directly in a terminal window.
+- A warning that the catalog could not be read: files keep the names they have on the server; the
+  photos themselves are not affected.
+
+The rest of this page is the reference for every option.
+
+## Reference
+
 ```bash
 cd recover && go build -o quietake-recover .
 
@@ -44,7 +75,7 @@ Go strings and runtime copies do not provide guaranteed full memory erasure.
 or WebDAV source and asks for the separate backup passphrase without echo. It
 validates the bounded schema and fixed parameters before deriving a key. It cannot be combined with recovery-key, local-keyfile or
 passcode flags. There is deliberately no passphrase argument/environment option.
-The short phone passcode does not open this envelope. Derivation needs 256 MiB
+Your phone passcode does not open this envelope. Derivation needs 256 MiB
 and may take several seconds. Unknown versions and wrong passphrases fail without
 writing output. See [the envelope contract](../docs/nas-recovery.md).
 

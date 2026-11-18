@@ -22,6 +22,8 @@
 
 - Website wording drafts to approve (review item R80, not published until merged): the status line "In development · Android first · No app download yet", the sentence that says who the app is for, the button "See how it protects your photos" with "Explore the source" as the second link, "Source open under MPL-2.0", the backup sentence without the bare word WebDAV, and the Cast sentence that says its analytics cannot be turned off.
 
+- Recovery tool: publish ready-made `quietake-recover` binaries (macOS, Windows, Linux) with checksums on each release, so recovery needs no Go install? It is a release step for the owner.
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).
