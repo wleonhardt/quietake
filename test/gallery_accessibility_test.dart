@@ -242,9 +242,8 @@ void main() {
         await tester.pump();
         expect(
           tester
-              .widget<GridView>(find.byKey(Keys.galleryGrid))
-              .childrenDelegate
-              .estimatedChildCount,
+              .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+              .semanticChildCount,
           4,
         );
         for (final width in [320.0, 360.0, 740.0, 1024.0]) {

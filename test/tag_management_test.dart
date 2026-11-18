@@ -122,9 +122,8 @@ void main() {
           expect(find.text('Search'), findsOneWidget);
           expect(
             tester
-                .widget<GridView>(find.byKey(Keys.galleryGrid))
-                .childrenDelegate
-                .estimatedChildCount,
+                .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+                .semanticChildCount,
             3,
           );
           await tap(Keys.libraryCloseSearch);
@@ -132,9 +131,8 @@ void main() {
           await tap(Keys.libraryUntagged);
           expect(
             tester
-                .widget<GridView>(find.byKey(Keys.galleryGrid))
-                .childrenDelegate
-                .estimatedChildCount,
+                .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+                .semanticChildCount,
             1,
           );
           expect(

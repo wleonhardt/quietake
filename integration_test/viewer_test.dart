@@ -380,8 +380,10 @@ void main() {
         () => find.byKey(Keys.galleryGrid).evaluate().isNotEmpty,
       );
       await tester.pump(const Duration(milliseconds: 500));
-      final grid = tester.widget<GridView>(find.byKey(Keys.galleryGrid));
-      expect(grid.childrenDelegate.estimatedChildCount, 122);
+      final grid = tester.widget<CustomScrollView>(
+        find.byKey(Keys.galleryGrid),
+      );
+      expect(grid.semanticChildCount, 122);
       expect(
         find.byKey(Keys.galleryPreview).evaluate().length,
         lessThan(120),

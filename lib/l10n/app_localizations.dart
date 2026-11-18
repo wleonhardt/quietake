@@ -1326,6 +1326,24 @@ abstract class AppLocalizations {
   /// **'All Library · Match all tags'**
   String get galleryScopeAll;
 
+  /// No description provided for @galleryToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get galleryToday;
+
+  /// No description provided for @galleryYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get galleryYesterday;
+
+  /// No description provided for @galleryNoDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get galleryNoDate;
+
   /// No description provided for @gallerySortNewest.
   ///
   /// In en, this message translates to:

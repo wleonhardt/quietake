@@ -808,6 +808,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get galleryScopeAll => 'Toute la bibliothèque · Toutes les étiquettes';
 
   @override
+  String get galleryToday => 'Aujourd\'hui';
+
+  @override
+  String get galleryYesterday => 'Hier';
+
+  @override
+  String get galleryNoDate => 'Sans date';
+
+  @override
   String get gallerySortNewest => 'Captures les plus récentes';
 
   @override

@@ -26,6 +26,39 @@ import 'preview.dart';
 import 'share_dialog.dart';
 import 'viewer_screen.dart';
 
+/// A run of captures taken on one local day, shown under one date header.
+/// [day] is null for captures whose name carries no date.
+typedef DayGroup = ({DateTime? day, int start, int count});
+
+/// Splits [items], already in display order, where the local day changes.
+List<DayGroup> dayGroups(List<VaultItem> items) {
+  final groups = <DayGroup>[];
+  for (var i = 0; i < items.length; i++) {
+    final taken = items[i].capturedAt?.toLocal();
+    final day = taken == null
+        ? null
+        : DateTime(taken.year, taken.month, taken.day);
+    if (groups.isNotEmpty && groups.last.day == day) {
+      final last = groups.removeLast();
+      groups.add((day: day, start: last.start, count: last.count + 1));
+    } else {
+      groups.add((day: day, start: i, count: 1));
+    }
+  }
+  return groups;
+}
+
+String _dayLabel(BuildContext context, DateTime? day) {
+  final l10n = context.l10n;
+  if (day == null) return l10n.galleryNoDate;
+  final now = DateTime.now();
+  if (day == DateTime(now.year, now.month, now.day)) return l10n.galleryToday;
+  if (day == DateTime(now.year, now.month, now.day - 1)) {
+    return l10n.galleryYesterday;
+  }
+  return MaterialLocalizations.of(context).formatFullDate(day);
+}
+
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({
     super.key,
@@ -1050,64 +1083,127 @@ class _GalleryScreenState extends State<GalleryScreen>
                                   ),
                                 ],
                               )
-                            : GridView.builder(
+                            : CustomScrollView(
                                 key: Keys.galleryGrid,
-                                padding: const EdgeInsets.all(4),
-                                gridDelegate:
-                                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 180,
-                                      mainAxisSpacing: 4,
-                                      crossAxisSpacing: 4,
-                                    ),
-                                itemCount: items.length,
-                                itemBuilder: (context, i) => _Tile(
-                                  key: Keys.galleryTile(i),
-                                  item: items[i],
-                                  position: i + 1,
-                                  total: items.length,
-                                  cache: widget.session.previews,
-                                  title: catalog.details(items[i].name).title,
-                                  favorite: catalog
-                                      .details(items[i].name)
-                                      .favorite,
-                                  selected: _selected.contains(items[i].name),
-                                  selecting: _selecting,
-                                  onLongPress: () {
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    setState(() {
-                                      _selecting = true;
-                                      _composing = false;
-                                      _selected.add(items[i].name);
-                                    });
-                                  },
-                                  onTap: () async {
-                                    if (_selecting) {
-                                      setState(() {
-                                        if (!_selected.add(items[i].name)) {
-                                          _selected.remove(items[i].name);
-                                        }
-                                      });
-                                      return;
-                                    }
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    await Navigator.of(context).push<bool>(
-                                      MaterialPageRoute<bool>(
-                                        builder: (_) => ViewerScreen(
-                                          session: widget.session,
-                                          items: items,
-                                          initialIndex: i,
+                                semanticChildCount: items.length,
+                                slivers: [
+                                  for (final group
+                                      in _sort == LibrarySort.name
+                                          ? [
+                                              (
+                                                day: null,
+                                                start: 0,
+                                                count: items.length,
+                                              ),
+                                            ]
+                                          : dayGroups(items)) ...[
+                                    // Sorted by date, each local day gets a header.
+                                    if (_sort != LibrarySort.name)
+                                      SliverToBoxAdapter(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            12,
+                                            12,
+                                            12,
+                                            4,
+                                          ),
+                                          child: Semantics(
+                                            header: true,
+                                            child: Text(
+                                              _dayLabel(context, group.day),
+                                              key: Keys.galleryDay(group.start),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleSmall,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    );
-                                    if (mounted) {
-                                      setState(() {
-                                        _items = _load();
-                                      });
-                                    }
-                                  },
-                                ),
+                                    SliverPadding(
+                                      padding: const EdgeInsets.all(4),
+                                      sliver: SliverGrid(
+                                        gridDelegate:
+                                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                                              maxCrossAxisExtent: 180,
+                                              mainAxisSpacing: 4,
+                                              crossAxisSpacing: 4,
+                                            ),
+                                        delegate: SliverChildBuilderDelegate(
+                                          childCount: group.count,
+                                          // Screen readers count across the days.
+                                          semanticIndexOffset: group.start,
+                                          (context, n) {
+                                            final i = group.start + n;
+                                            return _Tile(
+                                              key: Keys.galleryTile(i),
+                                              item: items[i],
+                                              position: i + 1,
+                                              total: items.length,
+                                              cache: widget.session.previews,
+                                              title: catalog
+                                                  .details(items[i].name)
+                                                  .title,
+                                              favorite: catalog
+                                                  .details(items[i].name)
+                                                  .favorite,
+                                              selected: _selected.contains(
+                                                items[i].name,
+                                              ),
+                                              selecting: _selecting,
+                                              onLongPress: () {
+                                                FocusManager
+                                                    .instance
+                                                    .primaryFocus
+                                                    ?.unfocus();
+                                                setState(() {
+                                                  _selecting = true;
+                                                  _composing = false;
+                                                  _selected.add(items[i].name);
+                                                });
+                                              },
+                                              onTap: () async {
+                                                if (_selecting) {
+                                                  setState(() {
+                                                    if (!_selected.add(
+                                                      items[i].name,
+                                                    )) {
+                                                      _selected.remove(
+                                                        items[i].name,
+                                                      );
+                                                    }
+                                                  });
+                                                  return;
+                                                }
+                                                FocusManager
+                                                    .instance
+                                                    .primaryFocus
+                                                    ?.unfocus();
+                                                await Navigator.of(
+                                                  context,
+                                                ).push<bool>(
+                                                  MaterialPageRoute<bool>(
+                                                    builder: (_) =>
+                                                        ViewerScreen(
+                                                          session:
+                                                              widget.session,
+                                                          items: items,
+                                                          initialIndex: i,
+                                                        ),
+                                                  ),
+                                                );
+                                                if (mounted) {
+                                                  setState(() {
+                                                    _items = _load();
+                                                  });
+                                                }
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                       ),
                       if (_selecting)

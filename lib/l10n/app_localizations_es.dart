@@ -808,6 +808,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get galleryScopeAll => 'Toda la biblioteca · Todas las etiquetas';
 
   @override
+  String get galleryToday => 'Hoy';
+
+  @override
+  String get galleryYesterday => 'Ayer';
+
+  @override
+  String get galleryNoDate => 'Sin fecha';
+
+  @override
   String get gallerySortNewest => 'Capturas más recientes';
 
   @override

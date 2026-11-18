@@ -788,6 +788,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get galleryScopeAll => 'All Library · Match all tags';
 
   @override
+  String get galleryToday => 'Today';
+
+  @override
+  String get galleryYesterday => 'Yesterday';
+
+  @override
+  String get galleryNoDate => 'No date';
+
+  @override
   String get gallerySortNewest => 'Newest captures';
 
   @override

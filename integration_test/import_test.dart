@@ -200,9 +200,8 @@ void main() {
       );
       expect(
         tester
-            .widget<GridView>(find.byKey(Keys.galleryGrid))
-            .childrenDelegate
-            .estimatedChildCount,
+            .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+            .semanticChildCount,
         3,
       );
       await tester.pumpWidget(const SizedBox());

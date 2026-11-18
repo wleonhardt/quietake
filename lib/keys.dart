@@ -280,6 +280,9 @@ abstract final class Keys {
   static const galleryEmpty = Key('gallery.empty');
   static Key galleryTile(int i) => Key('gallery.tile.$i');
 
+  /// The date header above the tile at [start].
+  static Key galleryDay(int start) => Key('gallery.day.$start');
+
   static const viewerPosition = Key('viewer.position');
   static const viewerVideo = Key('viewer.video');
   static const viewerShare = Key('viewer.share');

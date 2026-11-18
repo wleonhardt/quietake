@@ -88,9 +88,8 @@ void main() {
     }
 
     int count() => tester
-        .widget<GridView>(find.byKey(Keys.galleryGrid))
-        .childrenDelegate
-        .estimatedChildCount!;
+        .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+        .semanticChildCount!;
     try {
       await tester.pumpWidget(app.widget());
       await tap(Keys.openGallery);

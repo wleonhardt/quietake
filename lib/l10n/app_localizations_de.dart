@@ -811,6 +811,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get galleryScopeAll => 'Gesamte Bibliothek · Alle Tags';
 
   @override
+  String get galleryToday => 'Heute';
+
+  @override
+  String get galleryYesterday => 'Gestern';
+
+  @override
+  String get galleryNoDate => 'Ohne Datum';
+
+  @override
   String get gallerySortNewest => 'Neueste Aufnahmen';
 
   @override
