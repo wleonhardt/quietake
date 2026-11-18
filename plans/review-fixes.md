@@ -118,7 +118,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 - R93 planned: Clear a saved backup server address and password when a brand-new vault is created (decision 033).
 - R94 planned: Video quality setting with 720p, 1080p and 4K, 1080p by default (decision 034).
-- R95 planned: Add approved policy sentences F and G to `assets/privacy-policy.json` and `website/app-privacy.html`, which must match.
+- R95 complete: Policy sentences F (a received share is kept privately until unlock) and G ("Include subfolders") are in `assets/privacy-policy.json` and `website/app-privacy.html`, dated November 18, 2026. G replaces the clause "not its subfolders"; the rest of that sentence now starts "Quietake copies up to 20 files at a time". The repository check confirms the website matches the bundled policy. Not published until this branch reaches main.
 - R96 planned: Note in `plans/README.md` that public decision numbers continue from 041 and what 027 (old) and 036 to 040 in code comments refer to.
 - R97 planned: Both share bundle readers refuse a colon and Windows device names; update `docs/share-bundle.md`.
 - R98 planned: CI runs the check selector from the base commit and gains a pinned `govulncheck`.
