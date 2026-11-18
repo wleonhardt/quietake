@@ -987,12 +987,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'La app que elijas recibe copias sin cifrar y puede conservarlas.';
 
   @override
-  String get shareStripTitle =>
-      'Quitar los metadatos de las copias de fotos JPEG';
+  String get shareStripTitle => 'Quitar los metadatos de las copias de fotos';
 
   @override
   String get shareStripOn =>
-      'Las copias JPEG conservan solo su orientación: se eliminan la ubicación, la cámara, la hora, los comentarios y las miniaturas. Las copias PNG y de vídeo no cambian.';
+      'Las copias JPEG conservan solo su orientación: se eliminan la ubicación, la cámara, la hora, los comentarios y las miniaturas. Las copias PNG se rehacen a partir de sus píxeles, sin metadatos. Las copias de vídeo no cambian.';
 
   @override
   String get shareStripOff =>

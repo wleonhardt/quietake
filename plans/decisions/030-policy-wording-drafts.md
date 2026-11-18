@@ -72,3 +72,24 @@ Section: Your vault, optional import paragraph. Approved by the owner as written
 > You can also choose one folder: Quietake reads only that folder's files unless you turn on "Include subfolders" for that import, and then it also reads the files in the folders inside it, up to six levels down.
 
 Facts checked in code: the switch is off whenever the Import screen opens, and the native pickers walk subfolders only when it is on. Not verified on a real folder tree. Publish before a release that ships the switch.
+
+## H. PNG share copies lose their metadata (proposed 2026-11-18, awaiting the owner)
+
+Section: Optional sharing. The owner decided on 2026-11-18 that PNG copies lose their metadata
+too; the app does this from that date. The published policy still says the opposite in two
+sentences, which describe less protection than the app now gives. Proposed replacements:
+
+Replace "Videos and PNG photos retain source bytes and metadata, including location if present."
+with:
+
+> PNG photo copies are rebuilt from their pixels and carry no metadata. Video copies retain their source bytes and metadata, including location if present.
+
+Replace "This is not complete metadata anonymization: PNG and video copies that are not redacted
+are not changed." with:
+
+> This is not complete metadata anonymization: video copies are not changed.
+
+The website sentence in `website/app-privacy.html` must change with it. Facts checked in code:
+`shareMediaCopies` sends a PNG through `redactToPng` with no areas when "Remove metadata from
+photo copies" is on; with the switch off every copy keeps its bytes. A PNG larger than 40
+megapixels is scaled down by that step, and a colour profile stored in the PNG is not carried over.

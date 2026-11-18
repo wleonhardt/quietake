@@ -987,11 +987,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shareStripTitle =>
-      'Supprimer les métadonnées des copies de photos JPEG';
+      'Supprimer les métadonnées des copies de photos';
 
   @override
   String get shareStripOn =>
-      'Les copies JPEG ne conservent que leur orientation : la position, l\'appareil, l\'heure, les commentaires et les miniatures sont supprimés. Les copies PNG et vidéo restent inchangées.';
+      'Les copies JPEG ne conservent que leur orientation : la position, l\'appareil, l\'heure, les commentaires et les miniatures sont supprimés. Les copies PNG sont recréées à partir de leurs pixels, sans métadonnées. Les copies vidéo restent inchangées.';
 
   @override
   String get shareStripOff =>

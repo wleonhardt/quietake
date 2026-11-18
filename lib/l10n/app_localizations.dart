@@ -1641,13 +1641,13 @@ abstract class AppLocalizations {
   /// No description provided for @shareStripTitle.
   ///
   /// In en, this message translates to:
-  /// **'Remove metadata from JPEG photo copies'**
+  /// **'Remove metadata from photo copies'**
   String get shareStripTitle;
 
   /// No description provided for @shareStripOn.
   ///
   /// In en, this message translates to:
-  /// **'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.'**
+  /// **'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG copies are rebuilt from their pixels with no metadata. Video copies stay unchanged.'**
   String get shareStripOn;
 
   /// No description provided for @shareStripOff.

@@ -967,11 +967,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'The app you choose receives unencrypted copies and may keep them.';
 
   @override
-  String get shareStripTitle => 'Remove metadata from JPEG photo copies';
+  String get shareStripTitle => 'Remove metadata from photo copies';
 
   @override
   String get shareStripOn =>
-      'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.';
+      'JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG copies are rebuilt from their pixels with no metadata. Video copies stay unchanged.';
 
   @override
   String get shareStripOff =>

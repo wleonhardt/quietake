@@ -547,8 +547,8 @@
     }
   },
   "shareWarning": "The app you choose receives unencrypted copies and may keep them.",
-  "shareStripTitle": "Remove metadata from JPEG photo copies",
-  "shareStripOn": "JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG and video copies stay unchanged.",
+  "shareStripTitle": "Remove metadata from photo copies",
+  "shareStripOn": "JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG copies are rebuilt from their pixels with no metadata. Video copies stay unchanged.",
   "shareStripOff": "Copies keep all original metadata, including location if present.",
   "shareLimits": "Up to {items} captures and {mib} MiB per batch.",
   "@shareLimits": {

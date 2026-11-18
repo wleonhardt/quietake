@@ -4,6 +4,7 @@
 
 - Store release timing remains undecided.
 - Translations (de, es, fr) of every in-app wording draft need native review. The English wording was accepted by the owner on 2026-11-18.
+- Policy draft H in decision 030 (PNG share copies now lose their metadata; two policy sentences and the website page still say they do not): approve, edit or reject.
 - Decision 029: look at the generated gray icon on a real launcher.
 - NAS restore dry run: the agent shell still sees `bw` locked; unlock it (the agent never types the master password) and hand over an empty test folder.
 - Real-device checks nobody has done yet: the saved photo size after decision 034, a tile tap and "Open with" while the plain icon is on, pinch zoom, the flash button, biometric unlock once decision 033's second part is built.

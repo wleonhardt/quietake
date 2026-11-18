@@ -989,11 +989,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die von Ihnen gewählte App erhält unverschlüsselte Kopien und kann sie behalten.';
 
   @override
-  String get shareStripTitle => 'Metadaten aus JPEG-Fotokopien entfernen';
+  String get shareStripTitle => 'Metadaten aus Fotokopien entfernen';
 
   @override
   String get shareStripOn =>
-      'JPEG-Kopien behalten nur ihre Ausrichtung: Standort, Kamera, Zeit, Kommentare und Vorschaubilder werden entfernt. PNG- und Videokopien bleiben unverändert.';
+      'JPEG-Kopien behalten nur ihre Ausrichtung: Standort, Kamera, Zeit, Kommentare und Vorschaubilder werden entfernt. PNG-Kopien werden aus ihren Bildpunkten ohne Metadaten neu erstellt. Videokopien bleiben unverändert.';
 
   @override
   String get shareStripOff =>

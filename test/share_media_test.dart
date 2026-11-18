@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart' show getCrc32;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -242,9 +243,10 @@ void main() {
   });
   test('mixed batch snapshots selection, preserves MIME, reports progress and cleans copies', () async {
     final selected = <VaultItem>[item];
+    final png = await gradientPng();
     for (final extension in ['jpg', 'png']) {
       final plain = await File('${root.path}/input.$extension')
-          .writeAsBytes([1, 2, 3]);
+          .writeAsBytes(extension == 'png' ? png : [1, 2, 3]);
       selected.add(VaultItem(await vault.ingestAs(plain, 'test.$extension')));
     }
     final progress = <int>[];
@@ -257,7 +259,11 @@ void main() {
       expect(files.toSet(), hasLength(3));
       expect(await File(files[0]).readAsBytes(), original);
       expect(await File(files[1]).readAsBytes(), [1, 2, 3]);
-      expect(await File(files[2]).readAsBytes(), [1, 2, 3]);
+      // A PNG copy is rebuilt from its pixels (no metadata), so only its
+      // signature is fixed.
+      expect((await File(files[2]).readAsBytes()).sublist(0, 8), [
+        137, 80, 78, 71, 13, 10, 26, 10, //
+      ]);
       return '';
     });
     await shareMediaCopies(
@@ -368,6 +374,51 @@ void main() {
       expect(_openHandles(), 0);
     },
   );
+
+  test('a PNG copy loses its text chunks unless metadata is kept', () async {
+    // A tEXt chunk right after the 33-byte signature and header.
+    final plain = await gradientPng();
+    final body = [...'tEXt'.codeUnits, ...'Comment\x00GPSLatitude=37.8'.codeUnits];
+    final crc = getCrc32(body);
+    final png = Uint8List.fromList([
+      ...plain.sublist(0, 33),
+      ...[0, 0, 0, body.length - 4],
+      ...body,
+      ...[crc >> 24 & 255, crc >> 16 & 255, crc >> 8 & 255, crc & 255],
+      ...plain.sublist(33),
+    ]);
+    bool hasLocation(Uint8List bytes) =>
+        String.fromCharCodes(bytes).contains('GPSLatitude');
+    expect(hasLocation(png), isTrue);
+    final photo = VaultItem(
+      await vault.ingestAs(
+        await File('${root.path}/t.png').writeAsBytes(png),
+        't.png',
+      ),
+    );
+    final sent = <Uint8List>[];
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+      call,
+    ) async {
+      for (final path in (call.arguments as Map)['paths'] as List) {
+        sent.add(await File(path as String).readAsBytes());
+      }
+      return '';
+    });
+    await shareMediaCopies(vault, [photo], origin: origin, isActive: () => true);
+    await shareMediaCopies(
+      vault,
+      [photo],
+      origin: origin,
+      stripLocation: false,
+      isActive: () => true,
+    );
+    expect(sent, hasLength(2));
+    expect(sent[0].sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+    expect(hasLocation(sent[0]), isFalse, reason: 'rebuilt from pixels');
+    expect(sent[1], png, reason: 'kept as it is when metadata is kept');
+    expect(await vault.readAll(photo.file), png);
+  });
 
   test(
     'redacted photos share as a metadata-free PNG; others are untouched',

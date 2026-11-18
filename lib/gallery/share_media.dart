@@ -114,7 +114,7 @@ Future<void> shareMediaCopies(
       );
       try {
         if (redacted || (stripLocation && !item.isVideo)) {
-          // Photos are bounded (Vault.maxPhotoBytes). JPEG GPS data is erased;
+          // Photos are bounded (Vault.maxPhotoBytes). Photo metadata is erased;
           // unsafe metadata aborts before the chooser receives any copy.
           if (!isActive()) throw _ShareCancelled();
           final plain = await vault.readAll(item.file);
@@ -126,7 +126,13 @@ Future<void> shareMediaCopies(
           }
           if (!isActive()) throw _ShareCancelled();
           await file.writeAsBytes(
-            redacted ? await redactToPng(plain, areas) : withoutMetadata(plain),
+            // A PNG is rebuilt from its pixels, so no text, XMP or EXIF chunk
+            // is carried over; a JPEG keeps its pixels and loses its segments.
+            redacted
+                ? await redactToPng(plain, areas)
+                : item.extension == 'png'
+                ? await redactToPng(plain, const [])
+                : withoutMetadata(plain),
             flush: true,
           );
         } else {

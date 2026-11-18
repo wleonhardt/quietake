@@ -114,7 +114,8 @@ void main() {
           if (mimes[i] == 'image/jpeg') {
             sent.add(bytes);
           } else {
-            expect(bytes, fixtureBytes('wide.png'));
+            // A PNG copy is rebuilt from its pixels, without metadata.
+            expect(bytes.sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
           }
         }
         return '';
@@ -127,7 +128,7 @@ void main() {
         await tap(tester, Keys.librarySelectAll);
         await tap(tester, Keys.libraryShare);
         expect(
-          find.text('Remove metadata from JPEG photo copies'),
+          find.text('Remove metadata from photo copies'),
           findsOneWidget,
         );
         await tap(tester, Keys.shareConfirm);
@@ -191,11 +192,19 @@ void main() {
             'image/png' => 'wide.png',
             _ => 'tiny.jpg',
           };
-          // Videos and PNGs are byte-identical; a JPEG loses its encoder comment.
-          final expected = mimes[i] == 'image/jpeg'
-              ? withoutMetadata(fixtureBytes(fixture))
-              : fixtureBytes(fixture);
-          expect(await File(paths[i]).readAsBytes(), expected);
+          // Videos are byte-identical, a JPEG loses its encoder comment and a
+          // PNG is rebuilt from its pixels.
+          final bytes = await File(paths[i]).readAsBytes();
+          if (mimes[i] == 'image/png') {
+            expect(bytes.sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+          } else {
+            expect(
+              bytes,
+              mimes[i] == 'image/jpeg'
+                  ? withoutMetadata(fixtureBytes(fixture))
+                  : fixtureBytes(fixture),
+            );
+          }
         }
         sent.add(mimes);
         return '';

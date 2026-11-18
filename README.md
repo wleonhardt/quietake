@@ -29,8 +29,9 @@ first release target; iOS development is ongoing.
   Settings switch turns this off.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
   copies keep only their orientation by default: all other EXIF fields, XMP,
-  Photoshop data, comments and any data after the image end are removed. PNG and video copies remain
-  unchanged, so this is not complete metadata anonymization. The share dialog
+  Photoshop data, comments and any data after the image end are removed. PNG copies are rebuilt from
+  their pixels, so they carry no metadata either. Video copies remain unchanged, so this is not
+  complete metadata anonymization. The share dialog
   can instead make one encrypted `.quietake-share` bundle with a fresh six-word
   passphrase, shown once; send the passphrase by another route. Import has
   "Open encrypted share", another app can open a `.quietake-share` file with
