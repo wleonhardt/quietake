@@ -118,6 +118,25 @@ import AVFoundation
     }
     let channel = FlutterMethodChannel(name: "quietake/previews", binaryMessenger: registrar.messenger())
     channel.setMethodCallHandler { call, result in
+      if call.method == "encode" {
+        // A decoded preview as a small JPEG for the encrypted thumbnail store.
+        guard let args = call.arguments as? [String: Any],
+              let width = args["width"] as? Int, let height = args["height"] as? Int,
+              let rgba = (args["rgba"] as? FlutterStandardTypedData)?.data,
+              width > 0, height > 0, rgba.count == width * height * 4,
+              let provider = CGDataProvider(data: rgba as CFData),
+              let image = CGImage(
+                width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32,
+                bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent),
+              let jpeg = UIImage(cgImage: image).jpegData(compressionQuality: 0.8) else {
+          result(FlutterError(code: "preview", message: "Thumbnail unavailable", details: nil))
+          return
+        }
+        result(FlutterStandardTypedData(bytes: jpeg))
+        return
+      }
       guard call.method == "video", let args = call.arguments as? [String: Any],
             let raw = args["url"] as? String, let url = URL(string: raw) else {
         result(FlutterMethodNotImplemented)

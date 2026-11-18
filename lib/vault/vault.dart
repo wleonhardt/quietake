@@ -192,6 +192,30 @@ class Vault {
   File _trashMarker(String name) =>
       File('${_trash.path}/${name.substring(0, name.length - 5)}.at');
 
+  Directory get _thumbs => Directory('${dir.path}/.thumbs');
+
+  File _thumbnail(String name) => File('${_thumbs.path}/$name.thumb');
+
+  /// The stored preview of [container] (decision 045), or null when there is
+  /// none or it cannot be read; the caller then builds and stores it again.
+  Future<Uint8List?> readThumbnail(File container) async {
+    final file = _thumbnail(_containerName(container));
+    if (!await file.exists()) return null;
+    try {
+      return await readAll(file);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Stores [bytes] as the encrypted preview of [container]. A cache: it is
+  /// never synced or backed up, and it is deleted with the capture.
+  Future<void> writeThumbnail(File container, List<int> bytes) async {
+    final file = _thumbnail(_containerName(container));
+    await _thumbs.create(recursive: true);
+    await writeMetadata(file, bytes);
+  }
+
   String _containerName(File container) {
     final name = checkedFileName(container.uri.pathSegments.last);
     if (container.absolute.parent.uri.normalizePath() !=
@@ -265,6 +289,8 @@ class Vault {
         if (e.osError?.errorCode != 2) rethrow;
       }
     }
+    final thumbnail = _thumbnail(name);
+    if (await thumbnail.exists()) await thumbnail.delete();
     // The deletion is journaled, so a trash marker is no longer needed.
     final trashMarker = _trashMarker(name);
     if (await trashMarker.exists()) await trashMarker.delete();

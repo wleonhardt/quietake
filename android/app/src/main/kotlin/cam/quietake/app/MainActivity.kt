@@ -15,6 +15,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 
 class MainActivity : FlutterFragmentActivity() {
@@ -183,6 +184,20 @@ class MainActivity : FlutterFragmentActivity() {
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/previews")
             .setMethodCallHandler { call, result ->
+                if (call.method == "encode") {
+                    // A decoded preview as a small JPEG for the encrypted thumbnail store.
+                    try {
+                        val bitmap = Bitmap.createBitmap(call.argument<Int>("width")!!, call.argument<Int>("height")!!, Bitmap.Config.ARGB_8888)
+                        bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(call.argument<ByteArray>("rgba")!!))
+                        val bytes = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bytes)
+                        bitmap.recycle()
+                        result.success(bytes.toByteArray())
+                    } catch (error: Exception) {
+                        result.error("preview", "Thumbnail unavailable", null)
+                    }
+                    return@setMethodCallHandler
+                }
                 if (call.method != "video") { result.notImplemented(); return@setMethodCallHandler }
                 val url = call.argument<String>("url")!!
                 previews.execute {

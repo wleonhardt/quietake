@@ -33,8 +33,9 @@ vault public key  --sealed box--> file keys of photos taken on the lock screen
 4. `lib/sync/sync_controller.dart` and `sync_service.dart` upload containers and the catalog to a
    WebDAV folder with staged PUT then MOVE, and download what the phone lacks. Sync never infers a
    deletion from a missing file; deletions are recorded explicitly.
-5. `lib/gallery/` shows the library. Thumbnails are decrypted into memory only
-   (`preview.dart`). Video and Cast read through `lib/media/media_server.dart`, a local HTTP
+5. `lib/gallery/` shows the library. A thumbnail is made once, stored encrypted under the
+   vault key in `vault/.thumbs/` (a local cache, never synced or backed up; decision 045) and
+   decrypted into memory only (`preview.dart`). Video and Cast read through `lib/media/media_server.dart`, a local HTTP
    server that decrypts on request and needs a random token in the URL.
 
 ## Getting data out and back
