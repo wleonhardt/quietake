@@ -29,7 +29,8 @@ message made the top panel grow over more of it.
 - On a short phone the picture is smaller than before, because the bars take their height
   from it: at 360 x 640 a 3:4 picture is about 290 wide instead of 360.
 - A long notice still covers the top of the picture while it shows.
-- Not seen on a phone. The iOS simulator has no camera, so only the bars were looked at there.
+- Not seen on a phone or with a live picture. The iOS simulator has no camera, so only the
+  bars and a notice were looked at there; Android blocks screenshots of the app.
 
 ## Evidence
 
