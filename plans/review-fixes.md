@@ -22,8 +22,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R02 complete: Messages from "Show recovery key" (wrong passcode, locked out, unreadable keyfile) now appear under that button in the Recovery card and clear on the next attempt. Red and green check in `test/settings_access_test.dart`.
 - R03 complete: Casting sends the title "Photo" or "Video" instead of the capture file name. Red and green in `test/cast_controller_test.dart`. Limits: the label is English on the receiver in every language, and it was not seen on a real Cast receiver.
 - R04 complete: JPEG share copies now also lose extended XMP segments, which hold XMP too large for one segment and can carry location. Red and green in `test/exif_strip_test.dart`; the random-damage test still passes.
-- R05 blocked: "Remove location" does nothing for PNG and video copies. The approved policy, the website and the share dialog all say those copies are unchanged, so removing PNG metadata needs those sentences changed first. The question was already open in `open-questions.md` (share metadata).
-- R06 blocked: Hidden areas are drawn as up to four coarse blocks across, each the average colour of what it covers (decision 024, deliberate). The approved policy says "solid blocks" and the app says "pixelated". One flat block per area would match the policy exactly and leak less; it changes decision 024 and two approved sentences, so it is an owner question.
+- R05 planned (owner 2026-11-18): Rebuild PNG share copies from pixels so they carry no metadata; draft the changed policy, website and dialog sentences for approval. Video stays unchanged and the text says so.
+- R06 planned (owner 2026-11-18): Draw each hidden area as one flat black block and say "covered" instead of "pixelated" in four languages; update decision 024.
 - R07 complete: A passcode attempt is now counted before the slow key derivation instead of after it, so attempts started together cannot all pass the lock check; a correct passcode still resets the count and an unreadable keyfile is not counted. Red and green in `test/master_key_store_test.dart` ("attempts started together are still counted one by one"). The counter is still kept in memory only, as decision 001 chose.
 - R08 complete, no change: `recover` runs only from the capture screen before its camera exists, and a capture needs that camera; a resume or a replacement screen waits for the running capture first. The two cannot overlap today.
 - R09 complete, no change: `ingestAs` is used for the importer's private staging copy, which must not outlive a failed import; the external original is never touched (noted in `review-log.md`).
@@ -33,8 +33,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R13 deferred: Remote-name entries of deleted captures stay in the catalog. Sync needs such an entry to remove the server copy later, so it can only be dropped after the server deletion is confirmed; that belongs with the catalog storage change (R91). Each entry is about 80 bytes.
 - R14 complete, no change: the app never takes a typed share passphrase; it generates six words itself (`_askPassphrase`). Enforcing the backup passphrase rule in the writer could reject a generated phrase of short words.
 - R15 complete, no change: trailing data is already refused and tested (`vault_crypto_test.dart`, "rejects trailing data, reordered chunks and malformed headers"; Go `TestRecoveryWritesOnlyVerifiedMedia` mode `trailing`).
-- R16 blocked: When a pending restore cannot resume (a journal from another version, a fingerprint mismatch), startup offers only Retry and the app cannot be reached. Offering "Discard the unfinished restore" would delete prepared data on purpose, so it needs the owner; see `open-questions.md`.
-- R17 deferred: A server object that does not authenticate stops the whole pass by design (ownership is checked before anything is uploaded, removed or adopted). Skipping such objects and capping downloads from a server that reports no sizes both change that rule; left for the owner with the sync design.
+- R16 planned (owner 2026-11-18): After a failed Retry, the restore gate offers "Discard the unfinished restore" with a confirmation; only the prepared copy on the phone is deleted.
+- R17 planned (owner 2026-11-18): Sync skips and reports a server file that does not authenticate instead of stopping the pass, never adopts or deletes it, and caps a download of unknown size at 4 GiB.
 
 - Evidence for groups A and B, 2026-11-17, after the last camera commit (`e8a0aa0`): analyzer clean, host suite 886 passed. Android emulator and iOS simulator, all passing on both: `capture_test`, `capture_failure_test`, `camera_lifecycle_test`, `locked_camera_test`, `appearance_test`, `startup_test`, `lock_test`, `privacy_test`, `sharing_test`, `import_test`, `cast_test`. The emulator camera exercised zoom-capable opening, flash start value and the recording swap only as far as those tests go; pinch, the flash button and Retry were not driven on a device.
 
@@ -47,7 +47,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R24 complete: Pinch to zoom with a factor label that also resets it (decision 035). Host tests in `test/capture_chrome_test.dart`. Limits: no screen-reader control for zoom, not tried on a phone.
 - R25 complete: One button in the top row cycles the photo flash off, automatic and on; it starts off, a recording camera is always off, and a camera that refuses says "This camera has no flash." (decision 035). Strings in en, de, es, fr (translations need native review). Host tests in `test/capture_chrome_test.dart`; host suite 885 passed. The button sits in the top row because the bottom row has no room at 320 px. No torch for video, and not tried on a phone.
 - R26 complete: The shutter is drawn as a ring around a disc, and while recording the Stop button moves to the large centre position with the disabled shutter at the side; both buttons keep their keys. Test in `test/capture_chrome_test.dart`; host suite 886 passed. Not seen on a phone.
-- R27 blocked: The two control panels are opaque on purpose: `test/camera_controls_layout_test.dart` requires opaque control colours so labels keep their contrast over any picture. Translucent scrims would trade that for a larger viewfinder; placing the controls outside the picture area is the other way. A design call for the owner, in `open-questions.md`.
+- R27 planned (owner 2026-11-18): Move the camera controls into bars outside the picture so nothing covers the viewfinder and label contrast stays guaranteed.
 - R28 deferred: Controls stay on the long edge in landscape; needs a physical device to judge.
 
 ## C. Library and viewer
@@ -71,7 +71,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R47 planned: No show or hide toggle on passcode fields.
 - R48 planned: The recovery key is drawn in a proportional font on iOS; add system monospace fallbacks.
 - R49 planned: The recovery key screen can be passed in one tap; ask for one group back (decision record first, wording for owner review).
-- R50 blocked: Recovery key format (base64 with `/`, `=`, `I`, `l`) is a format and recovery-tool contract; needs the owner.
+- R50 planned (owner 2026-11-18): Show the recovery key as 24 words with the base64 form under "Show as text"; the app and the recovery tool accept both. Needs a format note, vectors for the word form and a decision record (041 or later).
 - R51 planned: First run is one form with four equal links; split into a welcome choice and a restore page (decision record first, wording for owner review).
 - R52 planned: With the plain icon on, the lock screen and the iOS cover still show the name and logo.
 - R53 planned: English-only messages reach other languages (`passcodeTooShort`, exception text, the startup error, the name dialog, the policy screen chrome); check decision 021 first.
@@ -80,7 +80,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R56 planned: Settings is one long page with an inline server form; give Backup its own screen (decision record first).
 - R57 planned: Type scale mixes tight titles with loose body text; the logo is a hard-cornered dark square on light surfaces.
 - R58 planned: Predictive back: page transition and the manifest flag.
-- R59 blocked: Bind the keystore key to biometrics and make biometric unlock a choice (decision 033; needs real devices).
+- R59 planned (owner 2026-11-18): Bind the keystore key to biometrics on both platforms and add a Settings switch for biometric unlock, off by default (decision 033, second part). Real-phone confirmation stays with the owner.
 
 ## E. Android, iOS, recovery tool, CI
 
@@ -92,10 +92,10 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R65 planned: `VideoPreparation` reads media on the main thread.
 - R66 complete: The Gradle wrapper now carries the distribution checksum (value read from `services.gradle.org` for 9.3.1-all; the wrapper checks it on the next fresh download, which was not forced here) and Dependabot watches `/android`.
 - R67 complete in part: CI cancels in-progress runs only for pull requests, and the Go step runs `go mod verify` (passes locally). Both files parse as YAML; no workflow linter is installed here and the hosted run is unproven. Blocked part, in `open-questions.md`: running `tool/ci_scope.py` from the base commit instead of the pull request head, and adding a pinned `govulncheck`.
-- R68 blocked: CI has no iOS build job and one emulator API level; both cost runner time, owner call.
+- R68 planned (owner 2026-11-18): Add a macOS CI job that makes an unsigned iOS build and runs the Swift tests. No second Android API level.
 - R69 planned: iOS has no privacy manifest, no export-compliance key and English-only permission prompts.
 - R70 planned: `Podfile` has no platform line.
-- R71 blocked: Release build has no code shrinking; turning it on needs a signed-build check by the owner.
+- R71 complete, no change (owner 2026-11-18): release code shrinking stays off for now.
 - R72 complete: Recovery tool. Done: keyfile read bounded at 64 KiB, a warning for `-key` in arguments, a warning when the catalog cannot be read, recovery key bytes cleared, exit codes and overwrite rule documented. Tests `TestKeyfileReadIsBounded` and `TestUnreadableCatalogIsReported`; `gofmt`, `go vet`, `go test` pass. Not changed, with reasons: replacing an existing output with a verified recovery is deliberate and tested (`TestRecoveryWritesOnlyVerifiedMedia`); stricter share entry names (colon, Windows device names) would change the share bundle contract for both readers, so that is an owner question; the fixed `.part` name and the missing folder cap only concern the user's own output and input folders.
 - R73 complete: Tool tests. `grant-on-phone.sh` now taps only buttons of the system permission dialog (package contains `permissioncontroller`); the matcher was checked on two sample screens, not on a phone. Not changed after reading: the `/tmp/quietake-nas-live-synthetic` path in `backup_prompt_check_test.py` is only validated, never created, and `run_bounded_test.py` reads its marker after the runner has already killed the child. Tool suite: 76 tests pass.
 
@@ -110,6 +110,16 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## G. Structure (each needs a decision record and an owner answer before building)
 
-- R90 blocked: Make lock a key boundary: close the session on lock and rebuild it on unlock.
-- R91 blocked: Replace the single 2 MiB catalog file with per-record encrypted storage.
+- R90 planned (owner 2026-11-18): Lock closes the session (key out of memory, sync and casting stopped) and unlock builds a new one; the app returns to the camera after unlock. Decision record first.
+- R91 planned (owner 2026-11-18): Keep the catalog format and raise its size cap in the app, the recovery tool and the documents.
 - R92 planned: Move hashing, bulk decryption and pixel loops off the UI isolate.
+
+## H. Added from the owner's answers of 2026-11-18
+
+- R93 planned: Clear a saved backup server address and password when a brand-new vault is created (decision 033).
+- R94 planned: Video quality setting with 720p, 1080p and 4K, 1080p by default (decision 034).
+- R95 planned: Add approved policy sentences F and G to `assets/privacy-policy.json` and `website/app-privacy.html`, which must match.
+- R96 planned: Note in `plans/README.md` that public decision numbers continue from 041 and what 027 (old) and 036 to 040 in code comments refer to.
+- R97 planned: Both share bundle readers refuse a colon and Windows device names; update `docs/share-bundle.md`.
+- R98 planned: CI runs the check selector from the base commit and gains a pinned `govulncheck`.
+- R99 planned: Release workflow that builds `quietake-recover` for macOS, Windows and Linux with checksums on a release tag.
