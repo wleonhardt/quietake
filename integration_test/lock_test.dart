@@ -160,7 +160,9 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(app());
-    await pumpUntil(tester, () => has(Keys.setupPasscode));
+    // First run starts with a choice (decision 046).
+    await pumpUntil(tester, () => has(Keys.setupCreateOpen));
+    expect(has(Keys.setupPasscode), isFalse);
     final filesBeforePolicy = await (await getApplicationDocumentsDirectory())
         .list()
         .map((file) => file.path)
@@ -175,6 +177,7 @@ void main() {
     expect(await store.hasKeyfile, isFalse);
     await tester.pageBack();
     await settle(tester);
+    await tap(tester, Keys.setupCreateOpen);
     expect(has(Keys.setupPasscode), isTrue);
     expect(
       await (await getApplicationDocumentsDirectory())
@@ -441,7 +444,8 @@ void main() {
     await store.keyfile.delete();
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(app());
-    await pumpUntil(tester, () => has(Keys.setupToggleRestore));
+    await pumpUntil(tester, () => has(Keys.setupRestoreOpen));
+    await tap(tester, Keys.setupRestoreOpen);
     await tap(tester, Keys.setupToggleRestore);
     await pumpUntil(tester, () => has(Keys.setupRecoveryKey));
     await enter(tester, Keys.setupRecoveryKey, 'not a key');

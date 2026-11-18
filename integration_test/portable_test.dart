@@ -342,8 +342,9 @@ void main() {
           );
           await until(
             tester,
-            () => find.byKey(Keys.portableRestoreOpen).evaluate().isNotEmpty,
+            () => find.byKey(Keys.setupRestoreOpen).evaluate().isNotEmpty,
           );
+          await tap(tester, Keys.setupRestoreOpen);
           await tap(tester, Keys.portableRestoreOpen);
           await tap(tester, Keys.portablePick);
           expect(
@@ -483,8 +484,9 @@ void main() {
       );
       await until(
         tester,
-        () => find.byKey(Keys.portableRestoreOpen).evaluate().isNotEmpty,
+        () => find.byKey(Keys.setupRestoreOpen).evaluate().isNotEmpty,
       );
+      await tap(tester, Keys.setupRestoreOpen);
       await tap(tester, Keys.portableRestoreOpen);
       await tap(tester, Keys.portablePick);
       await enter(tester, Keys.portableRecovery, 'not a recovery key');

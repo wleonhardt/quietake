@@ -320,7 +320,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get setupCreateVault => 'Crear bóveda';
 
   @override
-  String get setupStartNew => 'Empezar una bóveda nueva';
+  String get setupWelcomeTitle => 'Te damos la bienvenida';
+
+  @override
+  String get setupWelcomeBody =>
+      'Quietake guarda tus fotos y vídeos cifrados en este teléfono. Eliges un código de acceso para abrirlos. Nadie puede restablecerlo por ti, así que también recibes una clave de recuperación para guardar.';
+
+  @override
+  String get setupCreateOpen => 'Crear una bóveda nueva';
+
+  @override
+  String get setupRestoreOpen => 'Restaurar una bóveda que ya tengo';
+
+  @override
+  String get setupRestoreIntro => 'Elige lo que tienes.';
+
+  @override
+  String get setupRestoreKeyBody =>
+      'Para los archivos cifrados de este teléfono o para empezar de nuevo con la misma clave. Eliges un código de acceso nuevo.';
+
+  @override
+  String get setupRestoreZipBody =>
+      'Un archivo de copia de seguridad guardado desde Quietake. Necesitas su clave de recuperación.';
+
+  @override
+  String get setupRestoreNasBody =>
+      'Descarga tus capturas desde tu servidor de copias de seguridad. Necesitas la dirección del servidor y la frase de contraseña de la copia.';
 
   @override
   String get setupHaveKey => 'Tengo una clave de recuperación';

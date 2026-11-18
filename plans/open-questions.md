@@ -15,6 +15,8 @@
 
 - Recovery key confirm step (decision 042): Setup now asks "Type word N, or paste the whole key" after "I saved it". Wording to approve: title "Check your saved copy"; body "Look at the copy you saved, not at this phone. Type word {N}, or paste the whole key."; error "That is not word {N}. Check your saved copy."; buttons "Confirm" and "Show the key again". Also: one word, or more? Default: one.
 
+- Setup welcome and restore wording (decision 046), to approve: title "Welcome"; body "Quietake keeps your photos and videos encrypted on this phone. You choose a passcode to open them. Nobody can reset it for you, so you also get a recovery key to keep."; buttons "Create a new vault" and "Restore a vault I already have"; restore page "Choose what you have." with "I have a recovery key" ("For the encrypted files on this phone, or to start again with the same key. You choose a new passcode."), "Restore an encrypted ZIP" ("A backup file saved from Quietake. You need its recovery key.") and "Restore from NAS with backup passphrase" ("Downloads your captures from your backup server. You need the server address and the backup passphrase.").
+
 ## Resolved
 
 - 2026-11-18 (owner, answers to the review questions):

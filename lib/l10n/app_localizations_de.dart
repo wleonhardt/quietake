@@ -321,7 +321,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get setupCreateVault => 'Tresor erstellen';
 
   @override
-  String get setupStartNew => 'Stattdessen einen neuen Tresor anlegen';
+  String get setupWelcomeTitle => 'Willkommen';
+
+  @override
+  String get setupWelcomeBody =>
+      'Quietake bewahrt Ihre Fotos und Videos verschlüsselt auf diesem Telefon auf. Sie wählen einen Zugangscode, um sie zu öffnen. Niemand kann ihn für Sie zurücksetzen, deshalb erhalten Sie zusätzlich einen Wiederherstellungsschlüssel zum Aufbewahren.';
+
+  @override
+  String get setupCreateOpen => 'Neuen Tresor anlegen';
+
+  @override
+  String get setupRestoreOpen => 'Vorhandenen Tresor wiederherstellen';
+
+  @override
+  String get setupRestoreIntro => 'Wählen Sie, was Sie haben.';
+
+  @override
+  String get setupRestoreKeyBody =>
+      'Für die verschlüsselten Dateien auf diesem Telefon oder für einen Neubeginn mit demselben Schlüssel. Sie wählen einen neuen Zugangscode.';
+
+  @override
+  String get setupRestoreZipBody =>
+      'Eine aus Quietake gespeicherte Sicherungsdatei. Sie brauchen ihren Wiederherstellungsschlüssel.';
+
+  @override
+  String get setupRestoreNasBody =>
+      'Lädt Ihre Aufnahmen von Ihrem Sicherungsserver. Sie brauchen die Serveradresse und die Sicherungspassphrase.';
 
   @override
   String get setupHaveKey => 'Ich habe einen Wiederherstellungsschlüssel';

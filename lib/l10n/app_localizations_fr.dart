@@ -322,7 +322,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String get setupCreateVault => 'Créer le coffre';
 
   @override
-  String get setupStartNew => 'Commencer plutôt un nouveau coffre';
+  String get setupWelcomeTitle => 'Bienvenue';
+
+  @override
+  String get setupWelcomeBody =>
+      'Quietake conserve vos photos et vidéos chiffrées sur ce téléphone. Vous choisissez un code d\'accès pour les ouvrir. Personne ne peut le réinitialiser pour vous ; vous recevez donc aussi une clé de récupération à conserver.';
+
+  @override
+  String get setupCreateOpen => 'Créer un nouveau coffre';
+
+  @override
+  String get setupRestoreOpen => 'Restaurer un coffre que j\'ai déjà';
+
+  @override
+  String get setupRestoreIntro => 'Choisissez ce que vous avez.';
+
+  @override
+  String get setupRestoreKeyBody =>
+      'Pour les fichiers chiffrés sur ce téléphone, ou pour repartir avec la même clé. Vous choisissez un nouveau code d\'accès.';
+
+  @override
+  String get setupRestoreZipBody =>
+      'Un fichier de sauvegarde enregistré depuis Quietake. Il vous faut sa clé de récupération.';
+
+  @override
+  String get setupRestoreNasBody =>
+      'Télécharge vos captures depuis votre serveur de sauvegarde. Il vous faut l\'adresse du serveur et la phrase secrète de sauvegarde.';
 
   @override
   String get setupHaveKey => 'J\'ai une clé de récupération';

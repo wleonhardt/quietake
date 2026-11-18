@@ -1,7 +1,7 @@
 # 046 First run starts with a choice, and restore has its own page
 
 Status: accepted as the default 2026-11-18 (review item R51; the owner has not seen the wording).
-Being built.
+Built.
 
 ## Problem
 
@@ -32,3 +32,9 @@ Setup has three steps in one screen, with Back between them.
 - One more tap before the first passcode.
 - The wording is a draft for the owner (`plans/open-questions.md`); translations are drafts.
 - The restore options are still three separate flows behind the page.
+
+## Evidence
+
+`test/setup_screen_test.dart` ("first run starts with a choice; Back returns step by step", the
+privacy policy from the welcome step, the restore page opening the ZIP and server screens).
+Device runs are listed in `plans/review-fixes.md`.

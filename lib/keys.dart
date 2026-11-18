@@ -251,6 +251,9 @@ abstract final class Keys {
   static const setupRecoveryKey = Key('setup.recoveryKey');
   static const setupSubmit = Key('setup.submit');
   static const setupToggleRestore = Key('setup.toggleRestore');
+  static const setupCreateOpen = Key('setup.createOpen');
+  static const setupRestoreOpen = Key('setup.restoreOpen');
+  static const setupBack = Key('setup.back');
   static const setupError = Key('setup.error');
   static const recoveryKeyText = Key('recovery.keyText');
   static const recoveryFingerprint = Key('recovery.fingerprint');

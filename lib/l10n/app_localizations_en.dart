@@ -315,7 +315,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupCreateVault => 'Create vault';
 
   @override
-  String get setupStartNew => 'Start a new vault instead';
+  String get setupWelcomeTitle => 'Welcome';
+
+  @override
+  String get setupWelcomeBody =>
+      'Quietake keeps your photos and videos encrypted on this phone. You choose a passcode to open them. Nobody can reset it for you, so you also get a recovery key to keep.';
+
+  @override
+  String get setupCreateOpen => 'Create a new vault';
+
+  @override
+  String get setupRestoreOpen => 'Restore a vault I already have';
+
+  @override
+  String get setupRestoreIntro => 'Choose what you have.';
+
+  @override
+  String get setupRestoreKeyBody =>
+      'For the encrypted files on this phone, or to start again with the same key. You choose a new passcode.';
+
+  @override
+  String get setupRestoreZipBody =>
+      'A backup file saved from Quietake. You need its recovery key.';
+
+  @override
+  String get setupRestoreNasBody =>
+      'Downloads your captures from your backup server. You need the server address and the backup passphrase.';
 
   @override
   String get setupHaveKey => 'I have a recovery key';

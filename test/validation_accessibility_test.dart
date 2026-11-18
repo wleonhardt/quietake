@@ -10,6 +10,7 @@ import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../test_support/setup_steps.dart';
 import '../test_support/fake_authenticator.dart';
 
 class _RejectingStore extends MasterKeyStore {
@@ -80,6 +81,7 @@ void main() {
           ),
         );
         await tester.pump();
+        await openSetupCreate(tester);
         expect(tester.getSize(find.byKey(field)).width, lessThanOrEqualTo(600));
         if (form != 'unlock') {
           final next = form == 'setup' ? Keys.setupConfirm : Keys.newPasscode;
@@ -124,6 +126,7 @@ void main() {
           home: SetupScreen(store: store, onUnlocked: (_) => fail('Unlocked')),
         ),
       );
+      await openSetupCreate(tester);
       await tester.tap(find.byKey(Keys.setupSubmit));
       await tester.pump();
       // The message fades in under its field before it is announced.

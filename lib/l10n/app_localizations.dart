@@ -564,11 +564,53 @@ abstract class AppLocalizations {
   /// **'Create vault'**
   String get setupCreateVault;
 
-  /// No description provided for @setupStartNew.
+  /// No description provided for @setupWelcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Start a new vault instead'**
-  String get setupStartNew;
+  /// **'Welcome'**
+  String get setupWelcomeTitle;
+
+  /// No description provided for @setupWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Quietake keeps your photos and videos encrypted on this phone. You choose a passcode to open them. Nobody can reset it for you, so you also get a recovery key to keep.'**
+  String get setupWelcomeBody;
+
+  /// No description provided for @setupCreateOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new vault'**
+  String get setupCreateOpen;
+
+  /// No description provided for @setupRestoreOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a vault I already have'**
+  String get setupRestoreOpen;
+
+  /// No description provided for @setupRestoreIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what you have.'**
+  String get setupRestoreIntro;
+
+  /// No description provided for @setupRestoreKeyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'For the encrypted files on this phone, or to start again with the same key. You choose a new passcode.'**
+  String get setupRestoreKeyBody;
+
+  /// No description provided for @setupRestoreZipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A backup file saved from Quietake. You need its recovery key.'**
+  String get setupRestoreZipBody;
+
+  /// No description provided for @setupRestoreNasBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads your captures from your backup server. You need the server address and the backup passphrase.'**
+  String get setupRestoreNasBody;
 
   /// No description provided for @setupHaveKey.
   ///

@@ -15,6 +15,7 @@ import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/recovery_key.dart';
+import '../test_support/setup_steps.dart';
 
 class _MemStorage extends FlutterSecureStoragePlatform {
   final map = <String, String>{};
@@ -95,6 +96,7 @@ void main() {
   tearDown(() => dir.delete(recursive: true));
 
   Future<void> submit(WidgetTester tester) async {
+    await openSetupCreate(tester);
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
     await tester.enterText(find.byKey(Keys.setupConfirm), 'test-passcode');
     await tester.tap(find.byKey(Keys.setupSubmit));
@@ -119,6 +121,9 @@ void main() {
         ),
       ),
     );
+    expect(find.text('Crear una bóveda nueva'), findsOneWidget);
+    expect(find.text('Create a new vault'), findsNothing);
+    await openSetupCreate(tester);
     expect(find.text('Establece un código de acceso'), findsOneWidget);
     expect(find.text('Al menos 6 caracteres'), findsOneWidget);
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
@@ -138,10 +143,6 @@ void main() {
         home: SetupScreen(store: store, onUnlocked: (_) => fail('unlocked')),
       ),
     );
-    await tester.enterText(
-      find.byKey(Keys.setupPasscode),
-      'unfinished-passcode',
-    );
     final policy = find.widgetWithText(TextButton, 'Privacy policy');
     expect(policy, findsOneWidget);
     await tester.ensureVisible(policy);
@@ -155,10 +156,9 @@ void main() {
     });
     await tester.pageBack();
     await tester.pumpAndSettle();
-    expect(
-      tester.widget<TextField>(find.byKey(Keys.setupPasscode)).controller!.text,
-      'unfinished-passcode',
-    );
+    // Back on the welcome step, with both ways on still offered.
+    expect(find.byKey(Keys.setupCreateOpen), findsOneWidget);
+    expect(find.byKey(Keys.setupRestoreOpen), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -269,6 +269,7 @@ void main() {
   ) async {
     final store = MasterKeyStore(sodium, dir);
     await pumpSetup(tester, store);
+    await openSetupCreate(tester);
     await tester.enterText(find.byKey(Keys.setupPasscode), 'short');
     await tester.enterText(find.byKey(Keys.setupConfirm), 'short');
     await tester.tap(find.byKey(Keys.setupSubmit));
@@ -291,6 +292,7 @@ void main() {
     tester,
   ) async {
     await pumpSetup(tester, MasterKeyStore(sodium, dir));
+    await openSetupCreate(tester);
     bool hidden(Key key) =>
         tester.widget<TextField>(find.byKey(key)).obscureText;
     expect(hidden(Keys.setupPasscode) && hidden(Keys.setupConfirm), isTrue);
@@ -303,18 +305,43 @@ void main() {
     expect(hidden(Keys.setupPasscode) && hidden(Keys.setupConfirm), isTrue);
   });
 
-  testWidgets('the restore toggle switches forms and back', (tester) async {
+  testWidgets('first run starts with a choice; Back returns step by step', (
+    tester,
+  ) async {
     final store = MasterKeyStore(sodium, dir);
     await pumpSetup(tester, store);
-    expect(find.byKey(Keys.setupRecoveryKey), findsNothing);
+    // Welcome: what the app does, two ways on, no form yet.
+    expect(find.text('Welcome'), findsOneWidget);
+    expect(find.textContaining('Nobody can reset it'), findsOneWidget);
+    expect(find.byKey(Keys.setupPasscode), findsNothing);
+    expect(find.byKey(Keys.setupBack), findsNothing);
+
+    await tester.tap(find.byKey(Keys.setupRestoreOpen));
+    await tester.pump();
+    // Without a restore callback only the recovery key way is offered.
+    expect(find.byKey(Keys.setupToggleRestore), findsOneWidget);
+    expect(find.byKey(Keys.portableRestoreOpen), findsNothing);
     await tester.tap(find.byKey(Keys.setupToggleRestore));
     await tester.pump();
     expect(find.byKey(Keys.setupRecoveryKey), findsOneWidget);
     expect(find.text('Restore'), findsOneWidget);
-    await tester.tap(find.byKey(Keys.setupToggleRestore));
+
+    await tester.tap(find.byKey(Keys.setupBack));
+    await tester.pump();
+    expect(find.byKey(Keys.setupRecoveryKey), findsNothing);
+    expect(find.byKey(Keys.setupToggleRestore), findsOneWidget);
+    // The system Back does the same as the arrow.
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(find.byKey(Keys.setupCreateOpen), findsOneWidget);
+
+    await tester.tap(find.byKey(Keys.setupCreateOpen));
     await tester.pump();
     expect(find.byKey(Keys.setupRecoveryKey), findsNothing);
     expect(find.text('Create vault'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.setupBack));
+    await tester.pump();
+    expect(find.byKey(Keys.setupCreateOpen), findsOneWidget);
   });
 
   testWidgets('a malformed recovery key shows an error and stays open', (
@@ -322,7 +349,7 @@ void main() {
   ) async {
     final store = MasterKeyStore(sodium, dir);
     await pumpSetup(tester, store);
-    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await openSetupRecoveryKey(tester);
     await tester.pump();
     await tester.enterText(find.byKey(Keys.setupRecoveryKey), 'not a key');
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
@@ -340,7 +367,7 @@ void main() {
   ) async {
     final store = MasterKeyStore(sodium, dir);
     await pumpSetup(tester, store);
-    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await openSetupRecoveryKey(tester);
     await tester.pump();
     TextField field() =>
         tester.widget<TextField>(find.byKey(Keys.setupRecoveryKey));
@@ -365,7 +392,7 @@ void main() {
     tester,
   ) async {
     await pumpSetup(tester, _BrokenRestoreStore(sodium, dir));
-    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await openSetupRecoveryKey(tester);
     await tester.pump();
     await tester.enterText(find.byKey(Keys.setupRecoveryKey), 'any key');
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
@@ -392,7 +419,7 @@ void main() {
             .then((r) => r!);
 
     Future<void> restore(WidgetTester tester, String recovery) async {
-      await tester.tap(find.byKey(Keys.setupToggleRestore));
+      await openSetupRecoveryKey(tester);
       await tester.pump();
       await tester.enterText(find.byKey(Keys.setupRecoveryKey), recovery);
       await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
@@ -463,6 +490,7 @@ void main() {
         ),
       ),
     );
+    await openSetupRestore(tester);
     await tester.tap(find.byKey(Keys.portableRestoreOpen));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -499,6 +527,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
       }
 
+      await openSetupRestore(tester);
       await tester.tap(find.byKey(Keys.portableRestoreOpen));
       await settle();
       tester.widget<PortableScreen>(find.byType(PortableScreen)).onRestored!();
@@ -523,7 +552,7 @@ void main() {
     final store = _PendingRestoreStore(sodium, dir);
     var unlocked = 0;
     await pumpSetup(tester, store, onUnlocked: (_) => unlocked++);
-    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await openSetupRecoveryKey(tester);
     await tester.pump();
     await tester.enterText(find.byKey(Keys.setupRecoveryKey), 'any key');
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');

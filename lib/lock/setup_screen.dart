@@ -13,8 +13,12 @@ import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
 import '../sync/sync_settings.dart';
 
-/// First run: choose a passcode, then save the recovery key. Also the way in
-/// on a new phone with an existing recovery key.
+/// The steps of first run (decision 046).
+enum _Step { welcome, create, restoreChoice, restoreKey }
+
+/// First run: a welcome choice, then either a passcode and the recovery key,
+/// or a page that lists the ways to restore. With [restoringOnly] it is the
+/// recovery key form alone, for a forgotten passcode.
 class SetupScreen extends StatefulWidget {
   const SetupScreen({
     super.key,
@@ -39,7 +43,8 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
   final _pass = TextEditingController();
   final _confirm = TextEditingController();
   final _recovery = TextEditingController();
-  late bool _restoring = widget.restoringOnly;
+  late var _step = widget.restoringOnly ? _Step.restoreKey : _Step.welcome;
+  bool get _restoring => _step == _Step.restoreKey;
   bool _busy = false;
   bool _showPasscode = false;
   int _attempt = 0;
@@ -207,143 +212,179 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
     return ok ?? false;
   }
 
+  void _back() => setState(() {
+    _error = null;
+    _step = _step == _Step.restoreKey ? _Step.restoreChoice : _Step.welcome;
+  });
+
+  void _open(Widget Function(VoidCallback done) screen) => Navigator.push(
+    context,
+    MaterialPageRoute<void>(
+      builder: (ctx) => screen(() {
+        Navigator.of(ctx).pop();
+        widget.onRestored!();
+      }),
+    ),
+  );
+
+  List<Widget> _welcome(AppLocalizations l10n) => [
+    BrandHeader(message: l10n.setupTagline),
+    Text(l10n.setupWelcomeBody),
+    const SizedBox(height: 24),
+    FilledButton(
+      key: Keys.setupCreateOpen,
+      onPressed: () => setState(() => _step = _Step.create),
+      child: Text(l10n.setupCreateOpen),
+    ),
+    const SizedBox(height: 8),
+    OutlinedButton(
+      key: Keys.setupRestoreOpen,
+      onPressed: () => setState(() => _step = _Step.restoreChoice),
+      child: Text(l10n.setupRestoreOpen),
+    ),
+    TextButton(
+      key: Keys.setupPrivacyPolicy,
+      onPressed: () => showPrivacyPolicy(context),
+      child: Text(l10n.privacyPolicy),
+    ),
+  ];
+
+  /// The ways back into an existing vault, each with what it needs.
+  List<Widget> _restoreChoice(AppLocalizations l10n) => [
+    Text(l10n.setupRestoreIntro),
+    const SizedBox(height: 8),
+    ListTile(
+      key: Keys.setupToggleRestore,
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.key_outlined),
+      title: Text(l10n.setupHaveKey),
+      subtitle: Text(l10n.setupRestoreKeyBody),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => setState(() => _step = _Step.restoreKey),
+    ),
+    if (widget.onRestored != null) ...[
+      ListTile(
+        key: Keys.portableRestoreOpen,
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.folder_zip_outlined),
+        title: Text(l10n.setupRestoreZip),
+        subtitle: Text(l10n.setupRestoreZipBody),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _open(
+          (done) => PortableScreen(store: widget.store, onRestored: done),
+        ),
+      ),
+      ListTile(
+        key: Keys.nasRestoreOpen,
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.dns_outlined),
+        title: Text(l10n.setupRestoreNas),
+        subtitle: Text(l10n.setupRestoreNasBody),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _open(
+          (done) => NasRecoveryScreen(store: widget.store, onRestored: done),
+        ),
+      ),
+    ],
+  ];
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _restoring ? l10n.setupRestoreTitle : l10n.setupCreateTitle,
+    // Inside Setup, Back goes one step up; the first step and the
+    // forgotten-passcode form leave the screen as before.
+    final inner = !widget.restoringOnly && _step != _Step.welcome;
+    return PopScope(
+      canPop: !inner,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && !_busy) _back();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: inner
+              ? BackButton(key: Keys.setupBack, onPressed: _busy ? null : _back)
+              : null,
+          title: Text(switch (_step) {
+            _Step.welcome => l10n.setupWelcomeTitle,
+            _Step.create => l10n.setupCreateTitle,
+            _ => l10n.setupRestoreTitle,
+          }),
         ),
-      ),
-      body: FormBody(
-        children: [
-          BrandHeader(
-            message: _restoring ? l10n.setupRestoreMessage : l10n.setupTagline,
-          ),
-          if (_restoring)
-            RecoveryKeyField(
-              fieldKey: Keys.setupRecoveryKey,
-              controller: _recovery,
-            ),
-          if (_restoring) const SizedBox(height: 16),
-          TextField(
-            key: Keys.setupPasscode,
-            controller: _pass,
-            obscureText: !_showPasscode,
-            enabled: !_busy,
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: _restoring
-                  ? l10n.newPasscodeLabel
-                  : l10n.passcodeLabel,
-              helperText: l10n.setupPasscodeHelper(
-                MasterKeyStore.minPasscodeLength,
-              ),
-              // One switch for both fields.
-              suffixIcon: IconButton(
-                key: Keys.setupShowPasscode,
-                tooltip: _showPasscode ? l10n.passcodeHide : l10n.passcodeShow,
-                icon: Icon(
-                  _showPasscode
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                ),
-                onPressed: () => setState(() => _showPasscode = !_showPasscode),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            key: Keys.setupConfirm,
-            controller: _confirm,
-            obscureText: !_showPasscode,
-            enabled: !_busy,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _submit(),
-            decoration: InputDecoration(
-              labelText: l10n.confirmPasscodeLabel,
-              // With the fields and above the button, so it stays in view
-              // while the keyboard is up.
-              error: _error == null
-                  ? null
-                  : Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        _error!(l10n),
-                        key: Keys.setupError,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            key: Keys.setupSubmit,
-            onPressed: _busy ? null : _submit,
-            child: Text(
-              _busy
-                  ? l10n.formWorking
-                  : _restoring
-                  ? l10n.restore
-                  : l10n.setupCreateVault,
-            ),
-          ),
-          if (!widget.restoringOnly)
-            TextButton(
-              key: Keys.setupToggleRestore,
-              onPressed: _busy
-                  ? null
-                  : () => setState(() => _restoring = !_restoring),
-              child: Text(_restoring ? l10n.setupStartNew : l10n.setupHaveKey),
-            ),
-          if (!widget.restoringOnly && widget.onRestored != null)
-            TextButton(
-              key: Keys.portableRestoreOpen,
-              onPressed: _busy
-                  ? null
-                  : () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (ctx) => PortableScreen(
-                          store: widget.store,
-                          onRestored: () {
-                            Navigator.of(ctx).pop();
-                            widget.onRestored!();
-                          },
-                        ),
-                      ),
-                    ),
-              child: Text(l10n.setupRestoreZip),
-            ),
-          if (!widget.restoringOnly && widget.onRestored != null)
-            TextButton(
-              key: Keys.nasRestoreOpen,
-              onPressed: _busy
-                  ? null
-                  : () => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (ctx) => NasRecoveryScreen(
-                          store: widget.store,
-                          onRestored: () {
-                            Navigator.of(ctx).pop();
-                            widget.onRestored!();
-                          },
-                        ),
-                      ),
-                    ),
-              child: Text(l10n.setupRestoreNas),
-            ),
-          TextButton(
-            key: Keys.setupPrivacyPolicy,
-            onPressed: _busy ? null : () => showPrivacyPolicy(context),
-            child: Text(l10n.privacyPolicy),
-          ),
-        ],
+        body: FormBody(
+          children: switch (_step) {
+            _Step.welcome => _welcome(l10n),
+            _Step.restoreChoice => _restoreChoice(l10n),
+            _ => _form(l10n),
+          },
+        ),
       ),
     );
   }
+
+  List<Widget> _form(AppLocalizations l10n) => [
+    BrandHeader(
+      message: _restoring ? l10n.setupRestoreMessage : l10n.setupTagline,
+    ),
+    if (_restoring)
+      RecoveryKeyField(fieldKey: Keys.setupRecoveryKey, controller: _recovery),
+    if (_restoring) const SizedBox(height: 16),
+    TextField(
+      key: Keys.setupPasscode,
+      controller: _pass,
+      obscureText: !_showPasscode,
+      enabled: !_busy,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        labelText: _restoring ? l10n.newPasscodeLabel : l10n.passcodeLabel,
+        helperText: l10n.setupPasscodeHelper(MasterKeyStore.minPasscodeLength),
+        // One switch for both fields.
+        suffixIcon: IconButton(
+          key: Keys.setupShowPasscode,
+          tooltip: _showPasscode ? l10n.passcodeHide : l10n.passcodeShow,
+          icon: Icon(
+            _showPasscode
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+          ),
+          onPressed: () => setState(() => _showPasscode = !_showPasscode),
+        ),
+      ),
+    ),
+    const SizedBox(height: 16),
+    TextField(
+      key: Keys.setupConfirm,
+      controller: _confirm,
+      obscureText: !_showPasscode,
+      enabled: !_busy,
+      textInputAction: TextInputAction.done,
+      onSubmitted: (_) => _submit(),
+      decoration: InputDecoration(
+        labelText: l10n.confirmPasscodeLabel,
+        // With the fields and above the button, so it stays in view
+        // while the keyboard is up.
+        error: _error == null
+            ? null
+            : Semantics(
+                liveRegion: true,
+                child: Text(
+                  _error!(l10n),
+                  key: Keys.setupError,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+      ),
+    ),
+    const SizedBox(height: 24),
+    FilledButton(
+      key: Keys.setupSubmit,
+      onPressed: _busy ? null : _submit,
+      child: Text(
+        _busy
+            ? l10n.formWorking
+            : _restoring
+            ? l10n.restore
+            : l10n.setupCreateVault,
+      ),
+    ),
+  ];
 }
