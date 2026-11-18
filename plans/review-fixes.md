@@ -58,9 +58,9 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R33 planned: The viewer pages vertically and has no swipe-down to close; check decisions 002 and 008 first.
 - R34 planned: Six unlabeled viewer actions with Delete between Share and Cast; group the rare ones under More.
 - R35 planned: With Recently deleted on, delete could skip the dialog and offer Undo; the dialog button "Recently deleted" is a noun.
-- R36 planned: The viewer title is "2 / 3"; show the capture date and time.
+- R36 deferred: The viewer title stays "2 / 3". A date line would make the app bar two lines, and `test/viewer_dialog_test.dart` requires a one-line bar of at most 56 px at double text size. The capture date is in Details.
 - R37 planned: The eye button stays over the photo; hide the system bars with the chrome.
-- R38 planned: `Icons.ios_share` is used on Android.
+- R38 complete: The share buttons use the platform's share glyph (`Icons.adaptive.share`) instead of the iOS one everywhere. No test; the keys and tooltips are unchanged.
 - R39 planned: Every thumbnail decrypts its whole file into an 8 MB memory cache; store encrypted thumbnails (decision record first; touches sync, backup and format docs).
 - R40 deferred: Split the 1,249-line gallery widget; do after the behavior items so tests guard it.
 

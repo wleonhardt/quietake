@@ -375,7 +375,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Icon(Icons.ios_share),
+            : Icon(Icons.adaptive.share),
       ),
     ),
     IconButton(

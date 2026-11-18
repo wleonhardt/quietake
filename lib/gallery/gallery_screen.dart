@@ -675,7 +675,7 @@ class _GalleryScreenState extends State<GalleryScreen>
                   builder: (buttonContext) => TextButton.icon(
                     key: Keys.libraryShare,
                     label: Text(context.l10n.galleryShareCopies),
-                    icon: const Icon(Icons.ios_share),
+                    icon: Icon(Icons.adaptive.share),
                     onPressed: !enabled
                         ? null
                         : () {
