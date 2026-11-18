@@ -49,6 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final _pass = TextEditingController(text: widget.initial.password);
   // Outcome text is kept as a selector so it follows the language at build time.
   String Function(AppLocalizations)? _result;
+  String Function(AppLocalizations)? _recoveryResult;
   String Function(AppLocalizations)? _privacyResult;
   WebDavClient? _testing;
   bool _busy = false;
@@ -213,6 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
       if (passcode == null || !mounted) return;
+      setState(() => _recoveryResult = null);
       key = await widget.session.store.unlockWithPasscode(passcode);
       // Read the key once, before the route builder can outlive its disposal.
       final recovery = widget.session.store.exportRecovery(key);
@@ -228,14 +230,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     } on PasscodeLockedException catch (e) {
-      if (mounted) setState(() => _result = (_) => e.toString());
+      if (mounted) setState(() => _recoveryResult = (_) => e.toString());
     } on WrongPasscodeException {
       if (mounted) {
-        setState(() => _result = (l10n) => l10n.settingsWrongPasscode);
+        setState(() => _recoveryResult = (l10n) => l10n.settingsWrongPasscode);
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _result = (l10n) => l10n.settingsRecoveryReadFailed);
+        setState(
+          () => _recoveryResult = (l10n) => l10n.settingsRecoveryReadFailed,
+        );
       }
     } finally {
       key?.dispose();
@@ -647,6 +651,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: Text(l10n.settingsShowRecovery),
               onPressed: _showRecovery,
             ),
+            if (_recoveryResult != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    _recoveryResult!(l10n),
+                    key: Keys.settingsRecoveryResult,
+                  ),
+                ),
+              ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               key: Keys.settingsRecoveryCheck,

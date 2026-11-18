@@ -209,6 +209,9 @@ void main() {
     await tester.tap(find.byKey(Keys.recoveryPromptOk));
     await until(tester, find.text('Wrong passcode. Try again.'));
     expect(find.text('Wrong passcode. Try again.'), findsOneWidget);
+    // The message belongs under the button that caused it, not in Backup.
+    expect(find.byKey(Keys.settingsRecoveryResult), findsOneWidget);
+    expect(find.byKey(Keys.settingsResult), findsNothing);
     expect(find.byKey(Keys.recoveryKeyText), findsNothing);
   });
 

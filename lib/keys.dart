@@ -214,6 +214,7 @@ abstract final class Keys {
   static const portableResult = Key('portable.result');
   static const portableStartupRetry = Key('portable.startupRetry');
   static const settingsResult = Key('settings.result');
+  static const settingsRecoveryResult = Key('settings.recoveryResult');
   static const settingsChangePasscode = Key('settings.changePasscode');
   static const currentPasscode = Key('passcode.current');
   static const newPasscode = Key('passcode.new');
