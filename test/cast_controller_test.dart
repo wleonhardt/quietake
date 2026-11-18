@@ -95,8 +95,9 @@ void main() {
       );
       expect(backend.log, [
         'connect tv-1',
-        'load image/jpeg a.jpg.shtr',
-        'load video/mp4 b.mp4.shtr',
+        // Never the file name: it is the capture time.
+        'load image/jpeg Photo',
+        'load video/mp4 Video',
         'disconnect',
       ]);
     },

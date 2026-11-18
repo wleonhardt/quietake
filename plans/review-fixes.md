@@ -20,7 +20,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 - R01 complete: Startup now also removes the `quietake-import` folder, where an import killed part way leaves plaintext copies. A share still clears only its own folders, because an import may be running. Red and green test in `test/share_media_test.dart`. The received-share folder `quietake-incoming` is separate and untouched.
 - R02 complete: Messages from "Show recovery key" (wrong passcode, locked out, unreadable keyfile) now appear under that button in the Recovery card and clear on the next attempt. Red and green check in `test/settings_access_test.dart`.
-- R03 planned: Casting sends the capture file name, which is the capture time, as the title (`lib/cast/cast_controller.dart`).
+- R03 complete: Casting sends the title "Photo" or "Video" instead of the capture file name. Red and green in `test/cast_controller_test.dart`. Limits: the label is English on the receiver in every language, and it was not seen on a real Cast receiver.
 - R04 planned: The JPEG metadata remover keeps extended XMP segments (`lib/gallery/exif_strip.dart`).
 - R05 planned: "Remove location" does nothing for PNG copies; rebuild them from pixels so no metadata is carried (`lib/gallery/share_media.dart`). Video stays unchanged and the switch text must say so.
 - R06 planned: Hidden areas are pixelated while the policy says solid blocks; fill them with one solid colour and correct the in-app sentence in four languages (`lib/gallery/redact.dart`).
