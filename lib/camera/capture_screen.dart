@@ -868,6 +868,45 @@ class _CaptureScreenState extends State<CaptureScreen>
     CastController cast,
     bool canFlip,
   ) {
+    final videoControl = _labeledControl(
+      IconButton(
+        key: Keys.videoToggle,
+        // Stop takes the centre while recording.
+        iconSize: _recording ? 64 : 36,
+        color: _recording ? recordAccent : onMediaCanvas,
+        icon: Icon(_recording ? Icons.stop_circle : Icons.videocam_outlined),
+        onPressed:
+            c == null ||
+                busy ||
+                _countdown != null ||
+                !_foreground ||
+                !widget.active
+            ? null
+            : _toggleVideo,
+        tooltip: _recording ? l10n.camStopRecording : l10n.camRecordVideo,
+      ),
+      _recording ? l10n.camStop : l10n.camVideo,
+    );
+    final photoControl = _labeledControl(
+      _burstGesture(
+        enabled: c != null && !_recording && !busy && _countdown == null,
+        // The tooltip must not claim the long press itself.
+        child: TooltipTheme(
+          data: const TooltipThemeData(triggerMode: TooltipTriggerMode.manual),
+          child: IconButton(
+            key: Keys.shutter,
+            iconSize: _recording ? 36 : 64,
+            color: onMediaCanvas,
+            icon: const _ShutterGlyph(),
+            onPressed: c == null || _recording || busy ? null : _onShutter,
+            tooltip: _countdown == null
+                ? l10n.camTakePhoto
+                : l10n.camCancelTimer,
+          ),
+        ),
+      ),
+      l10n.camPhoto,
+    );
     return Scaffold(
       backgroundColor: mediaCanvas,
       // The camera has no text field of its own; a keyboard under a dialog or
@@ -1263,58 +1302,9 @@ class _CaptureScreenState extends State<CaptureScreen>
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _labeledControl(
-                            IconButton(
-                              key: Keys.videoToggle,
-                              iconSize: 36,
-                              color: _recording ? recordAccent : onMediaCanvas,
-                              icon: Icon(
-                                _recording
-                                    ? Icons.stop_circle
-                                    : Icons.videocam_outlined,
-                              ),
-                              onPressed:
-                                  c == null ||
-                                      busy ||
-                                      _countdown != null ||
-                                      !_foreground ||
-                                      !widget.active
-                                  ? null
-                                  : _toggleVideo,
-                              tooltip: _recording
-                                  ? l10n.camStopRecording
-                                  : l10n.camRecordVideo,
-                            ),
-                            _recording ? l10n.camStop : l10n.camVideo,
-                          ),
-                          _labeledControl(
-                            _burstGesture(
-                              enabled:
-                                  c != null &&
-                                  !_recording &&
-                                  !busy &&
-                                  _countdown == null,
-                              // The tooltip must not claim the long press itself.
-                              child: TooltipTheme(
-                                data: const TooltipThemeData(
-                                  triggerMode: TooltipTriggerMode.manual,
-                                ),
-                                child: IconButton(
-                                  key: Keys.shutter,
-                                  iconSize: 64,
-                                  color: onMediaCanvas,
-                                  icon: const Icon(Icons.radio_button_checked),
-                                  onPressed: c == null || _recording || busy
-                                      ? null
-                                      : _onShutter,
-                                  tooltip: _countdown == null
-                                      ? l10n.camTakePhoto
-                                      : l10n.camCancelTimer,
-                                ),
-                              ),
-                            ),
-                            l10n.camPhoto,
-                          ),
+                          ...(_recording
+                              ? [photoControl, videoControl]
+                              : [videoControl, photoControl]),
                           _labeledControl(
                             IconButton(
                               key: Keys.openGallery,
@@ -1391,6 +1381,31 @@ class _CaptureScreenState extends State<CaptureScreen>
       ],
     ),
   );
+}
+
+/// The shutter: a ring around a disc, in the button's own colour so a
+/// disabled shutter dims like any other control.
+class _ShutterGlyph extends StatelessWidget {
+  const _ShutterGlyph();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IconTheme.of(context);
+    final size = theme.size ?? 64;
+    final color = theme.color ?? onMediaCanvas;
+    return Container(
+      width: size,
+      height: size,
+      padding: EdgeInsets.all(size / 9),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: size / 16),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      ),
+    );
+  }
 }
 
 class _RecordingStartException implements Exception {

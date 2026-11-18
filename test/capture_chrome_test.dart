@@ -207,6 +207,56 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('while recording, Stop takes the centre and the shutter steps aside', (
+    tester,
+  ) async {
+    final booted = await _boot(tester, ControlledCamera.new);
+    const cameraChannel = MethodChannel('quietake/camera');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      cameraChannel,
+      (_) async => true,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        cameraChannel,
+        null,
+      ),
+    );
+    final middle = tester.getCenter(find.byType(CaptureScreen)).dx;
+    double x(Key key) => tester.getCenter(find.byKey(key)).dx;
+    expect(x(Keys.shutter), closeTo(middle, 1));
+    expect(x(Keys.videoToggle), lessThan(middle - 40));
+    // A drawn shutter, not the radio button glyph.
+    expect(
+      find.descendant(
+        of: find.byKey(Keys.shutter),
+        matching: find.byIcon(Icons.radio_button_checked),
+      ),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(Keys.videoToggle));
+    await booted.until(
+      () => find.byKey(Keys.captureTimer).evaluate().isNotEmpty,
+    );
+    expect(x(Keys.videoToggle), closeTo(middle, 1));
+    expect(x(Keys.shutter), lessThan(middle - 40));
+    expect(
+      tester.widget<IconButton>(find.byKey(Keys.shutter)).onPressed,
+      isNull,
+    );
+
+    await tester.tap(find.byKey(Keys.videoToggle));
+    await booted.until(() => x(Keys.shutter) > middle - 1);
+    // Let the photo camera come back, so the screen can shut down cleanly.
+    await booted.until(
+      () =>
+          booted.camera.opened.length == 3 &&
+          find.byKey(Keys.preview).evaluate().isNotEmpty,
+    );
+    await tester.pump(const Duration(milliseconds: 200));
+  });
+
   testWidgets('a missing camera offers Retry, which opens it', (tester) async {
     final booted = await _boot(
       tester,
