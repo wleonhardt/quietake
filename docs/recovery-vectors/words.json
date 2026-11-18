@@ -1,0 +1,26 @@
+{
+  "description": "Recovery key word form (decision 041). Public test bytes, not user keys.",
+  "encoding": "32 key bytes + first byte of SHA-256(key), big-endian, 21 base-7776 digits, EFF large wordlist order",
+  "cases": [
+    {
+      "recovery_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "words": "abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus abacus ahoy"
+    },
+    {
+      "recovery_key": "//////////////////////////////////////////8=",
+      "words": "activator glitch kitchen muck extras tall duress slacked unaudited primarily confused upward imprint imperial attest gawk deny gents mortally retreat entomb"
+    },
+    {
+      "recovery_key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+      "words": "abacus ability hydrated phrase yeah capillary flask wriggle cassette alarm credible patrol projector unnamable scorebook kilogram synthesis battering enslave user slapping"
+    },
+    {
+      "recovery_key": "n0I2A8Mfpnbpj44TlTx8Q9gV9b+MUElbDHanIaM6URI=",
+      "words": "account devious corset watch verbose amazingly bulldog boxlike mahogany sponge dinner revolving cod goes bloating sleek snugly sufferer panama appraisal compacter"
+    },
+    {
+      "recovery_key": "aXxfBDPVImAIKmtl7cinFQEd1F+D/e4/y4DwRyO9U+8=",
+      "words": "absinthe revered sushi dioxide multiply cannabis ascend very confining depress zipfile duty turret collar throttle comment blazer annually coroner disown resigned"
+    }
+  ]
+}

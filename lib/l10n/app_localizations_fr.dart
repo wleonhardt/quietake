@@ -187,6 +187,38 @@ class AppLocalizationsFr extends AppLocalizations {
   String get recoverySaved => 'Je l\'ai enregistrée';
 
   @override
+  String get recoveryShowText => 'Afficher en texte';
+
+  @override
+  String get recoveryShowWords => 'Afficher en mots';
+
+  @override
+  String get recoveryFormsNote =>
+      'Les mots et le texte sont la même clé. Enregistrez l\'une des deux formes.';
+
+  @override
+  String get recoveryKeyFieldHelp => '21 mots ou la forme texte';
+
+  @override
+  String get recoveryKeyShow => 'Afficher la clé de récupération';
+
+  @override
+  String get recoveryKeyHide => 'Masquer la clé de récupération';
+
+  @override
+  String get recoveryWordsCount =>
+      'Une clé de récupération compte 21 mots. Vérifiez qu\'il ne manque aucun mot et qu\'il n\'y en a pas en trop.';
+
+  @override
+  String recoveryWordsUnknown(int position) {
+    return 'Le mot $position ne figure pas dans la liste de mots. Vérifiez son orthographe.';
+  }
+
+  @override
+  String get recoveryWordsWrong =>
+      'Un mot est incorrect ou mal placé. Vérifiez les 21 mots.';
+
+  @override
   String get changePasscodeTitle => 'Changer le code d\'accès';
 
   @override

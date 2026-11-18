@@ -336,6 +336,60 @@ abstract class AppLocalizations {
   /// **'I saved it'**
   String get recoverySaved;
 
+  /// No description provided for @recoveryShowText.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as text'**
+  String get recoveryShowText;
+
+  /// No description provided for @recoveryShowWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as words'**
+  String get recoveryShowWords;
+
+  /// No description provided for @recoveryFormsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The words and the text are the same key. Save either one.'**
+  String get recoveryFormsNote;
+
+  /// No description provided for @recoveryKeyFieldHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'21 words, or the text form'**
+  String get recoveryKeyFieldHelp;
+
+  /// No description provided for @recoveryKeyShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show recovery key'**
+  String get recoveryKeyShow;
+
+  /// No description provided for @recoveryKeyHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide recovery key'**
+  String get recoveryKeyHide;
+
+  /// No description provided for @recoveryWordsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'A recovery key has 21 words. Check for a missing or extra word.'**
+  String get recoveryWordsCount;
+
+  /// No description provided for @recoveryWordsUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Word {position} is not in the word list. Check its spelling.'**
+  String recoveryWordsUnknown(int position);
+
+  /// No description provided for @recoveryWordsWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'A word is wrong or in the wrong place. Check the 21 words.'**
+  String get recoveryWordsWrong;
+
   /// No description provided for @changePasscodeTitle.
   ///
   /// In en, this message translates to:

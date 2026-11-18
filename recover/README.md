@@ -16,7 +16,8 @@ There is no ready-made download yet, so the tool has to be built once. It takes 
 4. Open a terminal (Terminal on macOS, PowerShell on Windows), go into the unpacked project's
    `recover` folder and build the tool:
    `cd recover` then `go build -o quietake-recover .` (on Windows: `go build -o quietake-recover.exe .`).
-5. Run it and paste your recovery key when it asks. Nothing shows while you paste; that is intended.
+5. Run it and paste your recovery key when it asks: the 21 words or the text form, both work.
+   Nothing shows while you paste; that is intended.
    macOS and Linux: `./quietake-recover -key-prompt -dir ~/backup -out ~/restored`
    Windows: `.\quietake-recover.exe -key-prompt -dir $HOME\backup -out $HOME\restored`
 6. Your photos and videos are now in the `restored` folder under their capture names.
@@ -26,8 +27,10 @@ What the messages mean:
 - `ok "name"`: that file was recovered and checked.
 - `FAIL "name"`: that file is damaged or was encrypted with a different key. The others are still
   written. If every file fails, the recovery key is not the one for this backup.
-- `recovery key is not 32 bytes of base64`: the key was mistyped or cut short. It is 44 characters
-  in groups of four and can end in `=`. Capital and small letters matter.
+- `recovery key is not 32 bytes of base64`: the text form was mistyped or cut short. It is 44
+  characters in groups of four and can end in `=`. Capital and small letters matter.
+- `the recovery key has 21 words`, `word N is not in the word list` or `a word is wrong or in the
+  wrong place`: check the words against your saved copy. The tool never prints a word back.
 - `interactive prompt requires a terminal`: run the command directly in a terminal window.
 - A warning that the catalog could not be read: files keep the names they have on the server; the
   photos themselves are not affected.

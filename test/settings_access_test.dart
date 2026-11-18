@@ -383,6 +383,7 @@ void main() {
     await tester.tap(find.byKey(Keys.recoveryPromptOk));
     await until(tester, find.byKey(Keys.recoveryKeyText));
     expect(find.byKey(Keys.recoveryKeyText), findsOneWidget);
+    await tester.ensureVisible(find.byKey(Keys.recoveryDone));
     await tester.tap(find.byKey(Keys.recoveryDone));
     await tester.pumpAndSettle();
     expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);

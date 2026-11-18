@@ -10,6 +10,7 @@ import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/sync/nas_recovery_screen.dart';
 import 'package:quietake/sync/sync_settings.dart';
+import 'package:quietake/vault/backup_passphrase.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
@@ -79,7 +80,12 @@ class _BrokenStore extends MasterKeyStore {
 void main() {
   late SodiumSumo sodium;
   late Directory dir;
-  setUpAll(() async => sodium = await SodiumSumoInit.init());
+  setUpAll(() async {
+    sodium = await SodiumSumoInit.init();
+    // Setup shows the key as words; load the list outside the fake clock.
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await BackupPassphrase.words();
+  });
   setUp(() async {
     dir = await Directory.systemTemp.createTemp('quietake-setup');
     FlutterSecureStoragePlatform.instance = _MemStorage();
@@ -90,6 +96,9 @@ void main() {
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
     await tester.enterText(find.byKey(Keys.setupConfirm), 'test-passcode');
     await tester.tap(find.byKey(Keys.setupSubmit));
+    await tester.pump();
+    // The word list was loaded outside the fake clock; let it be handed over.
+    await tester.runAsync(BackupPassphrase.words);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
   }
@@ -167,6 +176,7 @@ void main() {
         expect(await store.hasKeyfile, isFalse);
         expect(await store.hasCachedKey, isFalse);
       });
+      await tester.ensureVisible(find.byKey(Keys.recoveryDone));
       await tester.tap(find.byKey(Keys.recoveryDone));
       await tester.runAsync(() async {
         for (var i = 0; i < 100 && unlocked == null; i++) {
@@ -202,6 +212,7 @@ void main() {
       ),
     );
     await submit(tester);
+    await tester.ensureVisible(find.byKey(Keys.recoveryDone));
     await tester.tap(find.byKey(Keys.recoveryDone));
     await tester.runAsync(() async {
       for (var i = 0; i < 100 && unlocked == null; i++) {
@@ -224,6 +235,7 @@ void main() {
       ),
     );
     await submit(tester);
+    await tester.ensureVisible(find.byKey(Keys.recoveryDone));
     await tester.tap(find.byKey(Keys.recoveryDone));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -280,7 +292,8 @@ void main() {
     tester,
   ) async {
     await pumpSetup(tester, MasterKeyStore(sodium, dir));
-    bool hidden(Key key) => tester.widget<TextField>(find.byKey(key)).obscureText;
+    bool hidden(Key key) =>
+        tester.widget<TextField>(find.byKey(key)).obscureText;
     expect(hidden(Keys.setupPasscode) && hidden(Keys.setupConfirm), isTrue);
     await tester.tap(find.byKey(Keys.setupShowPasscode));
     await tester.pump();
@@ -320,6 +333,32 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.setupError), findsOneWidget);
     expect(find.byKey(Keys.setupSubmit), findsOneWidget);
+    await tester.runAsync(() async => expect(await store.hasKeyfile, isFalse));
+  });
+
+  testWidgets('typed words can be shown, and a wrong word is named', (
+    tester,
+  ) async {
+    final store = MasterKeyStore(sodium, dir);
+    await pumpSetup(tester, store);
+    await tester.tap(find.byKey(Keys.setupToggleRestore));
+    await tester.pump();
+    TextField field() =>
+        tester.widget<TextField>(find.byKey(Keys.setupRecoveryKey));
+    expect(field().obscureText, isTrue);
+    await tester.tap(find.byKey(Keys.recoveryFieldShow));
+    await tester.pump();
+    expect(field().obscureText, isFalse);
+    expect(field().maxLines, 4);
+    await tester.enterText(
+      find.byKey(Keys.setupRecoveryKey),
+      'abacus quietake ${List.filled(19, 'abacus').join(' ')}',
+    );
+    await submit(tester);
+    expect(
+      find.text('Word 2 is not in the word list. Check its spelling.'),
+      findsOneWidget,
+    );
     await tester.runAsync(() async => expect(await store.hasKeyfile, isFalse));
   });
 

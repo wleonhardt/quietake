@@ -186,6 +186,38 @@ class AppLocalizationsEs extends AppLocalizations {
   String get recoverySaved => 'Ya la guardé';
 
   @override
+  String get recoveryShowText => 'Mostrar como texto';
+
+  @override
+  String get recoveryShowWords => 'Mostrar como palabras';
+
+  @override
+  String get recoveryFormsNote =>
+      'Las palabras y el texto son la misma clave. Guarda cualquiera de las dos formas.';
+
+  @override
+  String get recoveryKeyFieldHelp => '21 palabras o la forma de texto';
+
+  @override
+  String get recoveryKeyShow => 'Mostrar clave de recuperación';
+
+  @override
+  String get recoveryKeyHide => 'Ocultar clave de recuperación';
+
+  @override
+  String get recoveryWordsCount =>
+      'Una clave de recuperación tiene 21 palabras. Comprueba si falta o sobra una palabra.';
+
+  @override
+  String recoveryWordsUnknown(int position) {
+    return 'La palabra $position no está en la lista de palabras. Comprueba cómo está escrita.';
+  }
+
+  @override
+  String get recoveryWordsWrong =>
+      'Una palabra es incorrecta o está en el lugar equivocado. Comprueba las 21 palabras.';
+
+  @override
   String get changePasscodeTitle => 'Cambiar código de acceso';
 
   @override

@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/vault/master_key_store.dart';
+import 'package:quietake/vault/recovery_words.dart';
 import 'package:quietake/backup/restore_transaction.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -96,23 +97,25 @@ void main() {
     return validated;
   }
 
-  test('a new or restored vault does not inherit an old recovery check date',
-      () async {
-    await store.saveRecoveryChecked();
-    expect(await store.loadRecoveryChecked(), isNotNull);
-    (await store.prepareKey()).dispose();
-    expect(await store.loadRecoveryChecked(), isNull);
-
-    await store.saveRecoveryChecked();
-    final key = sodium.crypto.secretBox.keygen();
-    await Directory('${dir.path}/.portable-restore').create();
-    try {
-      await store.preparePortableKeyfile(key, 'new portable passcode');
+  test(
+    'a new or restored vault does not inherit an old recovery check date',
+    () async {
+      await store.saveRecoveryChecked();
+      expect(await store.loadRecoveryChecked(), isNotNull);
+      (await store.prepareKey()).dispose();
       expect(await store.loadRecoveryChecked(), isNull);
-    } finally {
-      key.dispose();
-    }
-  });
+
+      await store.saveRecoveryChecked();
+      final key = sodium.crypto.secretBox.keygen();
+      await Directory('${dir.path}/.portable-restore').create();
+      try {
+        await store.preparePortableKeyfile(key, 'new portable passcode');
+        expect(await store.loadRecoveryChecked(), isNull);
+      } finally {
+        key.dispose();
+      }
+    },
+  );
 
   test('portable restore adopts only a fresh empty vault and preserves recovered identity', () async {
     final key = sodium.crypto.secretBox.keygen();
@@ -395,29 +398,36 @@ void main() {
     },
   );
 
-  test('discarding an unfinished restore never removes an existing vault', () async {
-    (await store.createWithPasscode('existing passcode')).dispose();
-    final vault = await Directory('${dir.path}/vault').create();
-    final capture = await File('${vault.path}/kept.jpg.shtr').writeAsBytes([1]);
-    final pending = await Directory('${dir.path}/.portable-restore').create();
-    await File('${pending.path}/ready').writeAsString('invalid journal');
-    await RestoreTransaction(store).discard();
-    expect(await pending.exists(), isFalse);
-    expect(await capture.exists(), isTrue);
-    expect(await store.hasKeyfile, isTrue);
-  });
+  test(
+    'discarding an unfinished restore never removes an existing vault',
+    () async {
+      (await store.createWithPasscode('existing passcode')).dispose();
+      final vault = await Directory('${dir.path}/vault').create();
+      final capture = await File('${vault.path}/kept.jpg.shtr')
+          .writeAsBytes([1]);
+      final pending = await Directory('${dir.path}/.portable-restore').create();
+      await File('${pending.path}/ready').writeAsString('invalid journal');
+      await RestoreTransaction(store).discard();
+      expect(await pending.exists(), isFalse);
+      expect(await capture.exists(), isTrue);
+      expect(await store.hasKeyfile, isTrue);
+    },
+  );
 
-  test('discarding removes media the unfinished restore already moved', () async {
-    // No keyfile: the vault folder can only hold what this restore moved in.
-    final vault = await Directory('${dir.path}/vault').create();
-    await File('${vault.path}/restored.jpg.shtr').writeAsBytes([1]);
-    final pending = await Directory('${dir.path}/.portable-restore').create();
-    await File('${pending.path}/vault.keyfile.json').writeAsString('{}');
-    await RestoreTransaction(store).discard();
-    expect(await pending.exists(), isFalse);
-    expect(await vault.exists(), isFalse);
-    await RestoreTransaction(store).requireFresh();
-  });
+  test(
+    'discarding removes media the unfinished restore already moved',
+    () async {
+      // No keyfile: the vault folder can only hold what this restore moved in.
+      final vault = await Directory('${dir.path}/vault').create();
+      await File('${vault.path}/restored.jpg.shtr').writeAsBytes([1]);
+      final pending = await Directory('${dir.path}/.portable-restore').create();
+      await File('${pending.path}/vault.keyfile.json').writeAsString('{}');
+      await RestoreTransaction(store).discard();
+      expect(await pending.exists(), isFalse);
+      expect(await vault.exists(), isFalse);
+      await RestoreTransaction(store).requireFresh();
+    },
+  );
 
   test('setup never adopts a key left in the keystore', () async {
     final stale = sodium.crypto.secretBox.keygen();
@@ -433,22 +443,24 @@ void main() {
     }
   });
 
-  test('portable restore passes a stale keystore entry and removes it',
-      () async {
-    final stale = sodium.crypto.secretBox.keygen();
-    mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());
-    stale.dispose();
-    final key = sodium.crypto.secretBox.keygen();
-    try {
-      final stage = await restoreStage(key);
-      await RestoreTransaction(store)
-          .commit(stage, key, 'new portable passcode');
-      expect(await store.hasKeyfile, isTrue);
-      expect(await store.hasCachedKey, isFalse);
-    } finally {
-      key.dispose();
-    }
-  });
+  test(
+    'portable restore passes a stale keystore entry and removes it',
+    () async {
+      final stale = sodium.crypto.secretBox.keygen();
+      mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());
+      stale.dispose();
+      final key = sodium.crypto.secretBox.keygen();
+      try {
+        final stage = await restoreStage(key);
+        await RestoreTransaction(store)
+            .commit(stage, key, 'new portable passcode');
+        expect(await store.hasKeyfile, isTrue);
+        expect(await store.hasCachedKey, isFalse);
+      } finally {
+        key.dispose();
+      }
+    },
+  );
 
   group('unlock throttling', () {
     late DateTime now;
@@ -564,6 +576,49 @@ void main() {
       expect(say(const Duration(seconds: 60)), contains('1 minute.'));
       expect(say(const Duration(minutes: 15)), contains('15 minutes.'));
     });
+  });
+
+  test('the 21 words are the same key as the text form', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final key = await store.createWithPasscode('old-passcode');
+    final words = await store.exportRecoveryWords(key);
+    expect(words.split(' '), hasLength(21));
+    expect(
+      (await store.recoveryText(words)).replaceAll(' ', ''),
+      store.exportRecovery(key).replaceAll(' ', ''),
+    );
+    // The text form passes through untouched.
+    expect(await store.recoveryText('AAAA BBBB'), 'AAAA BBBB');
+    final restored = await store.restoreFromRecovery(
+      '  ${words.toUpperCase().replaceAll(' ', '\n')} ',
+      'new-passcode',
+    );
+    expect(restored.extractBytes(), key.extractBytes());
+    final swapped = words.split(' ');
+    final first = swapped[0];
+    swapped[0] = swapped[1];
+    swapped[1] = first;
+    for (final entry in {
+      swapped.join(' '): RecoveryWordsProblem.wrong,
+      words.split(' ').skip(1).join(' '): RecoveryWordsProblem.count,
+      'quietake ${words.split(' ').skip(1).join(' ')}':
+          RecoveryWordsProblem.unknownWord,
+    }.entries) {
+      await expectLater(
+        store.restoreFromRecovery(entry.key, 'other-passcode'),
+        throwsA(
+          isA<BadRecoveryKeyException>().having(
+            (e) => e.words?.problem,
+            'problem',
+            entry.value,
+          ),
+        ),
+      );
+    }
+    expect(
+      (await store.unlockWithPasscode('new-passcode')).extractBytes(),
+      key.extractBytes(),
+    );
   });
 
   test('recovery export round-trips and sets a new passcode', () async {

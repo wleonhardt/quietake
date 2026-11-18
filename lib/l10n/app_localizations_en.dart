@@ -183,6 +183,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recoverySaved => 'I saved it';
 
   @override
+  String get recoveryShowText => 'Show as text';
+
+  @override
+  String get recoveryShowWords => 'Show as words';
+
+  @override
+  String get recoveryFormsNote =>
+      'The words and the text are the same key. Save either one.';
+
+  @override
+  String get recoveryKeyFieldHelp => '21 words, or the text form';
+
+  @override
+  String get recoveryKeyShow => 'Show recovery key';
+
+  @override
+  String get recoveryKeyHide => 'Hide recovery key';
+
+  @override
+  String get recoveryWordsCount =>
+      'A recovery key has 21 words. Check for a missing or extra word.';
+
+  @override
+  String recoveryWordsUnknown(int position) {
+    return 'Word $position is not in the word list. Check its spelling.';
+  }
+
+  @override
+  String get recoveryWordsWrong =>
+      'A word is wrong or in the wrong place. Check the 21 words.';
+
+  @override
   String get changePasscodeTitle => 'Change passcode';
 
   @override

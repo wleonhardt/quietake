@@ -192,16 +192,24 @@ void main() {
     await settle(tester);
     expect(find.textContaining('encrypted files'), findsOneWidget);
     expect(find.textContaining('enabled'), findsOneWidget);
-    recoveryKey = tester
-        .widget<SelectableText>(find.byKey(Keys.recoveryKeyText))
-        .data!;
+    String shownKey() =>
+        tester.widget<SelectableText>(find.byKey(Keys.recoveryKeyText)).data!;
+    // The words are kept and typed back below; the text form is the same key.
+    recoveryKey = shownKey();
+    expect(recoveryKey.split(' '), hasLength(21));
+    await tap(tester, Keys.recoveryShowText);
+    final textForm = shownKey();
     expect(
-      recoveryKey.replaceAll(' ', '').length,
+      textForm.replaceAll(' ', '').length,
       44,
       reason: '32 bytes of base64',
     );
     expect(
-      recoveryKey.replaceAll(' ', ''),
+      (await store.recoveryText(recoveryKey)),
+      textForm.replaceAll(' ', ''),
+    );
+    expect(
+      textForm.replaceAll(' ', ''),
       isNot(staleKey),
       reason: 'setup must not hand out a key left in the keystore',
     );
@@ -216,7 +224,7 @@ void main() {
       ..writeAsBytesSync(fixtureBytes('tiny.jpg'));
     final vault = Vault(
       VaultCrypto(store.sodium),
-      store.importRecovery(recoveryKey),
+      store.importRecovery(await store.recoveryText(recoveryKey)),
       await Vault.defaultDir(),
     );
     try {
@@ -466,8 +474,10 @@ void main() {
       (tester) async {
         // Same vault key, new passcode: a new vault would get a new key
         // (decision 033) that the container on disk cannot prove.
-        (await store.restoreFromRecovery(recoveryKey, 'pending-passcode'))
-            .dispose();
+        (await store.restoreFromRecovery(
+          recoveryKey,
+          'pending-passcode',
+        )).dispose();
         final delayed = _DelayedUnlockStore(store);
         var unlocked = false;
         final key = (await store.cachedKey())!;

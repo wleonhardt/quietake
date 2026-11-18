@@ -258,6 +258,8 @@ abstract final class Keys {
   static const setupFingerprintConfirm = Key('setup.fingerprintConfirm');
   static const setupFingerprintReject = Key('setup.fingerprintReject');
   static const recoveryDone = Key('recovery.done');
+  static const recoveryShowText = Key('recovery.showText');
+  static const recoveryFieldShow = Key('recovery.fieldShow');
 
   static const lockPasscode = Key('lock.passcode');
   static const lockRecovery = Key('lock.recovery');

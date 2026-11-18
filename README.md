@@ -94,6 +94,7 @@ iOS and physical/Play-delivered release checks remain separate gates.
 - [Architecture overview](docs/architecture.md)
 - [Recovery CLI](recover/README.md)
 - [Container contract](docs/container-format.md)
+- [Recovery key forms](docs/recovery-key.md)
 - [Private catalog](docs/private-catalog.md)
 - [Portable encrypted backups](docs/portable-backup.md)
 - [NAS passphrase recovery](docs/nas-recovery.md)

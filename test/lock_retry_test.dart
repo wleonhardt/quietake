@@ -281,6 +281,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 500));
         if (!restoring) {
+          await tester.ensureVisible(find.byKey(Keys.recoveryDone));
           await tester.tap(find.byKey(Keys.recoveryDone));
           await tester.pump();
         }

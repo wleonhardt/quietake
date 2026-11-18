@@ -9,6 +9,7 @@ import '../compat/legacy_identity.dart';
 import '../crypto/vault_crypto.dart';
 import '../library/private_catalog.dart';
 import 'backup_passphrase.dart';
+import 'recovery_words.dart';
 
 class WrongPasscodeException implements Exception {
   @override
@@ -35,8 +36,12 @@ class PasscodeLockedException extends WrongPasscodeException {
 class BadRecoveryKeyException implements Exception {
   BadRecoveryKeyException([
     this.message = 'recovery key is not 32 bytes of base64',
+    this.words,
   ]);
   final String message;
+
+  /// Set when the word form was typed, so a screen can say which word.
+  final RecoveryWordsException? words;
   @override
   String toString() => message;
 }
@@ -263,6 +268,30 @@ class MasterKeyStore {
     ].join(' ');
   }
 
+  /// The master key as 21 words (decision 041). The same key as
+  /// [exportRecovery]; either form restores the vault.
+  Future<String> exportRecoveryWords(SecureKey key) async {
+    final list = await BackupPassphrase.words();
+    return key.runUnlockedSync((bytes) => RecoveryWords.encode(bytes, list));
+  }
+
+  /// A typed recovery key as text for [importRecovery]: the word form is
+  /// converted to base64, anything else passes through unchanged.
+  Future<String> recoveryText(String typed) async {
+    if (!RecoveryWords.looksLikeWords(typed)) return typed;
+    final list = await BackupPassphrase.words();
+    try {
+      final raw = RecoveryWords.decode(typed, list);
+      try {
+        return base64Encode(raw);
+      } finally {
+        raw.fillRange(0, raw.length, 0);
+      }
+    } on RecoveryWordsException catch (e) {
+      throw BadRecoveryKeyException(e.message, e);
+    }
+  }
+
   /// Short, human-comparable identity of a key: 32 bits of BLAKE2b as hex.
   /// Shown with the recovery key and checked when an empty vault adopts a
   /// typed key (decision 038). It reveals nothing useful about the key.
@@ -289,7 +318,7 @@ class MasterKeyStore {
     bool Function(SecureKey)? acceptsKey,
     Future<bool> Function(String fingerprint)? confirmFingerprint,
   }) async {
-    final key = importRecovery(recovery);
+    final key = importRecovery(await recoveryText(recovery));
     try {
       if (acceptsKey != null && !acceptsKey(key)) {
         throw BadRecoveryKeyException(

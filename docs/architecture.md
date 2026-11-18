@@ -8,7 +8,7 @@ in this folder stay the contracts.
 ```
 passcode --Argon2id--> key-encryption key --unwraps--> master key (32 random bytes)
                                                           |
-recovery key = the master key, base64                     +--> wraps a random file key per container
+recovery key = the master key, 21 words or base64         +--> wraps a random file key per container
 platform keystore copy of the master key (biometric unlock)
 backup passphrase --Argon2id--> wraps the master key in the NAS recovery file (optional)
 vault public key  --sealed box--> file keys of photos taken on the lock screen

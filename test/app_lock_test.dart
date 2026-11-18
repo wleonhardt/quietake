@@ -416,6 +416,7 @@ void main() {
             child: child!,
           ),
           home: RecoveryScreen(
+            recoveryWords: List.filled(21, 'celebrate').join(' '),
             recoveryKey: List.filled(11, 'TEST').join(' '),
             fingerprint: 'abcd ef01',
             onDone: () {},
@@ -432,12 +433,38 @@ void main() {
       expect(find.byKey(Keys.recoveryDone).hitTestable(), findsOneWidget);
     });
   }
+  testWidgets('recovery shows the words first and the text on request', (
+    tester,
+  ) async {
+    final words = List.generate(21, (i) => 'word$i').join(' ');
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RecoveryScreen(
+          recoveryWords: words,
+          recoveryKey: 'SYNTHETIC TEXT FORM',
+          fingerprint: 'abcd ef01',
+          onDone: () {},
+        ),
+      ),
+    );
+    String shown() =>
+        tester.widget<SelectableText>(find.byKey(Keys.recoveryKeyText)).data!;
+    expect(shown(), words);
+    expect(find.text('Show as text'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(Keys.recoveryShowText));
+    await tester.tap(find.byKey(Keys.recoveryShowText));
+    await tester.pump();
+    expect(shown(), 'SYNTHETIC TEXT FORM');
+    expect(find.text('Show as words'), findsOneWidget);
+  });
+
   testWidgets('recovery explains retained files and optional NAS passphrase', (
     tester,
   ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: RecoveryScreen(
+          recoveryWords: 'synthetic test words',
           recoveryKey: 'SYNTHETIC TEST VALUE',
           fingerprint: 'abcd ef01',
           onDone: () {},

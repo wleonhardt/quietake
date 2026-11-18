@@ -7,6 +7,7 @@ import '../privacy/privacy_policy_screen.dart';
 import '../form_body.dart';
 import '../brand.dart';
 import '../vault/master_key_store.dart';
+import 'recovery_key_field.dart';
 import 'recovery_screen.dart';
 import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
@@ -69,8 +70,9 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
     if (_busy) return;
     if (_pass.text.length < MasterKeyStore.minPasscodeLength) {
       setState(
-        () => _error = (l10n) =>
-            l10n.passcodeTooShort(MasterKeyStore.minPasscodeLength),
+        () =>
+            _error = (l10n) =>
+                l10n.passcodeTooShort(MasterKeyStore.minPasscodeLength),
       );
       return;
     }
@@ -102,6 +104,13 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
       // (decision 038), so an interrupted setup restarts cleanly.
       final key = await widget.store.prepareKey();
       var saved = false;
+      final String words;
+      try {
+        words = await widget.store.exportRecoveryWords(key);
+      } catch (_) {
+        key.dispose();
+        rethrow;
+      }
       if (!mounted) {
         key.dispose();
         return;
@@ -109,6 +118,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (ctx) => RecoveryScreen(
+            recoveryWords: words,
             recoveryKey: widget.store.exportRecovery(key),
             fingerprint: widget.store.fingerprint(key),
             onDone: () {
@@ -139,7 +149,12 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
       }
       widget.onUnlocked(key);
     } on BadRecoveryKeyException catch (e) {
-      if (mounted) setState(() => _error = (_) => e.toString());
+      if (mounted) {
+        setState(
+          () =>
+              _error = (l10n) => recoveryWordsMessage(l10n, e) ?? e.toString(),
+        );
+      }
     } catch (_) {
       if (mounted) {
         setState(
@@ -206,13 +221,9 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
             message: _restoring ? l10n.setupRestoreMessage : l10n.setupTagline,
           ),
           if (_restoring)
-            TextField(
-              key: Keys.setupRecoveryKey,
-              obscureText: true,
-              enableSuggestions: false,
+            RecoveryKeyField(
+              fieldKey: Keys.setupRecoveryKey,
               controller: _recovery,
-              autocorrect: false,
-              decoration: InputDecoration(labelText: l10n.recoveryKeyLabel),
             ),
           if (_restoring) const SizedBox(height: 16),
           TextField(

@@ -17,7 +17,8 @@ the licenses already granted for those snapshots; this change does not revoke
 those grants.
 
 The EFF long word list retains its CC BY 4.0 license and attribution in
-`assets/passphrases/LICENSE.txt`. Dependencies retain their respective licenses.
+`assets/passphrases/LICENSE.txt`. The recovery tool embeds an unchanged copy
+(`recover/internal/shtr/eff_large_wordlist.txt`) to read the word form of the recovery key. Dependencies retain their respective licenses.
 The additional Android coroutines notice is preserved in
 `assets/licenses/androidx-concurrent-futures-NOTICE.txt`.
 The project license does not relicense Flutter, plugins, native SDKs, or other

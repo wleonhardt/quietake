@@ -45,4 +45,4 @@ that encrypts them.
 ## Where to look
 
 Formats: `container-format.md`, `private-catalog.md`, `portable-backup.md`, `nas-recovery.md`,
-`share-bundle.md`. Structure: `architecture.md`. Reports: `SECURITY.md`.
+`share-bundle.md`, `recovery-key.md`. Structure: `architecture.md`. Reports: `SECURITY.md`.

@@ -36,7 +36,7 @@ retain the source ZIP and recovery key.
 
 This is an AES-256 WinZip archive with stored entries. Its password is the
 normalized base64 representation of the existing random 256-bit recovery key.
-The app accepts its normal recovery-key input form and normalizes it internally.
+The app accepts either recovery-key input form (see `recovery-key.md`) and normalizes it internally.
 There is no weak user-selected ZIP password. Counts and encrypted byte lengths
 remain visible in the ZIP directory, but capture names and titles do not.
 

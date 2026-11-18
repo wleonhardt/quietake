@@ -11,6 +11,7 @@ import '../licenses.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
 import '../privacy/privacy_controller.dart';
+import '../lock/recovery_key_field.dart';
 import '../lock/recovery_screen.dart';
 import '../lock/change_passcode_screen.dart';
 import '../session.dart';
@@ -224,11 +225,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       key = await widget.session.store.unlockWithPasscode(passcode);
       // Read the key once, before the route builder can outlive its disposal.
       final recovery = widget.session.store.exportRecovery(key);
+      final words = await widget.session.store.exportRecoveryWords(key);
       final fingerprint = widget.session.store.fingerprint(key);
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => RecoveryScreen(
+            recoveryWords: words,
             recoveryKey: recovery,
             fingerprint: fingerprint,
             onDone: () => Navigator.of(context).pop(),
@@ -934,10 +937,12 @@ class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog>
     super.dispose();
   }
 
-  void _check() {
+  Future<void> _check() async {
     SecureKey? key;
     try {
-      key = widget.session.store.importRecovery(_typed.text);
+      final text = await widget.session.store.recoveryText(_typed.text);
+      if (!mounted) return;
+      key = widget.session.store.importRecovery(text);
       final match = widget.session.vault.matchesKey(key);
       _result = match
           ? (l10n) => l10n.recoveryCheckMatch
@@ -947,12 +952,13 @@ class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog>
           widget.session.store.saveRecoveryChecked().catchError((_) {}),
         );
       }
-    } on BadRecoveryKeyException {
-      _result = (l10n) => l10n.recoveryCheckInvalid;
+    } on BadRecoveryKeyException catch (e) {
+      _result = (l10n) =>
+          recoveryWordsMessage(l10n, e) ?? l10n.recoveryCheckInvalid;
     } finally {
       key?.dispose();
     }
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -967,14 +973,10 @@ class _RecoveryCheckDialogState extends State<_RecoveryCheckDialog>
         children: [
           Text(l10n.recoveryCheckIntro),
           const SizedBox(height: 16),
-          TextField(
-            key: Keys.recoveryCheckField,
+          RecoveryKeyField(
+            fieldKey: Keys.recoveryCheckField,
             controller: _typed,
             onChanged: (_) => widget.onActivity(),
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-            decoration: InputDecoration(labelText: l10n.recoveryKeyLabel),
           ),
           if (_result != null)
             Padding(

@@ -9,6 +9,7 @@ import 'package:sodium/sodium_sumo.dart';
 import '../crypto/vault_crypto.dart';
 import '../keys.dart';
 import '../l10n/l10n.dart';
+import '../lock/recovery_key_field.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
 import '../session.dart';
@@ -170,7 +171,9 @@ class _PortableScreenState extends State<PortableScreen>
       if (_restoring) {
         final transaction = RestoreTransaction(widget.store);
         await transaction.requireFresh();
-        key = widget.store.importRecovery(recoveryText);
+        key = widget.store.importRecovery(
+          await widget.store.recoveryText(recoveryText),
+        );
         temporary = Vault(
           VaultCrypto(widget.store.sodium),
           key.copy(),
@@ -241,8 +244,8 @@ class _PortableScreenState extends State<PortableScreen>
       _status((l10n) => passcodeLockedMessage(l10n, e));
     } on WrongPasscodeException {
       _status((l10n) => l10n.settingsWrongPasscode);
-    } on BadRecoveryKeyException {
-      _status((l10n) => l10n.portableBadKey);
+    } on BadRecoveryKeyException catch (e) {
+      _status((l10n) => recoveryWordsMessage(l10n, e) ?? l10n.portableBadKey);
     } catch (_) {
       _status(
         _cancelled
@@ -300,15 +303,11 @@ class _PortableScreenState extends State<PortableScreen>
               ),
             if (_restoring) const SizedBox(height: 16),
             if (_restoring)
-              TextField(
-                key: Keys.portableRecovery,
+              RecoveryKeyField(
+                fieldKey: Keys.portableRecovery,
                 controller: _recovery,
                 onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
                 enabled: !_busy,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration: InputDecoration(labelText: l10n.recoveryKeyLabel),
               ),
             if (_restoring) const SizedBox(height: 16),
             TextField(

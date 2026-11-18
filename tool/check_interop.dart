@@ -6,6 +6,7 @@ import 'package:sodium/sodium_sumo.dart';
 
 import 'package:quietake/crypto/pending_crypto.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
+import 'package:quietake/vault/recovery_words.dart';
 
 /// Temporary synthetic data only. Never rewrites the frozen format vectors.
 Future<void> main() async {
@@ -99,6 +100,24 @@ Future<void> main() async {
     ]);
     if (recovery.exitCode != 0) {
       throw StateError('Synthetic recovery failed: ${recovery.stderr}');
+    }
+    // The word form of the same key must open the same files (decision 041).
+    final wordList = File('assets/passphrases/eff_large_wordlist.txt')
+        .readAsLinesSync()
+        .map((line) => line.trim().split(RegExp(r'\s+')).last)
+        .toList();
+    final fromWords = await Directory('${root.path}/from-words').create();
+    final wordRecovery = await Process.run(binary, [
+      '-key',
+      RecoveryWords.encode(publicKey, wordList),
+      '-dir',
+      containers.path,
+      '-out',
+      fromWords.path,
+    ]);
+    if (wordRecovery.exitCode != 0 ||
+        await fromWords.list().length != await restored.list().length) {
+      throw StateError('Word-form recovery differs: ${wordRecovery.stderr}');
     }
     if ((await restored.list().length) != cases.length + 1) {
       throw StateError('Recovery file count differs');

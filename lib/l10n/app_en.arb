@@ -98,6 +98,22 @@
   },
   "recoveryFingerprintNote": "Save the fingerprint with the key. A new phone shows it so you can check the key you typed.",
   "recoverySaved": "I saved it",
+  "recoveryShowText": "Show as text",
+  "recoveryShowWords": "Show as words",
+  "recoveryFormsNote": "The words and the text are the same key. Save either one.",
+  "recoveryKeyFieldHelp": "21 words, or the text form",
+  "recoveryKeyShow": "Show recovery key",
+  "recoveryKeyHide": "Hide recovery key",
+  "recoveryWordsCount": "A recovery key has 21 words. Check for a missing or extra word.",
+  "recoveryWordsUnknown": "Word {position} is not in the word list. Check its spelling.",
+  "@recoveryWordsUnknown": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryWordsWrong": "A word is wrong or in the wrong place. Check the 21 words.",
   "changePasscodeTitle": "Change passcode",
   "changePasscodeNote": "Your captures and recovery key stay the same.",
   "currentPasscodeLabel": "Current passcode",

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../vault/master_key_store.dart';
+import '../vault/recovery_words.dart';
 import 'app_localizations.dart';
 
 export 'app_localizations.dart';
@@ -20,3 +21,17 @@ String passcodeLockedMessage(AppLocalizations l10n, PasscodeLockedException e) {
       ? l10n.passcodeLockedSeconds(seconds)
       : l10n.passcodeLockedMinutes(seconds < 120 ? 1 : (seconds / 60).ceil());
 }
+
+/// Why typed recovery words were refused, or null when the text form was
+/// typed and the screen's own message applies.
+String? recoveryWordsMessage(
+  AppLocalizations l10n,
+  BadRecoveryKeyException e,
+) => switch (e.words?.problem) {
+  null => null,
+  RecoveryWordsProblem.count => l10n.recoveryWordsCount,
+  RecoveryWordsProblem.unknownWord => l10n.recoveryWordsUnknown(
+    e.words!.position!,
+  ),
+  RecoveryWordsProblem.wrong => l10n.recoveryWordsWrong,
+};
