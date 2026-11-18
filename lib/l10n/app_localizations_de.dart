@@ -96,6 +96,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get passcodeLabel => 'Zugangscode';
 
   @override
+  String get passcodeShow => 'Zugangscode anzeigen';
+
+  @override
+  String get passcodeHide => 'Zugangscode verbergen';
+
+  @override
+  String get formWorking => 'Bitte warten…';
+
+  @override
   String get lockUnlock => 'Entsperren';
 
   @override

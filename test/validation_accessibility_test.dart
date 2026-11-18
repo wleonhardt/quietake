@@ -126,6 +126,8 @@ void main() {
       );
       await tester.tap(find.byKey(Keys.setupSubmit));
       await tester.pump();
+      // The message fades in under its field before it is announced.
+      await tester.pump(const Duration(milliseconds: 300));
       expectAnnouncement(
         tester,
         Keys.setupError,
@@ -134,6 +136,8 @@ void main() {
       await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
       await tester.tap(find.byKey(Keys.setupSubmit));
       await tester.pump();
+      // The message fades in under its field before it is announced.
+      await tester.pump(const Duration(milliseconds: 300));
       expectAnnouncement(tester, Keys.setupError, 'Passcodes do not match');
       await expectGuidelines(tester);
     } finally {
@@ -160,6 +164,8 @@ void main() {
       await tester.enterText(find.byKey(Keys.lockPasscode), 'wrong');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
+      // The message fades in under its field before it is announced.
+      await tester.pump(const Duration(milliseconds: 300));
       expectAnnouncement(tester, Keys.lockError, 'wrong passcode');
       expect(
         tester.widget<TextField>(find.byKey(Keys.lockPasscode)).obscureText,

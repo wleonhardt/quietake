@@ -94,6 +94,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passcodeLabel => 'Passcode';
 
   @override
+  String get passcodeShow => 'Show passcode';
+
+  @override
+  String get passcodeHide => 'Hide passcode';
+
+  @override
+  String get formWorking => 'Working…';
+
+  @override
   String get lockUnlock => 'Unlock';
 
   @override

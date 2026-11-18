@@ -40,6 +40,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
   final _recovery = TextEditingController();
   late bool _restoring = widget.restoringOnly;
   bool _busy = false;
+  bool _showPasscode = false;
   int _attempt = 0;
   String Function(AppLocalizations)? _error;
 
@@ -166,7 +167,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
             Text(
               fingerprint,
               key: Keys.setupFingerprint,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 20),
+              style: recoveryKeyStyle(20),
             ),
           ],
         ),
@@ -214,7 +215,7 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
           TextField(
             key: Keys.setupPasscode,
             controller: _pass,
-            obscureText: true,
+            obscureText: !_showPasscode,
             enabled: !_busy,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
@@ -224,23 +225,56 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
               helperText: l10n.setupPasscodeHelper(
                 MasterKeyStore.minPasscodeLength,
               ),
+              // One switch for both fields.
+              suffixIcon: IconButton(
+                key: Keys.setupShowPasscode,
+                tooltip: _showPasscode ? l10n.passcodeHide : l10n.passcodeShow,
+                icon: Icon(
+                  _showPasscode
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () => setState(() => _showPasscode = !_showPasscode),
+              ),
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             key: Keys.setupConfirm,
             controller: _confirm,
-            obscureText: true,
+            obscureText: !_showPasscode,
             enabled: !_busy,
             textInputAction: TextInputAction.done,
             onSubmitted: (_) => _submit(),
-            decoration: InputDecoration(labelText: l10n.confirmPasscodeLabel),
+            decoration: InputDecoration(
+              labelText: l10n.confirmPasscodeLabel,
+              // With the fields and above the button, so it stays in view
+              // while the keyboard is up.
+              error: _error == null
+                  ? null
+                  : Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        _error!(l10n),
+                        key: Keys.setupError,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+            ),
           ),
           const SizedBox(height: 24),
           FilledButton(
             key: Keys.setupSubmit,
             onPressed: _busy ? null : _submit,
-            child: Text(_restoring ? l10n.restore : l10n.setupCreateVault),
+            child: Text(
+              _busy
+                  ? l10n.formWorking
+                  : _restoring
+                  ? l10n.restore
+                  : l10n.setupCreateVault,
+            ),
           ),
           if (!widget.restoringOnly)
             TextButton(
@@ -293,15 +327,6 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
             onPressed: _busy ? null : () => showPrivacyPolicy(context),
             child: Text(l10n.privacyPolicy),
           ),
-          if (_error != null)
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                _error!(l10n),
-                key: Keys.setupError,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
         ],
       ),
     );

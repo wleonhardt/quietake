@@ -50,6 +50,7 @@ class LockScreen extends StatefulWidget {
 class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   final _pass = TextEditingController();
   bool _busy = false;
+  bool _showPasscode = false;
   bool _biometric = false;
   bool _prompting = false;
   bool _resumePrompt = false;
@@ -284,16 +285,42 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
           TextField(
             key: Keys.lockPasscode,
             controller: _pass,
-            obscureText: true,
+            obscureText: !_showPasscode,
             autofocus: !_biometric,
             onSubmitted: (_) => _usePasscode(),
-            decoration: InputDecoration(labelText: l10n.passcodeLabel),
+            decoration: InputDecoration(
+              labelText: l10n.passcodeLabel,
+              suffixIcon: IconButton(
+                key: Keys.lockShowPasscode,
+                tooltip: _showPasscode ? l10n.passcodeHide : l10n.passcodeShow,
+                icon: Icon(
+                  _showPasscode
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () => setState(() => _showPasscode = !_showPasscode),
+              ),
+              // Under the field and above the buttons, so it stays in view
+              // while the keyboard is up.
+              error: _error == null
+                  ? null
+                  : Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        _error!(l10n),
+                        key: Keys.lockError,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+            ),
           ),
           const SizedBox(height: 16),
           FilledButton(
             key: Keys.lockUnlock,
             onPressed: _busy || _prompting ? null : _usePasscode,
-            child: Text(l10n.lockUnlock),
+            child: Text(_busy ? l10n.formWorking : l10n.lockUnlock),
           ),
           if (_biometric)
             TextButton.icon(
@@ -328,15 +355,6 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
                   ),
             child: Text(l10n.lockForgot),
           ),
-          if (_error != null)
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                _error!(l10n),
-                key: Keys.lockError,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
         ],
       ),
     );

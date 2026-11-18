@@ -222,6 +222,24 @@ abstract class AppLocalizations {
   /// **'Passcode'**
   String get passcodeLabel;
 
+  /// No description provided for @passcodeShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show passcode'**
+  String get passcodeShow;
+
+  /// No description provided for @passcodeHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide passcode'**
+  String get passcodeHide;
+
+  /// No description provided for @formWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working…'**
+  String get formWorking;
+
   /// No description provided for @lockUnlock.
   ///
   /// In en, this message translates to:

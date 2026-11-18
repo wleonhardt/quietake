@@ -178,6 +178,21 @@ void main() {
       find.text('Too many wrong passcodes. Try again in 30 seconds.'),
       findsOneWidget,
     );
+    // Under the field, above the button.
+    expect(
+      tester.getTopLeft(find.byKey(Keys.lockError)).dy,
+      lessThan(tester.getTopLeft(find.byKey(Keys.lockUnlock)).dy),
+    );
+    expect(
+      tester.widget<TextField>(find.byKey(Keys.lockPasscode)).obscureText,
+      isTrue,
+    );
+    await tester.tap(find.byKey(Keys.lockShowPasscode));
+    await tester.pump();
+    expect(
+      tester.widget<TextField>(find.byKey(Keys.lockPasscode)).obscureText,
+      isFalse,
+    );
     await tester.pumpWidget(const SizedBox());
   });
 }

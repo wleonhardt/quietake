@@ -96,6 +96,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passcodeLabel => 'Code d\'accès';
 
   @override
+  String get passcodeShow => 'Afficher le code d\'accès';
+
+  @override
+  String get passcodeHide => 'Masquer le code d\'accès';
+
+  @override
+  String get formWorking => 'Un instant…';
+
+  @override
   String get lockUnlock => 'Déverrouiller';
 
   @override

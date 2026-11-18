@@ -269,6 +269,26 @@ void main() {
     await tester.pump();
     expect(find.text('Passcodes do not match'), findsOneWidget);
     expect(find.byKey(Keys.recoveryKeyText), findsNothing);
+    // The message sits with the fields, above the button, not under the links.
+    expect(
+      tester.getTopLeft(find.byKey(Keys.setupError)).dy,
+      lessThan(tester.getTopLeft(find.byKey(Keys.setupSubmit)).dy),
+    );
+  });
+
+  testWidgets('the passcode can be shown while typing and hidden again', (
+    tester,
+  ) async {
+    await pumpSetup(tester, MasterKeyStore(sodium, dir));
+    bool hidden(Key key) => tester.widget<TextField>(find.byKey(key)).obscureText;
+    expect(hidden(Keys.setupPasscode) && hidden(Keys.setupConfirm), isTrue);
+    await tester.tap(find.byKey(Keys.setupShowPasscode));
+    await tester.pump();
+    expect(hidden(Keys.setupPasscode) || hidden(Keys.setupConfirm), isFalse);
+    expect(find.byTooltip('Hide passcode'), findsOneWidget);
+    await tester.tap(find.byKey(Keys.setupShowPasscode));
+    await tester.pump();
+    expect(hidden(Keys.setupPasscode) && hidden(Keys.setupConfirm), isTrue);
   });
 
   testWidgets('the restore toggle switches forms and back', (tester) async {

@@ -66,10 +66,10 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## D. Setup, lock and settings
 
-- R45 planned: Setup and lock errors render below every button; use the field error text.
-- R46 planned: No progress is shown while the vault is created.
-- R47 planned: No show or hide toggle on passcode fields.
-- R48 planned: The recovery key is drawn in a proportional font on iOS; add system monospace fallbacks.
+- R45 complete: Setup and lock messages appear under the passcode field, above the buttons, and stay live regions for screen readers (the message fades in, so two accessibility tests now wait 300 ms before reading it). Tests in `test/setup_screen_test.dart` and `test/lock_unlock_failure_test.dart`; seen on the iOS simulator.
+- R46 complete: While the vault is created, restored or unlocked, the main button reads "Working…" (en, de, es, fr) instead of only going grey. No spinner, so tests that wait for the screen to settle keep working.
+- R47 complete: Setup (one switch for both fields) and the lock screen have a show or hide passcode button with a tooltip in four languages. Tests as for R45. The change-passcode, backup passphrase and portable backup screens do not have it yet.
+- R48 complete: The recovery key and the fingerprint dialog use a fixed-width font on iOS too (Menlo as fallback); on the simulator `I`, `l`, `0` and `O` are now distinct.
 - R49 planned: The recovery key screen can be passed in one tap; ask for one group back (decision record first, wording for owner review).
 - R50 planned (owner 2026-11-18): Show the recovery key as 24 words with the base64 form under "Show as text"; the app and the recovery tool accept both. Needs a format note, vectors for the word form and a decision record (041 or later).
 - R51 planned: First run is one form with four equal links; split into a welcome choice and a restore page (decision record first, wording for owner review).

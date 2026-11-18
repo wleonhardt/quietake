@@ -261,6 +261,8 @@ abstract final class Keys {
   static const lockRecovery = Key('lock.recovery');
   static const lockUnlock = Key('lock.unlock');
   static const lockBiometric = Key('lock.biometric');
+  static const lockShowPasscode = Key('lock.showPasscode');
+  static const setupShowPasscode = Key('setup.showPasscode');
   static const lockError = Key('lock.error');
   static const lockCamera = Key('lock.camera');
   static const lockedPublishedNotice = Key('camera.lockedPublished');

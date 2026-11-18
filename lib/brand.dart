@@ -227,6 +227,15 @@ ThemeData quietakeTheme({
   );
 }
 
+/// Fixed-width text for keys a person copies by hand, so `I`, `l` and `1`
+/// differ. `monospace` resolves on Android only; the fallbacks are fonts iOS
+/// ships.
+TextStyle recoveryKeyStyle(double size) => TextStyle(
+  fontFamily: 'monospace',
+  fontFamilyFallback: const ['Menlo', 'Courier New', 'Courier'],
+  fontSize: size,
+);
+
 class BrandHeader extends StatelessWidget {
   const BrandHeader({super.key, required this.message});
   final String message;

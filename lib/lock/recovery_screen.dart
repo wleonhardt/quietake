@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../keys.dart';
 import '../l10n/l10n.dart';
+import '../brand.dart';
 import '../form_body.dart';
 
 /// Shows the recovery key once. The key stays on screen and selectable but
@@ -36,7 +37,7 @@ class RecoveryScreen extends StatelessWidget {
             SelectableText(
               recoveryKey,
               key: Keys.recoveryKeyText,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 18),
+              style: recoveryKeyStyle(18),
             ),
             const SizedBox(height: 16),
             Text(
