@@ -95,12 +95,16 @@ class PendingCrypto {
           key: wrap,
         );
         final nonce = sodium.randombytes.buf(_nonceBytes);
-        final rewrapped = sodium.crypto.secretBox.easy(
-          message: fileKey,
-          nonce: nonce,
-          key: masterKey,
-        );
-        fileKey.fillRange(0, fileKey.length, 0);
+        final Uint8List rewrapped;
+        try {
+          rewrapped = sodium.crypto.secretBox.easy(
+            message: fileKey,
+            nonce: nonce,
+            key: masterKey,
+          );
+        } finally {
+          fileKey.fillRange(0, fileKey.length, 0);
+        }
         final sink = tmp.openWrite();
         try {
           sink

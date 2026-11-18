@@ -25,11 +25,11 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R05 blocked: "Remove location" does nothing for PNG and video copies. The approved policy, the website and the share dialog all say those copies are unchanged, so removing PNG metadata needs those sentences changed first. The question was already open in `open-questions.md` (share metadata).
 - R06 blocked: Hidden areas are drawn as up to four coarse blocks across, each the average colour of what it covers (decision 024, deliberate). The approved policy says "solid blocks" and the app says "pixelated". One flat block per area would match the policy exactly and leak less; it changes decision 024 and two approved sentences, so it is an owner question.
 - R07 complete: A passcode attempt is now counted before the slow key derivation instead of after it, so attempts started together cannot all pass the lock check; a correct passcode still resets the count and an unreadable keyfile is not counted. Red and green in `test/master_key_store_test.dart` ("attempts started together are still counted one by one"). The counter is still kept in memory only, as decision 001 chose.
-- R08 planned: `CaptureStore.recover` and `ingest` can work on the same pending folder at once (`lib/camera/capture_store.dart`).
-- R09 planned: `Vault.ingestAs` deletes the plaintext even when encryption fails (`lib/vault/vault.dart`); confirm against the import callers before changing.
-- R10 planned: `PendingCrypto` clears the file key only on success (`lib/crypto/pending_crypto.dart`).
-- R11 planned: `NasRecovery` lists the server without a size bound (`lib/sync/nas_recovery.dart`).
-- R12 planned: `SyncController.sync` drops a request made while disconnecting (`lib/sync/sync_controller.dart`).
+- R08 complete, no change: `recover` runs only from the capture screen before its camera exists, and a capture needs that camera; a resume or a replacement screen waits for the running capture first. The two cannot overlap today.
+- R09 complete, no change: `ingestAs` is used for the importer's private staging copy, which must not outlive a failed import; the external original is never touched (noted in `review-log.md`).
+- R10 complete: The file key of a lock-screen capture is now cleared even when re-wrapping it throws. No new test (a memory wipe is not observable); `pending_crypto_test.dart` and the interop check pass.
+- R11 complete: The passphrase change path lists the server with the same 16 MiB bound as restore. No new test; the bound itself is covered for sync.
+- R12 complete, no change: every path that sets the busy flag ends in a sync (`saveSettings`) or leaves the backup unconfigured (`disconnect`), so a request dropped meanwhile is not lost.
 - R13 planned: `forgetDeleted` never removes remote-name entries of deleted captures (`lib/library/private_catalog.dart`).
 - R14 planned: The share bundle writer accepts a one-byte passphrase (`lib/crypto/share_bundle.dart`); the app only writes its own six-word phrase, so enforce the rule in the writer.
 - R15 planned: `VaultCrypto.decrypt` may accept bytes after the final chunk; check and add the same refusal the share reader has (`lib/crypto/vault_crypto.dart`). Frozen vectors must keep passing.

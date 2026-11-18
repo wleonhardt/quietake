@@ -54,7 +54,9 @@ class NasRecovery {
       }
       _check();
       lease = await dav.lockCollection();
-      LegacyIdentity.rejectBackupWrites((await dav.list()).map((e) => e.name));
+      LegacyIdentity.rejectBackupWrites(
+        (await dav.list(maxBytes: 16 * 1024 * 1024)).map((e) => e.name),
+      );
       // Key management changes only recovery material, never capture backup state.
       await for (final entry in vault.dir.list()) {
         if (entry is Directory &&
