@@ -135,8 +135,12 @@ void main() {
           ),
           isTrue,
         );
+        // The check leaves no work folder; the thumbnail cache (decision
+        // 045) belongs to the library, not to the check.
         expect(
-          (await app.vault.dir.list().toList()).whereType<Directory>(),
+          (await app.vault.dir.list().toList()).whereType<Directory>().where(
+            (folder) => !folder.path.endsWith('/.thumbs'),
+          ),
           isEmpty,
         );
         expect(tester.takeException(), isNull);
