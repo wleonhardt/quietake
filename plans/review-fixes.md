@@ -111,7 +111,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 ## G. Structure (each needs a decision record and an owner answer before building)
 
 - R90 planned (owner 2026-11-18): Lock closes the session (key out of memory, sync and casting stopped) and unlock builds a new one; the app returns to the camera after unlock. Decision record first.
-- R91 planned (owner 2026-11-18): Keep the catalog format and raise its size cap in the app, the recovery tool and the documents.
+- R91 planned (owner 2026-11-18): Keep the catalog format and raise its size cap. Found while preparing it: the cap is one of several linked limits. NAS passphrase restore and the recovery tool refuse more than 10,000 captures and a server listing over 16 MiB, and the portable ZIP bounds its catalog entry at 2 MiB. Raising only the catalog cap would let a vault grow past what a restore accepts, so all of them must move together (catalog 8 MiB, restore and recovery tool 40,000 captures, listing 64 MiB, ZIP catalog entry 8 MiB), with a test at each bound and the documents updated. An older app version cannot read a larger catalog. A larger catalog is also re-encoded on every edit on the UI thread, which R92 addresses.
 - R92 planned: Move hashing, bulk decryption and pixel loops off the UI isolate.
 
 ## H. Added from the owner's answers of 2026-11-18
