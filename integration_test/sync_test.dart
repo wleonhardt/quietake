@@ -463,7 +463,7 @@ void main() {
         );
       }
       expect(find.byKey(Keys.settingsDisconnect), findsOneWidget);
-      expect(find.text('Clear saved NAS details'), findsOneWidget);
+      expect(find.text('Clear saved backup server details'), findsOneWidget);
       await enter(tester, Keys.settingsUrl, dav.url.toString());
       await enter(tester, Keys.settingsUser, 'vaultapp');
       await enter(tester, Keys.settingsPass, 'secret');

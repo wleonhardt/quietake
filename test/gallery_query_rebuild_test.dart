@@ -149,7 +149,7 @@ void main() {
         );
         await until(() => vault.catalog.metadataReads > reads);
         expect(
-          find.text('Sync with NAS'),
+          find.text('Sync with backup server'),
           findsOneWidget,
           reason: 'Open actions must reflect a transfer finishing',
         );

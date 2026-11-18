@@ -46,7 +46,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get recentlyDeletedDeleteNowBody =>
-      'Esta captura se elimina de forma permanente de este teléfono y de tu NAS configurado. No se puede restaurar.';
+      'Esta captura se elimina de forma permanente de este teléfono y de tu servidor configurado. No se puede restaurar.';
 
   @override
   String get recentlyDeletedAllTitle => '¿Eliminar todo ahora?';
@@ -57,8 +57,8 @@ class AppLocalizationsEs extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count capturas se eliminan de forma permanente de este teléfono y de tu NAS configurado. No se pueden restaurar.',
-      one: '1 captura se elimina de forma permanente de este teléfono y de tu NAS configurado. No se puede restaurar.',
+          '$count capturas se eliminan de forma permanente de este teléfono y de tu servidor configurado. No se pueden restaurar.',
+      one: '1 captura se elimina de forma permanente de este teléfono y de tu servidor configurado. No se puede restaurar.',
     );
     return '$_temp0';
   }
@@ -171,7 +171,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get recoveryKeyIntro =>
-      'Guarda esta clave en tu gestor de contraseñas, separada de tus archivos cifrados. Necesitas ambos para recuperar tus capturas si olvidas el código de acceso o pierdes este dispositivo. Una frase de contraseña de copia en el NAS es otra opción de recuperación solo si la has activado.';
+      'Guarda esta clave en tu gestor de contraseñas o en papel en un lugar seguro, separada de tus archivos cifrados. Necesitas ambos para recuperar tus capturas si olvidas el código de acceso o pierdes este dispositivo. Una frase de contraseña de copia en el servidor es otra opción de recuperación solo si la has activado.';
 
   @override
   String recoveryFingerprint(String fingerprint) {
@@ -355,7 +355,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get setupRestoreNas =>
-      'Restaurar desde el NAS con la frase de contraseña de la copia';
+      'Restaurar desde el servidor con la frase de contraseña de la copia';
 
   @override
   String get privacyPolicy => 'Política de privacidad';
@@ -888,7 +888,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String galleryDeleteKeepBody(int days) {
-    return 'La selección pasa a «Eliminados recientemente» y se conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. La copia del NAS se mantiene hasta entonces.';
+    return 'La selección pasa a «Eliminados recientemente» y se conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. La copia del servidor se mantiene hasta entonces.';
   }
 
   @override
@@ -916,7 +916,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get galleryNasReadFailed =>
-      'No se pudieron leer los datos guardados del NAS. Inténtalo de nuevo.';
+      'No se pudieron leer los datos guardados del servidor. Inténtalo de nuevo.';
 
   @override
   String get galleryImportTooltip => 'Importar copias desde Archivos';
@@ -928,7 +928,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get gallerySyncSetup => 'Configurar copia de seguridad';
 
   @override
-  String get gallerySyncNow => 'Sincronizar con el NAS';
+  String get gallerySyncNow => 'Sincronizar con el servidor';
 
   @override
   String get galleryCloseSearch => 'Cerrar búsqueda';
@@ -1204,7 +1204,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String viewerDeleteKeepNas(int days) {
-    return '«Eliminados recientemente» la conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. Tu copia en el NAS se mantiene hasta entonces. «Eliminar ahora» la quita de forma permanente de este teléfono y de tu NAS configurado.';
+    return '«Eliminados recientemente» la conserva en este teléfono, cifrada, durante $days días para que puedas restaurarla. Tu copia en el servidor se mantiene hasta entonces. «Eliminar ahora» la quita de forma permanente de este teléfono y de tu servidor configurado.';
   }
 
   @override
@@ -1214,7 +1214,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get viewerDeleteNasNow =>
-      'Se eliminará de forma permanente de este teléfono y de tu NAS configurado.';
+      'Se eliminará de forma permanente de este teléfono y de tu servidor configurado.';
 
   @override
   String get viewerDeleteNow =>
@@ -1222,11 +1222,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get viewerDeleteNasTail =>
-      'Si el NAS no está disponible, la eliminación termina cuando la sincronización se complete.';
+      'Si el servidor no está disponible, la eliminación termina cuando la sincronización se complete.';
 
   @override
   String get viewerDeletePendingTail =>
-      'Las eliminaciones pendientes se aplican si vuelves a conectar una copia de seguridad en el NAS.';
+      'Las eliminaciones pendientes se aplican si vuelves a conectar una copia de seguridad en el servidor.';
 
   @override
   String get viewerDeleteEnd =>
@@ -1314,7 +1314,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get backupIntro =>
-      'Comprueba cada archivo cifrado de tu copia de seguridad guardada en el NAS con la clave de esta bóveda. Las bibliotecas grandes necesitan tiempo, datos y espacio temporal. Esta comprobación no modifica los originales.';
+      'Comprueba cada archivo cifrado de tu copia de seguridad guardada en el servidor con la clave de esta bóveda. Las bibliotecas grandes necesitan tiempo, datos y espacio temporal. Esta comprobación no modifica los originales.';
 
   @override
   String get backupNeverChecked =>
@@ -1531,7 +1531,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsErrReach =>
-      'No se pudo contactar con el NAS. Revisa la URL y el Wi-Fi.';
+      'No se pudo contactar con el servidor. Revisa la URL y el Wi-Fi.';
 
   @override
   String get settingsErrGeneric =>
@@ -1551,7 +1551,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsDisconnectFailed =>
-      'No se pudo desconectar la copia en el NAS. Inténtalo de nuevo.';
+      'No se pudo desconectar la copia en el servidor. Inténtalo de nuevo.';
 
   @override
   String get settingsWrongPasscode => 'Código incorrecto. Inténtalo de nuevo.';
@@ -1561,14 +1561,14 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo leer la clave de recuperación. Inténtalo de nuevo.';
 
   @override
-  String get settingsDisconnectTitle => '¿Desconectar la copia en el NAS?';
+  String get settingsDisconnectTitle => '¿Desconectar la copia en el servidor?';
 
   @override
-  String get settingsClearTitle => '¿Borrar los datos guardados del NAS?';
+  String get settingsClearTitle => '¿Borrar los datos guardados del servidor?';
 
   @override
   String get settingsDisconnectBody =>
-      'Detiene la copia automática y elimina los datos de conexión guardados. Las capturas permanecen en tu teléfono y en el NAS. Las eliminaciones pendientes en el NAS no terminarán hasta que vuelvas a conectar esa copia.';
+      'Detiene la copia automática y elimina los datos de conexión guardados. Las capturas permanecen en tu teléfono y en el servidor. Las eliminaciones pendientes en el servidor no terminarán hasta que vuelvas a conectar esa copia.';
 
   @override
   String get settingsDisconnectAction => 'Desconectar';
@@ -1577,10 +1577,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsClearAction => 'Borrar datos';
 
   @override
-  String get settingsDisconnectButton => 'Desconectar la copia en el NAS';
+  String get settingsDisconnectButton => 'Desconectar la copia en el servidor';
 
   @override
-  String get settingsClearButton => 'Borrar los datos guardados del NAS';
+  String get settingsClearButton => 'Borrar los datos guardados del servidor';
 
   @override
   String get settingsRecoverySection => 'Recuperación y exportación';
@@ -1590,7 +1590,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsNasPassTitle =>
-      'Frase de contraseña de la copia en el NAS';
+      'Frase de contraseña de la copia en el servidor';
 
   @override
   String get settingsNasPassBody =>
@@ -1823,27 +1823,27 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo restaurar ni guardar la copia. Revisa su clave, el archivo, el almacenamiento disponible y el requisito de bóveda vacía.';
 
   @override
-  String get nasTitleRestore => 'Restaurar desde el NAS';
+  String get nasTitleRestore => 'Restaurar desde el servidor';
 
   @override
   String get nasTitleManage => 'Frase de contraseña de la copia';
 
   @override
   String get nasIntroRestore =>
-      'Usa la frase de contraseña de copia que activaste antes en tu NAS. El código corto del teléfono no puede recuperar esta copia. La restauración autentica todos los archivos en una bóveda vacía; no se combina nada. Tu NAS permanece en solo lectura.';
+      'Usa la frase de contraseña de copia que activaste antes en tu servidor. El código corto del teléfono no puede recuperar esta copia. La restauración autentica todos los archivos en una bóveda vacía; no se combina nada. Tu servidor permanece en solo lectura.';
 
   @override
   String get nasIntroManage =>
-      'Protege la recuperación en el NAS con una frase de contraseña fuerte y distinta. Cualquiera que tenga el archivo cifrado puede probar combinaciones sin conexión. Prefiere seis palabras aleatorias; la longitud por sí sola no garantiza la fortaleza. Completa antes una sincronización con el NAS guardado. El NAS debe admitir bloqueo seguro de archivos; de lo contrario no se escribe nada.';
+      'Protege la recuperación en el servidor con una frase de contraseña fuerte y distinta. Cualquiera que tenga el archivo cifrado puede probar combinaciones sin conexión. Prefiere seis palabras aleatorias; la longitud por sí sola no garantiza la fortaleza. Completa antes una sincronización con el servidor guardado. El servidor debe admitir bloqueo seguro de archivos; de lo contrario no se escribe nada.';
 
   @override
   String get nasUrlLabel => 'URL de la carpeta WebDAV HTTPS';
 
   @override
-  String get nasUserLabel => 'Usuario del NAS';
+  String get nasUserLabel => 'Usuario del servidor';
 
   @override
-  String get nasPasswordLabel => 'Contraseña del NAS';
+  String get nasPasswordLabel => 'Contraseña del servidor';
 
   @override
   String get nasPinNew => 'Código local nuevo';
@@ -1905,11 +1905,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nasConfirmDisableBody =>
-      'Elimina el archivo de recuperación actual de la carpeta guardada del NAS. Las capturas se conservan. Las instantáneas antiguas del servidor pueden seguir aceptando una frase de contraseña anterior. Conserva tu clave de recuperación independiente.';
+      'Elimina el archivo de recuperación actual de la carpeta guardada del servidor. Las capturas se conservan. Las instantáneas antiguas del servidor pueden seguir aceptando una frase de contraseña anterior. Conserva tu clave de recuperación independiente.';
 
   @override
   String get nasConfirmSaveBody =>
-      'Crea o reemplaza la recuperación en la carpeta guardada del NAS. Guarda la nueva frase de contraseña por separado. Las instantáneas antiguas del servidor pueden seguir aceptando una frase anterior; esto no cambia la clave de tu bóveda.';
+      'Crea o reemplaza la recuperación en la carpeta guardada del servidor. Guarda la nueva frase de contraseña por separado. Las instantáneas antiguas del servidor pueden seguir aceptando una frase anterior; esto no cambia la clave de tu bóveda.';
 
   @override
   String get nasDisableAction => 'Desactivar recuperación';
@@ -1927,25 +1927,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nasNeedDetails =>
-      'Introduce la carpeta, el usuario y la contraseña guardados del NAS.';
+      'Introduce la carpeta, el usuario y la contraseña guardados del servidor.';
 
   @override
   String get nasMismatch =>
       'Las frases de contraseña de la copia no coinciden.';
 
   @override
-  String get nasCheckingRestore => 'Comprobando la copia cifrada del NAS…';
+  String get nasCheckingRestore => 'Comprobando la copia cifrada del servidor…';
 
   @override
   String get nasCheckingSaved =>
-      'Comprobando la recuperación guardada del NAS…';
+      'Comprobando la recuperación guardada del servidor…';
 
   @override
   String get nasRestoredTitle => 'Bóveda restaurada';
 
   @override
   String get nasRestoredUnsaved =>
-      'No se pudo guardar la conexión con el NAS. Tus capturas están restauradas; vuelve a añadir la conexión en Ajustes para reanudar las copias.';
+      'No se pudo guardar la conexión con el servidor. Tus capturas están restauradas; vuelve a añadir la conexión en Ajustes para reanudar las copias.';
 
   @override
   String get nasContinue => 'Continuar';
@@ -1966,11 +1966,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nasRestoreFailed =>
-      'No se pudo restaurar. Revisa la conexión con el NAS, la frase de contraseña de la copia y el requisito de bóveda vacía. Se conservan los originales.';
+      'No se pudo restaurar. Revisa la conexión con el servidor, la frase de contraseña de la copia y el requisito de bóveda vacía. Se conservan los originales.';
 
   @override
   String get nasChangeFailed =>
-      'No se pudo cambiar la recuperación. Revisa la copia guardada del NAS, el archivo de recuperación compatible y la compatibilidad del servidor. Sincroniza primero y vuelve a intentarlo. Se conservan los originales.';
+      'No se pudo cambiar la recuperación. Revisa la copia guardada del servidor, el archivo de recuperación compatible y la compatibilidad del servidor. Sincroniza primero y vuelve a intentarlo. Se conservan los originales.';
 
   @override
   String get coverChooseTitle => 'Elegir portada';
@@ -2108,14 +2108,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsRenameRemote =>
-      'Dar nombres aleatorios a los archivos del NAS';
+      'Dar nombres aleatorios a los archivos del servidor';
 
   @override
   String get settingsRenameRemoteNone =>
-      'Ningún archivo del NAS necesita un nombre nuevo.';
+      'Ningún archivo del servidor necesita un nombre nuevo.';
 
   @override
-  String get settingsRenameRemoteTitle => '¿Renombrar los archivos del NAS?';
+  String get settingsRenameRemoteTitle =>
+      '¿Renombrar los archivos del servidor?';
 
   @override
   String settingsRenameRemoteBody(int count) {
@@ -2123,8 +2124,8 @@ class AppLocalizationsEs extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count archivos cifrados del NAS reciben nombres aleatorios, así que sus nombres y horas ya no se ven allí. Actualiza antes Quietake en los demás teléfonos: las versiones antiguas no encuentran los archivos renombrados. Tus originales se quedan en este teléfono.',
-      one: '1 archivo cifrado del NAS recibe un nombre aleatorio, así que su nombre y su hora ya no se ven allí. Actualiza antes Quietake en los demás teléfonos: las versiones antiguas no encuentran los archivos renombrados. Tus originales se quedan en este teléfono.',
+          '$count archivos cifrados del servidor reciben nombres aleatorios, así que sus nombres y horas ya no se ven allí. Actualiza antes Quietake en los demás teléfonos: las versiones antiguas no encuentran los archivos renombrados. Tus originales se quedan en este teléfono.',
+      one: '1 archivo cifrado del servidor recibe un nombre aleatorio, así que su nombre y su hora ya no se ven allí. Actualiza antes Quietake en los demás teléfonos: las versiones antiguas no encuentran los archivos renombrados. Tus originales se quedan en este teléfono.',
     );
     return '$_temp0';
   }
@@ -2137,8 +2138,8 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Se renombraron $count archivos en el NAS.',
-      one: 'Se renombró 1 archivo en el NAS.',
+      other: 'Se renombraron $count archivos en el servidor.',
+      one: 'Se renombró 1 archivo en el servidor.',
     );
     return '$_temp0';
   }

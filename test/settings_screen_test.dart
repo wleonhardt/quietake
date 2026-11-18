@@ -253,7 +253,7 @@ void main() {
         await tester.tap(find.byKey(Keys.settingsBackupOpen));
         await tester.pumpAndSettle();
         final disconnect = find.text(
-          configured ? 'Disconnect NAS backup' : 'Clear saved NAS details',
+          configured ? 'Disconnect backup server' : 'Clear saved backup server details',
         );
         await tester.scrollUntilVisible(
           disconnect,
@@ -264,7 +264,7 @@ void main() {
         await tester.ensureVisible(disconnect);
         await tester.tap(disconnect);
         await tester.pumpAndSettle();
-        expect(find.textContaining('Pending NAS deletions'), findsOneWidget);
+        expect(find.textContaining('Pending deletions on the server'), findsOneWidget);
         await tester.tap(
           find.text(
             confirm ? (configured ? 'Disconnect' : 'Clear details') : 'Cancel',

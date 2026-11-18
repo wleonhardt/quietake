@@ -46,7 +46,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentlyDeletedDeleteNowBody =>
-      'This capture is permanently removed from this phone and your configured NAS. It cannot be restored.';
+      'This capture is permanently removed from this phone and your backup server. It cannot be restored.';
 
   @override
   String get recentlyDeletedAllTitle => 'Delete all now?';
@@ -57,8 +57,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count captures are permanently removed from this phone and your configured NAS. They cannot be restored.',
-      one: '1 capture is permanently removed from this phone and your configured NAS. It cannot be restored.',
+          '$count captures are permanently removed from this phone and your backup server. They cannot be restored.',
+      one: '1 capture is permanently removed from this phone and your backup server. It cannot be restored.',
     );
     return '$_temp0';
   }
@@ -168,7 +168,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recoveryKeyIntro =>
-      'Keep this key in your password manager, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A NAS backup passphrase is another recovery option only if you have enabled it.';
+      'Keep this key in your password manager or on paper in a safe place, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A backup passphrase is another recovery option only if you have enabled it.';
 
   @override
   String recoveryFingerprint(String fingerprint) {
@@ -349,7 +349,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupRestoreZip => 'Restore an encrypted ZIP';
 
   @override
-  String get setupRestoreNas => 'Restore from NAS with backup passphrase';
+  String get setupRestoreNas => 'Restore from my backup server';
 
   @override
   String get privacyPolicy => 'Privacy policy';
@@ -868,7 +868,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String galleryDeleteKeepBody(int days) {
-    return 'The selection moves to Recently deleted and stays on this phone, encrypted, for $days days so you can restore it. Any NAS copy stays until then.';
+    return 'The selection moves to Recently deleted and stays on this phone, encrypted, for $days days so you can restore it. Any copy on your backup server stays until then.';
   }
 
   @override
@@ -896,7 +896,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get galleryNasReadFailed =>
-      'Could not read saved NAS details. Try again.';
+      'Could not read the saved backup server details. Try again.';
 
   @override
   String get galleryImportTooltip => 'Import copies from Files';
@@ -908,7 +908,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gallerySyncSetup => 'Set up backup';
 
   @override
-  String get gallerySyncNow => 'Sync with NAS';
+  String get gallerySyncNow => 'Sync with backup server';
 
   @override
   String get galleryCloseSearch => 'Close search';
@@ -1182,7 +1182,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String viewerDeleteKeepNas(int days) {
-    return 'Recently deleted keeps it on this phone, encrypted, for $days days so you can restore it. Your NAS copy stays until then. Delete now removes it from this phone and your configured NAS permanently.';
+    return 'Recently deleted keeps it on this phone, encrypted, for $days days so you can restore it. The copy on your backup server stays until then. Delete now removes it from this phone and your backup server permanently.';
   }
 
   @override
@@ -1192,7 +1192,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewerDeleteNasNow =>
-      'It will be permanently removed from this phone and your configured NAS.';
+      'It will be permanently removed from this phone and your backup server.';
 
   @override
   String get viewerDeleteNow =>
@@ -1200,11 +1200,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewerDeleteNasTail =>
-      'If the NAS is unavailable, deletion finishes when sync succeeds.';
+      'If the backup server is unavailable, deletion finishes when sync succeeds.';
 
   @override
   String get viewerDeletePendingTail =>
-      'Pending deletions apply if you reconnect a NAS backup.';
+      'Pending deletions apply if you connect the backup server again.';
 
   @override
   String get viewerDeleteEnd =>
@@ -1292,7 +1292,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backupIntro =>
-      'Checks every encrypted file in your saved NAS backup using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.';
+      'Checks every encrypted file on your backup server using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.';
 
   @override
   String get backupNeverChecked =>
@@ -1426,10 +1426,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBackupIntro =>
-      'Optional backup of encrypted media to your own WebDAV share.';
+      'Optional backup of encrypted media to a server you run yourself (WebDAV over HTTPS).';
 
   @override
-  String get settingsUrlLabel => 'WebDAV folder URL';
+  String get settingsUrlLabel => 'Backup server folder URL (WebDAV)';
 
   @override
   String get settingsUsername => 'Username';
@@ -1507,7 +1507,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsErrReach =>
-      'Could not reach NAS. Check the URL and Wi-Fi.';
+      'Could not reach the backup server. Check the URL and Wi-Fi.';
 
   @override
   String get settingsErrGeneric =>
@@ -1527,7 +1527,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDisconnectFailed =>
-      'Could not disconnect NAS backup. Try again.';
+      'Could not disconnect the backup server. Try again.';
 
   @override
   String get settingsWrongPasscode => 'Wrong passcode. Try again.';
@@ -1537,14 +1537,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not read the recovery key. Try again.';
 
   @override
-  String get settingsDisconnectTitle => 'Disconnect NAS backup?';
+  String get settingsDisconnectTitle => 'Disconnect the backup server?';
 
   @override
-  String get settingsClearTitle => 'Clear saved NAS details?';
+  String get settingsClearTitle => 'Clear saved backup server details?';
 
   @override
   String get settingsDisconnectBody =>
-      'Stops automatic backup and removes saved connection details. Captures stay on your phone and NAS. Pending NAS deletions will not finish until you reconnect that backup.';
+      'Stops automatic backup and removes saved connection details. Captures stay on your phone and on the backup server. Pending deletions on the server will not finish until you connect it again.';
 
   @override
   String get settingsDisconnectAction => 'Disconnect';
@@ -1553,10 +1553,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsClearAction => 'Clear details';
 
   @override
-  String get settingsDisconnectButton => 'Disconnect NAS backup';
+  String get settingsDisconnectButton => 'Disconnect backup server';
 
   @override
-  String get settingsClearButton => 'Clear saved NAS details';
+  String get settingsClearButton => 'Clear saved backup server details';
 
   @override
   String get settingsRecoverySection => 'Recovery & export';
@@ -1565,7 +1565,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsShowRecovery => 'Show recovery key';
 
   @override
-  String get settingsNasPassTitle => 'NAS backup passphrase';
+  String get settingsNasPassTitle => 'Backup passphrase';
 
   @override
   String get settingsNasPassBody =>
@@ -1793,27 +1793,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.';
 
   @override
-  String get nasTitleRestore => 'Restore from NAS';
+  String get nasTitleRestore => 'Restore from backup server';
 
   @override
   String get nasTitleManage => 'Backup passphrase';
 
   @override
   String get nasIntroRestore =>
-      'Use the separate backup passphrase previously enabled on your NAS. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your NAS stays read-only.';
+      'Use the separate backup passphrase previously enabled on your backup server. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your backup server stays read-only.';
 
   @override
   String get nasIntroManage =>
-      'Protect NAS recovery with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a saved NAS sync first. The NAS must support safe file locking; otherwise nothing is written.';
+      'Protect recovery from your backup server with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a sync with the saved backup server first. The server must support safe file locking; otherwise nothing is written.';
 
   @override
-  String get nasUrlLabel => 'HTTPS WebDAV folder URL';
+  String get nasUrlLabel => 'Backup server folder URL (HTTPS WebDAV)';
 
   @override
-  String get nasUserLabel => 'NAS username';
+  String get nasUserLabel => 'Backup server username';
 
   @override
-  String get nasPasswordLabel => 'NAS password';
+  String get nasPasswordLabel => 'Backup server password';
 
   @override
   String get nasPinNew => 'New local passcode';
@@ -1871,11 +1871,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nasConfirmDisableBody =>
-      'Removes the current recovery file from the saved NAS folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.';
+      'Removes the current recovery file from the saved backup server folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.';
 
   @override
   String get nasConfirmSaveBody =>
-      'Creates or replaces recovery in the saved NAS folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.';
+      'Creates or replaces recovery in the saved backup server folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.';
 
   @override
   String get nasDisableAction => 'Disable recovery';
@@ -1893,23 +1893,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nasNeedDetails =>
-      'Enter your saved NAS folder, username and password.';
+      'Enter your backup server folder, username and password.';
 
   @override
   String get nasMismatch => 'Backup passphrases do not match.';
 
   @override
-  String get nasCheckingRestore => 'Checking encrypted NAS backup…';
+  String get nasCheckingRestore =>
+      'Checking the encrypted backup on the server…';
 
   @override
-  String get nasCheckingSaved => 'Checking saved NAS recovery…';
+  String get nasCheckingSaved =>
+      'Checking saved recovery on the backup server…';
 
   @override
   String get nasRestoredTitle => 'Vault restored';
 
   @override
   String get nasRestoredUnsaved =>
-      'The NAS connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.';
+      'The backup server connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.';
 
   @override
   String get nasContinue => 'Continue';
@@ -1929,11 +1931,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nasRestoreFailed =>
-      'Could not restore. Check the NAS connection, backup passphrase and empty-vault requirement. Originals kept.';
+      'Could not restore. Check the backup server connection, backup passphrase and empty-vault requirement. Originals kept.';
 
   @override
   String get nasChangeFailed =>
-      'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.';
+      'Could not change recovery. Check the saved backup server, supported recovery file and server compatibility. Sync first, then retry. Originals kept.';
 
   @override
   String get coverChooseTitle => 'Choose cover';
@@ -2068,13 +2070,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get redactSections => 'Or hide a section of the photo';
 
   @override
-  String get settingsRenameRemote => 'Give NAS files random names';
+  String get settingsRenameRemote =>
+      'Give files on the backup server random names';
 
   @override
-  String get settingsRenameRemoteNone => 'No files on the NAS need new names.';
+  String get settingsRenameRemoteNone =>
+      'No files on the backup server need new names.';
 
   @override
-  String get settingsRenameRemoteTitle => 'Rename files on the NAS?';
+  String get settingsRenameRemoteTitle => 'Rename files on the backup server?';
 
   @override
   String settingsRenameRemoteBody(int count) {
@@ -2082,8 +2086,8 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.',
-      one: '1 encrypted file on the NAS gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.',
+          '$count encrypted files on the backup server get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.',
+      one: '1 encrypted file on the backup server gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.',
     );
     return '$_temp0';
   }
@@ -2096,8 +2100,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Renamed $count files on the NAS.',
-      one: 'Renamed 1 file on the NAS.',
+      other: 'Renamed $count files on the backup server.',
+      one: 'Renamed 1 file on the backup server.',
     );
     return '$_temp0';
   }

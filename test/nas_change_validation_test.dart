@@ -112,7 +112,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.nasChangeConfirm), findsNothing);
-    expect(find.text('Checking saved NAS recovery…'), findsNothing);
+    expect(find.text('Checking saved recovery on the backup server…'), findsNothing);
   });
 
   testWidgets('Disable asks for confirmation and Cancel makes no change', (
@@ -131,7 +131,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byKey(Keys.nasDisableConfirm), findsNothing);
-    expect(find.text('Checking saved NAS recovery…'), findsNothing);
+    expect(find.text('Checking saved recovery on the backup server…'), findsNothing);
   });
 
   testWidgets('the show button reveals and hides the typed passphrase', (

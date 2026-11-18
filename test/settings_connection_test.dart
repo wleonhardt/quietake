@@ -122,7 +122,7 @@ void main() {
   ) async {
     await open(tester);
     await tester.runAsync(() => server.close());
-    expect(await test(tester), contains('Could not reach NAS'));
+    expect(await test(tester), contains('Could not reach the backup server'));
   });
 
   testWidgets('checking a backup requires saving edited connection details', (

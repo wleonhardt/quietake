@@ -467,7 +467,7 @@ void main() {
     await tester.ensureVisible(find.byKey(Keys.settingsDisconnect));
     await tester.tap(find.byKey(Keys.settingsDisconnect));
     await tester.pumpAndSettle();
-    expect(find.text('Disconnect NAS backup?'), findsOneWidget);
+    expect(find.text('Disconnect the backup server?'), findsOneWidget);
     await tester.tap(find.byKey(Keys.disconnectCancel));
     await tester.pumpAndSettle();
     expect(find.byKey(Keys.settingsSave), findsOneWidget);
@@ -533,7 +533,7 @@ void main() {
     await tester.runAsync(() => tester.tap(find.byKey(Keys.disconnectConfirm)));
     await until(
       tester,
-      find.text('Could not disconnect NAS backup. Try again.'),
+      find.text('Could not disconnect the backup server. Try again.'),
     );
     expect(find.byKey(Keys.settingsSave), findsOneWidget);
   });
@@ -729,12 +729,12 @@ void main() {
         for (var i = 0; i < 100; i++) {
           await Future<void>.delayed(const Duration(milliseconds: 50));
           await tester.pump();
-          if (find.text('Renamed 1 file on the NAS.').evaluate().isNotEmpty) {
+          if (find.text('Renamed 1 file on the backup server.').evaluate().isNotEmpty) {
             break;
           }
         }
       });
-      expect(find.text('Renamed 1 file on the NAS.'), findsOneWidget);
+      expect(find.text('Renamed 1 file on the backup server.'), findsOneWidget);
       expect(server.files.keys, isNot(contains('p0.jpg.shtr')));
     });
   });

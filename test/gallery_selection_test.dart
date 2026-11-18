@@ -153,7 +153,7 @@ void main() {
     expect(find.byType(SettingsScreen), findsNothing);
     expect(tester.takeException(), isNull);
     expect(
-      find.text('Could not read saved NAS details. Try again.'),
+      find.text('Could not read the saved backup server details. Try again.'),
       findsOneWidget,
     );
   });

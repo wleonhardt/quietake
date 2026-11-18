@@ -46,7 +46,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get recentlyDeletedDeleteNowBody =>
-      'Diese Aufnahme wird dauerhaft von diesem Telefon und von Ihrem eingerichteten NAS entfernt. Sie kann nicht wiederhergestellt werden.';
+      'Diese Aufnahme wird dauerhaft von diesem Telefon und von Ihrem eingerichteten Server entfernt. Sie kann nicht wiederhergestellt werden.';
 
   @override
   String get recentlyDeletedAllTitle => 'Alle jetzt löschen?';
@@ -57,9 +57,9 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count Aufnahmen werden dauerhaft von diesem Telefon und von Ihrem eingerichteten NAS entfernt. Sie können nicht wiederhergestellt werden.',
+          '$count Aufnahmen werden dauerhaft von diesem Telefon und von Ihrem eingerichteten Server entfernt. Sie können nicht wiederhergestellt werden.',
       one:
-          '$count Aufnahme wird dauerhaft von diesem Telefon und von Ihrem eingerichteten NAS entfernt. Sie kann nicht wiederhergestellt werden.',
+          '$count Aufnahme wird dauerhaft von diesem Telefon und von Ihrem eingerichteten Server entfernt. Sie kann nicht wiederhergestellt werden.',
     );
     return '$_temp0';
   }
@@ -173,7 +173,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get recoveryKeyIntro =>
-      'Bewahren Sie diesen Schlüssel in Ihrem Passwortmanager auf, getrennt von Ihren verschlüsselten Dateien. Sie benötigen beide, um Ihre Aufnahmen wiederherzustellen, wenn Sie den Zugangscode vergessen oder dieses Gerät verlieren. Eine NAS-Backup-Passphrase ist nur dann eine weitere Wiederherstellungsoption, wenn Sie sie aktiviert haben.';
+      'Bewahren Sie diesen Schlüssel in Ihrem Passwortmanager oder auf Papier an einem sicheren Ort auf, getrennt von Ihren verschlüsselten Dateien. Sie benötigen beide, um Ihre Aufnahmen wiederherzustellen, wenn Sie den Zugangscode vergessen oder dieses Gerät verlieren. Eine Server-Backup-Passphrase ist nur dann eine weitere Wiederherstellungsoption, wenn Sie sie aktiviert haben.';
 
   @override
   String recoveryFingerprint(String fingerprint) {
@@ -356,7 +356,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get setupRestoreNas =>
-      'Vom NAS mit Backup-Passphrase wiederherstellen';
+      'Vom Server mit Backup-Passphrase wiederherstellen';
 
   @override
   String get privacyPolicy => 'Datenschutzerklärung';
@@ -891,7 +891,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String galleryDeleteKeepBody(int days) {
-    return 'Die Auswahl wird in „Zuletzt gelöscht“ verschoben und bleibt $days Tage verschlüsselt auf diesem Telefon, damit Sie sie wiederherstellen können. Eine NAS-Kopie bleibt bis dahin erhalten.';
+    return 'Die Auswahl wird in „Zuletzt gelöscht“ verschoben und bleibt $days Tage verschlüsselt auf diesem Telefon, damit Sie sie wiederherstellen können. Eine Server-Kopie bleibt bis dahin erhalten.';
   }
 
   @override
@@ -919,7 +919,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get galleryNasReadFailed =>
-      'Gespeicherte NAS-Angaben konnten nicht gelesen werden. Versuchen Sie es erneut.';
+      'Gespeicherte Server-Angaben konnten nicht gelesen werden. Versuchen Sie es erneut.';
 
   @override
   String get galleryImportTooltip => 'Kopien aus Dateien importieren';
@@ -931,7 +931,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get gallerySyncSetup => 'Backup einrichten';
 
   @override
-  String get gallerySyncNow => 'Mit NAS synchronisieren';
+  String get gallerySyncNow => 'Mit Server synchronisieren';
 
   @override
   String get galleryCloseSearch => 'Suche schließen';
@@ -1208,7 +1208,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String viewerDeleteKeepNas(int days) {
-    return '„Zuletzt gelöscht“ behält sie $days Tage verschlüsselt auf diesem Telefon, damit Sie sie wiederherstellen können. Ihre NAS-Kopie bleibt bis dahin erhalten. „Jetzt löschen“ entfernt sie dauerhaft von diesem Telefon und von Ihrem konfigurierten NAS.';
+    return '„Zuletzt gelöscht“ behält sie $days Tage verschlüsselt auf diesem Telefon, damit Sie sie wiederherstellen können. Ihre Server-Kopie bleibt bis dahin erhalten. „Jetzt löschen“ entfernt sie dauerhaft von diesem Telefon und von Ihrem konfigurierten Server.';
   }
 
   @override
@@ -1218,7 +1218,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get viewerDeleteNasNow =>
-      'Sie wird dauerhaft von diesem Telefon und von Ihrem konfigurierten NAS entfernt.';
+      'Sie wird dauerhaft von diesem Telefon und von Ihrem konfigurierten Server entfernt.';
 
   @override
   String get viewerDeleteNow =>
@@ -1226,11 +1226,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get viewerDeleteNasTail =>
-      'Ist das NAS nicht erreichbar, wird das Löschen abgeschlossen, sobald die Synchronisierung gelingt.';
+      'Ist den Server nicht erreichbar, wird das Löschen abgeschlossen, sobald die Synchronisierung gelingt.';
 
   @override
   String get viewerDeletePendingTail =>
-      'Ausstehende Löschungen werden angewendet, wenn Sie ein NAS-Backup erneut verbinden.';
+      'Ausstehende Löschungen werden angewendet, wenn Sie ein Server-Backup erneut verbinden.';
 
   @override
   String get viewerDeleteEnd =>
@@ -1319,7 +1319,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get backupIntro =>
-      'Prüft jede verschlüsselte Datei in Ihrem gespeicherten NAS-Backup mit dem Schlüssel dieses Tresors. Große Bibliotheken benötigen Zeit, Daten und temporären Speicherplatz. Diese Prüfung verändert die Originale nicht.';
+      'Prüft jede verschlüsselte Datei in Ihrem gespeicherten Server-Backup mit dem Schlüssel dieses Tresors. Große Bibliotheken benötigen Zeit, Daten und temporären Speicherplatz. Diese Prüfung verändert die Originale nicht.';
 
   @override
   String get backupNeverChecked =>
@@ -1536,7 +1536,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsErrReach =>
-      'NAS nicht erreichbar. Prüfen Sie die URL und das WLAN.';
+      'Server nicht erreichbar. Prüfen Sie die URL und das WLAN.';
 
   @override
   String get settingsErrGeneric =>
@@ -1556,7 +1556,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsDisconnectFailed =>
-      'NAS-Backup konnte nicht getrennt werden. Versuchen Sie es erneut.';
+      'Server-Backup konnte nicht getrennt werden. Versuchen Sie es erneut.';
 
   @override
   String get settingsWrongPasscode => 'Falscher Code. Versuchen Sie es erneut.';
@@ -1566,14 +1566,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Wiederherstellungsschlüssel konnte nicht gelesen werden. Versuchen Sie es erneut.';
 
   @override
-  String get settingsDisconnectTitle => 'NAS-Backup trennen?';
+  String get settingsDisconnectTitle => 'Server-Backup trennen?';
 
   @override
-  String get settingsClearTitle => 'Gespeicherte NAS-Angaben löschen?';
+  String get settingsClearTitle => 'Gespeicherte Server-Angaben löschen?';
 
   @override
   String get settingsDisconnectBody =>
-      'Beendet das automatische Backup und entfernt die gespeicherten Verbindungsdaten. Aufnahmen bleiben auf Ihrem Telefon und dem NAS. Ausstehende NAS-Löschungen werden erst abgeschlossen, wenn Sie dieses Backup erneut verbinden.';
+      'Beendet das automatische Backup und entfernt die gespeicherten Verbindungsdaten. Aufnahmen bleiben auf Ihrem Telefon und dem Server. Ausstehende Server-Löschungen werden erst abgeschlossen, wenn Sie dieses Backup erneut verbinden.';
 
   @override
   String get settingsDisconnectAction => 'Trennen';
@@ -1582,10 +1582,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsClearAction => 'Angaben löschen';
 
   @override
-  String get settingsDisconnectButton => 'NAS-Backup trennen';
+  String get settingsDisconnectButton => 'Server-Backup trennen';
 
   @override
-  String get settingsClearButton => 'Gespeicherte NAS-Angaben löschen';
+  String get settingsClearButton => 'Gespeicherte Server-Angaben löschen';
 
   @override
   String get settingsRecoverySection => 'Wiederherstellung & Export';
@@ -1594,7 +1594,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsShowRecovery => 'Wiederherstellungsschlüssel anzeigen';
 
   @override
-  String get settingsNasPassTitle => 'Passphrase für das NAS-Backup';
+  String get settingsNasPassTitle => 'Passphrase für das Server-Backup';
 
   @override
   String get settingsNasPassBody =>
@@ -1829,27 +1829,27 @@ class AppLocalizationsDe extends AppLocalizations {
       'Backup konnte nicht wiederhergestellt oder gespeichert werden. Prüfen Sie Schlüssel, Datei, verfügbaren Speicher und die Voraussetzung eines leeren Tresors.';
 
   @override
-  String get nasTitleRestore => 'Vom NAS wiederherstellen';
+  String get nasTitleRestore => 'Vom Server wiederherstellen';
 
   @override
   String get nasTitleManage => 'Backup-Passphrase';
 
   @override
   String get nasIntroRestore =>
-      'Verwenden Sie die separate Backup-Passphrase, die Sie zuvor auf Ihrem NAS aktiviert haben. Der kurze Telefon-Code kann dieses Backup nicht wiederherstellen. Die Wiederherstellung authentifiziert alle Dateien in einem leeren Tresor; es wird nichts zusammengeführt. Ihr NAS bleibt schreibgeschützt.';
+      'Verwenden Sie die separate Backup-Passphrase, die Sie zuvor auf Ihrem Server aktiviert haben. Der kurze Telefon-Code kann dieses Backup nicht wiederherstellen. Die Wiederherstellung authentifiziert alle Dateien in einem leeren Tresor; es wird nichts zusammengeführt. Ihr Server bleibt schreibgeschützt.';
 
   @override
   String get nasIntroManage =>
-      'Schützen Sie die NAS-Wiederherstellung mit einer separaten, starken Passphrase. Jeder, der die verschlüsselte Datei besitzt, kann offline Vermutungen ausprobieren. Bevorzugen Sie sechs zufällige Wörter; Länge allein beweist keine Stärke. Schließen Sie zuerst eine Synchronisierung mit dem gespeicherten NAS ab. Das NAS muss sicheres Dateisperren unterstützen; andernfalls wird nichts geschrieben.';
+      'Schützen Sie die Server-Wiederherstellung mit einer separaten, starken Passphrase. Jeder, der die verschlüsselte Datei besitzt, kann offline Vermutungen ausprobieren. Bevorzugen Sie sechs zufällige Wörter; Länge allein beweist keine Stärke. Schließen Sie zuerst eine Synchronisierung mit dem gespeicherten Server ab. Der Server muss sicheres Dateisperren unterstützen; andernfalls wird nichts geschrieben.';
 
   @override
   String get nasUrlLabel => 'HTTPS-WebDAV-Ordner-URL';
 
   @override
-  String get nasUserLabel => 'NAS-Benutzername';
+  String get nasUserLabel => 'Server-Benutzername';
 
   @override
-  String get nasPasswordLabel => 'NAS-Passwort';
+  String get nasPasswordLabel => 'Server-Passwort';
 
   @override
   String get nasPinNew => 'Neuer lokaler Code';
@@ -1910,11 +1910,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get nasConfirmDisableBody =>
-      'Entfernt die aktuelle Wiederherstellungsdatei aus dem gespeicherten NAS-Ordner. Aufnahmen bleiben erhalten. Alte Server-Snapshots akzeptieren möglicherweise noch eine frühere Passphrase. Bewahren Sie Ihren unabhängigen Wiederherstellungsschlüssel auf.';
+      'Entfernt die aktuelle Wiederherstellungsdatei aus dem gespeicherten Server-Ordner. Aufnahmen bleiben erhalten. Alte Server-Snapshots akzeptieren möglicherweise noch eine frühere Passphrase. Bewahren Sie Ihren unabhängigen Wiederherstellungsschlüssel auf.';
 
   @override
   String get nasConfirmSaveBody =>
-      'Erstellt oder ersetzt die Wiederherstellung im gespeicherten NAS-Ordner. Bewahren Sie die neue Passphrase getrennt auf. Alte Server-Snapshots akzeptieren möglicherweise noch eine frühere Passphrase; der Schlüssel Ihres Tresors wird dadurch nicht gewechselt.';
+      'Erstellt oder ersetzt die Wiederherstellung im gespeicherten Server-Ordner. Bewahren Sie die neue Passphrase getrennt auf. Alte Server-Snapshots akzeptieren möglicherweise noch eine frühere Passphrase; der Schlüssel Ihres Tresors wird dadurch nicht gewechselt.';
 
   @override
   String get nasDisableAction => 'Wiederherstellung deaktivieren';
@@ -1932,24 +1932,25 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get nasNeedDetails =>
-      'Geben Sie Ihren gespeicherten NAS-Ordner, Benutzernamen und das Passwort ein.';
+      'Geben Sie Ihren gespeicherten Server-Ordner, Benutzernamen und das Passwort ein.';
 
   @override
   String get nasMismatch => 'Die Backup-Passphrasen stimmen nicht überein.';
 
   @override
-  String get nasCheckingRestore => 'Verschlüsseltes NAS-Backup wird geprüft …';
+  String get nasCheckingRestore =>
+      'Verschlüsseltes Server-Backup wird geprüft …';
 
   @override
   String get nasCheckingSaved =>
-      'Gespeicherte NAS-Wiederherstellung wird geprüft …';
+      'Gespeicherte Server-Wiederherstellung wird geprüft …';
 
   @override
   String get nasRestoredTitle => 'Tresor wiederhergestellt';
 
   @override
   String get nasRestoredUnsaved =>
-      'Die NAS-Verbindung konnte nicht gespeichert werden. Ihre Aufnahmen sind wiederhergestellt; fügen Sie die Verbindung in den Einstellungen erneut hinzu, um Backups fortzusetzen.';
+      'Die Server-Verbindung konnte nicht gespeichert werden. Ihre Aufnahmen sind wiederhergestellt; fügen Sie die Verbindung in den Einstellungen erneut hinzu, um Backups fortzusetzen.';
 
   @override
   String get nasContinue => 'Weiter';
@@ -1971,11 +1972,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get nasRestoreFailed =>
-      'Wiederherstellung fehlgeschlagen. Prüfen Sie die NAS-Verbindung, die Backup-Passphrase und die Voraussetzung eines leeren Tresors. Originale bleiben erhalten.';
+      'Wiederherstellung fehlgeschlagen. Prüfen Sie die Server-Verbindung, die Backup-Passphrase und die Voraussetzung eines leeren Tresors. Originale bleiben erhalten.';
 
   @override
   String get nasChangeFailed =>
-      'Wiederherstellung konnte nicht geändert werden. Prüfen Sie das gespeicherte NAS-Backup, die unterstützte Wiederherstellungsdatei und die Serverkompatibilität. Synchronisieren Sie zuerst und versuchen Sie es dann erneut. Originale bleiben erhalten.';
+      'Wiederherstellung konnte nicht geändert werden. Prüfen Sie das gespeicherte Server-Backup, die unterstützte Wiederherstellungsdatei und die Serverkompatibilität. Synchronisieren Sie zuerst und versuchen Sie es dann erneut. Originale bleiben erhalten.';
 
   @override
   String get coverChooseTitle => 'Titelbild wählen';
@@ -2114,14 +2115,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get redactSections => 'Oder einen Abschnitt des Fotos verbergen';
 
   @override
-  String get settingsRenameRemote => 'NAS-Dateien zufällige Namen geben';
+  String get settingsRenameRemote => 'Server-Dateien zufällige Namen geben';
 
   @override
   String get settingsRenameRemoteNone =>
-      'Keine Datei auf dem NAS braucht einen neuen Namen.';
+      'Keine Datei auf dem Server braucht einen neuen Namen.';
 
   @override
-  String get settingsRenameRemoteTitle => 'Dateien auf dem NAS umbenennen?';
+  String get settingsRenameRemoteTitle => 'Dateien auf dem Server umbenennen?';
 
   @override
   String settingsRenameRemoteBody(int count) {
@@ -2129,8 +2130,8 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count verschlüsselte Dateien auf dem NAS erhalten zufällige Namen, sodass ihre Namen und Zeiten dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.',
-      one: '1 verschlüsselte Datei auf dem NAS erhält einen zufälligen Namen, sodass ihr Name und ihre Zeit dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.',
+          '$count verschlüsselte Dateien auf dem Server erhalten zufällige Namen, sodass ihre Namen und Zeiten dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.',
+      one: '1 verschlüsselte Datei auf dem Server erhält einen zufälligen Namen, sodass ihr Name und ihre Zeit dort nicht mehr sichtbar sind. Aktualisiere zuerst Quietake auf allen anderen Handys: ältere Versionen finden umbenannte Dateien nicht. Deine Originale bleiben auf diesem Handy.',
     );
     return '$_temp0';
   }
@@ -2143,8 +2144,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count Dateien auf dem NAS umbenannt.',
-      one: '1 Datei auf dem NAS umbenannt.',
+      other: '$count Dateien auf dem Server umbenannt.',
+      one: '1 Datei auf dem Server umbenannt.',
     );
     return '$_temp0';
   }

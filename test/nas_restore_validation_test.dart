@@ -96,19 +96,19 @@ void main() {
 
   testWidgets('the restore screen follows the device language', (tester) async {
     await open(tester, locale: const Locale('fr'));
-    expect(find.text('Restaurer depuis le NAS'), findsOneWidget);
+    expect(find.text('Restaurer depuis le serveur'), findsOneWidget);
     await fill(tester, user: '');
     expect(
       await start(tester),
-      'Saisissez le dossier, le nom d\'utilisateur et le mot de passe NAS enregistrés.',
+      'Saisissez le dossier, le nom d\'utilisateur et le mot de passe du serveur enregistrés.',
     );
-    expect(find.text('Restore from NAS'), findsNothing);
+    expect(find.text('Restore from backup server'), findsNothing);
   });
 
   testWidgets('missing NAS details are requested', (tester) async {
     await open(tester);
     await fill(tester, user: '');
-    expect(await start(tester), contains('Enter your saved NAS folder'));
+    expect(await start(tester), contains('Enter your backup server folder'));
   });
 
   testWidgets('a plain HTTP remote URL is refused', (tester) async {

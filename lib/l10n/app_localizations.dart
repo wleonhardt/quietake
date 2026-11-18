@@ -153,7 +153,7 @@ abstract class AppLocalizations {
   /// No description provided for @recentlyDeletedDeleteNowBody.
   ///
   /// In en, this message translates to:
-  /// **'This capture is permanently removed from this phone and your configured NAS. It cannot be restored.'**
+  /// **'This capture is permanently removed from this phone and your backup server. It cannot be restored.'**
   String get recentlyDeletedDeleteNowBody;
 
   /// No description provided for @recentlyDeletedAllTitle.
@@ -165,7 +165,7 @@ abstract class AppLocalizations {
   /// Confirmation for permanently deleting every capture in Recently deleted.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 capture is permanently removed from this phone and your configured NAS. It cannot be restored.} other{{count} captures are permanently removed from this phone and your configured NAS. They cannot be restored.}}'**
+  /// **'{count, plural, =1{1 capture is permanently removed from this phone and your backup server. It cannot be restored.} other{{count} captures are permanently removed from this phone and your backup server. They cannot be restored.}}'**
   String recentlyDeletedAllBody(int count);
 
   /// No description provided for @recentlyDeletedAllNow.
@@ -315,7 +315,7 @@ abstract class AppLocalizations {
   /// No description provided for @recoveryKeyIntro.
   ///
   /// In en, this message translates to:
-  /// **'Keep this key in your password manager, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A NAS backup passphrase is another recovery option only if you have enabled it.'**
+  /// **'Keep this key in your password manager or on paper in a safe place, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A backup passphrase is another recovery option only if you have enabled it.'**
   String get recoveryKeyIntro;
 
   /// No description provided for @recoveryFingerprint.
@@ -627,7 +627,7 @@ abstract class AppLocalizations {
   /// No description provided for @setupRestoreNas.
   ///
   /// In en, this message translates to:
-  /// **'Restore from NAS with backup passphrase'**
+  /// **'Restore from my backup server'**
   String get setupRestoreNas;
 
   /// No description provided for @privacyPolicy.
@@ -1461,7 +1461,7 @@ abstract class AppLocalizations {
   /// No description provided for @galleryDeleteKeepBody.
   ///
   /// In en, this message translates to:
-  /// **'The selection moves to Recently deleted and stays on this phone, encrypted, for {days} days so you can restore it. Any NAS copy stays until then.'**
+  /// **'The selection moves to Recently deleted and stays on this phone, encrypted, for {days} days so you can restore it. Any copy on your backup server stays until then.'**
   String galleryDeleteKeepBody(int days);
 
   /// No description provided for @galleryDeleteMove.
@@ -1509,7 +1509,7 @@ abstract class AppLocalizations {
   /// No description provided for @galleryNasReadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not read saved NAS details. Try again.'**
+  /// **'Could not read the saved backup server details. Try again.'**
   String get galleryNasReadFailed;
 
   /// No description provided for @galleryImportTooltip.
@@ -1533,7 +1533,7 @@ abstract class AppLocalizations {
   /// No description provided for @gallerySyncNow.
   ///
   /// In en, this message translates to:
-  /// **'Sync with NAS'**
+  /// **'Sync with backup server'**
   String get gallerySyncNow;
 
   /// No description provided for @galleryCloseSearch.
@@ -1953,7 +1953,7 @@ abstract class AppLocalizations {
   /// No description provided for @viewerDeleteKeepNas.
   ///
   /// In en, this message translates to:
-  /// **'Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Your NAS copy stays until then. Delete now removes it from this phone and your configured NAS permanently.'**
+  /// **'Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. The copy on your backup server stays until then. Delete now removes it from this phone and your backup server permanently.'**
   String viewerDeleteKeepNas(int days);
 
   /// No description provided for @viewerDeleteKeep.
@@ -1965,7 +1965,7 @@ abstract class AppLocalizations {
   /// No description provided for @viewerDeleteNasNow.
   ///
   /// In en, this message translates to:
-  /// **'It will be permanently removed from this phone and your configured NAS.'**
+  /// **'It will be permanently removed from this phone and your backup server.'**
   String get viewerDeleteNasNow;
 
   /// No description provided for @viewerDeleteNow.
@@ -1977,13 +1977,13 @@ abstract class AppLocalizations {
   /// No description provided for @viewerDeleteNasTail.
   ///
   /// In en, this message translates to:
-  /// **'If the NAS is unavailable, deletion finishes when sync succeeds.'**
+  /// **'If the backup server is unavailable, deletion finishes when sync succeeds.'**
   String get viewerDeleteNasTail;
 
   /// No description provided for @viewerDeletePendingTail.
   ///
   /// In en, this message translates to:
-  /// **'Pending deletions apply if you reconnect a NAS backup.'**
+  /// **'Pending deletions apply if you connect the backup server again.'**
   String get viewerDeletePendingTail;
 
   /// No description provided for @viewerDeleteEnd.
@@ -2151,7 +2151,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupIntro.
   ///
   /// In en, this message translates to:
-  /// **'Checks every encrypted file in your saved NAS backup using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.'**
+  /// **'Checks every encrypted file on your backup server using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.'**
   String get backupIntro;
 
   /// No description provided for @backupNeverChecked.
@@ -2355,13 +2355,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsBackupIntro.
   ///
   /// In en, this message translates to:
-  /// **'Optional backup of encrypted media to your own WebDAV share.'**
+  /// **'Optional backup of encrypted media to a server you run yourself (WebDAV over HTTPS).'**
   String get settingsBackupIntro;
 
   /// No description provided for @settingsUrlLabel.
   ///
   /// In en, this message translates to:
-  /// **'WebDAV folder URL'**
+  /// **'Backup server folder URL (WebDAV)'**
   String get settingsUrlLabel;
 
   /// No description provided for @settingsUsername.
@@ -2481,7 +2481,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsErrReach.
   ///
   /// In en, this message translates to:
-  /// **'Could not reach NAS. Check the URL and Wi-Fi.'**
+  /// **'Could not reach the backup server. Check the URL and Wi-Fi.'**
   String get settingsErrReach;
 
   /// No description provided for @settingsErrGeneric.
@@ -2511,7 +2511,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDisconnectFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not disconnect NAS backup. Try again.'**
+  /// **'Could not disconnect the backup server. Try again.'**
   String get settingsDisconnectFailed;
 
   /// No description provided for @settingsWrongPasscode.
@@ -2529,19 +2529,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDisconnectTitle.
   ///
   /// In en, this message translates to:
-  /// **'Disconnect NAS backup?'**
+  /// **'Disconnect the backup server?'**
   String get settingsDisconnectTitle;
 
   /// No description provided for @settingsClearTitle.
   ///
   /// In en, this message translates to:
-  /// **'Clear saved NAS details?'**
+  /// **'Clear saved backup server details?'**
   String get settingsClearTitle;
 
   /// No description provided for @settingsDisconnectBody.
   ///
   /// In en, this message translates to:
-  /// **'Stops automatic backup and removes saved connection details. Captures stay on your phone and NAS. Pending NAS deletions will not finish until you reconnect that backup.'**
+  /// **'Stops automatic backup and removes saved connection details. Captures stay on your phone and on the backup server. Pending deletions on the server will not finish until you connect it again.'**
   String get settingsDisconnectBody;
 
   /// No description provided for @settingsDisconnectAction.
@@ -2559,13 +2559,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDisconnectButton.
   ///
   /// In en, this message translates to:
-  /// **'Disconnect NAS backup'**
+  /// **'Disconnect backup server'**
   String get settingsDisconnectButton;
 
   /// No description provided for @settingsClearButton.
   ///
   /// In en, this message translates to:
-  /// **'Clear saved NAS details'**
+  /// **'Clear saved backup server details'**
   String get settingsClearButton;
 
   /// No description provided for @settingsRecoverySection.
@@ -2583,7 +2583,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNasPassTitle.
   ///
   /// In en, this message translates to:
-  /// **'NAS backup passphrase'**
+  /// **'Backup passphrase'**
   String get settingsNasPassTitle;
 
   /// No description provided for @settingsNasPassBody.
@@ -2955,7 +2955,7 @@ abstract class AppLocalizations {
   /// No description provided for @nasTitleRestore.
   ///
   /// In en, this message translates to:
-  /// **'Restore from NAS'**
+  /// **'Restore from backup server'**
   String get nasTitleRestore;
 
   /// No description provided for @nasTitleManage.
@@ -2967,31 +2967,31 @@ abstract class AppLocalizations {
   /// No description provided for @nasIntroRestore.
   ///
   /// In en, this message translates to:
-  /// **'Use the separate backup passphrase previously enabled on your NAS. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your NAS stays read-only.'**
+  /// **'Use the separate backup passphrase previously enabled on your backup server. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your backup server stays read-only.'**
   String get nasIntroRestore;
 
   /// No description provided for @nasIntroManage.
   ///
   /// In en, this message translates to:
-  /// **'Protect NAS recovery with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a saved NAS sync first. The NAS must support safe file locking; otherwise nothing is written.'**
+  /// **'Protect recovery from your backup server with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a sync with the saved backup server first. The server must support safe file locking; otherwise nothing is written.'**
   String get nasIntroManage;
 
   /// No description provided for @nasUrlLabel.
   ///
   /// In en, this message translates to:
-  /// **'HTTPS WebDAV folder URL'**
+  /// **'Backup server folder URL (HTTPS WebDAV)'**
   String get nasUrlLabel;
 
   /// No description provided for @nasUserLabel.
   ///
   /// In en, this message translates to:
-  /// **'NAS username'**
+  /// **'Backup server username'**
   String get nasUserLabel;
 
   /// No description provided for @nasPasswordLabel.
   ///
   /// In en, this message translates to:
-  /// **'NAS password'**
+  /// **'Backup server password'**
   String get nasPasswordLabel;
 
   /// No description provided for @nasPinNew.
@@ -3099,13 +3099,13 @@ abstract class AppLocalizations {
   /// No description provided for @nasConfirmDisableBody.
   ///
   /// In en, this message translates to:
-  /// **'Removes the current recovery file from the saved NAS folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.'**
+  /// **'Removes the current recovery file from the saved backup server folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.'**
   String get nasConfirmDisableBody;
 
   /// No description provided for @nasConfirmSaveBody.
   ///
   /// In en, this message translates to:
-  /// **'Creates or replaces recovery in the saved NAS folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.'**
+  /// **'Creates or replaces recovery in the saved backup server folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.'**
   String get nasConfirmSaveBody;
 
   /// No description provided for @nasDisableAction.
@@ -3135,7 +3135,7 @@ abstract class AppLocalizations {
   /// No description provided for @nasNeedDetails.
   ///
   /// In en, this message translates to:
-  /// **'Enter your saved NAS folder, username and password.'**
+  /// **'Enter your backup server folder, username and password.'**
   String get nasNeedDetails;
 
   /// No description provided for @nasMismatch.
@@ -3147,13 +3147,13 @@ abstract class AppLocalizations {
   /// No description provided for @nasCheckingRestore.
   ///
   /// In en, this message translates to:
-  /// **'Checking encrypted NAS backup…'**
+  /// **'Checking the encrypted backup on the server…'**
   String get nasCheckingRestore;
 
   /// No description provided for @nasCheckingSaved.
   ///
   /// In en, this message translates to:
-  /// **'Checking saved NAS recovery…'**
+  /// **'Checking saved recovery on the backup server…'**
   String get nasCheckingSaved;
 
   /// No description provided for @nasRestoredTitle.
@@ -3165,7 +3165,7 @@ abstract class AppLocalizations {
   /// No description provided for @nasRestoredUnsaved.
   ///
   /// In en, this message translates to:
-  /// **'The NAS connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.'**
+  /// **'The backup server connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.'**
   String get nasRestoredUnsaved;
 
   /// No description provided for @nasContinue.
@@ -3201,13 +3201,13 @@ abstract class AppLocalizations {
   /// No description provided for @nasRestoreFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not restore. Check the NAS connection, backup passphrase and empty-vault requirement. Originals kept.'**
+  /// **'Could not restore. Check the backup server connection, backup passphrase and empty-vault requirement. Originals kept.'**
   String get nasRestoreFailed;
 
   /// No description provided for @nasChangeFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not change recovery. Check saved NAS backup, supported recovery file and server compatibility. Sync first, then retry. Originals kept.'**
+  /// **'Could not change recovery. Check the saved backup server, supported recovery file and server compatibility. Sync first, then retry. Originals kept.'**
   String get nasChangeFailed;
 
   /// No description provided for @coverChooseTitle.
@@ -3411,25 +3411,25 @@ abstract class AppLocalizations {
   /// No description provided for @settingsRenameRemote.
   ///
   /// In en, this message translates to:
-  /// **'Give NAS files random names'**
+  /// **'Give files on the backup server random names'**
   String get settingsRenameRemote;
 
   /// No description provided for @settingsRenameRemoteNone.
   ///
   /// In en, this message translates to:
-  /// **'No files on the NAS need new names.'**
+  /// **'No files on the backup server need new names.'**
   String get settingsRenameRemoteNone;
 
   /// No description provided for @settingsRenameRemoteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Rename files on the NAS?'**
+  /// **'Rename files on the backup server?'**
   String get settingsRenameRemoteTitle;
 
   /// Confirmation before renaming NAS files; count is the number of files.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 encrypted file on the NAS gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.} other{{count} encrypted files on the NAS get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.}}'**
+  /// **'{count, plural, =1{1 encrypted file on the backup server gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.} other{{count} encrypted files on the backup server get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.}}'**
   String settingsRenameRemoteBody(int count);
 
   /// No description provided for @settingsRenameRemoteAction.
@@ -3441,7 +3441,7 @@ abstract class AppLocalizations {
   /// Result after renaming NAS files.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Renamed 1 file on the NAS.} other{Renamed {count} files on the NAS.}}'**
+  /// **'{count, plural, =1{Renamed 1 file on the backup server.} other{Renamed {count} files on the backup server.}}'**
   String settingsRenameRemoteDone(int count);
 
   /// No description provided for @settingsRenameRemoteFailed.

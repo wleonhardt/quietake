@@ -241,7 +241,7 @@ void main() {
     expect(find.text('Delete this photo?'), findsOneWidget);
     expect(
       find.text(
-        'Recently deleted keeps it on this phone, encrypted, for 30 days so you can restore it. Delete now removes it from this phone permanently. Pending deletions apply if you reconnect a NAS backup. Other backups and shared copies are unaffected. Active casting will stop.',
+        'Recently deleted keeps it on this phone, encrypted, for 30 days so you can restore it. Delete now removes it from this phone permanently. Pending deletions apply if you connect the backup server again. Other backups and shared copies are unaffected. Active casting will stop.',
       ),
       findsOneWidget,
     );
