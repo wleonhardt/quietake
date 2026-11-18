@@ -91,13 +91,11 @@ void _cover(Uint8List px, int width, int height, ui.Rect region) {
   final right = (region.right * width).ceil().clamp(0, width);
   final top = (region.top * height).floor().clamp(0, height);
   final bottom = (region.bottom * height).ceil().clamp(0, height);
+  // One opaque black word per pixel, a row at a time: a byte-by-byte loop
+  // over a large area held up the UI for a noticeable moment.
+  final words = px.buffer.asUint32List(px.offsetInBytes, px.lengthInBytes ~/ 4);
+  final black = Endian.host == Endian.little ? 0xff000000 : 0x000000ff;
   for (var y = top; y < bottom; y++) {
-    for (var x = left; x < right; x++) {
-      final i = (y * width + x) * 4;
-      px[i] = 0;
-      px[i + 1] = 0;
-      px[i + 2] = 0;
-      px[i + 3] = 255;
-    }
+    words.fillRange(y * width + left, y * width + right, black);
   }
 }

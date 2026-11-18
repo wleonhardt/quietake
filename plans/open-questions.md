@@ -17,6 +17,8 @@
 
 - Setup welcome and restore wording (decision 046), to approve: title "Welcome"; body "Quietake keeps your photos and videos encrypted on this phone. You choose a passcode to open them. Nobody can reset it for you, so you also get a recovery key to keep."; buttons "Create a new vault" and "Restore a vault I already have"; restore page "Choose what you have." with "I have a recovery key" ("For the encrypted files on this phone, or to start again with the same key. You choose a new passcode."), "Restore an encrypted ZIP" ("A backup file saved from Quietake. You need its recovery key.") and "Restore from NAS with backup passphrase" ("Downloads your captures from your backup server. You need the server address and the backup passphrase.").
 
+- Biometric binding (decision 043, part 2; review item R59b): not built. It replaces the app's own fingerprint or face prompt with the keystore's, on both platforms, and cannot be checked on an emulator or simulator. Do you want it built now, with you checking unlock, cancel, a newly enrolled finger and "off" on an Android phone and an iPhone before it is merged? Default: wait for that check.
+
 ## Resolved
 
 - 2026-11-18 (owner, answers to the review questions):

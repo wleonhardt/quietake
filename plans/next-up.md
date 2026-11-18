@@ -2,7 +2,7 @@
 
 ## Queue
 
-- Work through `plans/review-fixes.md` (whole-project review of 2026-11-17): take the first `planned` item, one small verified commit each, pushed to the working branch after each commit (owner, 2026-11-17). Three ship blockers are already fixed (decisions 033, 034 and the 029 correction); their device evidence is listed there.
+- `plans/review-fixes.md` (whole-project review of 2026-11-17): no item is `planned` any more (2026-11-18). What is left is blocked on the owner or deferred, each with its reason there: R59b (bind the keystore copy to biometrics; needs a real phone), R90 (lock as key boundary), R33 (viewer paging), R81 (screenshots), R13, R28, R36, R37, R40, R58. The owner's open decisions are in `plans/open-questions.md`. Decisions 041 to 047 record what the loop built on 2026-11-18.
 - Complete protected source acceptance for 1.0.0+5. The Android Back correction
   keeps native Back routed to the restored content navigator after lock/unlock.
   Source regression, focused Android/iOS lock/privacy checks and native Android
