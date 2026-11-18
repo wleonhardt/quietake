@@ -6,6 +6,7 @@
 - Translations (de, es, fr) of every in-app wording draft need native review. The English wording was accepted by the owner on 2026-11-18.
 - Policy draft H in decision 030 (PNG share copies now lose their metadata; two policy sentences and the website page still say they do not): approve, edit or reject.
 - iOS export compliance: `ITSAppUsesNonExemptEncryption` is not set, so every App Store Connect upload will ask. The app encrypts the user's own files with libsodium; whether that is exempt is a legal statement for the owner to make.
+- Lock as a key boundary (review item R90): you chose to close the session on lock. Three things depend on it staying open: the policy sentence that an import may finish while locked, Lock now saving a running recording, and the 1.0.0+5 check that Android Back returns to the restored screen after unlock. Options: (a) close the session only after running saves and imports finish, drop the restored screen and change the policy sentence and that acceptance item; (b) keep the session but stop sync and clear decoded media on lock, as today plus sync; (c) leave as is. Which?
 - Decision 029: look at the generated gray icon on a real launcher.
 - NAS restore dry run: the agent shell still sees `bw` locked; unlock it (the agent never types the master password) and hand over an empty test folder.
 - Real-device checks nobody has done yet: the saved photo size after decision 034, a tile tap and "Open with" while the plain icon is on, pinch zoom, the flash button, biometric unlock once decision 033's second part is built.
