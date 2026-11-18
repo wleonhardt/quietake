@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'burst_setting.dart';
+import '../cast/cast_controller.dart';
 import '../cast/device_picker.dart';
 import '../gallery/gallery_screen.dart';
 import '../gallery/item.dart';
@@ -84,6 +85,7 @@ class _CaptureScreenState extends State<CaptureScreen>
   bool _landscape = false;
   bool _flash = false;
   String? _status;
+  Timer? _statusTimer;
   bool _busy = false;
   bool _galleryRequested = false;
   bool _foreground = true;
@@ -391,6 +393,7 @@ class _CaptureScreenState extends State<CaptureScreen>
     WidgetsBinding.instance.removeObserver(this);
     _focusRingTimer?.cancel();
     _countdownTimer?.cancel();
+    _statusTimer?.cancel();
     _privacy?.hold(this, false);
     _foreground = false;
     ++_cameraEpoch;
@@ -407,6 +410,15 @@ class _CaptureScreenState extends State<CaptureScreen>
       }),
     );
     super.dispose();
+  }
+
+  /// A confirmation, unlike a problem, clears itself.
+  void _showPassing(String text) {
+    _statusTimer?.cancel();
+    setState(() => _status = text);
+    _statusTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted && _status == text) setState(() => _status = null);
+    });
   }
 
   /// Quiet confirmation: a light tap and a brief edge flash.
@@ -591,9 +603,7 @@ class _CaptureScreenState extends State<CaptureScreen>
         await _ingest(File(shot.path), 'jpg', tagIds);
         saved++;
       }
-      if (mounted && saved > 1) {
-        setState(() => _status = _l10n.camSavedPhotos(saved));
-      }
+      if (mounted && saved > 1) _showPassing(_l10n.camSavedPhotos(saved));
     });
   }
 
@@ -759,14 +769,15 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (saved.castReady && widget.session.cast.isCasting) {
       await widget.session.cast.show(VaultItem(saved.container));
     }
-    if (mounted) {
-      setState(
-        () => _status = [
-          _l10n.camSaved,
-          if (!saved.albumApplied) _l10n.camTagsNotApplied,
-          if (!saved.castReady) _l10n.camNotCastReady,
-        ].join('. '),
-      );
+    if (!mounted) return;
+    final notes = [
+      if (!saved.albumApplied) _l10n.camTagsNotApplied,
+      if (!saved.castReady) _l10n.camNotCastReady,
+    ];
+    if (notes.isEmpty) {
+      _showPassing(_l10n.camSaved);
+    } else {
+      setState(() => _status = [_l10n.camSaved, ...notes].join('. '));
     }
   }
 
@@ -785,6 +796,21 @@ class _CaptureScreenState extends State<CaptureScreen>
     final canFlip =
         _cameras.any((c) => c.lensDirection == CameraLensDirection.front) &&
         _cameras.any((c) => c.lensDirection == CameraLensDirection.back);
+    // Light status bar icons: the canvas is black in every theme.
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: _cameraScaffold(context, l10n, c, busy, cast, canFlip),
+    );
+  }
+
+  Widget _cameraScaffold(
+    BuildContext context,
+    AppLocalizations l10n,
+    CameraController? c,
+    bool busy,
+    CastController cast,
+    bool canFlip,
+  ) {
     return Scaffold(
       backgroundColor: mediaCanvas,
       // The camera has no text field of its own; a keyboard under a dialog or
@@ -911,7 +937,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                                             onMediaCanvasMuted,
                                           ),
                                           SyncState.unconfigured => (
-                                            Icons.phone_android_outlined,
+                                            Icons.smartphone_outlined,
                                             onMediaCanvasMuted,
                                           ),
                                           SyncState.syncing => (
@@ -938,7 +964,10 @@ class _CaptureScreenState extends State<CaptureScreen>
                                           excludeFromSemantics: true,
                                           child: Semantics(
                                             label: sync.label,
-                                            liveRegion: true,
+                                            // Only a backup that needs
+                                            // attention interrupts a shoot.
+                                            liveRegion:
+                                                sync.state == SyncState.pending,
                                             child: Container(
                                               width: 48,
                                               height: 48,
@@ -995,6 +1024,23 @@ class _CaptureScreenState extends State<CaptureScreen>
                                     child: Semantics(
                                       liveRegion: true,
                                       child: Text(_status!, key: Keys.status),
+                                    ),
+                                  ),
+                                if (c == null &&
+                                    !busy &&
+                                    _foreground &&
+                                    widget.active &&
+                                    (_status == l10n.camNone ||
+                                        _status == l10n.camUnavailable))
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton(
+                                      key: Keys.captureRetry,
+                                      onPressed: () {
+                                        setState(() => _status = null);
+                                        _init(recover: false);
+                                      },
+                                      child: Text(l10n.castRetry),
                                     ),
                                   ),
                                 if (cast.isCasting || cast.error != null)

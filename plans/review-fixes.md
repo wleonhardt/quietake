@@ -38,10 +38,10 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## B. Camera
 
-- R20 planned: The status bar icons are dark on the black camera screen in light mode.
-- R21 planned: The "Saved" status never clears.
-- R22 planned: The backup state icon uses an Android phone glyph on iOS and announces every sync change to screen readers.
-- R23 planned: "No camera" and "Camera unavailable" offer no retry.
+- R20 complete: The camera screen asks for light status bar icons in every theme (the lock-screen camera already gets them from its black app bar). Red and green in `test/capture_chrome_test.dart`.
+- R21 complete: "Saved securely" and the burst count clear after four seconds; a save with a problem note stays. Red and green in `test/capture_chrome_test.dart`.
+- R22 complete: The "on this phone only" state uses a neutral phone glyph, and the backup state is announced to screen readers only when a backup needs attention. No new test; the tooltip and label are unchanged.
+- R23 complete: Both states show a Retry button (the existing translated word) that opens the camera again. Red and green in `test/capture_chrome_test.dart`. Not seen on a device.
 - R24 planned: Pinch to zoom (decision record first).
 - R25 planned: Flash and torch control (decision record first).
 - R26 planned: The shutter is a radio-button icon, and during a recording the centre button is dead while Stop is the small left icon.

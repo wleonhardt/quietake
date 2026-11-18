@@ -55,6 +55,7 @@ abstract final class Keys {
   static const captureAlbumManage = Key('capture.album.manage');
   static Key captureAlbumChoose(String id) => Key('capture.album.choose.$id');
   static const status = Key('capture.status');
+  static const captureRetry = Key('capture.retry');
   static const captureBackup = Key('capture.backup');
   static const preview = Key('capture.preview');
   static const openGallery = Key('capture.openGallery');
