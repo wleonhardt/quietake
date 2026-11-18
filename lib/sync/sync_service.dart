@@ -36,6 +36,7 @@ class SyncReport {
     required this.pulled,
     required this.remoteTotal,
     required this.deleted,
+    this.skipped = 0,
   });
 
   final int pushed;
@@ -43,10 +44,15 @@ class SyncReport {
   final int remoteTotal;
   final int deleted;
 
+  /// NAS files that did not authenticate with this vault's key: damaged, or
+  /// written by another vault. They are left exactly as they are.
+  final int skipped;
+
   @override
   String toString() =>
       'Synced: $pushed uploaded, $pulled downloaded · '
-      '${deleted == 0 ? '' : '$deleted deleted · '}$remoteTotal on NAS';
+      '${deleted == 0 ? '' : '$deleted deleted · '}$remoteTotal on NAS'
+      '${skipped == 0 ? '' : ' · $skipped NAS ${skipped == 1 ? 'file' : 'files'} skipped (unreadable)'}';
 }
 
 /// Result of [SyncService.renameRemote].
@@ -69,6 +75,9 @@ class SyncService {
 
   /// A collection listing larger than this is not a vault we made.
   static const maxListingBytes = 16 * 1024 * 1024;
+
+  /// Bound for a download whose size the server did not report.
+  static const maxUnknownSizeBytes = 4 * 1024 * 1024 * 1024;
   final bool Function()? isCancelled;
 
   /// New uploads get a random NAS name (decision 026). Captures already on the
@@ -184,6 +193,9 @@ class SyncService {
       // A trashed capture keeps its NAS copy and must not come back as a new one.
       final held = (await vault.trashedAt()).keys.toSet();
       final rebuilt = <String, String>{};
+      // NAS files that failed authentication: never adopted, uploaded over or
+      // removed, and they do not stop the other captures.
+      final skipped = <String>{};
       for (final entry in remote.entries) {
         if (held.contains(entry.key)) continue;
         final own = local[entry.key];
@@ -198,9 +210,21 @@ class SyncService {
         await dav.get(
           entry.value.name,
           file,
-          maxBytes: entry.value.size > 0 ? entry.value.size : null,
+          maxBytes: entry.value.size > 0
+              ? entry.value.size
+              : maxUnknownSizeBytes,
         );
-        await _authenticate(file);
+        try {
+          await _authenticate(file);
+        } on Exception {
+          // Without a catalog that proves this folder is ours, an unreadable
+          // file may mean another vault's folder: stop before uploading into
+          // it. Cancellation is a StateError and always ends the pass.
+          if (incomingCatalog == null) rethrow;
+          skipped.add(entry.key);
+          await file.delete();
+          continue;
+        }
         if (own != null && !await _same(own, file)) {
           throw BackupConflictException(entry.key);
         }
@@ -247,6 +271,7 @@ class SyncService {
       var removed = 0;
       for (final name in deleted) {
         _checkCancelled();
+        if (skipped.contains(name)) continue;
         final gone = remote.remove(name);
         if (gone != null) {
           await dav.delete(gone.name);
@@ -279,6 +304,7 @@ class SyncService {
       final later = (await vault.deletedNames()).difference(deleted);
       for (final name in later) {
         await vault.delete(File('${vault.dir.path}/$name'));
+        if (skipped.contains(name)) continue;
         if (remote.containsKey(name) || local.containsKey(name)) {
           await dav.delete(remote[name]?.name ?? names.remoteFor(name));
           removed++;
@@ -318,7 +344,9 @@ class SyncService {
         }
       }
       _checkCancelled();
-      confirmedMedia = {...local.keys, ...remote.keys}..removeAll(deleted);
+      confirmedMedia = {...local.keys, ...remote.keys}
+        ..removeAll(deleted)
+        ..removeAll(skipped);
       return SyncReport(
         pushed: pushed,
         pulled: pulled,
@@ -327,6 +355,7 @@ class SyncService {
           ...local.keys,
         }..removeAll(deleted)).length,
         deleted: removed,
+        skipped: skipped.length,
       );
     } finally {
       await work.delete(recursive: true);

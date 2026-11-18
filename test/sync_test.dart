@@ -132,15 +132,32 @@ void main() {
     };
     server.log.clear();
 
-    await expectLater(sync.sync(), throwsA(anything));
+    // The damaged file is skipped and reported; it must not stop the pass,
+    // and it is neither adopted nor removed (owner, 2026-11-18).
+    final report = await sync.sync();
+    expect(report.skipped, 1);
+    expect(report.toString(), contains('1 NAS file skipped'));
     expect(await missing.exists(), isFalse);
     expect(await retained.readAsBytes(), original);
-    expect(server.files, remote);
+    expect(server.files['missing.jpg.shtr'], remote['missing.jpg.shtr']);
+    expect(server.files['retained.jpg.shtr'], remote['retained.jpg.shtr']);
+    expect(server.log.where((line) => line.startsWith('DELETE ')), isEmpty);
+    expect(sync.confirmedMedia, isNot(contains('missing.jpg.shtr')));
+  });
+
+  test('a skipped server file does not stop other captures from syncing', () async {
+    await addLocal('first.jpg', 1000);
+    await sync.sync();
+    server.files['foreign.jpg.shtr'] = List.filled(200, 7);
+    await addLocal('second.jpg', 1000);
+    final report = await sync.sync();
+    expect(report.skipped, 1);
+    expect(report.pushed, 1);
+    expect(server.files.keys, contains('second.jpg.shtr'));
+    expect(server.files['foreign.jpg.shtr'], List.filled(200, 7));
     expect(
-      server.log.where(
-        (line) => line.startsWith('PUT ') || line.startsWith('DELETE '),
-      ),
-      isEmpty,
+      (await vault.list()).map((f) => f.uri.pathSegments.last),
+      unorderedEquals(['first.jpg.shtr', 'second.jpg.shtr']),
     );
   });
 
@@ -153,15 +170,19 @@ void main() {
       final partial = server.files['a.jpg.shtr']!.sublist(0, 100);
       server.files['a.jpg.shtr'] = partial;
       server.log.clear();
-      await expectLater(sync.sync(), throwsA(anything));
+      final report = await sync.sync();
+      expect(report.skipped, 1);
       expect(server.files['a.jpg.shtr'], partial);
       expect(await local.readAsBytes(), original);
       expect(
         server.log.where(
-          (line) => line.startsWith('PUT ') || line.startsWith('DELETE '),
+          (line) =>
+              line.startsWith('DELETE ') || line.contains('a.jpg.shtr') &&
+                  line.startsWith('PUT '),
         ),
         isEmpty,
       );
+      expect(sync.confirmedMedia, isNot(contains('a.jpg.shtr')));
     },
   );
 
