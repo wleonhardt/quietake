@@ -31,6 +31,8 @@
 
 - Camera wording drafts (decision 035, en/de/es/fr, translations need native review): "Flash off", "Flash automatic", "Flash on", "This camera has no flash."
 
+- Camera layout: the opaque control panels cover part of the viewfinder but guarantee label contrast (tested). Keep them, switch to translucent scrims, or move the controls into bars outside the picture?
+
 ## Resolved
 
 - 2026-11-17 (owner): policy drafts A to E approved and published (decision 030); background job keeps foreground-assigned random names (026); Quick Settings tile label follows the plain icon and the iOS Lock Screen control is approved to build (028).

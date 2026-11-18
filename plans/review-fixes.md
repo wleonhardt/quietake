@@ -45,7 +45,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R24 complete: Pinch to zoom with a factor label that also resets it (decision 035). Host tests in `test/capture_chrome_test.dart`. Limits: no screen-reader control for zoom, not tried on a phone.
 - R25 complete: One button in the top row cycles the photo flash off, automatic and on; it starts off, a recording camera is always off, and a camera that refuses says "This camera has no flash." (decision 035). Strings in en, de, es, fr (translations need native review). Host tests in `test/capture_chrome_test.dart`; host suite 885 passed. The button sits in the top row because the bottom row has no room at 320 px. No torch for video, and not tried on a phone.
 - R26 complete: The shutter is drawn as a ring around a disc, and while recording the Stop button moves to the large centre position with the disabled shutter at the side; both buttons keep their keys. Test in `test/capture_chrome_test.dart`; host suite 886 passed. Not seen on a phone.
-- R27 planned: Two opaque panels cover about a third of the viewfinder; use scrims.
+- R27 blocked: The two control panels are opaque on purpose: `test/camera_controls_layout_test.dart` requires opaque control colours so labels keep their contrast over any picture. Translucent scrims would trade that for a larger viewfinder; placing the controls outside the picture area is the other way. A design call for the owner, in `open-questions.md`.
 - R28 deferred: Controls stay on the long edge in landscape; needs a physical device to judge.
 
 ## C. Library and viewer
