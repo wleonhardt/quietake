@@ -390,6 +390,8 @@
   "settingsPortableTitle": "Sauvegarde chiffrée portable",
   "settingsPortableBody": "Enregistrez un ZIP dans Fichiers avec votre clé de récupération",
   "settingsCameraSection": "Appareil photo",
+  "settingsVideoLabel": "Qualité vidéo",
+  "settingsVideoHelp": "Une qualité plus élevée produit des fichiers plus volumineux.",
   "settingsBurstLabel": "Photos par rafale",
   "settingsBurstHelp": "Maintenez le déclencheur enfoncé.",
   "settingsBurstChoice": "{count} photos",

@@ -32,3 +32,15 @@ about 0.9 megapixels. This was not measured on a device.
 Host test `test/capture_resolution_test.dart` (photo camera at `max` before a recording, recording
 camera at `high` with audio, photo camera back afterwards even when the save fails) and one added
 check in `test/locked_camera_test.dart`. No device measurement of the saved photo size yet.
+
+## Change 2026-11-18: video quality is a setting
+
+The owner chose a setting over a fixed value. Settings, Camera, "Video quality" offers 720p,
+1080p and 4K; 1080p is the start value. The recording camera reads the choice each time it
+opens, so a change applies to the next recording. Photos still use the full sensor. A phone
+that cannot record at the chosen size falls back as the camera plugin decides (on Android: the
+closest lower size, then higher). 4K fills the 2 GiB portable backup limit within minutes; the
+help line under the setting says that higher quality makes larger files.
+
+Tests: `test/video_setting_test.dart` and `test/capture_resolution_test.dart` (the recording
+camera opens at 1080p by default). Not measured on a phone.

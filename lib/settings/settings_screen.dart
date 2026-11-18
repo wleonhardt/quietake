@@ -20,6 +20,7 @@ import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
 import '../vault/master_key_store.dart';
 import '../camera/burst_setting.dart';
+import '../camera/video_setting.dart';
 import '../library/recently_deleted_screen.dart';
 import '../vault/trash_setting.dart';
 import '../vault/vault.dart';
@@ -59,6 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       l10n.settingsBgChecking;
   bool _keepDeleted = true;
   int _burstSize = BurstSetting.standard;
+  int _videoHeight = VideoSetting.standard;
   bool? _plainIcon;
 
   @override
@@ -67,6 +69,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (Platform.isAndroid) _loadBackgroundStatus();
     LauncherAppearance.neutral().then((on) {
       if (mounted) setState(() => _plainIcon = on);
+    });
+    VideoSetting.load().then((height) {
+      if (mounted) setState(() => _videoHeight = height);
     });
     BurstSetting.load().then((size) {
       if (mounted) setState(() => _burstSize = size);
@@ -738,6 +743,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() => _burstSize = size);
               await BurstSetting.save(size);
             },
+          ),
+          const SizedBox(height: 16),
+          KeyedSubtree(
+            // Rebuilt once the saved choice has been read.
+            key: ValueKey(_videoHeight),
+            child: DropdownButtonFormField<int>(
+              key: Keys.settingsVideoQuality,
+              isExpanded: true,
+              initialValue: _videoHeight,
+              decoration: InputDecoration(
+                labelText: l10n.settingsVideoLabel,
+                helperText: l10n.settingsVideoHelp,
+              ),
+              items: [
+                for (final height in VideoSetting.choices)
+                  DropdownMenuItem(
+                    value: height,
+                    child: Text(VideoSetting.label(height)),
+                  ),
+              ],
+              onChanged: (height) async {
+                if (height == null) return;
+                setState(() => _videoHeight = height);
+                await VideoSetting.save(height);
+              },
+            ),
           ),
           const SizedBox(height: 24),
           _heading(Keys.settingsStorageSection, l10n.settingsStorageSection),

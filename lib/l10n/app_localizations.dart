@@ -2442,6 +2442,18 @@ abstract class AppLocalizations {
   /// **'Camera'**
   String get settingsCameraSection;
 
+  /// No description provided for @settingsVideoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Video quality'**
+  String get settingsVideoLabel;
+
+  /// No description provided for @settingsVideoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher quality makes larger files.'**
+  String get settingsVideoHelp;
+
   /// No description provided for @settingsBurstLabel.
   ///
   /// In en, this message translates to:

@@ -390,6 +390,8 @@
   "settingsPortableTitle": "Copia cifrada portátil",
   "settingsPortableBody": "Guarda un ZIP en Archivos usando tu clave de recuperación",
   "settingsCameraSection": "Cámara",
+  "settingsVideoLabel": "Calidad de vídeo",
+  "settingsVideoHelp": "Mayor calidad genera archivos más grandes.",
   "settingsBurstLabel": "Fotos por ráfaga",
   "settingsBurstHelp": "Mantén pulsado el disparador.",
   "settingsBurstChoice": "{count} fotos",

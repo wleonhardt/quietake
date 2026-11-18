@@ -390,6 +390,8 @@
   "settingsPortableTitle": "Portables verschlüsseltes Backup",
   "settingsPortableBody": "Speichern Sie mit Ihrem Wiederherstellungsschlüssel eine ZIP-Datei in Dateien",
   "settingsCameraSection": "Kamera",
+  "settingsVideoLabel": "Videoqualität",
+  "settingsVideoHelp": "Höhere Qualität erzeugt größere Dateien.",
   "settingsBurstLabel": "Fotos pro Serie",
   "settingsBurstHelp": "Auslöser gedrückt halten.",
   "settingsBurstChoice": "{count} Fotos",

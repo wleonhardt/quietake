@@ -82,6 +82,8 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R58 planned: Predictive back: page transition and the manifest flag.
 - R59 planned (owner 2026-11-18): Bind the keystore key to biometrics on both platforms and add a Settings switch for biometric unlock, off by default (decision 033, second part). Real-phone confirmation stays with the owner.
 
+- Evidence for R31, R38 and R45 to R48, 2026-11-18, at commit `27bd9a6`: analyzer clean, host suite 894 passed. Android emulator and iOS simulator, all passing on both: `lock_test` 7, `startup_test`, `privacy_test` 8, `library_layout_test`, `import_test` 5, `viewer_test` 6.
+
 ## E. Android, iOS, recovery tool, CI
 
 - R60 planned: `INTERNET` is declared only in the debug and profile manifests; declare it in main and assert it in `tool/check_bundle.py`.
@@ -119,7 +121,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - Evidence for R05, R06, R16, R17, R93, R97 and the batch delete, 2026-11-18, at commit `40ac3ca`: analyzer clean; host suite 892 passed and one failed in the full run, `camera_recovery_status_test`, which passed alone (the load flake already noted in `next-up.md`). Android emulator and iOS simulator, all passing on both: `sharing_test` 7, `lock_test` 7, `startup_test`, `sync_test`, `delete_test`, `portable_test`, `library_recovery_test`. `sync_test` first failed on both because one case still expected a readable server name; that test was stale since decision 026 and now checks the uploaded bytes. Not driven on a device: the restore gate's Discard button and a skipped server file.
 
 - R93 complete: Creating a brand-new vault clears any saved backup server address and password before the keyfile is written; a failure to clear stops setup like a failed save. Restores keep or set their own details. Red and green in `test/setup_screen_test.dart` ("a new vault starts without a saved backup server").
-- R94 planned: Video quality setting with 720p, 1080p and 4K, 1080p by default (decision 034).
+- R94 complete: Settings, Camera has "Video quality" with 720p, 1080p and 4K, 1080p by default; the recording camera reads it each time it opens (decision 034 change note). Label and help text in en, de, es, fr. Tests: `test/video_setting_test.dart`, `test/capture_resolution_test.dart`. Not measured on a phone; a phone without the chosen size falls back as the plugin decides.
 - R95 complete: Policy sentences F (a received share is kept privately until unlock) and G ("Include subfolders") are in `assets/privacy-policy.json` and `website/app-privacy.html`, dated November 18, 2026. G replaces the clause "not its subfolders"; the rest of that sentence now starts "Quietake copies up to 20 files at a time". The repository check confirms the website matches the bundled policy. Not published until this branch reaches main.
 - R96 complete: `plans/README.md` says that public decision numbers continue from 041 and what the private-history numbers cited in code refer to, as far as the comments state it.
 - R97 complete: The Dart and Go share bundle readers (and the Dart writer) refuse an entry name with a colon, a trailing dot or a Windows device name, and `docs/share-bundle.md` states the rule. Red and green in `test/share_bundle_test.dart` and Go `TestShareNamesWindowsCannotHold`; frozen share vectors, Go checks and the interop check pass. Not run on Windows.

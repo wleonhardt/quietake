@@ -1485,6 +1485,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsCameraSection => 'Kamera';
 
   @override
+  String get settingsVideoLabel => 'Videoqualität';
+
+  @override
+  String get settingsVideoHelp => 'Höhere Qualität erzeugt größere Dateien.';
+
+  @override
   String get settingsBurstLabel => 'Fotos pro Serie';
 
   @override

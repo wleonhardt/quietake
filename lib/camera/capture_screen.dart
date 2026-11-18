@@ -25,6 +25,7 @@ import '../sync/sync_controller.dart';
 import 'ingest_video.dart';
 import 'capture_store.dart';
 import 'recording_progress.dart';
+import 'video_setting.dart';
 import '../library/tag_picker.dart';
 import '../library/albums_screen.dart';
 
@@ -300,11 +301,17 @@ class _CaptureScreenState extends State<CaptureScreen>
         (c) => c.lensDirection == _lens,
         orElse: () => cameras.first,
       );
+      // Photos use the full sensor; a recording camera uses the chosen video
+      // quality, which also binds its stills (decision 034).
+      final preset = enableAudio
+          ? VideoSetting.preset(await VideoSetting.load())
+          : ResolutionPreset.max;
+      if (!mounted || !_foreground || !widget.active || epoch != _cameraEpoch) {
+        return;
+      }
       controller = CameraController(
         selected,
-        // Photos use the full sensor; a recording camera keeps the video
-        // preset, which also binds its stills (decision 034).
-        enableAudio ? ResolutionPreset.high : ResolutionPreset.max,
+        preset,
         enableAudio: enableAudio,
       );
       await controller.initialize();

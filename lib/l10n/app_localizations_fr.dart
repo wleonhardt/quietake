@@ -1482,6 +1482,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsCameraSection => 'Appareil photo';
 
   @override
+  String get settingsVideoLabel => 'Qualité vidéo';
+
+  @override
+  String get settingsVideoHelp =>
+      'Une qualité plus élevée produit des fichiers plus volumineux.';
+
+  @override
   String get settingsBurstLabel => 'Photos par rafale';
 
   @override

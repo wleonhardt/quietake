@@ -71,7 +71,8 @@ void main() {
           tester,
           () => find.byKey(Keys.captureTimer).evaluate().isNotEmpty,
         );
-        expect(camera.opened.last, (ResolutionPreset.high, true));
+        // 1080p unless the owner chose another video quality (decision 034).
+        expect(camera.opened.last, (ResolutionPreset.veryHigh, true));
 
         // The controlled camera returns an empty clip, so the save fails; the
         // photo camera must come back either way.

@@ -819,6 +819,8 @@
   "settingsPortableTitle": "Portable encrypted backup",
   "settingsPortableBody": "Save a ZIP to Files using your recovery key",
   "settingsCameraSection": "Camera",
+  "settingsVideoLabel": "Video quality",
+  "settingsVideoHelp": "Higher quality makes larger files.",
   "settingsBurstLabel": "Photos in a burst",
   "settingsBurstHelp": "Press and hold the shutter.",
   "settingsBurstChoice": "{count} photos",
