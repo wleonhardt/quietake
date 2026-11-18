@@ -275,7 +275,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
               FilledButton(
                 key: Keys.deleteTrash,
                 onPressed: () => Navigator.pop(context, _DeleteChoice.trash),
-                child: Text(context.l10n.recentlyDeletedTitle),
+                child: Text(context.l10n.galleryDeleteMove),
               ),
           ],
         ),
@@ -321,6 +321,8 @@ class _ViewerScreenState extends State<ViewerScreen> {
   );
 
   List<Widget> _viewerActions() => [
+    // Everyday actions first; Delete at the far end, away from Share.
+
     ListenableBuilder(
       listenable: widget.session.vault.catalog,
       builder: (context, _) {
@@ -348,22 +350,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
         );
       },
     ),
-    IconButton(
-      key: Keys.viewerSlideshow,
-      tooltip: _slideshow == null
-          ? context.l10n.viewerSlideshowStart
-          : context.l10n.viewerSlideshowStop,
-      onPressed: _toggleSlideshow,
-      icon: Icon(
-        _slideshow == null ? Icons.slideshow : Icons.stop_circle_outlined,
-      ),
-    ),
-    IconButton(
-      key: Keys.viewerInfo,
-      tooltip: context.l10n.viewerDetails,
-      onPressed: _showDetails,
-      icon: const Icon(Icons.info_outline),
-    ),
+
     Builder(
       builder: (buttonContext) => IconButton(
         key: Keys.viewerShare,
@@ -378,6 +365,27 @@ class _ViewerScreenState extends State<ViewerScreen> {
             : Icon(Icons.adaptive.share),
       ),
     ),
+
+    CastButton(key: Keys.viewerCast, cast: widget.session.cast, item: _current),
+
+    IconButton(
+      key: Keys.viewerSlideshow,
+      tooltip: _slideshow == null
+          ? context.l10n.viewerSlideshowStart
+          : context.l10n.viewerSlideshowStop,
+      onPressed: _toggleSlideshow,
+      icon: Icon(
+        _slideshow == null ? Icons.slideshow : Icons.stop_circle_outlined,
+      ),
+    ),
+
+    IconButton(
+      key: Keys.viewerInfo,
+      tooltip: context.l10n.viewerDetails,
+      onPressed: _showDetails,
+      icon: const Icon(Icons.info_outline),
+    ),
+
     IconButton(
       key: Keys.viewerDelete,
       tooltip: _current.isVideo
@@ -392,7 +400,6 @@ class _ViewerScreenState extends State<ViewerScreen> {
             )
           : const Icon(Icons.delete_outline),
     ),
-    CastButton(key: Keys.viewerCast, cast: widget.session.cast, item: _current),
   ];
 
   Widget _visibilityButton() => IconButton(
