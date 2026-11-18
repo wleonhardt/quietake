@@ -262,7 +262,7 @@ void main() {
     await tester.enterText(find.byKey(Keys.setupConfirm), 'short');
     await tester.tap(find.byKey(Keys.setupSubmit));
     await tester.pump();
-    expect(find.text(MasterKeyStore.passcodeTooShort), findsOneWidget);
+    expect(find.text('Passcode needs at least 6 characters'), findsOneWidget);
     await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
     await tester.enterText(find.byKey(Keys.setupConfirm), 'other-passcode');
     await tester.tap(find.byKey(Keys.setupSubmit));

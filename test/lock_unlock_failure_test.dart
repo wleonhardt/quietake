@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/l10n/l10n.dart';
 import 'package:quietake/lock/lock_screen.dart';
 import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
@@ -154,7 +155,7 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(store.tries, 1);
-      expect(find.text(WrongPasscodeException().toString()), findsOneWidget);
+      expect(find.text('Wrong passcode. Try again.'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     },
   );
@@ -188,6 +189,36 @@ void main() {
     expect(find.text('Quietake'), findsNothing);
     expect(find.byType(Image), findsNothing);
     expect(find.byKey(Keys.lockPasscode), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('the wait after too many tries is in the device language', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('de'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: LockScreen(
+          store: _LockedStore(sodium),
+          auth: FakeAuthenticator(isAvailable: false),
+          autoPrompt: false,
+          onUnlocked: (_) {},
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.enterText(find.byKey(Keys.lockPasscode), 'whatever');
+    await tester.tap(find.byKey(Keys.lockUnlock));
+    await tester.pump();
+    await tester.pump();
+    expect(
+      find.text(
+        'Zu viele falsche Zugangscodes. Versuchen Sie es in 30 Sekunden erneut.',
+      ),
+      findsOneWidget,
+    );
     await tester.pumpWidget(const SizedBox());
   });
 

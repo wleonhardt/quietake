@@ -68,7 +68,10 @@ class _SetupScreenState extends State<SetupScreen> with WidgetsBindingObserver {
   Future<void> _submit() async {
     if (_busy) return;
     if (_pass.text.length < MasterKeyStore.minPasscodeLength) {
-      setState(() => _error = (_) => MasterKeyStore.passcodeTooShort);
+      setState(
+        () => _error = (l10n) =>
+            l10n.passcodeTooShort(MasterKeyStore.minPasscodeLength),
+      );
       return;
     }
     if (_pass.text != _confirm.text) {

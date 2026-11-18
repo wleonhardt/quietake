@@ -266,9 +266,13 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
       } else {
         key.dispose();
       }
-    } on WrongPasscodeException catch (e) {
+    } on PasscodeLockedException catch (e) {
       if (mounted && attempt == _attempt) {
-        setState(() => _error = (_) => e.toString());
+        setState(() => _error = (l10n) => passcodeLockedMessage(l10n, e));
+      }
+    } on WrongPasscodeException {
+      if (mounted && attempt == _attempt) {
+        setState(() => _error = (l10n) => l10n.settingsWrongPasscode);
       }
     } catch (_) {
       if (mounted && attempt == _attempt) {

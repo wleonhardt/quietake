@@ -236,7 +236,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     } on PasscodeLockedException catch (e) {
-      if (mounted) setState(() => _recoveryResult = (_) => e.toString());
+      if (mounted) {
+        setState(
+          () => _recoveryResult = (l10n) => passcodeLockedMessage(l10n, e),
+        );
+      }
     } on WrongPasscodeException {
       if (mounted) {
         setState(() => _recoveryResult = (l10n) => l10n.settingsWrongPasscode);

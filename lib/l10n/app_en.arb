@@ -44,6 +44,30 @@
   "lockFailed": "Could not unlock. Try again or use your recovery key.",
   "lockMessage": "Unlock your private vault.",
   "passcodeLabel": "Passcode",
+  "passcodeLockedSeconds": "{count, plural, =1{Too many wrong passcodes. Try again in 1 second.} other{Too many wrong passcodes. Try again in {count} seconds.}}",
+  "@passcodeLockedSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passcodeLockedMinutes": "{count, plural, =1{Too many wrong passcodes. Try again in 1 minute.} other{Too many wrong passcodes. Try again in {count} minutes.}}",
+  "@passcodeLockedMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passcodeTooShort": "Passcode needs at least {count} characters",
+  "@passcodeTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "passcodeShow": "Show passcode",
   "passcodeHide": "Hide passcode",
   "formWorking": "Working…",

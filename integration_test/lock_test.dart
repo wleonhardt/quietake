@@ -319,7 +319,7 @@ void main() {
     await enter(tester, Keys.lockPasscode, 'nope');
     await tap(tester, Keys.lockUnlock);
     await pumpUntil(tester, () => has(Keys.lockError));
-    expect(text(tester, Keys.lockError), 'wrong passcode');
+    expect(text(tester, Keys.lockError), 'Wrong passcode. Try again.');
     await expectLiveError(tester, Keys.lockError);
     await enter(tester, Keys.lockPasscode, 'hunter22');
     await tap(tester, Keys.lockUnlock);

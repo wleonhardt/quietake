@@ -96,6 +96,35 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passcodeLabel => 'Code d\'accès';
 
   @override
+  String passcodeLockedSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Trop de codes d\'accès incorrects. Réessayez dans $count secondes.',
+      one: 'Trop de codes d\'accès incorrects. Réessayez dans 1 seconde.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String passcodeLockedMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Trop de codes d\'accès incorrects. Réessayez dans $count minutes.',
+      one: 'Trop de codes d\'accès incorrects. Réessayez dans 1 minute.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String passcodeTooShort(int count) {
+    return 'Le code d\'accès doit comporter au moins $count caractères';
+  }
+
+  @override
   String get passcodeShow => 'Afficher le code d\'accès';
 
   @override

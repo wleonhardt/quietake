@@ -300,7 +300,7 @@ class _NasRecoveryScreenState extends State<NasRecoveryScreen>
         );
       }
     } on PasscodeLockedException catch (e) {
-      _status((_) => e.toString());
+      _status((l10n) => passcodeLockedMessage(l10n, e));
     } on WrongPasscodeException {
       _status((l10n) => l10n.nasWrongCurrent);
     } catch (_) {

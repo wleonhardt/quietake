@@ -249,11 +249,16 @@ class BrandHeader extends StatelessWidget {
     child: Column(
       children: [
         if (!plain) ...[
-          Image.asset(
-            'assets/brand/quietake.png',
-            width: 80,
-            height: 80,
-            excludeFromSemantics: true,
+          // The mark is a dark square; round it like an app icon so it does not
+          // sit as a hard block on a light surface.
+          ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Image.asset(
+              'assets/brand/quietake.png',
+              width: 80,
+              height: 80,
+              excludeFromSemantics: true,
+            ),
           ),
           Text(
             'Quietake',

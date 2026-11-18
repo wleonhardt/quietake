@@ -222,6 +222,24 @@ abstract class AppLocalizations {
   /// **'Passcode'**
   String get passcodeLabel;
 
+  /// No description provided for @passcodeLockedSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Too many wrong passcodes. Try again in 1 second.} other{Too many wrong passcodes. Try again in {count} seconds.}}'**
+  String passcodeLockedSeconds(int count);
+
+  /// No description provided for @passcodeLockedMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Too many wrong passcodes. Try again in 1 minute.} other{Too many wrong passcodes. Try again in {count} minutes.}}'**
+  String passcodeLockedMinutes(int count);
+
+  /// No description provided for @passcodeTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Passcode needs at least {count} characters'**
+  String passcodeTooShort(int count);
+
   /// No description provided for @passcodeShow.
   ///
   /// In en, this message translates to:

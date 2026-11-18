@@ -166,7 +166,7 @@ void main() {
       await tester.pump();
       // The message fades in under its field before it is announced.
       await tester.pump(const Duration(milliseconds: 300));
-      expectAnnouncement(tester, Keys.lockError, 'wrong passcode');
+      expectAnnouncement(tester, Keys.lockError, 'Wrong passcode. Try again.');
       expect(
         tester.widget<TextField>(find.byKey(Keys.lockPasscode)).obscureText,
         isTrue,
