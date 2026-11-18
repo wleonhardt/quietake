@@ -8,7 +8,7 @@ import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/media/media_server.dart';
 import 'package:quietake/session.dart';
-import 'package:quietake/settings/settings_screen.dart';
+import 'package:quietake/settings/backup_settings_screen.dart';
 import 'package:quietake/sync/sync_settings.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
@@ -59,7 +59,7 @@ void main() {
     });
     await tester.pumpWidget(
       MaterialApp(
-        home: SettingsScreen(
+        home: BackupSettingsScreen(
           initial:
               initial ??
               SyncSettings(

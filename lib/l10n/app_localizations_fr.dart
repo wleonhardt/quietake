@@ -1677,6 +1677,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de modifier le déverrouillage par empreinte ou visage.';
 
   @override
+  String get settingsBackupServer => 'Serveur de sauvegarde';
+
+  @override
+  String get settingsBackupNotSet => 'Non configuré';
+
+  @override
   String get settingsPlainIcon => 'Utiliser une icône et un nom discrets';
 
   @override

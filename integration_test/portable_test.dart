@@ -208,7 +208,7 @@ void main() {
         await tap(tester, Keys.gallerySettings);
         await until(
           tester,
-          () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,
+          () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
         );
         await tap(tester, Keys.portableExportOpen);
         expect(find.byKey(Keys.portableResult), findsNothing);

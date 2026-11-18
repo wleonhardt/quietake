@@ -1650,6 +1650,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not change fingerprint or face unlock.';
 
   @override
+  String get settingsBackupServer => 'Backup server';
+
+  @override
+  String get settingsBackupNotSet => 'Not set up';
+
+  @override
   String get settingsPlainIcon => 'Use a plain icon and name';
 
   @override

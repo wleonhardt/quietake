@@ -119,6 +119,9 @@ void main() {
               find.byKey(Keys.settingsPrivacySection).hitTestable(),
               findsOneWidget,
             );
+            await tester.ensureVisible(find.byKey(Keys.settingsBackupOpen));
+            await tap(Keys.settingsBackupOpen, Keys.settingsPass);
+            expect(appearance(Keys.settingsPass), brightness);
             await tester.ensureVisible(find.byKey(Keys.settingsPass));
             expect(find.byKey(Keys.settingsPass).hitTestable(), findsOneWidget);
             expect(
@@ -126,6 +129,7 @@ void main() {
               lessThanOrEqualTo(600),
             );
             expect(tester.takeException(), isNull);
+            await back(Keys.settingsBackupOpen);
             await back(Keys.gallerySettings);
             await back(Keys.openGallery);
           }

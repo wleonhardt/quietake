@@ -128,7 +128,7 @@ void main() {
     await tap(tester, Keys.gallerySettings);
     await pumpUntil(
       tester,
-      () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,
+      () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
     );
     await settle(tester);
     expect(find.byKey(Keys.settingsPrivacySection).hitTestable(), findsOneWidget);
@@ -139,6 +139,13 @@ void main() {
     expect(
       tester.getTopLeft(find.byKey(Keys.settingsBackupSection)).dy,
       lessThan(tester.getTopLeft(find.byKey(Keys.settingsRecoverySection)).dy),
+    );
+    // The server form has its own screen (decision 047).
+    expect(find.text('Not set up'), findsOneWidget);
+    await tap(tester, Keys.settingsBackupOpen);
+    await pumpUntil(
+      tester,
+      () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,
     );
     await tester.ensureVisible(find.byKey(Keys.backupOpen));
     expect(
@@ -395,6 +402,11 @@ void main() {
       await tap(tester, Keys.gallerySettings);
       await pumpUntil(
         tester,
+        () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
+      );
+      await tap(tester, Keys.settingsBackupOpen);
+      await pumpUntil(
+        tester,
         () => find.byKey(Keys.settingsDisconnect).evaluate().isNotEmpty,
       );
       await tap(tester, Keys.settingsDisconnect);
@@ -430,6 +442,11 @@ void main() {
       await app.session.sync.sync();
       expect(dav.log.length, requests);
       await tap(tester, Keys.gallerySettings);
+      await pumpUntil(
+        tester,
+        () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
+      );
+      await tap(tester, Keys.settingsBackupOpen);
       await pumpUntil(
         tester,
         () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,

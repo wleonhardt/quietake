@@ -436,6 +436,8 @@
   "settingsBiometricBody": "Wenn aktiviert, bewahrt dieses Telefon eine Kopie des Tresorschlüssels in seinem sicheren Speicher auf. Der Zugangscode funktioniert immer.",
   "settingsBiometricTurnOn": "Aktivieren",
   "settingsBiometricFailed": "Entsperren mit Fingerabdruck oder Gesicht konnte nicht geändert werden.",
+  "settingsBackupServer": "Sicherungsserver",
+  "settingsBackupNotSet": "Nicht eingerichtet",
   "settingsPlainIcon": "Schlichtes Symbol und Namen verwenden",
   "settingsPlainIconBody": "Zeigt ein graues Symbol mit dem Namen Werkzeuge statt Quietake. Die App kann beim Wechseln kurz schließen. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.",
   "settingsPlainIconBodyIos": "Zeigt ein anderes graues Symbol. Der Name bleibt Quietake, und iOS zeigt beim Wechsel einen Hinweis. Quietake bleibt in der App-Liste und in den Systemeinstellungen sichtbar.",

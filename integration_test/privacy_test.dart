@@ -60,7 +60,7 @@ void main() {
           'Privacy UI checkpoint timed out: '
           'camera=${has(Keys.openGallery)} lock=${has(Keys.lockPasscode)} '
           'gallery=${has(Keys.galleryGrid)} empty=${has(Keys.galleryEmpty)} '
-          'settings=${has(Keys.settingsUrl)} '
+          'settings=${has(Keys.settingsBackupOpen)} '
           'policy=${has(Keys.privacyPolicyPage)} '
           'loading=${find.byType(CircularProgressIndicator).evaluate().length} '
           'photoExists=${photo.existsSync()} videoExists=${video.existsSync()}',
@@ -128,7 +128,7 @@ void main() {
     await tap(tester, Keys.openGallery);
     await until(tester, () => has(Keys.gallerySettings));
     await tap(tester, Keys.gallerySettings);
-    await until(tester, () => has(Keys.settingsUrl));
+    await until(tester, () => has(Keys.settingsBackupOpen));
   }
 
   Future<void> scrollTo(WidgetTester tester, Key key) =>

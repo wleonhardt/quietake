@@ -398,7 +398,7 @@ void main() {
     await pumpUntil(tester, () => has(Keys.gallerySettings));
     await settle(tester);
     await tap(tester, Keys.gallerySettings);
-    await pumpUntil(tester, () => has(Keys.settingsUrl));
+    await pumpUntil(tester, () => has(Keys.settingsBackupOpen));
     await settle(tester);
     await tester.scrollUntilVisible(
       find.byKey(Keys.settingsRecovery),

@@ -2718,6 +2718,18 @@ abstract class AppLocalizations {
   /// **'Could not change fingerprint or face unlock.'**
   String get settingsBiometricFailed;
 
+  /// No description provided for @settingsBackupServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup server'**
+  String get settingsBackupServer;
+
+  /// No description provided for @settingsBackupNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get settingsBackupNotSet;
+
   /// No description provided for @settingsPlainIcon.
   ///
   /// In en, this message translates to:

@@ -21,6 +21,7 @@ import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../test_support/settings_steps.dart';
 import '../test_support/fake_cast_backend.dart';
 import '../test_support/fake_webdav_server.dart';
 
@@ -182,11 +183,14 @@ void main() {
     await until(tester, find.textContaining('sur ce téléphone'));
     expect(find.text('Réglages'), findsOneWidget);
     expect(find.text('Confidentialité et accès'), findsOneWidget);
-    expect(find.text('Tester la connexion'), findsOneWidget);
+    expect(find.text('Serveur de sauvegarde'), findsOneWidget);
     final text = tester.widget<Text>(find.byKey(Keys.settingsStorage)).data!;
     expect(text, startsWith('2 captures, '));
     expect(text, endsWith(' chiffrés sur ce téléphone.'));
     expect(find.text('Settings'), findsNothing);
+    await openBackupSettings(tester);
+    expect(find.text('Tester la connexion'), findsOneWidget);
+    expect(find.text('Test connection'), findsNothing);
   });
 
   testWidgets('choosing an idle timeout saves it', (tester) async {
@@ -459,17 +463,19 @@ void main() {
 
   testWidgets('cancelling disconnect keeps the screen open', (tester) async {
     await open(tester);
+    await openBackupSettings(tester);
     await tester.ensureVisible(find.byKey(Keys.settingsDisconnect));
     await tester.tap(find.byKey(Keys.settingsDisconnect));
     await tester.pumpAndSettle();
     expect(find.text('Disconnect NAS backup?'), findsOneWidget);
     await tester.tap(find.byKey(Keys.disconnectCancel));
     await tester.pumpAndSettle();
-    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
+    expect(find.byKey(Keys.settingsSave), findsOneWidget);
   });
 
   testWidgets('confirming disconnect leaves the screen', (tester) async {
     await open(tester);
+    await openBackupSettings(tester);
     await tester.ensureVisible(find.byKey(Keys.settingsDisconnect));
     await tester.tap(find.byKey(Keys.settingsDisconnect));
     await tester.pumpAndSettle();
@@ -489,13 +495,14 @@ void main() {
   ) async {
     await open(tester);
     failSecureStorage();
+    await openBackupSettings(tester);
     await tester.ensureVisible(find.byKey(Keys.settingsSave));
     await tester.runAsync(() => tester.tap(find.byKey(Keys.settingsSave)));
     await until(
       tester,
       find.text('Could not save connection details. Try again.'),
     );
-    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
+    expect(find.byKey(Keys.settingsSave), findsOneWidget);
   });
 
   testWidgets('a failed idle timeout save reports it and keeps the old value', (
@@ -519,6 +526,7 @@ void main() {
   ) async {
     await open(tester);
     failSecureStorage();
+    await openBackupSettings(tester);
     await tester.ensureVisible(find.byKey(Keys.settingsDisconnect));
     await tester.tap(find.byKey(Keys.settingsDisconnect));
     await tester.pump(const Duration(milliseconds: 500));
@@ -527,7 +535,7 @@ void main() {
       tester,
       find.text('Could not disconnect NAS backup. Try again.'),
     );
-    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
+    expect(find.byKey(Keys.settingsSave), findsOneWidget);
   });
 
   testWidgets('saving with empty connection details explains what is missing', (
@@ -537,10 +545,11 @@ void main() {
       tester,
       initial: const SyncSettings(url: '', username: '', password: ''),
     );
+    await openBackupSettings(tester);
     await tester.ensureVisible(find.byKey(Keys.settingsSave));
     await tester.runAsync(() => tester.tap(find.byKey(Keys.settingsSave)));
     await until(tester, find.text('Enter a folder URL, username and password'));
-    expect(find.byKey(Keys.settingsChangePasscode), findsOneWidget);
+    expect(find.byKey(Keys.settingsSave), findsOneWidget);
   });
 
   testWidgets('cancelling the recovery prompt never reads the key', (
@@ -669,6 +678,7 @@ void main() {
         initial: const SyncSettings(url: '', username: '', password: ''),
       );
       await settle(tester);
+      await openBackupSettings(tester);
       await tester.scrollUntilVisible(
         find.byKey(Keys.settingsRenameRemote),
         200,
@@ -698,6 +708,7 @@ void main() {
       });
       addTearDown(() => tester.runAsync(server.close));
       expect(server.files.keys, contains('p0.jpg.shtr'));
+      await openBackupSettings(tester);
       await tester.scrollUntilVisible(
         find.byKey(Keys.settingsRenameRemote),
         200,

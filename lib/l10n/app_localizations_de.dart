@@ -1680,6 +1680,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Entsperren mit Fingerabdruck oder Gesicht konnte nicht geändert werden.';
 
   @override
+  String get settingsBackupServer => 'Sicherungsserver';
+
+  @override
+  String get settingsBackupNotSet => 'Nicht eingerichtet';
+
+  @override
   String get settingsPlainIcon => 'Schlichtes Symbol und Namen verwenden';
 
   @override

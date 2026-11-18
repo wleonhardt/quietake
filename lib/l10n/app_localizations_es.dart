@@ -1675,6 +1675,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo cambiar el desbloqueo con huella o rostro.';
 
   @override
+  String get settingsBackupServer => 'Servidor de copias de seguridad';
+
+  @override
+  String get settingsBackupNotSet => 'Sin configurar';
+
+  @override
   String get settingsPlainIcon => 'Usar un icono y un nombre discretos';
 
   @override

@@ -79,6 +79,11 @@ void main() {
     await tap(tester, Keys.gallerySettings);
     await until(
       tester,
+      () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
+    );
+    await tap(tester, Keys.settingsBackupOpen);
+    await until(
+      tester,
       () => find.byKey(Keys.backupOpen).evaluate().isNotEmpty,
     );
     await tap(tester, Keys.backupOpen);
@@ -254,6 +259,11 @@ void main() {
         await tester.pageBack();
         await tester.pump(const Duration(milliseconds: 500));
         await tap(tester, Keys.gallerySettings);
+        await until(
+          tester,
+          () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
+        );
+        await tap(tester, Keys.settingsBackupOpen);
         await until(
           tester,
           () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,
