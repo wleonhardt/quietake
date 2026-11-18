@@ -64,6 +64,7 @@ class BundleArchiveTests(unittest.TestCase):
         attributes = " ".join(f'android:{key}="{value}"' for key, value in defaults.items())
         return f'''<manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="app.test.camera"><uses-sdk android:targetSdkVersion="36"/>
+            <uses-permission android:name="android.permission.INTERNET"/>
             <application {attributes}/></manifest>'''
 
     def test_public_manifest_requires_identity_and_backup_protection(self):
@@ -71,6 +72,13 @@ class BundleArchiveTests(unittest.TestCase):
         self.assertTrue(manifest_errors(self.manifest(), "app.test.other"))
         self.assertTrue(manifest_errors(self.manifest(allowBackup="true"), "app.test.camera"))
         self.assertTrue(manifest_errors(self.manifest(dataExtractionRules=""), "app.test.camera"))
+
+    def test_release_must_declare_network_access_itself(self):
+        # Backup, Cast and the local media server need it; a library's manifest
+        # must not be the only place that asks for it.
+        without = self.manifest().replace(
+            '<uses-permission android:name="android.permission.INTERNET"/>', '')
+        self.assertIn('INTERNET', ' '.join(manifest_errors(without, "app.test.camera")))
 
     def test_debuggable_and_old_target_builds_are_rejected(self):
         self.assertTrue(manifest_errors(self.manifest(debuggable="true"), "app.test.camera"))

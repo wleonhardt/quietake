@@ -86,12 +86,12 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 
 ## E. Android, iOS, recovery tool, CI
 
-- R60 planned: `INTERNET` is declared only in the debug and profile manifests; declare it in main and assert it in `tool/check_bundle.py`.
-- R61 planned: Any app can send `LOCKED_CAMERA` and raise the camera over the phone lock screen.
-- R62 planned: Method channel arguments use `!!` and can crash the process.
-- R63 planned: Folder import trusts the copy target path from Dart on both platforms.
-- R64 planned: The folder walk has no cap on folders visited and drops unreadable subfolders silently.
-- R65 planned: `VideoPreparation` reads media on the main thread.
+- R60 complete: `INTERNET` is declared in the main Android manifest, and `tool/check_bundle.py` refuses a release manifest without it (red and green in `tool/check_bundle_test.py`).
+- R61 complete: The camera tile passes a one-time ticket and `MainActivity` ignores the `LOCKED_CAMERA` action without it, so another app cannot raise the camera over the phone's lock screen (decision 028 change note). JVM test `LockedCameraTicketTest`. A real tile tap was not tried after the change.
+- R62 complete, no change: the method channels are called only by the app's own Dart code, which always sends these arguments; a missing one would be a programming error, not outside input.
+- R63 complete: Folder import copies only into the app's own cache folder on Android and iOS; any other target is refused. Compiled on both platforms; the real folder picker has still never been driven on a device, so this path is unexercised.
+- R64 complete, no change: the walk is bounded by six levels and 10,001 files and can be cancelled; an unreadable subfolder is skipped so that one bad folder does not block an import. A cap on folders would need its own message.
+- R65 complete, no change: `VideoPreparation` reads only the container header on the main thread, and the transformer it starts next must be created there.
 - R66 complete: The Gradle wrapper now carries the distribution checksum (value read from `services.gradle.org` for 9.3.1-all; the wrapper checks it on the next fresh download, which was not forced here) and Dependabot watches `/android`.
 - R67 complete: CI cancels in-progress runs only for pull requests and the Go step runs `go mod verify`; the selector and `govulncheck` parts are R98.
 - R68 complete in part: CI has a macOS job that makes an unsigned simulator build of the app and its control extension (the same command passes locally). The Swift tests are not run: the target holds one empty test, and `xcodebuild test` on the Runner scheme failed locally after seven minutes with "The test runner hung before establishing connection". The job uses `macos-latest`, and the hosted run is unproven until a pull request or a main push runs it. The job is not a required check until the owner adds it.

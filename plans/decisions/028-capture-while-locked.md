@@ -81,3 +81,9 @@ Checks: `flutter build ios --simulator` embeds `PlugIns/QuietakeControl.appex` (
 ## Waiting-photo count after unlock (2026-11-17)
 
 After unlock the camera screen shows one snackbar, "N photos from the lock screen camera are now in your library." (en, es, fr, de), when `Session.start` published N captures sealed while locked. `Session.takeLockedPublished()` returns the count once per session, so a rebuilt screen does not repeat it. Nothing is shown or counted while locked, and the count never leaves the device. A failed publication counts as zero and retries at the next unlock, as before. Tests: `session_test.dart` (count once, then zero) and `capture_locked_notice_test.dart` (the notice text); host suite 848 passed, iOS `locked_camera_test.dart` and `startup_test.dart` pass. Not checked on a real lock screen photo, and the translations need native review.
+
+Change 2026-11-18 (review item R61): the `LOCKED_CAMERA` action alone no longer opens the camera
+over the phone's lock screen. The tile puts a one-time ticket (`LockedCameraTicket`, held in
+memory, spent by any attempt) into its intent, and `MainActivity` ignores the action without it,
+so another app can no longer raise the camera there. JVM test `LockedCameraTicketTest`. Not
+verified: a real tile tap after this change.

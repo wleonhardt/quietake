@@ -59,6 +59,9 @@ class MainActivity : FlutterFragmentActivity() {
         if (intent?.action == Intent.ACTION_VIEW) incomingShare.accept(intent)
         if (intent?.action != LOCKED_CAMERA) return
         intent.action = null
+        // Any app can send this action to an exported activity; only the tile
+        // holds a ticket.
+        if (!LockedCameraTicket.redeem(intent.getStringExtra(LockedCameraTicket.EXTRA))) return
         lockedCameraRequested = true
         setShowWhenLocked(true)
         setTurnScreenOn(true)

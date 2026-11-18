@@ -23,6 +23,7 @@ class CameraTileService : TileService() {
     override fun onClick() {
         val intent = Intent(this, MainActivity::class.java)
             .setAction(MainActivity.LOCKED_CAMERA)
+            .putExtra(LockedCameraTicket.EXTRA, LockedCameraTicket.issue())
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         if (Build.VERSION.SDK_INT >= 34) {
             startActivityAndCollapse(

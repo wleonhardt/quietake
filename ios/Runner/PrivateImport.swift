@@ -232,6 +232,13 @@ final class FolderImportPicker: NSObject, UIDocumentPickerDelegate {
         return
       }
       let target = URL(fileURLWithPath: directory, isDirectory: true)
+      // Plaintext copies go only into the app's own caches folder.
+      let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      guard target.resolvingSymlinksInPath().path
+        .hasPrefix(caches.resolvingSymlinksInPath().path + "/") else {
+        DispatchQueue.main.async { result(FlutterError(code: "copy", message: "Could not copy this file", details: nil)) }
+        return
+      }
       try? FileManager.default.createDirectory(at: target, withIntermediateDirectories: true)
       let output = target.appendingPathComponent(UUID().uuidString).appendingPathExtension(suffix)
       let limit = suffix == "mp4" ? 512 * 1024 * 1024 : 32 * 1024 * 1024

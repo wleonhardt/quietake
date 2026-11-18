@@ -102,7 +102,10 @@ class FolderImport(private val activity: Activity) {
                 val name = id.substringAfterLast('/')
                 val extension = name.substringAfterLast('.', "").lowercase()
                 if (extension !in listOf("jpg", "jpeg", "png", "mp4")) throw IllegalArgumentException("type")
-                val dir = File(directory).apply { mkdirs() }
+                // Plaintext copies go only into the app's own cache.
+                val dir = File(directory).canonicalFile
+                require(dir.path.startsWith(activity.cacheDir.canonicalPath + File.separator))
+                dir.mkdirs()
                 file = File.createTempFile("item-", ".$extension", dir)
                 val limit = if (extension == "mp4") 512L * 1024 * 1024 else 32L * 1024 * 1024
                 var count = 0L
