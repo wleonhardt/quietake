@@ -64,6 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _burstSize = BurstSetting.standard;
   int _videoHeight = VideoSetting.standard;
   bool? _plainIcon;
+  bool? _biometric;
 
   @override
   void initState() {
@@ -72,6 +73,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     LauncherAppearance.neutral().then((on) {
       if (mounted) setState(() => _plainIcon = on);
     });
+    widget.session.store.hasCachedKey.then(
+      (on) {
+        if (mounted) setState(() => _biometric = on);
+      },
+      onError: (_) {}, // An unreadable keystore leaves the switch out.
+    );
     VideoSetting.load().then((height) {
       if (mounted) setState(() => _videoHeight = height);
     });
@@ -207,6 +214,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (changed == true && mounted) {
       setState(() => _privacyResult = (l10n) => l10n.settingsPasscodeChanged);
       widget.session.sync.sync();
+    }
+  }
+
+  /// Biometric unlock is a choice (decision 043). Turning it on asks for the
+  /// passcode; turning it off removes the keystore copy of the key.
+  Future<void> _setBiometric(bool on) async {
+    PrivacyScope.maybeOf(context)?.activity();
+    SecureKey? key;
+    try {
+      if (on) {
+        final passcode = await showDialog<String>(
+          context: context,
+          builder: (ctx) => _PasscodePrompt(
+            onActivity: () => PrivacyScope.maybeOf(context)?.activity(),
+            action: ctx.l10n.settingsBiometricTurnOn,
+          ),
+        );
+        if (passcode == null || !mounted) return;
+        key = await widget.session.store.unlockWithPasscode(passcode);
+        await widget.session.store.enableBiometricUnlock(key);
+      } else {
+        await widget.session.store.clearCache();
+      }
+      if (mounted) {
+        setState(() {
+          _biometric = on;
+          _privacyResult = null;
+        });
+      }
+    } on PasscodeLockedException catch (e) {
+      if (mounted) {
+        setState(
+          () => _privacyResult = (l10n) => passcodeLockedMessage(l10n, e),
+        );
+      }
+    } on WrongPasscodeException {
+      if (mounted) {
+        setState(() => _privacyResult = (l10n) => l10n.settingsWrongPasscode);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _privacyResult = (l10n) => l10n.settingsBiometricFailed);
+      }
+    } finally {
+      key?.dispose();
     }
   }
 
@@ -507,6 +559,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(Icons.password),
               label: Text(l10n.changePasscodeTitle),
             ),
+            if (_biometric != null)
+              SwitchListTile(
+                key: Keys.settingsBiometric,
+                contentPadding: EdgeInsets.zero,
+                title: Text(l10n.settingsBiometric),
+                subtitle: Text(l10n.settingsBiometricBody),
+                value: _biometric!,
+                onChanged: _busy ? null : _setBiometric,
+              ),
             if (_plainIcon != null)
               SwitchListTile(
                 key: Keys.settingsPlainIcon,
@@ -847,8 +908,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 /// Owns its controller, so it is disposed only after the dialog has left the tree.
 class _PasscodePrompt extends StatefulWidget {
-  const _PasscodePrompt({required this.onActivity});
+  const _PasscodePrompt({required this.onActivity, this.action});
   final VoidCallback onActivity;
+
+  /// The confirm button's label; "Show" for the recovery key.
+  final String? action;
   @override
   State<_PasscodePrompt> createState() => _PasscodePromptState();
 }
@@ -894,7 +958,7 @@ class _PasscodePromptState extends State<_PasscodePrompt>
       FilledButton(
         key: Keys.recoveryPromptOk,
         onPressed: () => Navigator.pop(context, _pass.text),
-        child: Text(context.l10n.settingsShow),
+        child: Text(widget.action ?? context.l10n.settingsShow),
       ),
     ],
   );

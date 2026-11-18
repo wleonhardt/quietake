@@ -53,9 +53,11 @@ class BadRecoveryKeyException implements Exception {
 ///   pwhash, moderate limits). Losing it is fine as long as the recovery
 ///   key exists; losing both is total loss.
 /// - Platform keystore entry `quietake.master_key`: the raw master key, so a
-///   biometric prompt can unlock without the Argon2id round trip. Best effort:
-///   refreshed on passcode unlock and recovery restore, and cleared when that
-///   refresh fails so it can never hold a key the keyfile no longer has.
+///   biometric prompt can unlock without the Argon2id round trip. It exists
+///   only while biometric unlock is turned on in Settings (decision 043).
+///   Best effort: refreshed on passcode unlock and recovery restore, and
+///   cleared when that refresh fails so it can never hold a key the keyfile
+///   no longer has.
 /// - Recovery key: the master key itself, base64, shown once at setup and on
 ///   demand after a passcode check. Enough on its own to read every container.
 class MasterKeyStore {
@@ -118,7 +120,13 @@ class MasterKeyStore {
     }
   }
 
+  /// Turns biometric unlock off: without the keystore copy only the passcode
+  /// or the recovery key opens the vault.
   Future<void> clearCache() => _storage.delete(key: cacheName);
+
+  /// Turns biometric unlock on. [key] must come from a passcode unlock, so
+  /// the person who asks is the one who knows the passcode.
+  Future<void> enableBiometricUnlock(SecureKey key) => _cache(key);
 
   /// First-run setup in one step; the UI uses [prepareKey] and
   /// [commitPasscode] so nothing is persisted before the recovery key is saved
@@ -373,7 +381,8 @@ class MasterKeyStore {
   /// The keyfile is authoritative; a cache that cannot follow it is removed.
   Future<void> _refreshCache(SecureKey key) async {
     try {
-      await _cache(key);
+      // Off by default: nothing is written until Settings turns it on.
+      if (await hasCachedKey) await _cache(key);
     } catch (_) {
       await _storage.delete(key: cacheName);
     }

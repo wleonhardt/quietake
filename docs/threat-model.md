@@ -32,8 +32,9 @@ that encrypts them.
 
 ## Known limits in the current code
 
-- Biometric unlock is a prompt in the app. The copy of the key in the platform keystore is not
-  itself bound to biometrics, and it is written at every passcode unlock. See decision 033.
+- Biometric unlock is off unless you turn it on in Settings. When on, the prompt is a check in
+  the app: the copy of the key in the platform keystore is not yet itself bound to biometrics.
+  See decisions 033 and 043.
 - Locking hides the app and clears decoded previews and the cast stream, but the vault key stays
   in memory until the app process ends.
 - The library index is one encrypted file of at most 8 MiB, which bounds the library at roughly

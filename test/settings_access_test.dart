@@ -374,6 +374,51 @@ void main() {
     expect(find.text('Schließen'), findsOneWidget);
   });
 
+  testWidgets(
+    'fingerprint or face unlock is off until the passcode turns it on',
+    (tester) async {
+      await open(tester);
+      Future<bool> cached() async =>
+          (await tester.runAsync(() => session.store.hasCachedKey))!;
+      Finder tile(bool on) => find.byWidgetPredicate(
+        (w) =>
+            w is SwitchListTile &&
+            w.key == Keys.settingsBiometric &&
+            w.value == on,
+      );
+      Future<void> turnOn(String passcode) async {
+        await tester.ensureVisible(find.byKey(Keys.settingsBiometric));
+        await tester.tap(find.byKey(Keys.settingsBiometric));
+        await tester.pumpAndSettle();
+        expect(find.text('Turn on'), findsOneWidget);
+        await tester.enterText(find.byKey(Keys.recoveryPrompt), passcode);
+        await tester.tap(find.byKey(Keys.recoveryPromptOk));
+      }
+
+      await until(tester, tile(false));
+      expect(tile(false), findsOneWidget);
+      expect(await cached(), isFalse);
+
+      await turnOn('not-the-passcode');
+      await until(tester, find.text('Wrong passcode. Try again.'));
+      expect(find.text('Wrong passcode. Try again.'), findsOneWidget);
+      expect(tile(false), findsOneWidget);
+      expect(await cached(), isFalse);
+
+      await turnOn(_passcode);
+      await until(tester, tile(true));
+      expect(tile(true), findsOneWidget);
+      expect(find.text('Wrong passcode. Try again.'), findsNothing);
+      expect(await cached(), isTrue);
+
+      // Turning it off needs no passcode and removes the copy of the key.
+      await tester.tap(find.byKey(Keys.settingsBiometric));
+      await until(tester, tile(false));
+      expect(tile(false), findsOneWidget);
+      expect(await cached(), isFalse);
+    },
+  );
+
   testWidgets('the right passcode shows the recovery key', (tester) async {
     await open(tester);
     await tester.ensureVisible(find.text('Show recovery key'));

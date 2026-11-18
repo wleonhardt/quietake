@@ -2634,6 +2634,30 @@ abstract class AppLocalizations {
   /// **'{value} MB'**
   String settingsSizeMb(String value);
 
+  /// No description provided for @settingsBiometric.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with fingerprint or face'**
+  String get settingsBiometric;
+
+  /// No description provided for @settingsBiometricBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When on, this phone keeps a copy of the vault key in its secure storage. The passcode always works.'**
+  String get settingsBiometricBody;
+
+  /// No description provided for @settingsBiometricTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get settingsBiometricTurnOn;
+
+  /// No description provided for @settingsBiometricFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change fingerprint or face unlock.'**
+  String get settingsBiometricFailed;
+
   /// No description provided for @settingsPlainIcon.
   ///
   /// In en, this message translates to:

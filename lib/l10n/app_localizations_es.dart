@@ -1627,6 +1627,20 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get settingsBiometric => 'Desbloquear con huella o rostro';
+
+  @override
+  String get settingsBiometricBody =>
+      'Si está activado, este teléfono guarda una copia de la clave de la bóveda en su almacenamiento seguro. El código de acceso siempre funciona.';
+
+  @override
+  String get settingsBiometricTurnOn => 'Activar';
+
+  @override
+  String get settingsBiometricFailed =>
+      'No se pudo cambiar el desbloqueo con huella o rostro.';
+
+  @override
   String get settingsPlainIcon => 'Usar un icono y un nombre discretos';
 
   @override

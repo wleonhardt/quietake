@@ -948,6 +948,10 @@
       }
     }
   },
+  "settingsBiometric": "Unlock with fingerprint or face",
+  "settingsBiometricBody": "When on, this phone keeps a copy of the vault key in its secure storage. The passcode always works.",
+  "settingsBiometricTurnOn": "Turn on",
+  "settingsBiometricFailed": "Could not change fingerprint or face unlock.",
   "settingsPlainIcon": "Use a plain icon and name",
   "settingsPlainIconBody": "Shows a gray icon named Tools instead of Quietake. The app may close for a moment when you switch. This does not hide Quietake from the app list or system settings.",
   "settingsPlainIconBodyIos": "Shows a different gray icon. The name stays Quietake, and iOS shows a notice when the icon changes. This does not hide Quietake from the app list or system settings.",

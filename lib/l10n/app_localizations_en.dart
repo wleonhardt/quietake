@@ -1602,6 +1602,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsBiometric => 'Unlock with fingerprint or face';
+
+  @override
+  String get settingsBiometricBody =>
+      'When on, this phone keeps a copy of the vault key in its secure storage. The passcode always works.';
+
+  @override
+  String get settingsBiometricTurnOn => 'Turn on';
+
+  @override
+  String get settingsBiometricFailed =>
+      'Could not change fingerprint or face unlock.';
+
+  @override
   String get settingsPlainIcon => 'Use a plain icon and name';
 
   @override

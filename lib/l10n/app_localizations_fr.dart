@@ -1629,6 +1629,20 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get settingsBiometric => 'Déverrouiller par empreinte ou visage';
+
+  @override
+  String get settingsBiometricBody =>
+      'Lorsque cette option est activée, ce téléphone conserve une copie de la clé du coffre dans son stockage sécurisé. Le code d\'accès fonctionne toujours.';
+
+  @override
+  String get settingsBiometricTurnOn => 'Activer';
+
+  @override
+  String get settingsBiometricFailed =>
+      'Impossible de modifier le déverrouillage par empreinte ou visage.';
+
+  @override
   String get settingsPlainIcon => 'Utiliser une icône et un nom discrets';
 
   @override

@@ -1632,6 +1632,20 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get settingsBiometric => 'Mit Fingerabdruck oder Gesicht entsperren';
+
+  @override
+  String get settingsBiometricBody =>
+      'Wenn aktiviert, bewahrt dieses Telefon eine Kopie des Tresorschlüssels in seinem sicheren Speicher auf. Der Zugangscode funktioniert immer.';
+
+  @override
+  String get settingsBiometricTurnOn => 'Aktivieren';
+
+  @override
+  String get settingsBiometricFailed =>
+      'Entsperren mit Fingerabdruck oder Gesicht konnte nicht geändert werden.';
+
+  @override
   String get settingsPlainIcon => 'Schlichtes Symbol und Namen verwenden';
 
   @override

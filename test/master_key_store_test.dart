@@ -355,14 +355,31 @@ void main() {
   test('create, unlock, wrong passcode, cache', () async {
     final key = await store.createWithPasscode('correct horse');
     expect(await store.hasKeyfile, isTrue);
-    expect(await store.hasCachedKey, isTrue);
     final again = await store.unlockWithPasscode('correct horse');
     expect(again.extractBytes(), key.extractBytes());
     await expectLater(
       store.unlockWithPasscode('wrong'),
       throwsA(isA<WrongPasscodeException>()),
     );
+    // Biometric unlock starts off: no copy of the key in the keystore.
+    expect(await store.hasCachedKey, isFalse);
+    expect(await store.cachedKey(), isNull);
+  });
+
+  test('the keystore copy exists only while biometric unlock is on', () async {
+    final key = await store.createWithPasscode('correct horse');
+    await store.enableBiometricUnlock(key);
     expect((await store.cachedKey())!.extractBytes(), key.extractBytes());
+    // A passcode unlock keeps it.
+    (await store.unlockWithPasscode('correct horse')).dispose();
+    expect((await store.cachedKey())!.extractBytes(), key.extractBytes());
+    await store.clearCache();
+    (await store.unlockWithPasscode('correct horse')).dispose();
+    (await store.restoreFromRecovery(
+      store.exportRecovery(key),
+      'another horse',
+    )).dispose();
+    expect(await store.hasCachedKey, isFalse);
   });
 
   test('unlock succeeds when the biometric cache cannot be written', () async {

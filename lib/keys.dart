@@ -176,6 +176,7 @@ abstract final class Keys {
 
   static const settingsPrivacySection = Key('settings.privacySection');
   static const settingsPlainIcon = Key('settings.plainIcon');
+  static const settingsBiometric = Key('settings.biometric');
   static const settingsBackupSection = Key('settings.backupSection');
   static const settingsRecoverySection = Key('settings.recoverySection');
   static const settingsPrivacyPolicy = Key('settings.privacyPolicy');

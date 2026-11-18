@@ -86,6 +86,9 @@ void main() {
       debugPrint('KDF createWithPasscode #$i: ${sw.elapsedMilliseconds} ms');
     }
     // An earlier install's leftovers: a key in the keystore and no keyfile.
+    final leftover = await store.unlockWithPasscode('timing');
+    await store.enableBiometricUnlock(leftover);
+    leftover.dispose();
     await store.keyfile.delete();
     final stale = (await store.cachedKey())!;
     staleKey = base64Encode(stale.extractBytes());
@@ -269,6 +272,12 @@ void main() {
   testWidgets(
     'cold lock resumes with one biometric prompt and a working retry',
     (tester) async {
+      // Biometric unlock is off after Setup (decision 043); turn it on the
+      // way Settings does, with a key from a passcode unlock.
+      expect(await store.hasCachedKey, isFalse);
+      final current = await store.unlockWithPasscode('hunter22');
+      await store.enableBiometricUnlock(current);
+      current.dispose();
       auth.answer = false;
       await tester.pumpWidget(app());
       await pumpUntil(tester, () => has(Keys.lockBiometric));
@@ -499,7 +508,7 @@ void main() {
         )).dispose();
         final delayed = _DelayedUnlockStore(store);
         var unlocked = false;
-        final key = (await store.cachedKey())!;
+        final key = store.importRecovery(await store.recoveryText(recoveryKey));
         final recovery = store.exportRecovery(key);
         key.dispose();
         void onUnlocked(SecureKey key) {

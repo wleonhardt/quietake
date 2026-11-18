@@ -51,3 +51,9 @@ The adoption was written for installs that had a keystore key but no passcode. N
 Red and green host tests in `test/master_key_store_test.dart`: "setup never adopts a key left in
 the keystore" and "portable restore passes a stale keystore entry and removes it". Device runs
 are listed in `plans/next-up.md`.
+
+## Change 2026-11-18: the keystore copy is opt-in
+
+Decision 043 makes biometric unlock a Settings switch that starts off, so the keystore entry
+exists only by choice and is no longer written on every passcode unlock. Binding the entry to
+biometrics is part 2 of that decision.
