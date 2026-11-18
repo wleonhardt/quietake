@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 
@@ -31,12 +32,16 @@ func shareNameOK(name string) bool {
 		return false
 	}
 	for _, r := range name {
-		if r < 0x20 || r == 0x7f || r == '/' || r == '\\' {
+		if r < 0x20 || r == 0x7f || r == '/' || r == '\\' || r == ':' {
 			return false
 		}
 	}
-	return true
+	// Names Windows cannot hold as plain files, on every system, so a bundle
+	// opens the same way everywhere.
+	return !strings.HasSuffix(name, ".") && !windowsDevice.MatchString(name)
 }
+
+var windowsDevice = regexp.MustCompile(`(?i)^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)`)
 
 // ExtractShare authenticates a bundle with passphrase and writes its entries
 // into dir (which must exist). maxTotal caps the extracted bytes. On any

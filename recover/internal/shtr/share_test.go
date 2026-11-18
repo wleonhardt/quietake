@@ -139,3 +139,16 @@ func TestShareParserEntryLimit(t *testing.T) {
 		t.Fatal("one over the limit was accepted")
 	}
 }
+
+func TestShareNamesWindowsCannotHold(t *testing.T) {
+	for _, name := range []string{"a:b.jpg", "CON", "nul.jpg", "Com1.txt", "LPT9", "photo."} {
+		if shareNameOK(name) {
+			t.Errorf("accepted %q", name)
+		}
+	}
+	for _, name := range []string{"photo-01.jpg", "video-02.mp4", "console.jpg", "com.jpg", "lpt10.txt", ".hidden"} {
+		if !shareNameOK(name) {
+			t.Errorf("refused %q", name)
+		}
+	}
+}

@@ -184,6 +184,13 @@ void main() {
       'a\nb',
       'a\x00b',
       'x' * 256,
+      // Names Windows cannot hold as plain files.
+      'a:b.jpg',
+      'CON',
+      'nul.jpg',
+      'Com1.txt',
+      'LPT9',
+      'photo.',
     ]) {
       await expectLater(
         write([entry(name, data(1, 1))]),

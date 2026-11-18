@@ -47,7 +47,10 @@ The secretstream plaintext is a sequence of entries with no count and no separat
 | `contentLength` | content bytes |
 
 Entry names are neutral (`photo-01.jpg`, `video-02.mp4`). A name must not be empty, contain `/`, `\`,
-NUL or any other control character, or equal `.` or `..`; readers reject a bundle that breaks this
+NUL or any other control character, or equal `.` or `..`. It must also not contain `:`, end in `.`,
+or be a Windows device name (`CON`, `PRN`, `AUX`, `NUL`, `COM1` to `COM9`, `LPT1` to `LPT9`, alone
+or before an extension, in any letter case), so a bundle opens the same way on every system;
+readers reject a bundle that breaks this
 rule and must not use the name as a path without checking it again. Names are unique ignoring case.
 Zero entries is valid.
 

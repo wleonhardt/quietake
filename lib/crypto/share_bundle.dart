@@ -291,6 +291,12 @@ class ShareBundle {
     }
   }
 
+  /// Names Windows treats as devices whatever their extension.
+  static final _windowsDevice = RegExp(
+    r'^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)',
+    caseSensitive: false,
+  );
+
   /// Throws unless [name] is a safe neutral entry name.
   static void _checkName(String name) {
     final bytes = utf8.encode(name);
@@ -299,7 +305,11 @@ class ShareBundle {
         bytes.length > 255 ||
         name == '.' ||
         name == '..' ||
-        name.runes.any((r) => r < 0x20 || r == 0x7f || r == 0x2f || r == 0x5c);
+        name.endsWith('.') ||
+        _windowsDevice.hasMatch(name) ||
+        name.runes.any(
+          (r) => r < 0x20 || r == 0x7f || r == 0x2f || r == 0x5c || r == 0x3a,
+        );
     if (bad) throw ShareBundleException('unsafe entry name');
   }
 
