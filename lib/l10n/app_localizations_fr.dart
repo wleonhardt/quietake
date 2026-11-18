@@ -1828,6 +1828,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get restoreGateRetry => 'Réessayer la restauration';
 
   @override
+  String get restoreGateDiscard => 'Abandonner la restauration inachevée';
+
+  @override
+  String get restoreGateDiscardTitle =>
+      'Abandonner la restauration inachevée ?';
+
+  @override
+  String get restoreGateDiscardBody =>
+      'Cela supprime uniquement la copie en cours de préparation sur ce téléphone. Votre sauvegarde n’est pas modifiée et vous pouvez la restaurer à nouveau.';
+
+  @override
+  String get restoreGateDiscardConfirm => 'Abandonner';
+
+  @override
   String get settingsCheckRecovery => 'Vérifier ma clé de récupération';
 
   @override

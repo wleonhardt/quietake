@@ -1790,6 +1790,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreGateRetry => 'Retry restore';
 
   @override
+  String get restoreGateDiscard => 'Discard the unfinished restore';
+
+  @override
+  String get restoreGateDiscardTitle => 'Discard the unfinished restore?';
+
+  @override
+  String get restoreGateDiscardBody =>
+      'This removes only the copy that was being prepared on this phone. Your backup is not changed, and you can restore it again.';
+
+  @override
+  String get restoreGateDiscardConfirm => 'Discard';
+
+  @override
   String get settingsCheckRecovery => 'Check my recovery key';
 
   @override

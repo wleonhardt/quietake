@@ -219,6 +219,10 @@ abstract final class Keys {
   static const portableProgress = Key('portable.progress');
   static const portableResult = Key('portable.result');
   static const portableStartupRetry = Key('portable.startupRetry');
+  static const portableStartupDiscard = Key('portable.startupDiscard');
+  static const portableStartupDiscardConfirm = Key(
+    'portable.startupDiscardConfirm',
+  );
   static const settingsResult = Key('settings.result');
   static const settingsRecoveryResult = Key('settings.recoveryResult');
   static const settingsChangePasscode = Key('settings.changePasscode');

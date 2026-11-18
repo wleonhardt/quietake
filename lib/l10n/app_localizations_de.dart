@@ -1829,6 +1829,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restoreGateRetry => 'Wiederherstellung wiederholen';
 
   @override
+  String get restoreGateDiscard => 'Unvollständige Wiederherstellung verwerfen';
+
+  @override
+  String get restoreGateDiscardTitle =>
+      'Unvollständige Wiederherstellung verwerfen?';
+
+  @override
+  String get restoreGateDiscardBody =>
+      'Dies entfernt nur die Kopie, die auf diesem Telefon vorbereitet wurde. Ihr Backup wird nicht verändert, und Sie können es erneut wiederherstellen.';
+
+  @override
+  String get restoreGateDiscardConfirm => 'Verwerfen';
+
+  @override
   String get settingsCheckRecovery =>
       'Meinen Wiederherstellungsschlüssel prüfen';
 

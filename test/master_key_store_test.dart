@@ -395,6 +395,30 @@ void main() {
     },
   );
 
+  test('discarding an unfinished restore never removes an existing vault', () async {
+    (await store.createWithPasscode('existing passcode')).dispose();
+    final vault = await Directory('${dir.path}/vault').create();
+    final capture = await File('${vault.path}/kept.jpg.shtr').writeAsBytes([1]);
+    final pending = await Directory('${dir.path}/.portable-restore').create();
+    await File('${pending.path}/ready').writeAsString('invalid journal');
+    await RestoreTransaction(store).discard();
+    expect(await pending.exists(), isFalse);
+    expect(await capture.exists(), isTrue);
+    expect(await store.hasKeyfile, isTrue);
+  });
+
+  test('discarding removes media the unfinished restore already moved', () async {
+    // No keyfile: the vault folder can only hold what this restore moved in.
+    final vault = await Directory('${dir.path}/vault').create();
+    await File('${vault.path}/restored.jpg.shtr').writeAsBytes([1]);
+    final pending = await Directory('${dir.path}/.portable-restore').create();
+    await File('${pending.path}/vault.keyfile.json').writeAsString('{}');
+    await RestoreTransaction(store).discard();
+    expect(await pending.exists(), isFalse);
+    expect(await vault.exists(), isFalse);
+    await RestoreTransaction(store).requireFresh();
+  });
+
   test('setup never adopts a key left in the keystore', () async {
     final stale = sodium.crypto.secretBox.keygen();
     mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());

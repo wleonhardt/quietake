@@ -24,6 +24,17 @@ class RestoreTransaction {
     }
   }
 
+  /// Gives up an unfinished restore that cannot resume. The backup itself is
+  /// never touched. Media already moved into the vault folder is removed only
+  /// when no keyfile exists: a restore needs an empty vault without one, so
+  /// such media can only have come from this restore.
+  Future<void> discard() async {
+    if (!await store.hasKeyfile && await target.exists()) {
+      await target.delete(recursive: true);
+    }
+    if (await pending.exists()) await pending.delete(recursive: true);
+  }
+
   Future<String> _fingerprint(File file) async {
     if (await file.length() > 65536) {
       throw const FormatException('Invalid restore keyfile');

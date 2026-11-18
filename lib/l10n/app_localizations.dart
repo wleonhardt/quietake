@@ -3000,6 +3000,30 @@ abstract class AppLocalizations {
   /// **'Retry restore'**
   String get restoreGateRetry;
 
+  /// No description provided for @restoreGateDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard the unfinished restore'**
+  String get restoreGateDiscard;
+
+  /// No description provided for @restoreGateDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard the unfinished restore?'**
+  String get restoreGateDiscardTitle;
+
+  /// No description provided for @restoreGateDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes only the copy that was being prepared on this phone. Your backup is not changed, and you can restore it again.'**
+  String get restoreGateDiscardBody;
+
+  /// No description provided for @restoreGateDiscardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get restoreGateDiscardConfirm;
+
   /// No description provided for @settingsCheckRecovery.
   ///
   /// In en, this message translates to:

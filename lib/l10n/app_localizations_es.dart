@@ -1826,6 +1826,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get restoreGateRetry => 'Reintentar restauración';
 
   @override
+  String get restoreGateDiscard => 'Descartar la restauración incompleta';
+
+  @override
+  String get restoreGateDiscardTitle =>
+      '¿Descartar la restauración incompleta?';
+
+  @override
+  String get restoreGateDiscardBody =>
+      'Esto solo elimina la copia que se estaba preparando en este teléfono. Tu copia de seguridad no cambia y puedes restaurarla de nuevo.';
+
+  @override
+  String get restoreGateDiscardConfirm => 'Descartar';
+
+  @override
   String get settingsCheckRecovery => 'Comprobar mi clave de recuperación';
 
   @override
