@@ -82,6 +82,8 @@ bool _hasPrefix(Uint8List b, int at, int end, List<int> prefix) {
 
 const _exif = [0x45, 0x78, 0x69, 0x66, 0, 0];
 final _xmp = 'http://ns.adobe.com/xap/1.0/'.codeUnits;
+// XMP too large for one segment continues in these.
+final _xmpExtension = 'http://ns.adobe.com/xmp/extension/'.codeUnits;
 const _mpf = [0x4d, 0x50, 0x46, 0];
 
 bool _isExif(Uint8List b, int at, int end) => _hasPrefix(b, at, end, _exif);
@@ -90,7 +92,9 @@ bool _isRemoved(Uint8List b, int marker, int start, int end) =>
     marker == 0xfe ||
     marker == 0xed ||
     marker == 0xe1 &&
-        (_isExif(b, start, end) || _hasPrefix(b, start, end, _xmp)) ||
+        (_isExif(b, start, end) ||
+            _hasPrefix(b, start, end, _xmp) ||
+            _hasPrefix(b, start, end, _xmpExtension)) ||
     marker == 0xe2 && _hasPrefix(b, start, end, _mpf);
 
 /// A minimal big-endian EXIF segment holding only the orientation.

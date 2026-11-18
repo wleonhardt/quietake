@@ -123,6 +123,23 @@ void main() {
     },
   );
 
+  test('extended XMP, used when XMP exceeds one segment, is removed too', () async {
+    final input = Uint8List.fromList([
+      0xff,
+      0xd8,
+      ...segment(0xe1, [
+        ...'http://ns.adobe.com/xmp/extension/'.codeUnits,
+        0,
+        ...'GPSLatitude=37.8'.codeUnits,
+      ]),
+      ...fixtureBytes('tiny.jpg').skip(2),
+    ]);
+    final stripped = withoutMetadata(input);
+    expect(contains(stripped, 'GPSLatitude'), isFalse);
+    expect(contains(stripped, 'xmp/extension'), isFalse);
+    await expectDecodes(stripped);
+  });
+
   test('a photo without orientation loses its EXIF segment entirely', () {
     final original = jpegWithGps();
     // Rename the orientation tag so IFD0 has none.
