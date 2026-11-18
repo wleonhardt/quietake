@@ -1053,6 +1053,17 @@ class _GalleryScreenState extends State<GalleryScreen>
                 if (widget.searchMode && _composing) {
                   return _searchChoices(items.length);
                 }
+                // Sorted by date, each local day gets a header; a library
+                // where no name carries a date needs none.
+                final days = dayGroups(items);
+                final showDays =
+                    _sort != LibrarySort.name &&
+                    !(days.length == 1 && days.single.day == null);
+                final DayGroup whole = (
+                  day: null,
+                  start: 0,
+                  count: items.length,
+                );
                 return LayoutBuilder(
                   builder: (context, contentConstraints) => Column(
                     children: [
@@ -1088,17 +1099,8 @@ class _GalleryScreenState extends State<GalleryScreen>
                                 semanticChildCount: items.length,
                                 slivers: [
                                   for (final group
-                                      in _sort == LibrarySort.name
-                                          ? [
-                                              (
-                                                day: null,
-                                                start: 0,
-                                                count: items.length,
-                                              ),
-                                            ]
-                                          : dayGroups(items)) ...[
-                                    // Sorted by date, each local day gets a header.
-                                    if (_sort != LibrarySort.name)
+                                      in showDays ? days : [whole]) ...[
+                                    if (showDays)
                                       SliverToBoxAdapter(
                                         child: Padding(
                                           padding: const EdgeInsets.fromLTRB(
