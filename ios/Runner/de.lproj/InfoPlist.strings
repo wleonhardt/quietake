@@ -1,0 +1,6 @@
+/* Permission prompts. English is in Info.plist. Translations need native review. */
+"NSCameraUsageDescription" = "Quietake nimmt Fotos und Videos direkt in Ihren verschlüsselten Tresor auf.";
+"NSMicrophoneUsageDescription" = "Wird benötigt, um in Videos Ton aufzunehmen.";
+"NSFaceIDUsageDescription" = "Den Tresor entsperren, ohne den Zugangscode einzugeben.";
+"NSPhotoLibraryAddUsageDescription" = "Ein Foto oder Video nur dann in Fotos sichern, wenn Sie im Teilen-Menü „Sichern“ wählen.";
+"NSLocalNetworkUsageDescription" = "Quietake findet Fernseher in Ihrem WLAN zum Übertragen und stellt ihnen das Bild von diesem Telefon bereit.";

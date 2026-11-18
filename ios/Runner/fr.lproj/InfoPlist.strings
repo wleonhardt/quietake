@@ -1,0 +1,6 @@
+/* Permission prompts. English is in Info.plist. Translations need native review. */
+"NSCameraUsageDescription" = "Quietake prend des photos et des vidéos directement dans votre coffre chiffré.";
+"NSMicrophoneUsageDescription" = "Nécessaire pour enregistrer le son des vidéos.";
+"NSFaceIDUsageDescription" = "Déverrouiller le coffre sans saisir le code d’accès.";
+"NSPhotoLibraryAddUsageDescription" = "Enregistrer une photo ou une vidéo dans Photos uniquement lorsque vous choisissez Enregistrer dans le menu de partage.";
+"NSLocalNetworkUsageDescription" = "Quietake recherche les téléviseurs de votre Wi-Fi pour diffuser et leur envoie l’image depuis ce téléphone.";
