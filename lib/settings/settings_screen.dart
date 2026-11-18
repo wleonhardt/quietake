@@ -19,6 +19,7 @@ import '../sync/backup_screen.dart';
 import '../backup/portable_screen.dart';
 import '../sync/nas_recovery_screen.dart';
 import '../vault/master_key_store.dart';
+import '../app_version.dart';
 import '../camera/burst_setting.dart';
 import '../camera/video_setting.dart';
 import '../library/recently_deleted_screen.dart';
@@ -823,6 +824,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: _busy ? null : () => showAppLicenses(context),
             icon: const Icon(Icons.description_outlined),
             label: Text(l10n.settingsLicenses),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.settingsVersion('$appVersion ($appBuild)'),
+            key: Keys.settingsVersion,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
       ),

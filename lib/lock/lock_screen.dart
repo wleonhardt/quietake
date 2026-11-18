@@ -7,6 +7,7 @@ import 'package:sodium/sodium_sumo.dart';
 import '../auth/authenticator.dart';
 import '../keys.dart';
 import '../privacy/screen_privacy.dart';
+import '../settings/launcher_appearance.dart';
 import '../l10n/l10n.dart';
 import '../form_body.dart';
 import '../brand.dart';
@@ -50,6 +51,7 @@ class LockScreen extends StatefulWidget {
 class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   final _pass = TextEditingController();
   bool _busy = false;
+  bool _plain = false;
   bool _showPasscode = false;
   bool _biometric = false;
   bool _prompting = false;
@@ -67,6 +69,9 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     _error = _text(widget.message);
     WidgetsBinding.instance.addObserver(this);
     _probe();
+    LauncherAppearance.neutral().then((plain) {
+      if (mounted && plain == true) setState(() => _plain = true);
+    });
     _loadPublicKey().then((_) => _openCameraIfRequested());
   }
 
@@ -281,7 +286,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
       body: FormBody(
         centered: true,
         children: [
-          BrandHeader(message: l10n.lockMessage),
+          BrandHeader(message: l10n.lockMessage, plain: _plain),
           TextField(
             key: Keys.lockPasscode,
             controller: _pass,

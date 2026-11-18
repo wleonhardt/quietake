@@ -411,6 +411,7 @@
   "settingsKeepDeleted": "Conserver les captures supprimées 30 jours",
   "settingsKeepDeletedBody": "Supprimer déplace d'abord une capture dans Supprimés récemment. Elle reste chiffrée.",
   "settingsLicenses": "Licences",
+  "settingsVersion": "Version {version}",
   "settingsShow": "Afficher",
   "portableTitleRestore": "Restaurer une sauvegarde chiffrée",
   "portableTitleExport": "Sauvegarde portable",

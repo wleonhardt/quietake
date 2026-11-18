@@ -411,6 +411,7 @@
   "settingsKeepDeleted": "Gelöschte Aufnahmen 30 Tage aufbewahren",
   "settingsKeepDeletedBody": "Löschen verschiebt eine Aufnahme zunächst nach Zuletzt gelöscht. Sie bleibt verschlüsselt.",
   "settingsLicenses": "Lizenzen",
+  "settingsVersion": "Version {version}",
   "settingsShow": "Anzeigen",
   "portableTitleRestore": "Verschlüsseltes Backup wiederherstellen",
   "portableTitleExport": "Portables Backup",

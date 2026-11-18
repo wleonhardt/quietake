@@ -411,6 +411,7 @@
   "settingsKeepDeleted": "Conservar las capturas eliminadas 30 días",
   "settingsKeepDeletedBody": "Eliminar mueve primero una captura a Eliminados recientemente. Sigue cifrada.",
   "settingsLicenses": "Licencias",
+  "settingsVersion": "Versión {version}",
   "settingsShow": "Mostrar",
   "portableTitleRestore": "Restaurar copia cifrada",
   "portableTitleExport": "Copia portátil",

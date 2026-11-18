@@ -2568,6 +2568,12 @@ abstract class AppLocalizations {
   /// **'Licenses'**
   String get settingsLicenses;
 
+  /// No description provided for @settingsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String settingsVersion(String version);
+
   /// No description provided for @settingsShow.
   ///
   /// In en, this message translates to:

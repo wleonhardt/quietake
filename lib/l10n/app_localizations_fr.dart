@@ -1570,6 +1570,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLicenses => 'Licences';
 
   @override
+  String settingsVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get settingsShow => 'Afficher';
 
   @override

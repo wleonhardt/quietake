@@ -107,7 +107,11 @@ class SceneDelegate: FlutterSceneDelegate {
         coverLabel = label
       }
       cover!.frame = window.bounds
-      coverLabel?.text = captured ? "Screen recording or mirroring detected.\nStop it to return to Quietake." : "Quietake"
+      // With the plain icon on, the app switcher shows no name either (decision 029).
+      let plain = UIApplication.shared.alternateIconName != nil
+      coverLabel?.text = captured
+        ? "Screen recording or mirroring detected.\nStop it to return to \(plain ? "the app" : "Quietake")."
+        : (plain ? "" : "Quietake")
       window.addSubview(cover!)
       window.bringSubviewToFront(cover!)
     } else {

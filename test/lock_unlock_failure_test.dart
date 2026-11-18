@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/lock/lock_screen.dart';
@@ -157,6 +158,38 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     },
   );
+
+  testWidgets('with the plain icon on, the lock screen shows no name or logo', (
+    tester,
+  ) async {
+    const appearance = MethodChannel('quietake/appearance');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      appearance,
+      (call) async => call.method == 'neutral' ? true : null,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        appearance,
+        null,
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: LockScreen(
+          store: _LockedStore(sodium),
+          auth: FakeAuthenticator(isAvailable: false),
+          autoPrompt: false,
+          onUnlocked: (_) {},
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Quietake'), findsNothing);
+    expect(find.byType(Image), findsNothing);
+    expect(find.byKey(Keys.lockPasscode), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
 
   testWidgets('a locked passcode shows how long to wait', (tester) async {
     await tester.pumpWidget(

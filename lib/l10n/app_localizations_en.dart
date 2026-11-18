@@ -1543,6 +1543,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLicenses => 'Licenses';
 
   @override
+  String settingsVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get settingsShow => 'Show';
 
   @override

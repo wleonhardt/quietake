@@ -237,32 +237,38 @@ TextStyle recoveryKeyStyle(double size) => TextStyle(
 );
 
 class BrandHeader extends StatelessWidget {
-  const BrandHeader({super.key, required this.message});
+  const BrandHeader({super.key, required this.message, this.plain = false});
   final String message;
+
+  /// With the plain launcher icon on, the lock screen shows no name or logo
+  /// either (decision 029).
+  final bool plain;
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 24),
     child: Column(
       children: [
-        Image.asset(
-          'assets/brand/quietake.png',
-          width: 80,
-          height: 80,
-          excludeFromSemantics: true,
-        ),
-        Text(
-          'Quietake',
-          style: Theme.of(context).textTheme.headlineMedium
-              ?.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.8),
-        ),
-        Text(
-          context.l10n.brandTagline,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            letterSpacing: .5,
+        if (!plain) ...[
+          Image.asset(
+            'assets/brand/quietake.png',
+            width: 80,
+            height: 80,
+            excludeFromSemantics: true,
           ),
-        ),
-        const SizedBox(height: 20),
+          Text(
+            'Quietake',
+            style: Theme.of(context).textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.8),
+          ),
+          Text(
+            context.l10n.brandTagline,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              letterSpacing: .5,
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
         Text(
           message,
           textAlign: TextAlign.center,

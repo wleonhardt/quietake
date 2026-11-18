@@ -73,10 +73,10 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R49 planned: The recovery key screen can be passed in one tap; ask for one group back (decision record first, wording for owner review).
 - R50 planned (owner 2026-11-18): Show the recovery key as 24 words with the base64 form under "Show as text"; the app and the recovery tool accept both. Needs a format note, vectors for the word form and a decision record (041 or later).
 - R51 planned: First run is one form with four equal links; split into a welcome choice and a restore page (decision record first, wording for owner review).
-- R52 planned: With the plain icon on, the lock screen and the iOS cover still show the name and logo.
+- R52 complete: With the plain icon on, the lock screen shows only "Unlock your private vault." without the name and logo, and the iOS app-switcher cover shows no name. Host test in `test/lock_unlock_failure_test.dart`; the Swift change compiles in a simulator build and was not seen with the alternate icon set. The setup screen and the Android task label are unchanged.
 - R53 planned: English-only messages reach other languages (`passcodeTooShort`, exception text, the startup error, the name dialog, the policy screen chrome); check decision 021 first.
-- R54 planned: Settings has no About or version row.
-- R55 planned: `FormBody` clips its scroll content above the home indicator.
+- R54 complete: Settings ends with "Version 1.0.0 (5)" and the licence page shows it. The numbers live in `lib/app_version.dart`; `test/app_version_test.dart` fails when they differ from `pubspec.yaml`, so no plugin is needed.
+- R55 complete: Form screens scroll under the home indicator with padding below the last item instead of being cut off above it. Host suite 899 passed; not looked at on a device.
 - R56 planned: Settings is one long page with an inline server form; give Backup its own screen (decision record first).
 - R57 planned: Type scale mixes tight titles with loose body text; the logo is a hard-cornered dark square on light surfaces.
 - R58 planned: Predictive back: page transition and the manifest flag.

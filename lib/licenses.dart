@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'app_version.dart';
 import 'keys.dart';
 
 bool _registered = false;
@@ -46,6 +47,7 @@ void showAppLicenses(BuildContext context) {
       builder: (_) => const LicensePage(
         key: Keys.licensesPage,
         applicationName: 'Quietake',
+        applicationVersion: '$appVersion ($appBuild)',
       ),
     ),
   );

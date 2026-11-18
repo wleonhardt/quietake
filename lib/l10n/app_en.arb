@@ -888,6 +888,14 @@
   "settingsKeepDeleted": "Keep deleted captures for 30 days",
   "settingsKeepDeletedBody": "Delete moves a capture to Recently deleted first. It stays encrypted.",
   "settingsLicenses": "Licenses",
+  "settingsVersion": "Version {version}",
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "settingsShow": "Show",
   "portableTitleRestore": "Restore encrypted backup",
   "portableTitleExport": "Portable backup",
