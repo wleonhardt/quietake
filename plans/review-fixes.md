@@ -42,7 +42,7 @@ Status words: planned, active, complete, blocked (needs the owner), deferred (wi
 - R21 complete: "Saved securely" and the burst count clear after four seconds; a save with a problem note stays. Red and green in `test/capture_chrome_test.dart`.
 - R22 complete: The "on this phone only" state uses a neutral phone glyph, and the backup state is announced to screen readers only when a backup needs attention. No new test; the tooltip and label are unchanged.
 - R23 complete: Both states show a Retry button (the existing translated word) that opens the camera again. Red and green in `test/capture_chrome_test.dart`. Not seen on a device.
-- R24 planned: Pinch to zoom (decision record first).
+- R24 complete: Pinch to zoom with a factor label that also resets it (decision 035). Host tests in `test/capture_chrome_test.dart`. Limits: no screen-reader control for zoom, not tried on a phone.
 - R25 planned: Flash and torch control (decision record first).
 - R26 planned: The shutter is a radio-button icon, and during a recording the centre button is dead while Stop is the small left icon.
 - R27 planned: Two opaque panels cover about a third of the viewfinder; use scrims.

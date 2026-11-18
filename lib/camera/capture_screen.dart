@@ -7,6 +7,7 @@ import 'package:camera_platform_interface/camera_platform_interface.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'burst_setting.dart';
@@ -58,6 +59,10 @@ class _CaptureScreenState extends State<CaptureScreen>
   CameraLensDirection _lens = CameraLensDirection.back;
   bool _recording = false;
   bool _grid = false;
+
+  /// Zoom of the open camera and its range; all 1 when it cannot zoom.
+  double _zoom = 1, _minZoom = 1, _maxZoom = 1;
+  double _zoomAtPinchStart = 1;
   int _delay = 0;
   int? _countdown;
   Timer? _countdownTimer;
@@ -300,6 +305,13 @@ class _CaptureScreenState extends State<CaptureScreen>
         enableAudio: enableAudio,
       );
       await controller.initialize();
+      var minZoom = 1.0, maxZoom = 1.0;
+      try {
+        minZoom = await controller.getMinZoomLevel();
+        maxZoom = await controller.getMaxZoomLevel();
+      } catch (_) {
+        // This camera cannot zoom; the pinch does nothing.
+      }
       if (!mounted || !_foreground || !widget.active || epoch != _cameraEpoch) {
         await controller.dispose();
         return;
@@ -316,6 +328,10 @@ class _CaptureScreenState extends State<CaptureScreen>
       setState(() {
         _controller = controller;
         _lens = selected.lensDirection;
+        // A newly opened camera starts without zoom.
+        _minZoom = minZoom;
+        _maxZoom = maxZoom < minZoom ? minZoom : maxZoom;
+        _zoom = 1.0.clamp(_minZoom, _maxZoom);
         if (_status == _l10n.camUnavailable || _status == _l10n.camNone) {
           _status = null;
         }
@@ -488,6 +504,15 @@ class _CaptureScreenState extends State<CaptureScreen>
     } catch (_) {
       // Best effort: no manual focus on this camera.
     }
+  }
+
+  /// Pinch on the preview, or the zoom label to go back (decision 035).
+  void _setZoom(double wanted, CameraController controller) {
+    final zoom = wanted.clamp(_minZoom, _maxZoom);
+    if (zoom == _zoom) return;
+    setState(() => _zoom = zoom);
+    // Best effort: a refusal leaves the picture as it is.
+    controller.setZoomLevel(zoom).catchError((Object _) {});
   }
 
   /// Long press: focus and meter at the point, then hold both until the next
@@ -830,6 +855,12 @@ class _CaptureScreenState extends State<CaptureScreen>
                     behavior: HitTestBehavior.opaque,
                     onTapUp: (tap) => _focusAt(box, tap, c),
                     onLongPressStart: (press) => _lockAt(box, press, c),
+                    onScaleStart: (_) => _zoomAtPinchStart = _zoom,
+                    onScaleUpdate: (pinch) {
+                      if (pinch.pointerCount > 1) {
+                        _setZoom(_zoomAtPinchStart * pinch.scale, c);
+                      }
+                    },
                     child: CameraPreview(c),
                   ),
                 ),
@@ -1059,6 +1090,21 @@ class _CaptureScreenState extends State<CaptureScreen>
                         ),
                       ),
                     ),
+                    if (c != null && _zoom > _minZoom)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: TextButton(
+                          key: Keys.captureZoom,
+                          style: TextButton.styleFrom(
+                            backgroundColor: cameraCanvas,
+                            foregroundColor: onMediaCanvas,
+                          ),
+                          onPressed: () => _setZoom(_minZoom, c),
+                          child: Text(
+                            '${NumberFormat.decimalPatternDigits(locale: l10n.localeName, decimalDigits: 1).format(_zoom)}×',
+                          ),
+                        ),
+                      ),
                     Row(
                       children: [
                         Expanded(

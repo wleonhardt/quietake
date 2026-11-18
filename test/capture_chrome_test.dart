@@ -27,6 +27,18 @@ class _LateCamera extends ControlledCamera {
       present ? super.availableCameras() : const [];
 }
 
+/// A camera with a zoom range, recording what the screen asks for.
+class _ZoomCamera extends ControlledCamera {
+  _ZoomCamera(super.directory);
+  final zooms = <double>[];
+  @override
+  Future<double> getMinZoomLevel(int cameraId) async => 1;
+  @override
+  Future<double> getMaxZoomLevel(int cameraId) async => 8;
+  @override
+  Future<void> setZoomLevel(int cameraId, double zoom) async => zooms.add(zoom);
+}
+
 typedef _Booted = ({
   ControlledCamera camera,
   Future<void> Function(bool Function()) until,
@@ -112,6 +124,49 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
     expect(find.text('Saved securely'), findsNothing);
     expect(find.byKey(Keys.status), findsNothing);
+  });
+
+  testWidgets('pinching the preview zooms within the camera range', (
+    tester,
+  ) async {
+    final booted = await _boot(tester, _ZoomCamera.new);
+    final camera = booted.camera as _ZoomCamera;
+    expect(find.byKey(Keys.captureZoom), findsNothing);
+    final center = tester.getCenter(find.byKey(Keys.preview));
+    final a = await tester.startGesture(center - const Offset(20, 0), pointer: 1);
+    final b = await tester.startGesture(center + const Offset(20, 0), pointer: 2);
+    await a.moveBy(const Offset(-40, 0));
+    await b.moveBy(const Offset(40, 0));
+    await tester.pump();
+    await a.up();
+    await b.up();
+    await tester.pump();
+    expect(camera.zooms, isNotEmpty);
+    // The exact factor depends on when the gesture is recognised.
+    expect(camera.zooms.last, greaterThan(1.2));
+    expect(camera.zooms.every((z) => z >= 1 && z <= 8), isTrue);
+    expect(find.byKey(Keys.captureZoom), findsOneWidget);
+
+    // The label is also the way back to no zoom.
+    await tester.tap(find.byKey(Keys.captureZoom));
+    await tester.pump();
+    expect(camera.zooms.last, 1);
+    expect(find.byKey(Keys.captureZoom), findsNothing);
+  });
+
+  testWidgets('a camera without zoom ignores the pinch', (tester) async {
+    await _boot(tester, ControlledCamera.new);
+    final center = tester.getCenter(find.byKey(Keys.preview));
+    final a = await tester.startGesture(center - const Offset(20, 0), pointer: 1);
+    final b = await tester.startGesture(center + const Offset(20, 0), pointer: 2);
+    await a.moveBy(const Offset(-40, 0));
+    await b.moveBy(const Offset(40, 0));
+    await tester.pump();
+    await a.up();
+    await b.up();
+    await tester.pump();
+    expect(find.byKey(Keys.captureZoom), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('a missing camera offers Retry, which opens it', (tester) async {
