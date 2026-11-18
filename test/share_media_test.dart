@@ -214,6 +214,19 @@ void main() {
       expect(await vault.list(), hasLength(1));
     },
   );
+  test(
+    'startup cleanup also removes interrupted import copies; a share does not',
+    () async {
+      final staging = await Directory('${root.path}/quietake-import').create();
+      final copy = File('${staging.path}/interrupted.jpg');
+      await copy.writeAsBytes([1, 2, 3]);
+      await clearShareFiles();
+      expect(await copy.exists(), isTrue, reason: 'an import may be running');
+      await clearShareFiles(atStartup: true);
+      expect(await staging.exists(), isFalse);
+      expect(await vault.list(), hasLength(1));
+    },
+  );
   test('each export has a fresh filename so old URI grants cannot read a later share', () async {
     final names = <String>[];
     binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (

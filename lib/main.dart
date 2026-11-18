@@ -24,7 +24,7 @@ import 'vault/master_key_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await clearShareFiles();
+  await clearShareFiles(atStartup: true);
   final sodium = await SodiumSumoInit.init();
   final store = MasterKeyStore(
     sodium,

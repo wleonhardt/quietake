@@ -15,9 +15,15 @@ import 'redact.dart';
 bool _sharing = false;
 
 /// Also removes the Android plugin's private copy. Run at startup after crashes.
-Future<void> clearShareFiles() async {
+/// [atStartup] also removes plaintext copies an interrupted import left; a
+/// share must not, because an import may be running.
+Future<void> clearShareFiles({bool atStartup = false}) async {
   final root = await getTemporaryDirectory();
-  for (final name in ['quietake-share', 'share_plus']) {
+  for (final name in [
+    'quietake-share',
+    'share_plus',
+    if (atStartup) 'quietake-import',
+  ]) {
     final directory = Directory('${root.path}/$name');
     if (await directory.exists()) await directory.delete(recursive: true);
   }
