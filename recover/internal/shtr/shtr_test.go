@@ -21,7 +21,7 @@ type vectors struct {
 	} `json:"cases"`
 }
 
-func load(t *testing.T) (vectors, *[32]byte) {
+func load(t testing.TB) (vectors, *[32]byte) {
 	t.Helper()
 	data, err := os.ReadFile("../../../docs/vectors/containers.json")
 	if err != nil {
@@ -41,7 +41,7 @@ func load(t *testing.T) (vectors, *[32]byte) {
 	return v, key
 }
 
-func mustHex(t *testing.T, s string) []byte {
+func mustHex(t testing.TB, s string) []byte {
 	t.Helper()
 	b, err := hex.DecodeString(s)
 	if err != nil {
@@ -57,6 +57,8 @@ func TestVectorFilesFrozen(t *testing.T) {
 		"../../../docs/vectors/containers.json":  "2cbd9774cbd93a82e9870d2a4c2acd1aff35998fcc3d3b6dacd7c5e4d0944723",
 		"../../../docs/vectors/keyfile.json":     "227bcb2662e936c24cb8bc688d84fadfdc559ba0abc8bea43022c4ed645a3ffe",
 		"../../../docs/recovery-vectors/v1.json": "a06ee3fcb6a9a73243be5e8097dc213ce060b40f1ba41554731ea46d19431940",
+		// Added 2026-11-18 with the word form of the recovery key (decision 041).
+		"../../../docs/recovery-vectors/words.json": "2adf5e14caef185a4dbfb88ecc121413d49dc0fed3d70e6405c5a73eaa05cc44",
 	} {
 		data, err := os.ReadFile(path)
 		if err != nil {

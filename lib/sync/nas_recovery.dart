@@ -6,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import '../backup/restore_transaction.dart';
 import '../compat/legacy_identity.dart';
 import '../library/private_catalog.dart';
+import '../limits.dart';
 import '../vault/backup_passphrase.dart';
 import '../vault/master_key_store.dart';
 import '../vault/vault.dart';
@@ -54,7 +55,9 @@ class NasRecovery {
       }
       _check();
       lease = await dav.lockCollection();
-      LegacyIdentity.rejectBackupWrites((await dav.list()).map((e) => e.name));
+      LegacyIdentity.rejectBackupWrites(
+        (await dav.list(maxBytes: maxListingBytes)).map((e) => e.name),
+      );
       // Key management changes only recovery material, never capture backup state.
       await for (final entry in vault.dir.list()) {
         if (entry is Directory &&
@@ -195,7 +198,7 @@ class NasRecovery {
     if (newPasscode.length < MasterKeyStore.minPasscodeLength) {
       throw const FormatException(MasterKeyStore.passcodeTooShort);
     }
-    final entries = await dav.list(maxBytes: 16 * 1024 * 1024);
+    final entries = await dav.list(maxBytes: maxListingBytes);
     final names = entries.map((e) => e.name).toSet();
     final legacy =
         names.contains(LegacyIdentity.catalog) ||
@@ -224,7 +227,7 @@ class NasRecovery {
     try {
       _check();
       final media = entries.where((e) => e.name.endsWith('.shtr')).toList();
-      if (media.length > 10000 ||
+      if (media.length > maxBackupCaptures ||
           media.map((e) => e.name).toSet().length != media.length) {
         throw const FormatException('Unsupported backup file count');
       }
@@ -236,12 +239,18 @@ class NasRecovery {
         maxBytes: PrivateCatalog.maxBytes * 2,
       );
       await staged.catalog.validate(staged.catalog.file);
+      // Randomly named uploads (decision 026) go back to their capture names.
+      final names = await staged.catalog.remoteNamesOf(staged.catalog.file);
+      final local = [for (final e in media) names.localFor(e.name)];
+      if (local.toSet().length != local.length) {
+        throw const FormatException('Unsupported backup file count');
+      }
       for (var i = 0; i < media.length; i++) {
         _check();
         onProgress?.call(
           'Checking encrypted capture ${i + 1} of ${media.length}',
         );
-        final file = File('${work.path}/${media[i].name}');
+        final file = File('${work.path}/${local[i]}');
         await dav.get(
           media[i].name,
           file,

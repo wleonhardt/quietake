@@ -11,12 +11,14 @@ permissions:
 
 concurrency:
   group: app-checks-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push to main must not cancel the checks of an earlier main commit.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   FLUTTER_VERSION: '3.47.7'
   FLUTTER_REVISION: abaf9c523780a608bd46686fd5e53740a07077f8
   GO_VERSION: '1.27.3'
+  GOVULNCHECK_VERSION: 'v1.10.0'
   JAVA_VERSION: '21.0.13+9'
   GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.workers.max=2'
   PYTHONDONTWRITEBYTECODE: '1'
@@ -37,12 +39,21 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m unittest tool.ci_scope_test
-          python3 tool/ci_scope.py select --event "$GITHUB_EVENT_PATH" \
+          # The selector is taken from the base commit, so a change to it cannot
+          # choose its own checks. (The workflow file itself still comes from the
+          # change; review protects that.) Without a base, the checkout's copy runs
+          # and such events select full checks anyway.
+          base=$(python3 -c 'import json, os; e = json.load(open(os.environ["GITHUB_EVENT_PATH"])); print((e.get("pull_request") or {}).get("base", {}).get("sha") or e.get("before") or "")')
+          selector="$RUNNER_TEMP/quietake-ci-scope.py"
+          if [ -z "$base" ] || ! git show "$base:tool/ci_scope.py" > "$selector" 2>/dev/null; then
+            cp tool/ci_scope.py "$selector"
+          fi
+          python3 "$selector" select --event "$GITHUB_EVENT_PATH" \
             --event-name "$GITHUB_EVENT_NAME" --output "$RUNNER_TEMP/quietake-scope.json"
       - name: Check non-app content
         id: content
         if: steps.scope.outputs.mode == 'non-app'
-        run: python3 tool/ci_scope.py check-content "$RUNNER_TEMP/quietake-scope.json"
+        run: python3 "$RUNNER_TEMP/quietake-ci-scope.py" check-content "$RUNNER_TEMP/quietake-scope.json"
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         if: steps.scope.outputs.mode == 'full'
         with:
@@ -96,7 +107,8 @@ jobs:
           flutter analyze --no-pub
           flutter test --no-pub
           python3 -m unittest discover -s tool -p '*_test.py'
-          (cd recover && test -z "$(gofmt -l .)" && go vet ./... && go test ./...)
+          (cd recover && test -z "$(gofmt -l .)" && go mod verify && go vet ./... && go test ./... &&
+            go run "golang.org/x/vuln/cmd/govulncheck@$GOVULNCHECK_VERSION" ./...)
           dart run tool/check_interop.dart
           # Pub-enabled builds regenerate the registrant without dev-only plugins.
           flutter build appbundle --release --target=lib/main.dart \
@@ -113,7 +125,7 @@ jobs:
           SELECTION_RESULT: ${{ steps.scope.outcome }}
           CONTENT_RESULT: ${{ steps.content.outcome }}
           FULL_RESULT: ${{ steps.full.outcome }}
-        run: python3 tool/ci_scope.py complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"
+        run: python3 "$RUNNER_TEMP/quietake-ci-scope.py" complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"
 
   android:
     name: Android integration
@@ -130,12 +142,21 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m unittest tool.ci_scope_test
-          python3 tool/ci_scope.py select --event "$GITHUB_EVENT_PATH" \
+          # The selector is taken from the base commit, so a change to it cannot
+          # choose its own checks. (The workflow file itself still comes from the
+          # change; review protects that.) Without a base, the checkout's copy runs
+          # and such events select full checks anyway.
+          base=$(python3 -c 'import json, os; e = json.load(open(os.environ["GITHUB_EVENT_PATH"])); print((e.get("pull_request") or {}).get("base", {}).get("sha") or e.get("before") or "")')
+          selector="$RUNNER_TEMP/quietake-ci-scope.py"
+          if [ -z "$base" ] || ! git show "$base:tool/ci_scope.py" > "$selector" 2>/dev/null; then
+            cp tool/ci_scope.py "$selector"
+          fi
+          python3 "$selector" select --event "$GITHUB_EVENT_PATH" \
             --event-name "$GITHUB_EVENT_NAME" --output "$RUNNER_TEMP/quietake-scope.json"
       - name: Check non-app content
         id: content
         if: steps.scope.outputs.mode == 'non-app'
-        run: python3 tool/ci_scope.py check-content "$RUNNER_TEMP/quietake-scope.json"
+        run: python3 "$RUNNER_TEMP/quietake-ci-scope.py" check-content "$RUNNER_TEMP/quietake-scope.json"
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         if: steps.scope.outputs.mode == 'full'
         with:
@@ -227,4 +248,58 @@ jobs:
           SELECTION_RESULT: ${{ steps.scope.outcome }}
           CONTENT_RESULT: ${{ steps.content.outcome }}
           FULL_RESULT: ${{ steps.full.outcome }}
-        run: python3 tool/ci_scope.py complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"
+        run: python3 "$RUNNER_TEMP/quietake-ci-scope.py" complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"
+
+  ios:
+    name: iOS unsigned build
+    # Not pinned to an image version: the Xcode it carries must match the SDK the app targets.
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Select applicable checks
+        id: scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest tool.ci_scope_test
+          # The selector is taken from the base commit, so a change to it cannot
+          # choose its own checks. (The workflow file itself still comes from the
+          # change; review protects that.) Without a base, the checkout's copy runs
+          # and such events select full checks anyway.
+          base=$(python3 -c 'import json, os; e = json.load(open(os.environ["GITHUB_EVENT_PATH"])); print((e.get("pull_request") or {}).get("base", {}).get("sha") or e.get("before") or "")')
+          selector="$RUNNER_TEMP/quietake-ci-scope.py"
+          if [ -z "$base" ] || ! git show "$base:tool/ci_scope.py" > "$selector" 2>/dev/null; then
+            cp tool/ci_scope.py "$selector"
+          fi
+          python3 "$selector" select --event "$GITHUB_EVENT_PATH" \
+            --event-name "$GITHUB_EVENT_NAME" --output "$RUNNER_TEMP/quietake-scope.json"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        if: steps.scope.outputs.mode == 'full'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: false
+      - name: Build without signing
+        if: steps.scope.outputs.mode == 'full'
+        id: full
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$FLUTTER_ROOT" rev-parse HEAD)" = "$FLUTTER_REVISION"
+          flutter pub get --enforce-lockfile
+          # Builds the app and the QuietakeControl extension; nothing is signed or kept.
+          flutter build ios --simulator --debug
+          # The Swift test target is not run: it holds one empty test and its
+          # app-hosted runner does not connect (see plans/review-fixes.md, R68).
+      - name: Require selected checks to complete
+        if: always()
+        env:
+          CHECK_MODE: ${{ steps.scope.outputs.mode }}
+          SELECTION_RESULT: ${{ steps.scope.outcome }}
+          # The content checks for a non-app change run in the other jobs.
+          CONTENT_RESULT: ${{ steps.scope.outputs.mode == 'non-app' && 'success' || 'skipped' }}
+          FULL_RESULT: ${{ steps.full.outcome }}
+        run: python3 "$RUNNER_TEMP/quietake-ci-scope.py" complete "$CHECK_MODE" "$SELECTION_RESULT" "$CONTENT_RESULT" "$FULL_RESULT"

@@ -21,9 +21,31 @@ class SceneDelegate: FlutterSceneDelegate {
   override func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
                       options connectionOptions: UIScene.ConnectionOptions) {
     super.scene(scene, willConnectTo: session, options: connectionOptions)
+    if let url = Self.shareURL(connectionOptions.urlContexts) { IncomingShare.shared.accept(url) }
     NotificationCenter.default.addObserver(self, selector: #selector(captureChanged(_:)),
       name: UIScreen.capturedDidChangeNotification, object: nil)
     setCovered(true)
+    NotificationCenter.default.addObserver(self, selector: #selector(lockedCameraRequested),
+      name: LockedCameraRequest.notification, object: nil)
+  }
+
+  /// The Lock Screen control asked for the locked camera: lock the app first, so
+  /// an unlocked session never shows, then let the Dart lock screen take the request.
+  @objc private func lockedCameraRequested() {
+    Self.privacyChannel?.invokeMethod("lockNow", arguments: nil)
+  }
+
+  /// Another app opened a `.quietake-share` file with Quietake (decision 031).
+  private static func shareURL(_ contexts: Set<UIOpenURLContext>) -> URL? {
+    contexts.map(\.url).first { $0.isFileURL && $0.pathExtension.lowercased() == "quietake-share" }
+  }
+
+  override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = Self.shareURL(URLContexts) else {
+      super.scene(scene, openURLContexts: URLContexts)
+      return
+    }
+    IncomingShare.shared.accept(url)
   }
 
   override func sceneWillResignActive(_ scene: UIScene) {
@@ -85,7 +107,11 @@ class SceneDelegate: FlutterSceneDelegate {
         coverLabel = label
       }
       cover!.frame = window.bounds
-      coverLabel?.text = captured ? "Screen recording or mirroring detected.\nStop it to return to Quietake." : "Quietake"
+      // With the plain icon on, the app switcher shows no name either (decision 029).
+      let plain = UIApplication.shared.alternateIconName != nil
+      coverLabel?.text = captured
+        ? "Screen recording or mirroring detected.\nStop it to return to \(plain ? "the app" : "Quietake")."
+        : (plain ? "" : "Quietake")
       window.addSubview(cover!)
       window.bringSubviewToFront(cover!)
     } else {

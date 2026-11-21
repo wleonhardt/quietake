@@ -3,6 +3,9 @@
     <!-- Capture uses private cache, not the shared photo library. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
+    <!-- Backup, Cast and the local media server. Declared here so a release
+         never depends on a library's manifest for it. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
@@ -38,11 +41,65 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- "Open with Quietake" for a received encrypted share; see decision 031. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content" android:mimeType="application/vnd.quietake.share"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="content" android:host="*" android:mimeType="application/octet-stream"
+                    android:pathPattern=".*\\.quietake-share"/>
+            </intent-filter>
+        </activity>
+        <!-- The launcher entries are aliases so the activity itself, which the tiles and
+             "Open with" start, is never disabled; see decision 029. -->
+        <activity-alias
+            android:name=".NormalAlias"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <!-- Optional plain launcher entry, disabled until Settings enables it; see decision 029. -->
+        <activity-alias
+            android:name=".NeutralAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_neutral"
+            android:label="@string/neutral_app_label"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <!-- Quick Settings tile that locks the running app; see decision 023. -->
+        <service
+            android:name=".LockTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_lock_tile"
+            android:label="@string/lock_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <!-- Quick Settings tile that opens the locked camera over the lock screen; see decision 028. -->
+        <service
+            android:name=".CameraTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_camera_tile"
+            android:label="@string/camera_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

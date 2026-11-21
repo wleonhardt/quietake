@@ -13,6 +13,9 @@ class ControlledCamera extends CameraPlatform implements RecordingProgress {
   final Directory directory;
   bool empty = true;
   int created = 0;
+
+  /// Resolution preset and audio flag of every camera opened, in order.
+  final opened = <(ResolutionPreset?, bool)>[];
   final disposed = <int>{};
   final _errors = <int, StreamController<CameraErrorEvent>>{};
   final outputs = <File>[];
@@ -39,6 +42,7 @@ class ControlledCamera extends CameraPlatform implements RecordingProgress {
     bool enableAudio = false,
   }) async {
     final id = ++created;
+    opened.add((preset, enableAudio));
     _errors[id] = StreamController<CameraErrorEvent>.broadcast();
     return id;
   }

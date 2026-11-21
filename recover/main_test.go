@@ -346,3 +346,62 @@ func TestRecoveryDotNamesNeverLeaveOutput(t *testing.T) {
 		})
 	}
 }
+
+func TestRunShareOpensVectorBundle(t *testing.T) {
+	data, err := os.ReadFile("../docs/vectors/share.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v struct {
+		Passphrase string `json:"passphrase"`
+		Cases      []struct {
+			Bundle string `json:"bundle_hex"`
+		} `json:"cases"`
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := hex.DecodeString(v.Cases[1].Bundle)
+	bundle := filepath.Join(t.TempDir(), "a.quietake-share")
+	os.WriteFile(bundle, raw, 0o600)
+	out := filepath.Join(t.TempDir(), "opened")
+	ask := func(pass string) func(string) ([]byte, error) {
+		return func(string) ([]byte, error) { return []byte(pass), nil }
+	}
+	if err := runShare(bundle, out, ask("wrong")); err == nil {
+		t.Fatal("wrong passphrase accepted")
+	}
+	if err := runShare(bundle, "", ask(v.Passphrase)); err == nil {
+		t.Fatal("missing -out accepted")
+	}
+	if err := runShare(bundle, out, ask(v.Passphrase)); err != nil {
+		t.Fatal(err)
+	}
+	if b, err := os.ReadFile(filepath.Join(out, "photo-01.jpg")); err != nil || len(b) != 100 {
+		t.Fatalf("entry missing: %v", err)
+	}
+}
+
+func TestKeyfileReadIsBounded(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "vault.keyfile.json")
+	if err := os.WriteFile(path, bytes.Repeat([]byte{'x'}, maxKeyfileBytes+1), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := masterKey("", path, "passcode", false, false, nil); err == nil || err.Error() != "keyfile is too large" {
+		t.Fatalf("oversized keyfile: %v", err)
+	}
+}
+
+func TestUnreadableCatalogIsReported(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "quietake.catalog"), []byte("not a container"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	mapped, readable := catalogOutputNames(dirSource(dir), []string{"quietake.catalog"}, new([32]byte))
+	if readable || len(mapped) != 0 {
+		t.Fatal("a damaged catalog must be reported and give no names")
+	}
+	if _, readable := catalogOutputNames(dirSource(dir), []string{"a.jpg.shtr"}, new([32]byte)); !readable {
+		t.Fatal("a listing without a catalog has nothing to report")
+	}
+}

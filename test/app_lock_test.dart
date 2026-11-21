@@ -18,6 +18,8 @@ import 'package:quietake/vault/master_key_store.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import 'package:quietake/vault/recovery_words.dart';
+
 import '../test_support/fake_authenticator.dart';
 import '../test_support/fake_cast_backend.dart';
 
@@ -416,6 +418,7 @@ void main() {
             child: child!,
           ),
           home: RecoveryScreen(
+            recoveryWords: List.filled(21, 'celebrate').join(' '),
             recoveryKey: List.filled(11, 'TEST').join(' '),
             fingerprint: 'abcd ef01',
             onDone: () {},
@@ -432,12 +435,116 @@ void main() {
       expect(find.byKey(Keys.recoveryDone).hitTestable(), findsOneWidget);
     });
   }
+  testWidgets('recovery shows the words first and the text on request', (
+    tester,
+  ) async {
+    final words = List.generate(21, (i) => 'word$i').join(' ');
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RecoveryScreen(
+          recoveryWords: words,
+          recoveryKey: 'SYNTHETIC TEXT FORM',
+          fingerprint: 'abcd ef01',
+          onDone: () {},
+        ),
+      ),
+    );
+    String shown() =>
+        tester.widget<SelectableText>(find.byKey(Keys.recoveryKeyText)).data!;
+    expect(shown(), startsWith('1\u00a0word0   2\u00a0word1   '));
+    expect(RecoveryWords.wordsOf(shown()).join(' '), words);
+    expect(find.text('Show as text'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(Keys.recoveryShowText));
+    await tester.tap(find.byKey(Keys.recoveryShowText));
+    await tester.pump();
+    expect(shown(), 'SYNTHETIC TEXT FORM');
+    expect(find.text('Show as words'), findsOneWidget);
+    // Without the confirm step (Settings), Done is final.
+    var done = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RecoveryScreen(
+          key: UniqueKey(),
+          recoveryWords: words,
+          recoveryKey: 'SYNTHETIC TEXT FORM',
+          fingerprint: 'abcd ef01',
+          onDone: () => done++,
+        ),
+      ),
+    );
+    await tester.ensureVisible(find.byKey(Keys.recoveryDone));
+    await tester.tap(find.byKey(Keys.recoveryDone));
+    expect(done, 1);
+  });
+
+  testWidgets('setup asks for one word of the saved key before Done counts', (
+    tester,
+  ) async {
+    final words = List.generate(21, (i) => 'word$i');
+    var done = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RecoveryScreen(
+          confirm: true,
+          recoveryWords: words.join(' '),
+          recoveryKey: 'AAAA BBBB CCCC',
+          fingerprint: 'abcd ef01',
+          onDone: () => done++,
+        ),
+      ),
+    );
+    Future<int> askBack() async {
+      await tester.ensureVisible(find.byKey(Keys.recoveryDone));
+      await tester.tap(find.byKey(Keys.recoveryDone));
+      await tester.pump();
+      expect(find.byKey(Keys.recoveryKeyText), findsNothing);
+      final label = tester
+          .widget<TextField>(find.byKey(Keys.recoveryConfirmField))
+          .decoration!
+          .labelText!;
+      return int.parse(label.split(' ').last);
+    }
+
+    Future<void> answer(String text) async {
+      await tester.enterText(find.byKey(Keys.recoveryConfirmField), text);
+      await tester.tap(find.byKey(Keys.recoveryConfirmOk));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+
+    var asked = await askBack();
+    expect(done, 0);
+    expect(find.textContaining('Type word $asked'), findsOneWidget);
+    await answer(words[asked % 21]);
+    expect(done, 0);
+    expect(
+      find.text('That is not word $asked. Check your saved copy.'),
+      findsOneWidget,
+    );
+    // Going back shows the key again; the next try asks anew.
+    await tester.tap(find.byKey(Keys.recoveryConfirmBack));
+    await tester.pump();
+    expect(find.byKey(Keys.recoveryKeyText), findsOneWidget);
+    asked = await askBack();
+    expect(find.byKey(Keys.recoveryConfirmError), findsNothing);
+    await answer(' ${words[asked - 1].toUpperCase()} ');
+    expect(done, 1);
+    // The whole key is accepted too, as numbered words or as text.
+    await answer([for (final (i, w) in words.indexed) '${i + 1} $w'].join(' '));
+    expect(done, 2);
+    await answer('AAAA-BBBB CCCC');
+    expect(done, 3);
+    await answer('AAAA BBBB');
+    expect(done, 3);
+  });
+
   testWidgets('recovery explains retained files and optional NAS passphrase', (
     tester,
   ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: RecoveryScreen(
+          recoveryWords: 'synthetic test words',
           recoveryKey: 'SYNTHETIC TEST VALUE',
           fingerprint: 'abcd ef01',
           onDone: () {},
@@ -446,6 +553,9 @@ void main() {
     );
     expect(find.textContaining('encrypted files'), findsOneWidget);
     expect(find.textContaining('enabled'), findsOneWidget);
+    // "Fingerprint" is the finger on the sensor; the key has a check code.
+    expect(find.text('Check code abcd ef01'), findsOneWidget);
+    expect(find.textContaining('ingerprint'), findsNothing);
     expect(find.textContaining('There is no other way'), findsNothing);
     expect(find.textContaining('key alone'), findsNothing);
   });

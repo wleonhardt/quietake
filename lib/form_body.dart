@@ -9,12 +9,20 @@ class FormBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SafeArea(
+    // The content scrolls under the home indicator instead of being cut off
+    // above it; the padding below keeps the last item clear of it.
+    bottom: false,
     child: Align(
       alignment: centered ? Alignment.center : Alignment.topCenter,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(
+            24,
+            24,
+            24,
+            24 + MediaQuery.viewPaddingOf(context).bottom,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,9 +1,11 @@
 # Portable encrypted backup
 
-Settings → Create encrypted ZIP checks the current passcode and saves a copy
+Settings → Portable encrypted backup → Create encrypted ZIP checks the current passcode and saves a copy
 through the system Files picker. Keep the independent recovery key separately.
 The archive does not contain the recovery key, local passcode, wrapped keyfile,
 NAS credentials or deletion journal. Export leaves vault originals unchanged.
+It lists the current library only, so captures in Recently deleted are not
+included; restore them first if the archive must hold them.
 
 Fresh Setup → Restore encrypted ZIP selects a copy, asks for its recovery key and
 a new local passcode, and validates every capture and the private library before
@@ -11,6 +13,11 @@ adoption. Restore is available only with no existing credentials, captures,
 catalog or deletion journal. Existing vaults cannot merge or replace identities.
 After restoration, unlock with the new passcode. That first unlock enables the
 optional biometric cache. The recovery identity remains unchanged.
+
+Check backup only on the same screen runs the validation step without a new
+passcode and commits nothing: no credentials, captures or catalog are written and
+the staged copy is deleted. The chosen copy is cleared afterwards, so select it
+again to restore.
 
 A ZIP is a snapshot of the current local library, not proof that the NAS is
 current. Pending NAS deletions remain with the original installation because
@@ -29,7 +36,7 @@ retain the source ZIP and recovery key.
 
 This is an AES-256 WinZip archive with stored entries. Its password is the
 normalized base64 representation of the existing random 256-bit recovery key.
-The app accepts its normal recovery-key input form and normalizes it internally.
+The app accepts either recovery-key input form (see `recovery-key.md`) and normalizes it internally.
 There is no weak user-selected ZIP password. Counts and encrypted byte lengths
 remain visible in the ZIP directory, but capture names and titles do not.
 

@@ -401,13 +401,14 @@ void main() {
           );
           await until(
             tester,
-            () => find.byKey(Keys.nasRestoreOpen).evaluate().isNotEmpty,
+            () => find.byKey(Keys.setupRestoreOpen).evaluate().isNotEmpty,
           );
           expect(
             await abandoned.exists(),
             isFalse,
             reason: 'Fresh launch must clear uncommitted restore staging',
           );
+          await tap(tester, Keys.setupRestoreOpen);
           await tap(tester, Keys.nasRestoreOpen);
           await enter(tester, Keys.nasUrl, dav.url.toString());
           await enter(tester, Keys.nasUser, dav.username);

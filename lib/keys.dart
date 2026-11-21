@@ -31,6 +31,12 @@ abstract final class Keys {
   static const shutter = Key('capture.shutter');
   static const videoToggle = Key('capture.videoToggle');
   static const cameraFlip = Key('capture.flip');
+  static const cameraGrid = Key('capture.grid');
+  static const captureDelay = Key('capture.delay');
+  static const captureCountdown = Key('capture.countdown');
+  static const captureFocusRing = Key('capture.focusRing');
+  static const captureLock = Key('capture.lock');
+  static const cameraGridOverlay = Key('capture.gridOverlay');
   static const tagSearch = Key('tags.search');
   static const tagMerge = Key('tags.merge');
   static const tagMergeConfirm = Key('tags.merge.confirm');
@@ -49,6 +55,9 @@ abstract final class Keys {
   static const captureAlbumManage = Key('capture.album.manage');
   static Key captureAlbumChoose(String id) => Key('capture.album.choose.$id');
   static const status = Key('capture.status');
+  static const captureRetry = Key('capture.retry');
+  static const captureZoom = Key('capture.zoom');
+  static const cameraFlashMode = Key('camera.flashMode');
   static const captureBackup = Key('capture.backup');
   static const preview = Key('capture.preview');
   static const openGallery = Key('capture.openGallery');
@@ -61,6 +70,14 @@ abstract final class Keys {
 
   static const libraryImport = Key('library.import');
   static const importChoose = Key('import.choose');
+  static const importFolder = Key('import.folder');
+  static const importSubfolders = Key('import.subfolders');
+  static const importShare = Key('import.share');
+  static const importSharePassphrase = Key('import.sharePassphrase');
+  static const importShareOpen = Key('import.shareOpen');
+  static const importShareCancel = Key('import.shareCancel');
+  static const importFolderSummary = Key('import.folderSummary');
+  static const importFolderCount = Key('import.folderCount');
   static const importCancel = Key('import.cancel');
   static const importProgress = Key('import.progress');
   static const importError = Key('import.error');
@@ -80,6 +97,7 @@ abstract final class Keys {
   static const libraryUntagged = Key('library.untagged');
   static Key libraryTag(String id) => Key('library.tag.$id');
   static Key libraryRemoveTag(String id) => Key('library.tag.remove.$id');
+  static const libraryRemoveMonth = Key('library.month.remove');
   static const libraryResetScope = Key('library.resetScope');
   static const librarySearch = Key('library.search');
   static const librarySort = Key('library.sort');
@@ -98,6 +116,9 @@ abstract final class Keys {
   static const librarySave = Key('library.save');
   static const libraryFavorite = Key('library.favorite');
   static const libraryRename = Key('library.rename');
+  static const libraryDelete = Key('library.delete');
+  static const libraryDeleteConfirm = Key('library.deleteConfirm');
+  static const libraryDeleteCancel = Key('library.deleteCancel');
   static const libraryAddAlbum = Key('library.addAlbum');
   static const libraryRemoveAlbum = Key('library.removeAlbum');
   static const libraryCancelSelection = Key('library.cancelSelection');
@@ -105,11 +126,32 @@ abstract final class Keys {
   static const librarySelectAll = Key('library.selectAll');
   static const albumCreate = Key('album.create');
   static const albumCreateFirst = Key('album.createFirst');
+  static const albumSort = Key('album.sort');
+  static const recentlyDeletedOpen = Key('recentlyDeleted.open');
+  static const recentlyDeletedScreen = Key('recentlyDeleted.screen');
+  static const recentlyDeletedEmpty = Key('recentlyDeleted.empty');
+  static const recentlyDeletedAll = Key('recentlyDeleted.all');
+  static const recentlyDeletedAllConfirm = Key('recentlyDeleted.allConfirm');
+  static const recentlyDeletedConfirm = Key('recentlyDeleted.confirm');
+  static Key recentlyDeletedItem(String name) =>
+      Key('recentlyDeleted.item.$name');
+  static Key recentlyDeletedRestore(String name) =>
+      Key('recentlyDeleted.restore.$name');
+  static Key recentlyDeletedNow(String name) =>
+      Key('recentlyDeleted.now.$name');
+  static const momentsOpen = Key('moments.open');
+  static const momentsScreen = Key('moments.screen');
+  static Key momentMonth(String month) => Key('moments.month.$month');
   static const albumRename = Key('album.rename');
   static const albumDelete = Key('album.delete');
   static const albumDeleteConfirm = Key('album.deleteConfirm');
   static Key albumMenu(String id) => Key('album.menu.$id');
   static Key albumChoose(String id) => Key('album.choose.$id');
+  static const tagCoverSet = Key('tag.coverSet');
+  static const tagCoverClear = Key('tag.coverClear');
+  static const tagCoverGrid = Key('tag.coverGrid');
+  static Key tagCoverPick(String name) => Key('tag.coverPick.$name');
+  static Key tagCoverThumb(String id) => Key('tag.coverThumb.$id');
   static const viewerFavorite = Key('viewer.favorite');
 
   static const galleryVideoDuration = Key('gallery.videoDuration');
@@ -133,6 +175,9 @@ abstract final class Keys {
   static const galleryCast = Key('gallery.cast');
 
   static const settingsPrivacySection = Key('settings.privacySection');
+  static const settingsPlainIcon = Key('settings.plainIcon');
+  static const settingsBiometric = Key('settings.biometric');
+  static const settingsBackupOpen = Key('settings.backupOpen');
   static const settingsBackupSection = Key('settings.backupSection');
   static const settingsRecoverySection = Key('settings.recoverySection');
   static const settingsPrivacyPolicy = Key('settings.privacyPolicy');
@@ -140,6 +185,14 @@ abstract final class Keys {
   static const privacyPolicyPage = Key('privacyPolicy.page');
   static const privacyPolicyScroll = Key('privacyPolicy.scroll');
   static const settingsLicenses = Key('settings.licenses');
+  static const settingsStorage = Key('settings.storage');
+  static const settingsCameraSection = Key('settings.cameraSection');
+  static const settingsRecentlyDeleted = Key('settings.recentlyDeleted');
+  static const settingsBurstSize = Key('settings.burstSize');
+  static const settingsVersion = Key('settings.version');
+  static const settingsVideoQuality = Key('settings.videoQuality');
+  static const settingsKeepDeleted = Key('settings.keepDeleted');
+  static const settingsStorageSection = Key('settings.storageSection');
   static const licensesPage = Key('licenses.page');
   static const settingsAccessResult = Key('settings.accessResult');
   static const settingsUrl = Key('settings.url');
@@ -148,10 +201,14 @@ abstract final class Keys {
   static const settingsTest = Key('settings.test');
   static const settingsSave = Key('settings.save');
   static const backupOpen = Key('backup.open');
+  static const settingsRenameRemote = Key('settings.renameRemote');
+  static const renameRemoteConfirm = Key('settings.renameRemoteConfirm');
+  static const renameRemoteCancel = Key('settings.renameRemoteCancel');
   static const backupScreen = Key('backup.screen');
   static const backupVerify = Key('backup.verify');
   static const backupCancel = Key('backup.cancel');
   static const backupResult = Key('backup.result');
+  static const backupStale = Key('backup.stale');
   static const backupTime = Key('backup.time');
   static const portableExportOpen = Key('portable.exportOpen');
   static const portableRestoreOpen = Key('portable.restoreOpen');
@@ -161,11 +218,17 @@ abstract final class Keys {
   static const portablePasscode = Key('portable.passcode');
   static const portableConfirm = Key('portable.confirm');
   static const portableStart = Key('portable.start');
+  static const portableCheck = Key('portable.check');
   static const portableCancel = Key('portable.cancel');
   static const portableProgress = Key('portable.progress');
   static const portableResult = Key('portable.result');
   static const portableStartupRetry = Key('portable.startupRetry');
+  static const portableStartupDiscard = Key('portable.startupDiscard');
+  static const portableStartupDiscardConfirm = Key(
+    'portable.startupDiscardConfirm',
+  );
   static const settingsResult = Key('settings.result');
+  static const settingsRecoveryResult = Key('settings.recoveryResult');
   static const settingsChangePasscode = Key('settings.changePasscode');
   static const currentPasscode = Key('passcode.current');
   static const newPasscode = Key('passcode.new');
@@ -178,12 +241,20 @@ abstract final class Keys {
   static const disconnectConfirm = Key('settings.disconnectConfirm');
   static const recoveryPrompt = Key('recovery.prompt');
   static const recoveryPromptOk = Key('recovery.promptOk');
+  static const settingsRecoveryCheck = Key('settings.recoveryCheck');
+  static const recoveryCheckField = Key('recovery.checkField');
+  static const recoveryCheckOk = Key('recovery.checkOk');
+  static const recoveryCheckResult = Key('recovery.checkResult');
+  static const recoveryCheckStatus = Key('recovery.checkStatus');
 
   static const setupPasscode = Key('setup.passcode');
   static const setupConfirm = Key('setup.confirm');
   static const setupRecoveryKey = Key('setup.recoveryKey');
   static const setupSubmit = Key('setup.submit');
   static const setupToggleRestore = Key('setup.toggleRestore');
+  static const setupCreateOpen = Key('setup.createOpen');
+  static const setupRestoreOpen = Key('setup.restoreOpen');
+  static const setupBack = Key('setup.back');
   static const setupError = Key('setup.error');
   static const recoveryKeyText = Key('recovery.keyText');
   static const recoveryFingerprint = Key('recovery.fingerprint');
@@ -192,19 +263,39 @@ abstract final class Keys {
   static const setupFingerprintConfirm = Key('setup.fingerprintConfirm');
   static const setupFingerprintReject = Key('setup.fingerprintReject');
   static const recoveryDone = Key('recovery.done');
+  static const recoveryShowText = Key('recovery.showText');
+  static const recoveryConfirmField = Key('recovery.confirmField');
+  static const recoveryConfirmError = Key('recovery.confirmError');
+  static const recoveryConfirmOk = Key('recovery.confirmOk');
+  static const recoveryConfirmBack = Key('recovery.confirmBack');
+  static const recoveryFieldShow = Key('recovery.fieldShow');
 
   static const lockPasscode = Key('lock.passcode');
   static const lockRecovery = Key('lock.recovery');
   static const lockUnlock = Key('lock.unlock');
   static const lockBiometric = Key('lock.biometric');
+  static const lockShowPasscode = Key('lock.showPasscode');
+  static const setupShowPasscode = Key('setup.showPasscode');
   static const lockError = Key('lock.error');
+  static const lockCamera = Key('lock.camera');
+  static const lockedPublishedNotice = Key('camera.lockedPublished');
+  static const lockedShutter = Key('locked.shutter');
+  static const lockedStatus = Key('locked.status');
   static const galleryEmpty = Key('gallery.empty');
   static Key galleryTile(int i) => Key('gallery.tile.$i');
+
+  /// The date header above the tile at [start].
+  static Key galleryDay(int start) => Key('gallery.day.$start');
 
   static const viewerPosition = Key('viewer.position');
   static const viewerVideo = Key('viewer.video');
   static const viewerShare = Key('viewer.share');
+  static const viewerInfo = Key('viewer.info');
+  static const viewerSlideshow = Key('viewer.slideshow');
+  static const viewerInfoDialog = Key('viewer.info.dialog');
+  static Key viewerCover(String tagId) => Key('viewer.cover.$tagId');
   static const viewerDelete = Key('viewer.delete');
+  static const deleteTrash = Key('delete.trash');
   static const deleteDialog = Key('delete.dialog');
   static const deleteConfirm = Key('delete.confirm');
   static const deleteCancel = Key('delete.cancel');
@@ -214,6 +305,15 @@ abstract final class Keys {
   static const shareDialog = Key('share.dialog');
   static const shareConfirm = Key('share.confirm');
   static const shareStripLocation = Key('share.stripLocation');
+  static const shareRedact = Key('share.redact');
+  static const shareEncrypted = Key('share.encrypted');
+  static const sharePassphrase = Key('share.passphrase');
+  static const sharePassphraseCancel = Key('share.passphraseCancel');
+  static const sharePassphraseContinue = Key('share.passphraseContinue');
+  static const redactCanvas = Key('redact.canvas');
+  static const redactUndo = Key('redact.undo');
+  static const redactDone = Key('redact.done');
+  static Key redactCell(int row, int column) => Key('redact.cell.$row.$column');
   static const shareCancel = Key('share.cancel');
   static const viewerPager = Key('viewer.pager');
   static const viewerPhoto = Key('viewer.photo');

@@ -15,16 +15,24 @@ enum SyncState { idle, unconfigured, syncing, synced, pending }
 
 /// One serialized sync queue for automatic saves and the gallery's manual action.
 class SyncController extends ChangeNotifier {
+  /// Passed to [SyncService]; off in the app until the owner enables decision 026.
+  final bool useRandomNames;
   SyncController(
     this.vault, {
     Future<SyncSettings> Function()? loadSettings,
     BackgroundUploads? background,
-  }) : _loadSettings = loadSettings ?? SyncSettings.load,
+    DateTime Function() clock = DateTime.now,
+    this.useRandomNames = false,
+  }) : // A named parameter cannot be private.
+       // ignore: prefer_initializing_formals
+       _clock = clock,
+       _loadSettings = loadSettings ?? SyncSettings.load,
        _background = background ?? BackgroundUploads();
 
   final Vault vault;
   final Future<SyncSettings> Function() _loadSettings;
   final BackgroundUploads _background;
+  final DateTime Function() _clock;
   Future<String> backgroundStatus() => _background.status();
   SyncState state = SyncState.idle;
   String? result;
@@ -37,6 +45,17 @@ class SyncController extends ChangeNotifier {
   (String, String)? _target;
   BackupVerificationReport? lastVerification;
   bool verificationCurrent = false;
+
+  /// When the saved backup was last fully checked, kept across app restarts.
+  DateTime? lastVerifiedAt;
+  static const verificationStaleAfter = Duration(days: 30);
+
+  /// True when a configured backup was never fully checked or not for 30 days.
+  bool get verificationStale =>
+      state != SyncState.unconfigured &&
+      state != SyncState.idle &&
+      (lastVerifiedAt == null ||
+          _clock().difference(lastVerifiedAt!) > verificationStaleAfter);
   String verificationResult = 'No full backup check yet.';
   bool get isVerifying => _verifying;
   bool get isVerificationQueued => _verifyAgain;
@@ -56,6 +75,12 @@ class SyncController extends ChangeNotifier {
           : 'Synced with NAS · not verified',
     SyncState.pending => 'NAS update pending',
   };
+
+  /// Hides [file] in Recently deleted. Nothing is journaled, so the NAS copy stays.
+  Future<void> trash(File file) async {
+    if (_closed) throw StateError('Vault session closed');
+    await vault.trash(file);
+  }
 
   Future<void> delete(File file) async {
     if (_closed) throw StateError('Vault session closed');
@@ -115,12 +140,18 @@ class SyncController extends ChangeNotifier {
         final target = (settings.url, settings.username);
         if (_target != target) {
           lastVerification = null;
+          lastVerifiedAt = null;
           verificationCurrent = false;
           if (!checking) {
             verificationResult = 'No full check for this saved backup.';
           }
         }
         _target = target;
+        if (settings.isConfigured && lastVerifiedAt == null) {
+          lastVerifiedAt = await settings.loadVerified().catchError(
+            (_) => null,
+          );
+        }
         if (!settings.isConfigured) {
           state = SyncState.unconfigured;
           result = 'NAS sync not configured. Open Settings to connect.';
@@ -138,6 +169,7 @@ class SyncController extends ChangeNotifier {
               vault,
               client,
               isCancelled: () => _cancelled || _closed,
+              useRandomNames: useRandomNames,
             );
             if (checking) {
               final report = await service.verify(
@@ -153,6 +185,12 @@ class SyncController extends ChangeNotifier {
                 throw StateError('Backup operation cancelled');
               }
               lastVerification = report;
+              lastVerifiedAt = report.checkedAt;
+              try {
+                await settings.saveVerified(report.checkedAt);
+              } catch (_) {
+                // The check result stands; only the reminder date is lost.
+              }
               verificationCurrent = !_again && !_verifyAgain && !_cancelled;
               verificationResult = verificationCurrent
                   ? 'Verified ${report.media} ${report.media == 1 ? 'capture' : 'captures'}${report.catalog ? ' and organization' : ''}. Keep your recovery key separately.'
@@ -174,6 +212,7 @@ class SyncController extends ChangeNotifier {
                 vault,
                 service.authenticatedCatalogHash,
                 service.confirmedMedia,
+                remoteNames: await _backgroundNames(service.confirmedMedia),
               );
             } on PlatformException {
               // The pass finished; native scheduling is repaired on the next
@@ -243,6 +282,7 @@ class SyncController extends ChangeNotifier {
       state = SyncState.unconfigured;
       result = 'NAS backup disconnected. Captures kept on phone and NAS.';
       lastVerification = null;
+      lastVerifiedAt = null;
       verificationCurrent = false;
       verificationResult = 'NAS backup disconnected.';
       _target = null;
@@ -304,6 +344,35 @@ class SyncController extends ChangeNotifier {
       if (!_closed) unawaited(sync());
     }
   }
+
+  /// Mapped NAS names for captures the native job may still upload or delete
+  /// (decision 026). Null while names are not random, so the job keeps the
+  /// capture names it always used.
+  Future<Map<String, String>?> _backgroundNames(Set<String> confirmed) async {
+    if (!useRandomNames) return null;
+    final deleted = await vault.deletedNames();
+    final waiting = [
+      for (final f in await vault.list())
+        if (!confirmed.contains(f.uri.pathSegments.last))
+          f.uri.pathSegments.last,
+    ];
+    final names = await vault.catalog.assignRemoteNames(waiting.take(20000));
+    return {
+      for (final n in [...waiting.take(20000), ...deleted.take(20000)])
+        if (names.remoteFor(n) != n) n: names.remoteFor(n),
+    };
+  }
+
+  /// Gives readable NAS file names random ones (decision 026). Uses the
+  /// exclusive recovery gate so no sync runs at the same time.
+  Future<RenameReport> renameRemote({bool dryRun = false}) => recoveryOperation(
+    (client) => SyncService(
+      vault,
+      client,
+      isCancelled: () => _cancelled || _closed,
+      useRandomNames: useRandomNames,
+    ).renameRemote(dryRun: dryRun),
+  );
 
   bool get recoveryCancelled => _closed || _cancelled;
 

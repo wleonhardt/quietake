@@ -137,29 +137,82 @@ ui.TargetImageSize photoDecodeSize(int width, int height, int maxSide) {
   );
 }
 
+const _previews = MethodChannel('quietake/previews');
+const _noDuration = 0xffffffff;
+
+/// A stored thumbnail's plaintext (decision 045): a version byte, the video
+/// duration in milliseconds (all ones for a photo), then a JPEG.
+Uint8List packThumbnail(Uint8List jpeg, Duration? duration) {
+  final out = Uint8List(5 + jpeg.length)
+    ..[0] = 1
+    ..setRange(5, 5 + jpeg.length, jpeg);
+  ByteData.sublistView(out).setUint32(
+    1,
+    duration?.inMilliseconds.clamp(0, _noDuration - 1) ?? _noDuration,
+  );
+  return out;
+}
+
+Future<MediaPreview> _decodeJpeg(Uint8List jpeg, Duration? duration) async {
+  // The JPEG is already small; decode once instead of per paint.
+  final codec = await ui.instantiateImageCodec(jpeg);
+  try {
+    return MediaPreview((await codec.getNextFrame()).image, duration: duration);
+  } finally {
+    codec.dispose();
+  }
+}
+
+Future<MediaPreview?> _storedPreview(Vault vault, VaultItem item) async {
+  try {
+    final stored = await vault.readThumbnail(item.file);
+    if (stored == null || stored.length < 6 || stored[0] != 1) return null;
+    final millis = ByteData.sublistView(stored).getUint32(1);
+    return await _decodeJpeg(
+      Uint8List.sublistView(stored, 5),
+      millis == _noDuration ? null : Duration(milliseconds: millis),
+    );
+  } catch (_) {
+    return null; // Unreadable: build it again from the capture.
+  }
+}
+
+/// Best effort: a preview that cannot be stored is still shown.
+Future<void> _storePreview(
+  Vault vault,
+  VaultItem item,
+  Future<Uint8List> Function() jpeg,
+  Duration? duration,
+) async {
+  try {
+    await vault.writeThumbnail(
+      item.file,
+      packThumbnail(await jpeg(), duration),
+    );
+  } catch (_) {}
+}
+
+/// The preview of [item]: its stored thumbnail when there is one, otherwise
+/// built from the capture and stored for the next time (decision 045).
 Future<MediaPreview> loadPreview(
   Vault vault,
   MediaServer server,
   VaultItem item,
 ) async {
+  final stored = await _storedPreview(vault, item);
+  if (stored != null) return stored;
   if (item.isVideo) {
     final url = server.register(item.file);
     try {
-      final result = await const MethodChannel('quietake/previews')
+      final result = await _previews
           .invokeMapMethod<String, dynamic>('video', {'url': url.toString()})
           .timeout(const Duration(seconds: 20));
-      // The native frame arrives as JPEG; decode once instead of per paint.
-      final codec = await ui.instantiateImageCodec(
-        result!['bytes'] as Uint8List,
-      );
-      try {
-        return MediaPreview(
-          (await codec.getNextFrame()).image,
-          duration: Duration(milliseconds: result['durationMs'] as int),
-        );
-      } finally {
-        codec.dispose();
-      }
+      // The native frame arrives as a small JPEG.
+      final jpeg = result!['bytes'] as Uint8List;
+      final duration = Duration(milliseconds: result['durationMs'] as int);
+      final preview = await _decodeJpeg(jpeg, duration);
+      await _storePreview(vault, item, () async => jpeg, duration);
+      return preview;
     } finally {
       server.unregister(url);
     }
@@ -177,7 +230,20 @@ Future<MediaPreview> loadPreview(
       targetHeight: size.height,
     );
     // The decoded image is the preview; no PNG encode and decode round trip.
-    return MediaPreview((await codec.getNextFrame()).image);
+    final image = (await codec.getNextFrame()).image;
+    await _storePreview(vault, item, () async {
+      final pixels = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      // Flutter encodes PNG only; the platform makes the far smaller JPEG.
+      return (await _previews.invokeMethod<Uint8List>('encode', {
+        'width': image.width,
+        'height': image.height,
+        'rgba': pixels!.buffer.asUint8List(
+          pixels.offsetInBytes,
+          pixels.lengthInBytes,
+        ),
+      }))!;
+    }, null);
+    return MediaPreview(image);
   } finally {
     codec?.dispose();
     descriptor?.dispose();

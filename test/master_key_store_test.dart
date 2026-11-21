@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/vault/master_key_store.dart';
+import 'package:quietake/vault/recovery_words.dart';
 import 'package:quietake/backup/restore_transaction.dart';
 import 'package:quietake/vault/vault.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -95,6 +96,26 @@ void main() {
     }
     return validated;
   }
+
+  test(
+    'a new or restored vault does not inherit an old recovery check date',
+    () async {
+      await store.saveRecoveryChecked();
+      expect(await store.loadRecoveryChecked(), isNotNull);
+      (await store.prepareKey()).dispose();
+      expect(await store.loadRecoveryChecked(), isNull);
+
+      await store.saveRecoveryChecked();
+      final key = sodium.crypto.secretBox.keygen();
+      await Directory('${dir.path}/.portable-restore').create();
+      try {
+        await store.preparePortableKeyfile(key, 'new portable passcode');
+        expect(await store.loadRecoveryChecked(), isNull);
+      } finally {
+        key.dispose();
+      }
+    },
+  );
 
   test('portable restore adopts only a fresh empty vault and preserves recovered identity', () async {
     final key = sodium.crypto.secretBox.keygen();
@@ -222,6 +243,55 @@ void main() {
     }
   });
 
+  final tamperings = <String, Future<void> Function(Directory dir)>{
+    'a journal from another version': (dir) =>
+        File('${dir.path}/.portable-restore/ready')
+            .writeAsString('{"version":2,"keyfile":"x"}'),
+    'an oversized journal': (dir) =>
+        File('${dir.path}/.portable-restore/ready').writeAsString('x' * 5000),
+    'a prepared keyfile that differs from the journal': (dir) =>
+        File('${dir.path}/.portable-restore/vault.keyfile.json')
+            .writeAsString('{"tampered":true}'),
+    'a target vault that gained media': (dir) async {
+      await Directory('${dir.path}/vault').create();
+      await File('${dir.path}/vault/other.bin').writeAsBytes([9]);
+    },
+  };
+  for (final entry in tamperings.entries) {
+    test('resume preserves everything when it finds ${entry.key}', () async {
+      final key = sodium.crypto.secretBox.keygen();
+      try {
+        final stage = await restoreStage(key);
+        await expectLater(
+          RestoreTransaction(store).commit(
+            stage,
+            key,
+            'restored passcode',
+            onProgress: (phase) {
+              if (phase == 'Saving restored vault') {
+                throw StateError('Synthetic process interruption');
+              }
+            },
+          ),
+          throwsStateError,
+        );
+        await entry.value(dir);
+        await expectLater(
+          RestoreTransaction(store).resume(),
+          throwsA(isA<FormatException>()),
+        );
+        expect(await store.hasKeyfile, isFalse);
+        expect(
+          await Directory('${dir.path}/.portable-restore').exists(),
+          isTrue,
+          reason: 'the prepared pair stays for inspection',
+        );
+      } finally {
+        key.dispose();
+      }
+    });
+  }
+
   test('resume never adopts credentials when the prepared media is gone', () async {
     final key = sodium.crypto.secretBox.keygen();
     try {
@@ -285,14 +355,31 @@ void main() {
   test('create, unlock, wrong passcode, cache', () async {
     final key = await store.createWithPasscode('correct horse');
     expect(await store.hasKeyfile, isTrue);
-    expect(await store.hasCachedKey, isTrue);
     final again = await store.unlockWithPasscode('correct horse');
     expect(again.extractBytes(), key.extractBytes());
     await expectLater(
       store.unlockWithPasscode('wrong'),
       throwsA(isA<WrongPasscodeException>()),
     );
+    // Biometric unlock starts off: no copy of the key in the keystore.
+    expect(await store.hasCachedKey, isFalse);
+    expect(await store.cachedKey(), isNull);
+  });
+
+  test('the keystore copy exists only while biometric unlock is on', () async {
+    final key = await store.createWithPasscode('correct horse');
+    await store.enableBiometricUnlock(key);
     expect((await store.cachedKey())!.extractBytes(), key.extractBytes());
+    // A passcode unlock keeps it.
+    (await store.unlockWithPasscode('correct horse')).dispose();
+    expect((await store.cachedKey())!.extractBytes(), key.extractBytes());
+    await store.clearCache();
+    (await store.unlockWithPasscode('correct horse')).dispose();
+    (await store.restoreFromRecovery(
+      store.exportRecovery(key),
+      'another horse',
+    )).dispose();
+    expect(await store.hasCachedKey, isFalse);
   });
 
   test('unlock succeeds when the biometric cache cannot be written', () async {
@@ -328,11 +415,227 @@ void main() {
     },
   );
 
-  test('adopts a key that was already in the keystore', () async {
-    final legacy = sodium.crypto.secretBox.keygen();
-    mem.map[MasterKeyStore.cacheName] = base64Encode(legacy.extractBytes());
-    final key = await store.createWithPasscode('pw');
-    expect(key.extractBytes(), legacy.extractBytes());
+  test(
+    'discarding an unfinished restore never removes an existing vault',
+    () async {
+      (await store.createWithPasscode('existing passcode')).dispose();
+      final vault = await Directory('${dir.path}/vault').create();
+      final capture = await File('${vault.path}/kept.jpg.shtr')
+          .writeAsBytes([1]);
+      final pending = await Directory('${dir.path}/.portable-restore').create();
+      await File('${pending.path}/ready').writeAsString('invalid journal');
+      await RestoreTransaction(store).discard();
+      expect(await pending.exists(), isFalse);
+      expect(await capture.exists(), isTrue);
+      expect(await store.hasKeyfile, isTrue);
+    },
+  );
+
+  test(
+    'discarding removes media the unfinished restore already moved',
+    () async {
+      // No keyfile: the vault folder can only hold what this restore moved in.
+      final vault = await Directory('${dir.path}/vault').create();
+      await File('${vault.path}/restored.jpg.shtr').writeAsBytes([1]);
+      final pending = await Directory('${dir.path}/.portable-restore').create();
+      await File('${pending.path}/vault.keyfile.json').writeAsString('{}');
+      await RestoreTransaction(store).discard();
+      expect(await pending.exists(), isFalse);
+      expect(await vault.exists(), isFalse);
+      await RestoreTransaction(store).requireFresh();
+    },
+  );
+
+  test('setup never adopts a key left in the keystore', () async {
+    final stale = sodium.crypto.secretBox.keygen();
+    mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());
+    final key = await store.prepareKey();
+    try {
+      expect(key.extractBytes(), isNot(stale.extractBytes()));
+      // Nothing is committed yet, so the stale entry must be gone too.
+      expect(await store.hasCachedKey, isFalse);
+    } finally {
+      key.dispose();
+      stale.dispose();
+    }
+  });
+
+  test(
+    'portable restore passes a stale keystore entry and removes it',
+    () async {
+      final stale = sodium.crypto.secretBox.keygen();
+      mem.map[MasterKeyStore.cacheName] = base64Encode(stale.extractBytes());
+      stale.dispose();
+      final key = sodium.crypto.secretBox.keygen();
+      try {
+        final stage = await restoreStage(key);
+        await RestoreTransaction(store)
+            .commit(stage, key, 'new portable passcode');
+        expect(await store.hasKeyfile, isTrue);
+        expect(await store.hasCachedKey, isFalse);
+      } finally {
+        key.dispose();
+      }
+    },
+  );
+
+  group('unlock throttling', () {
+    late DateTime now;
+    late MasterKeyStore timed;
+    setUp(() async {
+      now = DateTime(2026, 1, 1, 12);
+      timed = MasterKeyStore(
+        sodium,
+        dir,
+        storage: const FlutterSecureStorage(),
+        clock: () => now,
+      );
+      (await timed.createWithPasscode('correct horse')).dispose();
+    });
+
+    Future<void> wrong() async {
+      await expectLater(
+        timed.unlockWithPasscode('wrong'),
+        throwsA(
+          isA<WrongPasscodeException>().having(
+            (e) => e is PasscodeLockedException,
+            'locked',
+            isFalse,
+          ),
+        ),
+      );
+    }
+
+    test('attempts started together are still counted one by one', () async {
+      for (var i = 0; i < 4; i++) {
+        await wrong();
+      }
+      final results = await Future.wait([
+        for (var i = 0; i < 3; i++)
+          timed
+              .unlockWithPasscode('wrong')
+              .then<Object>((key) => key, onError: (Object e) => e),
+      ]);
+      // The fifth failure starts the lock; the two behind it must see it.
+      expect(results.whereType<PasscodeLockedException>(), hasLength(2));
+    });
+
+    test(
+      'five wrong passcodes lock further tries, even a correct one',
+      () async {
+        for (var i = 0; i < 5; i++) {
+          await wrong();
+        }
+        await expectLater(
+          timed.unlockWithPasscode('correct horse'),
+          throwsA(
+            isA<PasscodeLockedException>().having(
+              (e) => e.retryAfter,
+              'retryAfter',
+              const Duration(seconds: 30),
+            ),
+          ),
+        );
+      },
+    );
+
+    test('the lock ends on time, doubles on the next failure and resets on success', () async {
+      for (var i = 0; i < 5; i++) {
+        await wrong();
+      }
+      now = now.add(const Duration(seconds: 31));
+      await wrong();
+      await expectLater(
+        timed.unlockWithPasscode('correct horse'),
+        throwsA(
+          isA<PasscodeLockedException>().having(
+            (e) => e.retryAfter,
+            'retryAfter',
+            const Duration(seconds: 60),
+          ),
+        ),
+      );
+      now = now.add(const Duration(seconds: 61));
+      (await timed.unlockWithPasscode('correct horse')).dispose();
+      for (var i = 0; i < 4; i++) {
+        await wrong();
+      }
+      (await timed.unlockWithPasscode('correct horse')).dispose();
+    });
+
+    test('the delay stops growing at fifteen minutes', () async {
+      for (var i = 0; i < 5; i++) {
+        await wrong();
+      }
+      for (var i = 0; i < 8; i++) {
+        now = now.add(const Duration(minutes: 16));
+        await wrong();
+      }
+      await expectLater(
+        timed.unlockWithPasscode('correct horse'),
+        throwsA(
+          isA<PasscodeLockedException>().having(
+            (e) => e.retryAfter,
+            'retryAfter',
+            const Duration(minutes: 15),
+          ),
+        ),
+      );
+    });
+
+    test('the message names the wait in seconds or minutes', () {
+      String say(Duration d) => PasscodeLockedException(d).toString();
+      expect(
+        say(const Duration(seconds: 29, milliseconds: 500)),
+        'Too many wrong passcodes. Try again in 30 seconds.',
+      );
+      expect(say(const Duration(seconds: 59)), contains('59 seconds.'));
+      expect(say(const Duration(seconds: 60)), contains('1 minute.'));
+      expect(say(const Duration(minutes: 15)), contains('15 minutes.'));
+    });
+  });
+
+  test('the 21 words are the same key as the text form', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final key = await store.createWithPasscode('old-passcode');
+    final words = await store.exportRecoveryWords(key);
+    expect(words.split(' '), hasLength(21));
+    expect(
+      (await store.recoveryText(words)).replaceAll(' ', ''),
+      store.exportRecovery(key).replaceAll(' ', ''),
+    );
+    // The text form passes through untouched.
+    expect(await store.recoveryText('AAAA BBBB'), 'AAAA BBBB');
+    final restored = await store.restoreFromRecovery(
+      '  ${words.toUpperCase().replaceAll(' ', '\n')} ',
+      'new-passcode',
+    );
+    expect(restored.extractBytes(), key.extractBytes());
+    final swapped = words.split(' ');
+    final first = swapped[0];
+    swapped[0] = swapped[1];
+    swapped[1] = first;
+    for (final entry in {
+      swapped.join(' '): RecoveryWordsProblem.wrong,
+      words.split(' ').skip(1).join(' '): RecoveryWordsProblem.count,
+      'quietake ${words.split(' ').skip(1).join(' ')}':
+          RecoveryWordsProblem.unknownWord,
+    }.entries) {
+      await expectLater(
+        store.restoreFromRecovery(entry.key, 'other-passcode'),
+        throwsA(
+          isA<BadRecoveryKeyException>().having(
+            (e) => e.words?.problem,
+            'problem',
+            entry.value,
+          ),
+        ),
+      );
+    }
+    expect(
+      (await store.unlockWithPasscode('new-passcode')).extractBytes(),
+      key.extractBytes(),
+    );
   });
 
   test('recovery export round-trips and sets a new passcode', () async {

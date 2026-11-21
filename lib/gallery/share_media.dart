@@ -6,16 +6,24 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../crypto/random_token.dart';
+import '../crypto/share_bundle.dart';
 import '../vault/vault.dart';
-import 'exif_location.dart';
+import 'exif_strip.dart';
 import 'item.dart';
+import 'redact.dart';
 
 bool _sharing = false;
 
 /// Also removes the Android plugin's private copy. Run at startup after crashes.
-Future<void> clearShareFiles() async {
+/// [atStartup] also removes plaintext copies an interrupted import left; a
+/// share must not, because an import may be running.
+Future<void> clearShareFiles({bool atStartup = false}) async {
   final root = await getTemporaryDirectory();
-  for (final name in ['quietake-share', 'share_plus']) {
+  for (final name in [
+    'quietake-share',
+    'share_plus',
+    if (atStartup) 'quietake-import',
+  ]) {
     final directory = Directory('${root.path}/$name');
     if (await directory.exists()) await directory.delete(recursive: true);
   }
@@ -47,6 +55,15 @@ Future<void> shareMediaCopies(
   List<VaultItem> selected, {
   required Rect origin,
   bool stripLocation = true,
+
+  /// Areas to cover per photo, keyed by capture name. A redacted copy is a
+  /// PNG without metadata; the vault original is never changed.
+  Map<String, List<Rect>> redactions = const {},
+
+  /// When set, the prepared copies go into one `.quietake-share` bundle
+  /// encrypted with this passphrase (decision 025) and only the bundle is
+  /// handed to the chooser, with neutral entry names.
+  String? passphrase,
   required bool Function() isActive,
   void Function(int prepared, int total)? onProgress,
 }) async {
@@ -85,17 +102,19 @@ Future<void> shareMediaCopies(
     for (final item in items) {
       if (!isActive()) return;
       final id = randomHexToken(vault.crypto.sodium);
+      final areas = item.isVideo ? null : redactions[item.name];
+      final redacted = areas != null && areas.isNotEmpty;
       final extension = item.isVideo
           ? item.extension
-          : item.extension == 'png'
+          : redacted || item.extension == 'png'
           ? 'png'
           : 'jpg';
       final file = File(
         '${directory.path}/${item.isVideo ? 'video' : 'photo'}-$id.$extension',
       );
       try {
-        if (stripLocation && !item.isVideo) {
-          // Photos are bounded (Vault.maxPhotoBytes). JPEG GPS data is erased;
+        if (redacted || (stripLocation && !item.isVideo)) {
+          // Photos are bounded (Vault.maxPhotoBytes). Photo metadata is erased;
           // unsafe metadata aborts before the chooser receives any copy.
           if (!isActive()) throw _ShareCancelled();
           final plain = await vault.readAll(item.file);
@@ -106,7 +125,16 @@ Future<void> shareMediaCopies(
             );
           }
           if (!isActive()) throw _ShareCancelled();
-          await file.writeAsBytes(withoutLocation(plain), flush: true);
+          await file.writeAsBytes(
+            // A PNG is rebuilt from its pixels, so no text, XMP or EXIF chunk
+            // is carried over; a JPEG keeps its pixels and loses its segments.
+            redacted
+                ? await redactToPng(plain, areas)
+                : item.extension == 'png'
+                ? await redactToPng(plain, const [])
+                : withoutMetadata(plain),
+            flush: true,
+          );
         } else {
           await vault
               .read(item.file)
@@ -132,14 +160,45 @@ Future<void> shareMediaCopies(
           item: item,
         );
       }
-      files.add(XFile(file.path, mimeType: item.contentType));
+      files.add(
+        XFile(file.path, mimeType: redacted ? 'image/png' : item.contentType),
+      );
       onProgress?.call(files.length, items.length);
     }
     if (!isActive()) return;
+    if (passphrase != null) {
+      final bundle = File(
+        '${directory.path}/captures-${randomHexToken(vault.crypto.sodium)}.quietake-share',
+      );
+      final entries = <ShareEntry>[
+        for (var i = 0; i < files.length; i++)
+          ShareEntry(
+            '${items[i].isVideo ? 'video' : 'photo'}-${(i + 1).toString().padLeft(2, '0')}.${files[i].path.split('.').last}',
+            File(files[i].path),
+          ),
+      ];
+      try {
+        await ShareBundle(vault.crypto.sodium)
+            .write(bundle, passphrase, entries);
+      } catch (_) {
+        throw const SharePreparationException(
+          'Could not prepare the encrypted share. Try again.',
+        );
+      }
+      for (final e in entries) {
+        await e.file.delete();
+      }
+      files
+        ..clear()
+        ..add(XFile(bundle.path, mimeType: 'application/octet-stream'));
+      if (!isActive()) return;
+    }
     await SharePlus.instance.share(
       ShareParams(
         files: files,
-        title: items.length == 1
+        title: passphrase != null
+            ? 'Share encrypted bundle'
+            : items.length == 1
             ? (items.single.isVideo ? 'Share video' : 'Share photo')
             : 'Share ${items.length} captures',
         sharePositionOrigin: origin,

@@ -143,13 +143,13 @@ void main() {
         session.sync.progress();
         await tester.pump();
         await revealLibraryControl(tester, Keys.gallerySync);
-        expect(find.byTooltip('Cancel sync'), findsOneWidget);
+        expect(find.text('Cancel sync'), findsOneWidget);
         await tester.runAsync(
           () async => session.sync.progress(finished: true),
         );
         await until(() => vault.catalog.metadataReads > reads);
         expect(
-          find.byTooltip('Sync with NAS'),
+          find.text('Sync with backup server'),
           findsOneWidget,
           reason: 'Open actions must reflect a transfer finishing',
         );

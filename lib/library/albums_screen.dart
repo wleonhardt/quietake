@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 
 import '../gallery/gallery_screen.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import 'tag_sort.dart';
 import '../privacy/privacy_scope.dart';
 import '../privacy/privacy_controller.dart';
 import '../session.dart';
 import 'merge_target.dart';
+import 'moments_screen.dart';
+import 'recently_deleted_screen.dart';
 import 'name_dialog.dart';
 import 'private_catalog.dart';
+import 'tag_cover.dart';
 
 /// The historical class name does not change schema-one album identities.
 class AlbumsScreen extends StatefulWidget {
@@ -20,6 +24,7 @@ class AlbumsScreen extends StatefulWidget {
 
 class _AlbumsScreenState extends State<AlbumsScreen> {
   final _search = TextEditingController();
+  bool _byCount = false;
   late Future<Set<String>> _available = _loadNames();
   PrivateCatalog get _catalog => widget.session.vault.catalog;
   PrivacyController? _privacy;
@@ -94,19 +99,17 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete tag?'),
-        content: Text(
-          'Remove “${_catalog.albums[id]}” from all captures? Photos and videos stay in your vault.',
-        ),
+        title: Text(context.l10n.tagsDeleteTitle),
+        content: Text(context.l10n.tagsDeleteBody(_catalog.albums[id] ?? '')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             key: Keys.albumDeleteConfirm,
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete tag'),
+            child: Text(context.l10n.tagsDelete),
           ),
         ],
       ),
@@ -114,6 +117,21 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     if (confirmed == true && mounted && epoch == _privacyEpoch) {
       await updateLibrary(context, () => _catalog.deleteAlbum(id));
     }
+  }
+
+  Future<void> _setCover(String id, Set<String> available) async {
+    final epoch = _privacyEpoch;
+    final names = [
+      for (final name in available)
+        if (_catalog.details(name).albums.contains(id)) name,
+    ]..sort((a, b) => b.compareTo(a));
+    final pick = await chooseTagCover(
+      context,
+      widget.session,
+      names.take(60).toList(),
+    );
+    if (pick == null || !mounted || epoch != _privacyEpoch) return;
+    await updateLibrary(context, () => _catalog.setCover(id, pick));
   }
 
   Future<void> _merge(String source) async {
@@ -134,19 +152,23 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Merge tags?'),
+        title: Text(context.l10n.tagsMergeTitle),
         content: Text(
-          'Merge “${_catalog.albums[source]}” into “${_catalog.albums[target]}”? $combined ${combined == 1 ? 'capture' : 'captures'} will use the remaining tag. The source tag is removed. Photos, videos and other tags stay unchanged.',
+          context.l10n.tagsMergeBody(
+            _catalog.albums[source] ?? '',
+            _catalog.albums[target] ?? '',
+            combined,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             key: Keys.tagMergeConfirm,
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Merge tags'),
+            child: Text(context.l10n.tagsMergeConfirm),
           ),
         ],
       ),
@@ -156,9 +178,25 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     }
   }
 
+  Widget _leading(String id, Set<String> available) {
+    const icon = Icon(Icons.sell_outlined);
+    final cover = _catalog.covers[id];
+    if (cover == null || !available.contains(cover)) return icon;
+    // The inner key makes a new cover replace the old thumbnail's state.
+    return KeyedSubtree(
+      key: Keys.tagCoverThumb(id),
+      child: CaptureThumb(
+        key: ValueKey(cover),
+        session: widget.session,
+        name: cover,
+        fallback: icon,
+      ),
+    );
+  }
+
   Future<void> _create(BuildContext context) => editLibraryName(
     context,
-    title: 'Create tag',
+    title: context.l10n.tagsCreate,
     initial: _search.text.trim(),
     save: (name) async {
       await _catalog.createAlbum(name);
@@ -171,12 +209,44 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     // search field on a short landscape screen; the list pads itself instead.
     resizeToAvoidBottomInset: false,
     appBar: AppBar(
-      title: const Text('Tags'),
+      title: Text(context.l10n.tagsTitle),
       actions: [
         const LockButton(),
         IconButton(
+          key: Keys.momentsOpen,
+          tooltip: context.l10n.tagsMoments,
+          icon: const Icon(Icons.calendar_month_outlined),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => MomentsScreen(session: widget.session),
+            ),
+          ),
+        ),
+        IconButton(
+          key: Keys.recentlyDeletedOpen,
+          tooltip: context.l10n.recentlyDeletedTitle,
+          icon: const Icon(Icons.delete_outline),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => RecentlyDeletedScreen(session: widget.session),
+            ),
+          ),
+        ),
+        IconButton(
+          key: Keys.albumSort,
+          tooltip: _byCount
+              ? context.l10n.tagsSortName
+              : context.l10n.tagsSortCount,
+          icon: Icon(
+            _byCount ? Icons.sort_by_alpha : Icons.format_list_numbered,
+          ),
+          onPressed: () => setState(() => _byCount = !_byCount),
+        ),
+        IconButton(
           key: Keys.albumCreate,
-          tooltip: 'Create tag',
+          tooltip: context.l10n.tagsCreate,
           icon: const Icon(Icons.add),
           onPressed: () => _create(context),
         ),
@@ -190,8 +260,8 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
             key: Keys.tagSearch,
             controller: _search,
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
-              labelText: 'Find tags',
+            decoration: InputDecoration(
+              labelText: context.l10n.tagsFind,
               prefixIcon: Icon(Icons.search),
             ),
           ),
@@ -206,7 +276,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                     onPressed: () => setState(() {
                       _available = _loadNames();
                     }),
-                    child: const Text('Could not count captures. Retry'),
+                    child: Text(context.l10n.tagsCountFailed),
                   ),
                 );
               }
@@ -227,8 +297,15 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                       counts.update(id, (n) => n + 1, ifAbsent: () => 1);
                     }
                   }
+                  if (_byCount) {
+                    // The list is already by name, and sort is stable.
+                    entries.sort(
+                      (a, b) =>
+                          (counts[b.key] ?? 0).compareTo(counts[a.key] ?? 0),
+                    );
+                  }
                   String count(int value) =>
-                      '$value ${value == 1 ? 'capture' : 'captures'}';
+                      context.l10n.tagsCaptureCount(value);
                   return ListView.builder(
                     padding: EdgeInsets.only(
                       bottom:
@@ -244,7 +321,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                             child: ListTile(
                               key: Keys.libraryUntagged,
                               leading: const Icon(Icons.label_off_outlined),
-                              title: const Text('Untagged'),
+                              title: Text(context.l10n.tagsUntagged),
                               subtitle: Text(count(untagged)),
                               trailing: const Icon(Icons.chevron_right),
                               onTap: () => _browse(untagged: true),
@@ -268,14 +345,16 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                searching ? 'No matching tags' : 'No tags yet',
+                                searching
+                                    ? context.l10n.tagsNoMatch
+                                    : context.l10n.tagsNone,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 searching
-                                    ? 'Try another name or create this one.'
-                                    : 'Tags group captures across the Library.',
+                                    ? context.l10n.tagsNoMatchHint
+                                    : context.l10n.tagsNoneHint,
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 16),
@@ -285,8 +364,10 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                                 icon: const Icon(Icons.add),
                                 label: Text(
                                   searching
-                                      ? "Create '${_search.text.trim()}'"
-                                      : 'Create first tag',
+                                      ? context.l10n.tagsCreateNamed(
+                                          _search.text.trim(),
+                                        )
+                                      : context.l10n.tagsCreateFirst,
                                 ),
                               ),
                             ],
@@ -296,22 +377,29 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                       final entry = entries[index - 2];
                       return ListTile(
                         key: Keys.tagBrowse(entry.key),
-                        leading: const Icon(Icons.sell_outlined),
+                        leading: _leading(entry.key, names),
                         title: Text(entry.value),
                         subtitle: Text(count(counts[entry.key] ?? 0)),
                         onTap: () => _browse(tag: entry.key),
                         trailing: PopupMenuButton<String>(
                           key: Keys.albumMenu(entry.key),
-                          tooltip: 'Tag options',
+                          tooltip: context.l10n.tagsOptions,
                           onSelected: (action) {
                             switch (action) {
                               case 'rename':
                                 editLibraryName(
                                   context,
-                                  title: 'Rename tag',
+                                  title: context.l10n.tagsRenameTitle,
                                   initial: entry.value,
                                   save: (name) =>
                                       _catalog.renameAlbum(entry.key, name),
+                                );
+                              case 'cover':
+                                _setCover(entry.key, names);
+                              case 'uncover':
+                                updateLibrary(
+                                  context,
+                                  () => _catalog.setCover(entry.key, null),
                                 );
                               case 'merge':
                                 _merge(entry.key);
@@ -320,21 +408,32 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                             }
                           },
                           itemBuilder: (_) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'rename',
                               key: Keys.albumRename,
-                              child: Text('Rename'),
+                              child: Text(context.l10n.tagsRename),
                             ),
+                            PopupMenuItem(
+                              value: 'cover',
+                              key: Keys.tagCoverSet,
+                              child: Text(context.l10n.tagsSetCover),
+                            ),
+                            if (_catalog.covers.containsKey(entry.key))
+                              PopupMenuItem(
+                                value: 'uncover',
+                                key: Keys.tagCoverClear,
+                                child: Text(context.l10n.tagsClearCover),
+                              ),
                             PopupMenuItem(
                               value: 'merge',
                               key: Keys.tagMerge,
                               enabled: _catalog.albums.length > 1,
-                              child: const Text('Merge into…'),
+                              child: Text(context.l10n.tagsMergeInto),
                             ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'delete',
                               key: Keys.albumDelete,
-                              child: Text('Delete tag'),
+                              child: Text(context.l10n.tagsDelete),
                             ),
                           ],
                         ),

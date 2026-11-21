@@ -1,7 +1,8 @@
 # `.shtr` container format, version 1
 
 One encrypted media file. The NAS cannot read its content, but sees the container name and
-length. The app's names include capture time and media extension. The plaintext length can be
+length. The app's names include capture time and media extension, unless the optional random-name setting
+(decision 026, `remoteNames` in `docs/private-catalog.md`) is on. The app uses random names for new uploads; older files keep their names until the Settings rename action is run. The plaintext length can be
 calculated exactly from the public header and ciphertext length; v1 does not pad media sizes.
 
 All integers big-endian. Primitives are libsodium 1.0.22:
@@ -73,3 +74,25 @@ with the "intuitive" padding.
 strong backup passphrase. It does not change `.shtr` v1, the local keyfile or the
 frozen vectors. Its strict schema, fixed derivation cost and public synthetic
 Dart/Go fixture are documented in [NAS recovery](nas-recovery.md).
+
+## Pending capture (transient, never uploaded)
+
+A photo taken from the lock screen camera (decision 028) is not a `.shtr` file. It lives in the
+hidden `.pending/` folder inside the vault folder as `<id>.<ext>.pending`, which library, sync and
+portable backup listings never read:
+
+| Offset | Size | Field |
+| --- | --- | --- |
+| 0 | 4 | magic `SHTP` |
+| 4 | 1 | version = `1` |
+| 5 | 1 | reserved = `0` |
+| 6 | 80 | random 32-byte wrap key sealed to the vault public key (`crypto_box_seal`) |
+| 86 | … | a complete v1 container whose file key is wrapped with that wrap key |
+
+The public key is stored unencrypted and the secret key encrypted under the master key in
+`vault.pendingkey.json` next to the keyfile, so a locked app can seal but not read. At the next unlock
+the app opens the wrap key, re-wraps only the 48-byte file key under the master key, copies the rest
+unchanged and writes `<id>.<ext>.shtr`; the pending file is deleted after that container
+authenticates. The result is an ordinary v1 container, so frozen vectors, NAS files and the Go
+recovery tool are unchanged. A restore that replaces the master key leaves older pending files
+unpublishable.

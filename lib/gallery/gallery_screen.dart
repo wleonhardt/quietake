@@ -5,21 +5,59 @@ import 'package:flutter/material.dart';
 import '../cast/device_picker.dart';
 import '../brand.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../library/albums_screen.dart';
+import '../library/import_media.dart' show importChannel;
 import '../library/import_screen.dart';
 import '../library/library_query.dart';
 import '../library/name_dialog.dart';
 import '../library/tag_picker.dart';
 import '../library/view_sheet.dart';
 import '../privacy/privacy_scope.dart';
+import '../library/moments_screen.dart' show monthLabel;
 import '../session.dart';
 import '../settings/settings_screen.dart';
 import '../sync/sync_settings.dart';
 import '../sync/sync_controller.dart';
+import '../vault/trash_setting.dart';
+import '../vault/vault.dart';
 import 'item.dart';
 import 'preview.dart';
 import 'share_dialog.dart';
 import 'viewer_screen.dart';
+
+/// A run of captures taken on one local day, shown under one date header.
+/// [day] is null for captures whose name carries no date.
+typedef DayGroup = ({DateTime? day, int start, int count});
+
+/// Splits [items], already in display order, where the local day changes.
+List<DayGroup> dayGroups(List<VaultItem> items) {
+  final groups = <DayGroup>[];
+  for (var i = 0; i < items.length; i++) {
+    final taken = items[i].capturedAt?.toLocal();
+    final day = taken == null
+        ? null
+        : DateTime(taken.year, taken.month, taken.day);
+    if (groups.isNotEmpty && groups.last.day == day) {
+      final last = groups.removeLast();
+      groups.add((day: day, start: last.start, count: last.count + 1));
+    } else {
+      groups.add((day: day, start: i, count: 1));
+    }
+  }
+  return groups;
+}
+
+String _dayLabel(BuildContext context, DateTime? day) {
+  final l10n = context.l10n;
+  if (day == null) return l10n.galleryNoDate;
+  final now = DateTime.now();
+  if (day == DateTime(now.year, now.month, now.day)) return l10n.galleryToday;
+  if (day == DateTime(now.year, now.month, now.day - 1)) {
+    return l10n.galleryYesterday;
+  }
+  return MaterialLocalizations.of(context).formatFullDate(day);
+}
 
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({
@@ -28,26 +66,32 @@ class GalleryScreen extends StatefulWidget {
     this.searchMode = false,
     this.initialTags = const {},
     this.initialUntagged = false,
+    this.initialMonth,
   });
   final Session session;
   final bool searchMode;
   final Set<String> initialTags;
   final bool initialUntagged;
+  final DateTime? initialMonth;
   @override
   State<GalleryScreen> createState() => _GalleryScreenState();
 }
 
-class _GalleryScreenState extends State<GalleryScreen> {
+class _GalleryScreenState extends State<GalleryScreen>
+    with WidgetsBindingObserver {
   late Future<List<VaultItem>> _items = _load();
   final _search = TextEditingController();
   final _selected = <String>{};
   var _selecting = false;
+  var _deleting = false;
   late bool _composing =
       widget.searchMode &&
       widget.initialTags.isEmpty &&
-      !widget.initialUntagged;
+      !widget.initialUntagged &&
+      widget.initialMonth == null;
   late Set<String> _tags = {...widget.initialTags};
   late bool _untagged = widget.initialUntagged;
+  late DateTime? _month = widget.initialMonth;
   bool _matchAny = false;
   var _kind = MediaKind.all;
   var _favorites = false;
@@ -62,6 +106,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     Set<String>,
     bool,
     bool,
+    DateTime?,
   )?
   _queryInputs;
   List<VaultItem> _queryItems = const [];
@@ -91,6 +136,48 @@ class _GalleryScreenState extends State<GalleryScreen> {
     super.initState();
     widget.session.sync.addListener(_onSync);
     widget.session.vault.catalog.addListener(_onCatalog);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  var _incomingChecking = false;
+  var _incomingRecheck = false;
+
+  /// Tickers are off while the app is locked, so a share another app opened
+  /// waits until unlock and is never taken or shown behind the lock screen.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkIncomingShare();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkIncomingShare();
+  }
+
+  Future<void> _checkIncomingShare() async {
+    if (!TickerMode.valuesOf(context).enabled) return;
+    if (_incomingChecking) {
+      // Focus came back while the Import screen was closing: look once more.
+      _incomingRecheck = true;
+      return;
+    }
+    _incomingChecking = true;
+    try {
+      final waiting =
+          await importChannel.invokeMethod<bool>('incomingShare') ?? false;
+      if (waiting && mounted && TickerMode.valuesOf(context).enabled) {
+        await _importFiles(openIncoming: true);
+      }
+    } catch (_) {
+      // No platform support, or nothing arrived: nothing to open.
+    } finally {
+      _incomingChecking = false;
+    }
+    if (_incomingRecheck && mounted) {
+      _incomingRecheck = false;
+      await _checkIncomingShare();
+    }
   }
 
   late bool _wasSyncing = widget.session.sync.isSyncing;
@@ -110,6 +197,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.session.sync.removeListener(_onSync);
     widget.session.vault.catalog.removeListener(_onCatalog);
     _search.dispose();
@@ -131,6 +219,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           _favorites = false;
           _tags = {};
           _untagged = false;
+          _month = null;
           _search.clear();
           _selected.clear();
           _selecting = false;
@@ -156,6 +245,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       tags: _tags,
       matchAnyTag: _matchAny,
       untagged: _untagged,
+      month: _month,
     ).apply(_all, catalog.items, catalog.albums).length;
   }
 
@@ -173,6 +263,70 @@ class _GalleryScreenState extends State<GalleryScreen> {
       context,
       () => catalog.organize(selected, tagIds: tags, remove: remove),
     );
+  }
+
+  /// Deletes the selection. With Recently deleted on, everything goes there
+  /// and stays restorable; permanent removal of many captures at once is
+  /// only offered when the owner has turned that off (decision 015).
+  Future<void> _deleteSelected(List<VaultItem> visible) async {
+    if (_deleting) return;
+    final items = visible.where((i) => _selected.contains(i.name)).toList();
+    if (items.isEmpty) return;
+    setState(() => _deleting = true);
+    try {
+      final keep = await TrashSetting.load();
+      if (!mounted) return;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.l10n.galleryDeleteTitle(items.length)),
+          content: Text(
+            keep
+                ? context.l10n.galleryDeleteKeepBody(Vault.trashKeep.inDays)
+                : context.l10n.recentlyDeletedAllBody(items.length),
+          ),
+          actions: [
+            TextButton(
+              key: Keys.libraryDeleteCancel,
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              key: Keys.libraryDeleteConfirm,
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(
+                keep
+                    ? context.l10n.galleryDeleteMove
+                    : context.l10n.viewerDelete,
+              ),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final cast = widget.session.cast;
+      if (cast.isCasting || cast.isConnecting) await cast.stop();
+      var failed = false;
+      for (final item in items) {
+        try {
+          keep
+              ? await widget.session.sync.trash(item.file)
+              : await widget.session.sync.delete(item.file);
+          widget.session.previews.evict(item.name);
+        } catch (_) {
+          failed = true;
+        }
+      }
+      if (!mounted) return;
+      if (failed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.recentlyDeletedDeleteFailed)),
+        );
+      }
+      _scope(() => _items = _load());
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
   }
 
   Future<void> _openSearch({
@@ -229,10 +383,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Library actions'),
+              title: Text(context.l10n.galleryActions),
               trailing: IconButton(
                 key: Keys.libraryActionsClose,
-                tooltip: 'Close Library actions',
+                tooltip: context.l10n.galleryActionsClose,
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(sheetContext),
               ),
@@ -240,7 +394,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ListTile(
               key: Keys.librarySelect,
               leading: const Icon(Icons.checklist),
-              title: const Text('Select captures'),
+              title: Text(context.l10n.gallerySelectCaptures),
               onTap: () {
                 Navigator.pop(sheetContext);
                 FocusManager.instance.primaryFocus?.unfocus();
@@ -253,7 +407,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ListTile(
               key: Keys.libraryAlbums,
               leading: const Icon(Icons.sell_outlined),
-              title: const Text('Tags'),
+              title: Text(context.l10n.tagsTitle),
               onTap: () {
                 Navigator.pop(sheetContext);
                 Navigator.push(
@@ -267,7 +421,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ListTile(
               key: Keys.libraryUntagged,
               leading: const Icon(Icons.label_off_outlined),
-              title: const Text('Untagged'),
+              title: Text(context.l10n.tagsUntagged),
               onTap: () {
                 Navigator.pop(sheetContext);
                 if (widget.searchMode) {
@@ -284,9 +438,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ),
             ListenableBuilder(
               listenable: widget.session.sync,
-              builder: (_, _) => Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 16,
+              builder: (_, _) => Column(
+                mainAxisSize: MainAxisSize.min,
                 children: _secondaryActions(sheetContext),
               ),
             ),
@@ -318,8 +471,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       icon: const Icon(Icons.search),
                       label: Text(
                         widget.searchMode
-                            ? 'Edit search'
-                            : 'Search names and tags',
+                            ? context.l10n.gallerySearchEdit
+                            : context.l10n.gallerySearchHint,
                       ),
                     )
                   : TextField(
@@ -331,9 +484,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         _composing = false;
                         FocusManager.instance.primaryFocus?.unfocus();
                       }),
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        hintText: 'Search names and tags',
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search),
+                        hintText: context.l10n.gallerySearchHint,
                         isDense: true,
                       ),
                     ),
@@ -344,6 +497,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         if (widget.searchMode &&
             (_tags.isNotEmpty ||
                 _untagged ||
+                _month != null ||
                 (!_composing && _search.text.isNotEmpty)))
           Wrap(
             spacing: 4,
@@ -353,14 +507,21 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 InputChip(
                   key: Keys.libraryRemoveTag(id),
                   label: Text(
-                    widget.session.vault.catalog.albums[id] ?? 'Removed tag',
+                    widget.session.vault.catalog.albums[id] ??
+                        context.l10n.galleryRemovedTag,
                   ),
                   onDeleted: () => _scope(() => _tags = {..._tags}..remove(id)),
                 ),
               if (_untagged)
                 InputChip(
-                  label: const Text('Untagged'),
+                  label: Text(context.l10n.tagsUntagged),
                   onDeleted: () => _scope(() => _untagged = false),
+                ),
+              if (_month != null)
+                InputChip(
+                  key: Keys.libraryRemoveMonth,
+                  label: Text(monthLabel(context, _month!)),
+                  onDeleted: () => _scope(() => _month = null),
                 ),
               if (!_composing && _search.text.isNotEmpty)
                 InputChip(
@@ -376,12 +537,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 child: Text(
                   widget.searchMode
                       ? (_matchAny
-                            ? 'All Library · Match any tag'
-                            : 'All Library · Match all tags')
+                            ? context.l10n.galleryScopeAny
+                            : context.l10n.galleryScopeAll)
                       : switch (_sort) {
-                          LibrarySort.newest => 'Newest captures',
-                          LibrarySort.oldest => 'Oldest captures',
-                          LibrarySort.name => 'Name order',
+                          LibrarySort.newest => context.l10n.gallerySortNewest,
+                          LibrarySort.oldest => context.l10n.gallerySortOldest,
+                          LibrarySort.name => context.l10n.gallerySortName,
                         },
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -389,12 +550,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
               TextButton(
                 key: Keys.libraryView,
                 onPressed: _view,
-                child: const Text('View'),
+                child: Text(context.l10n.viewTitle),
               ),
               if (widget.searchMode)
                 PopupMenuButton<bool>(
                   key: Keys.librarySearchOptions,
-                  tooltip: 'Tag matching',
+                  tooltip: context.l10n.galleryTagMatching,
                   icon: const Icon(Icons.tune),
                   onSelected: (any) => _scope(() => _matchAny = any),
                   itemBuilder: (_) => [
@@ -402,19 +563,19 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       key: Keys.libraryMatchAll,
                       value: false,
                       checked: !_matchAny,
-                      child: const Text('Match all tags'),
+                      child: Text(context.l10n.galleryMatchAll),
                     ),
                     CheckedPopupMenuItem(
                       key: Keys.libraryMatchAny,
                       value: true,
                       checked: _matchAny,
-                      child: const Text('Match any tag'),
+                      child: Text(context.l10n.galleryMatchAny),
                     ),
                   ],
                 ),
               IconButton(
                 key: Keys.libraryTools,
-                tooltip: 'Library actions',
+                tooltip: context.l10n.galleryActions,
                 icon: const Icon(Icons.more_horiz),
                 onPressed: _actions,
               ),
@@ -427,11 +588,15 @@ class _GalleryScreenState extends State<GalleryScreen> {
             label: Text(
               [
                 if (_kind != MediaKind.all)
-                  _kind == MediaKind.photo ? 'Photos' : 'Videos',
-                if (_favorites) 'Favorites',
+                  _kind == MediaKind.photo
+                      ? context.l10n.viewPhotos
+                      : context.l10n.viewVideos,
+                if (_favorites) context.l10n.galleryFavorites,
                 if (_sort != LibrarySort.newest)
-                  _sort == LibrarySort.oldest ? 'Oldest first' : 'Name order',
-                'Reset view',
+                  _sort == LibrarySort.oldest
+                      ? context.l10n.viewOldest
+                      : context.l10n.gallerySortName,
+                context.l10n.galleryResetView,
               ].join(' · '),
             ),
             onPressed: () => _scope(() {
@@ -469,15 +634,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
               FocusManager.instance.primaryFocus?.unfocus();
               _scope(() => _composing = false);
             },
-            child: Text('Show $count ${count == 1 ? 'capture' : 'captures'}'),
+            child: Text(context.l10n.viewShowCount(count)),
           );
         }
         if (index == 1) {
-          return const ListTile(
-            title: Text('Add a tag'),
-            subtitle: Text(
-              'Choose existing tags, or search names with the text above.',
-            ),
+          return ListTile(
+            title: Text(context.l10n.galleryAddTag),
+            subtitle: Text(context.l10n.galleryAddTagHint),
           );
         }
         final entry = entries[index - 2];
@@ -501,7 +664,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     final allFavorite =
         _selected.isNotEmpty &&
         _selected.every((name) => catalog.details(name).favorite);
-    final enabled = _selected.isNotEmpty;
+    final enabled = _selected.isNotEmpty && !_deleting;
     return SafeArea(
       top: false,
       child: Padding(
@@ -514,19 +677,19 @@ class _GalleryScreenState extends State<GalleryScreen> {
               children: [
                 IconButton(
                   key: Keys.libraryCancelSelection,
-                  tooltip: 'Cancel selection',
+                  tooltip: context.l10n.galleryCancelSelection,
                   icon: const Icon(Icons.close),
                   onPressed: () => _scope(() {}),
                 ),
                 Expanded(
                   child: Text(
-                    '${_selected.length} selected',
+                    context.l10n.gallerySelectedCount(_selected.length),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 IconButton(
                   key: Keys.librarySelectAll,
-                  tooltip: 'Select all results',
+                  tooltip: context.l10n.gallerySelectAll,
                   icon: const Icon(Icons.select_all),
                   onPressed: () => setState(
                     () => _selected.addAll(visible.map((i) => i.name)),
@@ -544,8 +707,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 Builder(
                   builder: (buttonContext) => TextButton.icon(
                     key: Keys.libraryShare,
-                    label: const Text('Share copies'),
-                    icon: const Icon(Icons.ios_share),
+                    label: Text(context.l10n.galleryShareCopies),
+                    icon: Icon(Icons.adaptive.share),
                     onPressed: !enabled
                         ? null
                         : () {
@@ -566,7 +729,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
                 TextButton.icon(
                   key: Keys.libraryFavorite,
-                  label: Text(allFavorite ? 'Unfavorite' : 'Favorite'),
+                  label: Text(
+                    allFavorite
+                        ? context.l10n.galleryUnfavorite
+                        : context.l10n.galleryFavorite,
+                  ),
                   icon: Icon(
                     allFavorite ? Icons.favorite : Icons.favorite_border,
                   ),
@@ -581,26 +748,32 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
                 TextButton.icon(
                   key: Keys.libraryAddAlbum,
-                  label: const Text('Add tags'),
+                  label: Text(context.l10n.pickerAddTitle),
                   icon: const Icon(Icons.playlist_add),
                   onPressed: !enabled ? null : _chooseTags,
                 ),
                 TextButton.icon(
                   key: Keys.libraryRemoveAlbum,
-                  label: const Text('Remove tags'),
+                  label: Text(context.l10n.pickerRemoveTitle),
                   icon: const Icon(Icons.playlist_remove),
                   onPressed: !enabled ? null : () => _chooseTags(remove: true),
+                ),
+                TextButton.icon(
+                  key: Keys.libraryDelete,
+                  label: Text(context.l10n.viewerDelete),
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: !enabled ? null : () => _deleteSelected(visible),
                 ),
                 if (_selected.length == 1)
                   TextButton.icon(
                     key: Keys.libraryRename,
-                    label: const Text('Name capture'),
+                    label: Text(context.l10n.galleryNameCapture),
                     icon: const Icon(Icons.edit_outlined),
                     onPressed: () {
                       final name = _selected.single;
                       editLibraryName(
                         context,
-                        title: 'Name capture',
+                        title: context.l10n.galleryNameCapture,
                         initial: catalog.details(name).title,
                         save: (title) => catalog.renameItem(name, title),
                       );
@@ -615,7 +788,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   Future<void> _openSettings() async {
-    final initial = await SyncSettings.load();
+    final SyncSettings initial;
+    try {
+      initial = await SyncSettings.load();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.galleryNasReadFailed)),
+        );
+      }
+      return;
+    }
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<SyncSettings>(
@@ -627,11 +810,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   bool get _compactHeader => MediaQuery.sizeOf(context).width < 480;
 
-  Future<void> _importFiles() async {
+  Future<void> _importFiles({bool openIncoming = false}) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => ImportScreen(session: widget.session),
+        builder: (_) =>
+            ImportScreen(session: widget.session, openIncoming: openIncoming),
       ),
     );
     if (mounted) {
@@ -672,34 +856,39 @@ class _GalleryScreenState extends State<GalleryScreen> {
     ),
   );
 
-  List<Widget> _secondaryActions(BuildContext sheetContext) => [
-    IconButton(
-      key: Keys.libraryImport,
-      tooltip: 'Import copies from Files',
-      icon: const Icon(Icons.add_photo_alternate_outlined),
-      onPressed: () {
-        Navigator.pop(sheetContext);
-        _importFiles();
-      },
-    ),
-    IconButton(
-      key: Keys.gallerySync,
-      tooltip: widget.session.sync.isSyncing
-          ? 'Cancel sync'
-          : widget.session.sync.state == SyncState.unconfigured
-          ? 'Set up backup'
-          : 'Sync with NAS',
-      icon: Icon(widget.session.sync.isSyncing ? Icons.close : Icons.sync),
-      onPressed: widget.session.sync.isSyncing
-          ? widget.session.sync.cancel
-          : widget.session.sync.state == SyncState.unconfigured
-          ? () {
-              Navigator.pop(sheetContext);
-              _openSettings();
-            }
-          : widget.session.sync.sync,
-    ),
-  ];
+  List<Widget> _secondaryActions(BuildContext sheetContext) {
+    final sync = widget.session.sync;
+    return [
+      ListTile(
+        key: Keys.libraryImport,
+        leading: const Icon(Icons.add_photo_alternate_outlined),
+        title: Text(context.l10n.galleryImportTooltip),
+        onTap: () {
+          Navigator.pop(sheetContext);
+          _importFiles();
+        },
+      ),
+      ListTile(
+        key: Keys.gallerySync,
+        leading: Icon(sync.isSyncing ? Icons.close : Icons.sync),
+        title: Text(
+          sync.isSyncing
+              ? context.l10n.gallerySyncCancel
+              : sync.state == SyncState.unconfigured
+              ? context.l10n.gallerySyncSetup
+              : context.l10n.gallerySyncNow,
+        ),
+        onTap: sync.isSyncing
+            ? sync.cancel
+            : sync.state == SyncState.unconfigured
+            ? () {
+                Navigator.pop(sheetContext);
+                _openSettings();
+              }
+            : sync.sync,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -707,12 +896,16 @@ class _GalleryScreenState extends State<GalleryScreen> {
       leading: widget.searchMode
           ? IconButton(
               key: Keys.libraryCloseSearch,
-              tooltip: 'Close search',
+              tooltip: context.l10n.galleryCloseSearch,
               icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context),
             )
           : null,
-      title: Text(widget.searchMode ? 'Search' : 'Library'),
+      title: Text(
+        widget.searchMode
+            ? context.l10n.gallerySearchTitle
+            : context.l10n.camLibrary,
+      ),
       titleSpacing: _compactHeader ? 8 : null,
       actions: [
         const LockButton(),
@@ -720,7 +913,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         if (!_selecting && !widget.searchMode && !_compactHeader)
           IconButton(
             key: Keys.librarySelectMode,
-            tooltip: 'Select captures',
+            tooltip: context.l10n.gallerySelectCaptures,
             icon: const Icon(Icons.checklist),
             onPressed: _catalogUnavailable
                 ? null
@@ -731,7 +924,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           ),
         IconButton(
           key: Keys.gallerySettings,
-          tooltip: 'Settings',
+          tooltip: context.l10n.gallerySettings,
           icon: const Icon(Icons.settings),
           onPressed: _openSettings,
         ),
@@ -763,9 +956,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         _items = _load();
                       }),
                       icon: const Icon(Icons.refresh),
-                      label: const Text(
-                        'Organization unavailable. Originals are safe. Retry',
-                      ),
+                      label: Text(context.l10n.galleryOrgUnavailable),
                     ),
                   if (widget.session.sync.result != null &&
                       widget.session.sync.state != SyncState.unconfigured &&
@@ -793,7 +984,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         _items = _load();
                       }),
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Could not open vault. Retry'),
+                      label: Text(context.l10n.galleryOpenFailed),
                     ),
                   );
                 }
@@ -804,8 +995,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 if (all.isEmpty && !widget.searchMode) {
                   return _emptyState(
                     messageKey: Keys.galleryEmpty,
-                    title: 'Your library starts here',
-                    message: 'Take a photo or import copies from Files.',
+                    title: context.l10n.galleryEmptyTitle,
+                    message: context.l10n.galleryEmptyMessage,
                     actions: [
                       FilledButton.icon(
                         key: Keys.galleryEmptyCamera,
@@ -813,13 +1004,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
                             ? () => Navigator.pop(context)
                             : null,
                         icon: const Icon(Icons.camera_alt_outlined),
-                        label: const Text('Open camera'),
+                        label: Text(context.l10n.galleryOpenCamera),
                       ),
                       OutlinedButton.icon(
                         key: Keys.galleryEmptyImport,
                         onPressed: _importFiles,
                         icon: const Icon(Icons.add_photo_alternate_outlined),
-                        label: const Text('Import copies'),
+                        label: Text(context.l10n.galleryImportCopies),
                       ),
                     ],
                   );
@@ -834,6 +1025,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   _tags,
                   _matchAny,
                   _untagged,
+                  _month,
                 );
                 if (_queryInputs != inputs) {
                   _queryItems = LibraryQuery(
@@ -843,6 +1035,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     tags: _tags,
                     matchAnyTag: _matchAny,
                     untagged: _untagged,
+                    month: _month,
                     sort: _sort,
                   ).apply(all, catalog.items, catalog.albums);
                   _queryInputs = inputs;
@@ -860,6 +1053,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 if (widget.searchMode && _composing) {
                   return _searchChoices(items.length);
                 }
+                // Sorted by date, each local day gets a header; a library
+                // where no name carries a date needs none.
+                final days = dayGroups(items);
+                final showDays =
+                    _sort != LibrarySort.name &&
+                    !(days.length == 1 && days.single.day == null);
+                final DayGroup whole = (
+                  day: null,
+                  start: 0,
+                  count: items.length,
+                );
                 return LayoutBuilder(
                   builder: (context, contentConstraints) => Column(
                     children: [
@@ -867,8 +1071,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         child: items.isEmpty
                             ? _emptyState(
                                 messageKey: Keys.libraryNoResults,
-                                title: 'No captures match',
-                                message: 'Clear your search and filters to see all captures.',
+                                title: context.l10n.galleryNoMatchTitle,
+                                message: context.l10n.galleryNoMatchMessage,
                                 actions: [
                                   FilledButton(
                                     key: Keys.libraryClearFilters,
@@ -881,72 +1085,127 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                         _favorites = false;
                                         _tags = {};
                                         _untagged = false;
+                                        _month = null;
                                       });
                                     },
-                                    child: const Text(
-                                      'Clear search and filters',
+                                    child: Text(
+                                      context.l10n.galleryClearFilters,
                                     ),
                                   ),
                                 ],
                               )
-                            : GridView.builder(
+                            : CustomScrollView(
                                 key: Keys.galleryGrid,
-                                padding: const EdgeInsets.all(4),
-                                gridDelegate:
-                                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 180,
-                                      mainAxisSpacing: 4,
-                                      crossAxisSpacing: 4,
-                                    ),
-                                itemCount: items.length,
-                                itemBuilder: (context, i) => _Tile(
-                                  key: Keys.galleryTile(i),
-                                  item: items[i],
-                                  position: i + 1,
-                                  total: items.length,
-                                  cache: widget.session.previews,
-                                  title: catalog.details(items[i].name).title,
-                                  favorite: catalog
-                                      .details(items[i].name)
-                                      .favorite,
-                                  selected: _selected.contains(items[i].name),
-                                  selecting: _selecting,
-                                  onLongPress: () {
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    setState(() {
-                                      _selecting = true;
-                                      _composing = false;
-                                      _selected.add(items[i].name);
-                                    });
-                                  },
-                                  onTap: () async {
-                                    if (_selecting) {
-                                      setState(() {
-                                        if (!_selected.add(items[i].name)) {
-                                          _selected.remove(items[i].name);
-                                        }
-                                      });
-                                      return;
-                                    }
-                                    FocusManager.instance.primaryFocus
-                                        ?.unfocus();
-                                    await Navigator.of(context).push<bool>(
-                                      MaterialPageRoute<bool>(
-                                        builder: (_) => ViewerScreen(
-                                          session: widget.session,
-                                          items: items,
-                                          initialIndex: i,
+                                semanticChildCount: items.length,
+                                slivers: [
+                                  for (final group
+                                      in showDays ? days : [whole]) ...[
+                                    if (showDays)
+                                      SliverToBoxAdapter(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            12,
+                                            12,
+                                            12,
+                                            4,
+                                          ),
+                                          child: Semantics(
+                                            header: true,
+                                            child: Text(
+                                              _dayLabel(context, group.day),
+                                              key: Keys.galleryDay(group.start),
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleSmall,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    );
-                                    if (mounted) {
-                                      setState(() {
-                                        _items = _load();
-                                      });
-                                    }
-                                  },
-                                ),
+                                    SliverPadding(
+                                      padding: const EdgeInsets.all(4),
+                                      sliver: SliverGrid(
+                                        gridDelegate:
+                                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                                              maxCrossAxisExtent: 180,
+                                              mainAxisSpacing: 4,
+                                              crossAxisSpacing: 4,
+                                            ),
+                                        delegate: SliverChildBuilderDelegate(
+                                          childCount: group.count,
+                                          // Screen readers count across the days.
+                                          semanticIndexOffset: group.start,
+                                          (context, n) {
+                                            final i = group.start + n;
+                                            return _Tile(
+                                              key: Keys.galleryTile(i),
+                                              item: items[i],
+                                              position: i + 1,
+                                              total: items.length,
+                                              cache: widget.session.previews,
+                                              title: catalog
+                                                  .details(items[i].name)
+                                                  .title,
+                                              favorite: catalog
+                                                  .details(items[i].name)
+                                                  .favorite,
+                                              selected: _selected.contains(
+                                                items[i].name,
+                                              ),
+                                              selecting: _selecting,
+                                              onLongPress: () {
+                                                FocusManager
+                                                    .instance
+                                                    .primaryFocus
+                                                    ?.unfocus();
+                                                setState(() {
+                                                  _selecting = true;
+                                                  _composing = false;
+                                                  _selected.add(items[i].name);
+                                                });
+                                              },
+                                              onTap: () async {
+                                                if (_selecting) {
+                                                  setState(() {
+                                                    if (!_selected.add(
+                                                      items[i].name,
+                                                    )) {
+                                                      _selected.remove(
+                                                        items[i].name,
+                                                      );
+                                                    }
+                                                  });
+                                                  return;
+                                                }
+                                                FocusManager
+                                                    .instance
+                                                    .primaryFocus
+                                                    ?.unfocus();
+                                                await Navigator.of(
+                                                  context,
+                                                ).push<bool>(
+                                                  MaterialPageRoute<bool>(
+                                                    builder: (_) =>
+                                                        ViewerScreen(
+                                                          session:
+                                                              widget.session,
+                                                          items: items,
+                                                          initialIndex: i,
+                                                        ),
+                                                  ),
+                                                );
+                                                if (mounted) {
+                                                  setState(() {
+                                                    _items = _load();
+                                                  });
+                                                }
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                       ),
                       if (_selecting)
@@ -1028,16 +1287,21 @@ class _TileState extends State<_Tile> {
     final date = item.capturedAt?.toLocal();
     final localizations = MaterialLocalizations.of(context);
     final duration = snap.data?.duration;
+    final l10n = context.l10n;
     final status = snap.hasError
-        ? ', Preview unavailable'
+        ? ', ${l10n.galleryPreviewUnavailable}'
         : duration == null
         ? ''
-        : ', duration ${mediaTime(duration)}';
+        : ', ${l10n.galleryTileDuration(mediaTime(duration))}';
+    final kind = item.isVideo ? l10n.camVideo : l10n.camPhoto;
     final label =
-        '${item.isVideo ? 'Video' : 'Photo'}${date == null ? '' : ', ${localizations.formatFullDate(date)}, ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date))}'}';
+        '$kind${date == null ? '' : ', ${localizations.formatFullDate(date)}, ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date))}'}';
+    final action = widget.selecting
+        ? l10n.galleryTileSelect(label)
+        : l10n.galleryTileOpen(label);
     return Semantics(
       label:
-          '${widget.selecting ? 'Select' : 'Open'} $label${widget.title.isEmpty ? '' : ', ${widget.title}'}${widget.favorite ? ', favorite' : ''}, ${widget.position} of ${widget.total}$status',
+          '$action${widget.title.isEmpty ? '' : ', ${widget.title}'}${widget.favorite ? ', ${l10n.galleryTileFavorite}' : ''}, ${l10n.galleryTilePosition(widget.position, widget.total)}$status',
       selected: widget.selecting ? widget.selected : null,
       button: true,
       onTap: onTap,
@@ -1134,10 +1398,10 @@ class _TileState extends State<_Tile> {
 
   Widget _previewImage(AsyncSnapshot<MediaPreview> snap) {
     if (snap.hasError) {
-      return const Center(
+      return Center(
         child: Icon(
           Icons.broken_image_outlined,
-          semanticLabel: 'Preview unavailable',
+          semanticLabel: context.l10n.galleryPreviewUnavailable,
         ),
       );
     }

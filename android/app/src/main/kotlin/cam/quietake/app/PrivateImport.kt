@@ -18,10 +18,13 @@ class PrivateImport(private val activity: Activity) {
     @Volatile private var closed = false
     @Volatile private var cancelled = false
     val requestCode = 7302
+    /** One received `.quietake-share` file instead of photos and videos (decision 025). */
+    private var bundleMode = false
 
-    fun pick(result: MethodChannel.Result) {
+    fun pick(result: MethodChannel.Result, bundle: Boolean = false) {
         if (pending != null) { result.error("busy", "Import already open", null); return }
         pending = result
+        bundleMode = bundle
         cancelled = false
         try {
             directory.deleteRecursively()
@@ -29,8 +32,10 @@ class PrivateImport(private val activity: Activity) {
             activity.startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "*/*"
-                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/jpeg", "image/png", "video/mp4"))
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                if (!bundle) {
+                    putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/jpeg", "image/png", "video/mp4"))
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                }
             }, requestCode)
         } catch (_: Exception) {
             pending = null
@@ -49,7 +54,7 @@ class PrivateImport(private val activity: Activity) {
             (0 until clip.itemCount).map { clip.getItemAt(it).uri }
         } ?: listOfNotNull(data.data)
         worker.execute {
-            var remaining = 512L * 1024 * 1024
+            var remaining = if (bundleMode) 513L * 1024 * 1024 else 512L * 1024 * 1024
             val entries = if (uris.size > 20) listOf(mapOf("name" to "Selection", "error" to "Choose up to 20 files."))
             else uris.map { uri ->
                 var name = "Selected file"
@@ -60,8 +65,10 @@ class PrivateImport(private val activity: Activity) {
                         if (it.moveToFirst()) name = it.getString(0) ?: name
                     }
                     val extension = name.substringAfterLast('.', "").lowercase()
-                    if (extension !in listOf("jpg", "jpeg", "png", "mp4")) throw Rejected("Use JPEG, PNG or MP4.")
-                    val limit = minOf(remaining, if (extension == "mp4") 512L * 1024 * 1024 else 32L * 1024 * 1024)
+                    if (bundleMode) {
+                        if (extension != "quietake-share") throw Rejected("Choose a .quietake-share file.")
+                    } else if (extension !in listOf("jpg", "jpeg", "png", "mp4")) throw Rejected("Use JPEG, PNG or MP4.")
+                    val limit = minOf(remaining, if (bundleMode) 513L * 1024 * 1024 else if (extension == "mp4") 512L * 1024 * 1024 else 32L * 1024 * 1024)
                     file = File.createTempFile("item-", ".$extension", directory)
                     var count = 0L
                     activity.contentResolver.openInputStream(uri)!!.use { input ->

@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/cast/cast_controller.dart';
+import 'package:quietake/gallery/exif_strip.dart';
 import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart';
 import 'package:quietake/media/media_server.dart';
@@ -92,80 +93,85 @@ void main() {
     }
   }
 
-  testWidgets('JPEG GPS values are erased only in selected share copies', (
-    tester,
-  ) async {
-    final app = await TestApp.unlocked();
-    await seed(app, gps: true);
-    final originals = {
-      for (final file in await app.vault.list())
-        file.path: await file.readAsBytes(),
-    };
-    final sent = <Uint8List>[];
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
-      call,
-    ) async {
-      final args = call.arguments as Map;
-      final paths = (args['paths'] as List).cast<String>();
-      final mimes = (args['mimeTypes'] as List).cast<String>();
-      for (var i = 0; i < paths.length; i++) {
-        final bytes = await File(paths[i]).readAsBytes();
-        if (mimes[i] == 'image/jpeg') {
-          sent.add(bytes);
-        } else {
-          expect(bytes, fixtureBytes('wide.png'));
+  testWidgets(
+    'JPEG metadata except orientation is removed only in selected share copies',
+    (tester) async {
+      final app = await TestApp.unlocked();
+      await seed(app, gps: true);
+      final originals = {
+        for (final file in await app.vault.list())
+          file.path: await file.readAsBytes(),
+      };
+      final sent = <Uint8List>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        final paths = (args['paths'] as List).cast<String>();
+        final mimes = (args['mimeTypes'] as List).cast<String>();
+        for (var i = 0; i < paths.length; i++) {
+          final bytes = await File(paths[i]).readAsBytes();
+          if (mimes[i] == 'image/jpeg') {
+            sent.add(bytes);
+          } else {
+            // A PNG copy is rebuilt from its pixels, without metadata.
+            expect(bytes.sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+          }
         }
+        return '';
+      });
+      try {
+        await tester.pumpWidget(app.widget());
+        await tap(tester, Keys.openGallery);
+        await tap(tester, Keys.libraryPhotos);
+        await tap(tester, Keys.librarySelect);
+        await tap(tester, Keys.librarySelectAll);
+        await tap(tester, Keys.libraryShare);
+        expect(
+          find.text('Remove metadata from photo copies'),
+          findsOneWidget,
+        );
+        await tap(tester, Keys.shareConfirm);
+        await until(
+          tester,
+          () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+        );
+        // One EXIF entry remains: orientation 6. GPS directory and values are gone.
+        final copy = ByteData.sublistView(sent.single);
+        expect(copy.getUint16(12 + 8), 1);
+        expect(copy.getUint16(12 + 10), 0x0112);
+        expect(copy.getUint16(12 + 18), 6);
+        expect(sent.single.length, lessThan(jpegWithGps().length - 40));
+        await tap(tester, Keys.libraryShare);
+        await tap(tester, Keys.shareStripLocation);
+        await tap(tester, Keys.shareConfirm);
+        await until(
+          tester,
+          () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+        );
+        expect(sent, hasLength(2));
+        expect(sent.last, jpegWithGps());
+        for (final entry in originals.entries) {
+          expect(await File(entry.key).readAsBytes(), entry.value);
+        }
+        final temp = await getTemporaryDirectory();
+        for (final name in ['quietake-share', 'share_plus']) {
+          expect(await Directory('${temp.path}/$name').exists(), isFalse);
+        }
+        expect(tester.takeException(), isNull);
+      } finally {
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          null,
+        );
+        await tester.pumpWidget(const SizedBox());
+        await app.close();
       }
-      return '';
-    });
-    try {
-      await tester.pumpWidget(app.widget());
-      await tap(tester, Keys.openGallery);
-      await tap(tester, Keys.libraryPhotos);
-      await tap(tester, Keys.librarySelect);
-      await tap(tester, Keys.librarySelectAll);
-      await tap(tester, Keys.libraryShare);
-      expect(find.text('Remove GPS from JPEG photo copies'), findsOneWidget);
-      await tap(tester, Keys.shareConfirm);
-      await until(
-        tester,
-        () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
-      );
-      expect(sent.single.sublist(12 + 38, 12 + 92), everyElement(0));
-      expect(sent.single.sublist(12 + 92), jpegWithGps().sublist(12 + 92));
-      expect(
-        sent.single.sublist(0, 12 + 38),
-        jpegWithGps().sublist(0, 12 + 38),
-      );
-      await tap(tester, Keys.libraryShare);
-      await tap(tester, Keys.shareStripLocation);
-      await tap(tester, Keys.shareConfirm);
-      await until(
-        tester,
-        () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
-      );
-      expect(sent, hasLength(2));
-      expect(sent.last, jpegWithGps());
-      for (final entry in originals.entries) {
-        expect(await File(entry.key).readAsBytes(), entry.value);
-      }
-      final temp = await getTemporaryDirectory();
-      for (final name in ['quietake-share', 'share_plus']) {
-        expect(await Directory('${temp.path}/$name').exists(), isFalse);
-      }
-      expect(tester.takeException(), isNull);
-    } finally {
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        channel,
-        null,
-      );
-      await tester.pumpWidget(const SizedBox());
-      await app.close();
-    }
-  });
+    },
+  );
 
   testWidgets(
-    'filtered selection shares only chosen copies, mixed batch stays byte-identical',
+    'filtered selection shares only chosen copies, videos and PNGs stay byte-identical',
     (tester) async {
       final app = await TestApp.unlocked();
       await seed(app);
@@ -186,7 +192,19 @@ void main() {
             'image/png' => 'wide.png',
             _ => 'tiny.jpg',
           };
-          expect(await File(paths[i]).readAsBytes(), fixtureBytes(fixture));
+          // Videos are byte-identical, a JPEG loses its encoder comment and a
+          // PNG is rebuilt from its pixels.
+          final bytes = await File(paths[i]).readAsBytes();
+          if (mimes[i] == 'image/png') {
+            expect(bytes.sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+          } else {
+            expect(
+              bytes,
+              mimes[i] == 'image/jpeg'
+                  ? withoutMetadata(fixtureBytes(fixture))
+                  : fixtureBytes(fixture),
+            );
+          }
         }
         sent.add(mimes);
         return '';
@@ -304,8 +322,7 @@ void main() {
       (tester) async {
         final app = await TestApp.unlocked();
         await seed(app);
-        (await app.session.store.createWithPasscode('sharing-test-passcode'))
-            .dispose();
+        await app.setPasscode('sharing-test-passcode');
         final vault = GatedVault(app.vault);
         final backend = FakeCastBackend();
         final session = Session(
@@ -389,4 +406,155 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'hiding a chosen area of one photo shares a PNG and leaves the original',
+    (tester) async {
+      final app = await TestApp.unlocked();
+      for (final entry in await app.vault.dir.list().toList()) {
+        await entry.delete(recursive: true);
+      }
+      final source = await File(
+        '${(await getTemporaryDirectory()).path}/share-seed',
+      ).writeAsBytes(fixtureBytes('tiny.jpg'));
+      await app.vault.ingestAs(source, '2026-01.jpg');
+      final original = await (await app.vault.list()).single.readAsBytes();
+      final shared = <String, Uint8List>{};
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        final paths = (args['paths'] as List).cast<String>();
+        final mimes = (args['mimeTypes'] as List).cast<String>();
+        for (var i = 0; i < paths.length; i++) {
+          shared[mimes[i]] = await File(paths[i]).readAsBytes();
+        }
+        return '';
+      });
+      try {
+        await tester.pumpWidget(app.widget());
+        await tap(tester, Keys.openGallery);
+        await tap(tester, Keys.librarySelect);
+        await tap(tester, Keys.librarySelectAll);
+        await tap(tester, Keys.libraryShare);
+        await tap(tester, Keys.shareRedact);
+        await until(
+          tester,
+          () => find.byKey(Keys.redactCanvas).evaluate().isNotEmpty,
+        );
+        await tap(tester, Keys.redactCell(1, 1));
+        await tap(tester, Keys.redactDone);
+        await until(
+          tester,
+          () => find.textContaining('Hidden areas: 1').evaluate().isNotEmpty,
+        );
+        await tap(tester, Keys.shareConfirm);
+        await until(
+          tester,
+          () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+        );
+        expect(shared.keys, ['image/png']);
+        // A PNG signature, and no JPEG metadata or bytes carried over.
+        expect(shared['image/png']!.sublist(0, 8), [
+          137,
+          80,
+          78,
+          71,
+          13,
+          10,
+          26,
+          10,
+        ]);
+        expect(await (await app.vault.list()).single.readAsBytes(), original);
+        expect(tester.takeException(), isNull);
+      } finally {
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          null,
+        );
+        await tester.pumpWidget(const SizedBox());
+        await app.close();
+      }
+    },
+  );
+
+  testWidgets(
+    'hiding areas of two photos shares two PNGs and leaves both originals',
+    (tester) async {
+      final app = await TestApp.unlocked();
+      for (final entry in await app.vault.dir.list().toList()) {
+        await entry.delete(recursive: true);
+      }
+      // Ingesting consumes its source, so each photo gets its own seed file.
+      final temp = (await getTemporaryDirectory()).path;
+      for (final name in ['2026-01.jpg', '2026-02.jpg']) {
+        final seed = await File('$temp/share-seed-$name')
+            .writeAsBytes(fixtureBytes('tiny.jpg'));
+        await app.vault.ingestAs(seed, name);
+      }
+      final originals = [
+        for (final item in await app.vault.list()) await item.readAsBytes(),
+      ];
+      final mimes = <String>[];
+      final copies = <Uint8List>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        mimes.addAll((args['mimeTypes'] as List).cast<String>());
+        for (final path in (args['paths'] as List).cast<String>()) {
+          copies.add(await File(path).readAsBytes());
+        }
+        return '';
+      });
+      try {
+        await tester.pumpWidget(app.widget());
+        await tap(tester, Keys.openGallery);
+        await tap(tester, Keys.librarySelect);
+        await tap(tester, Keys.librarySelectAll);
+        await tap(tester, Keys.libraryShare);
+        await tap(tester, Keys.shareRedact);
+        // One editor page per photo, in order.
+        for (var page = 0; page < 2; page++) {
+          await until(
+            tester,
+            () => find.byKey(Keys.redactCanvas).evaluate().isNotEmpty,
+          );
+          await tap(tester, Keys.redactCell(1, 1));
+          await tap(tester, Keys.redactDone);
+          // The next page replaces this one after a short read; let it settle.
+          for (var i = 0; i < 20; i++) {
+            await tester.pump(const Duration(milliseconds: 100));
+          }
+        }
+        await until(
+          tester,
+          () => find
+              .textContaining('Hidden areas: 2 in 2 photos')
+              .evaluate()
+              .isNotEmpty,
+        );
+        await tap(tester, Keys.shareConfirm);
+        await until(
+          tester,
+          () => find.byKey(Keys.shareDialog).evaluate().isEmpty,
+        );
+        expect(mimes, ['image/png', 'image/png']);
+        for (final copy in copies) {
+          expect(copy.sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+        }
+        expect([
+          for (final item in await app.vault.list()) await item.readAsBytes(),
+        ], originals);
+        expect(tester.takeException(), isNull);
+      } finally {
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          null,
+        );
+        await tester.pumpWidget(const SizedBox());
+        await app.close();
+      }
+    },
+  );
 }

@@ -19,7 +19,7 @@ void main() {
     (tester) async {
       await app.main();
       final end = DateTime.now().add(const Duration(seconds: 30));
-      while (find.byKey(Keys.setupSubmit).evaluate().isEmpty &&
+      while (find.byKey(Keys.setupCreateOpen).evaluate().isEmpty &&
           find.byKey(Keys.lockUnlock).evaluate().isEmpty &&
           find.byKey(Keys.openGallery).evaluate().isEmpty) {
         if (DateTime.now().isAfter(end)) {

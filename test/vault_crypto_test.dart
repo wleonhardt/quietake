@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -84,6 +85,29 @@ void main() {
       collect(vault.decrypt(Stream.value(cipher), key)),
       throwsA(isA<SodiumException>()),
     );
+  });
+
+  test('random damage fails with an exception, never wrong data', () async {
+    final plain = bytes(chunk * 2 + 5);
+    final cipher = await collect(
+      vault.encrypt(Stream.value(plain), key, chunkSize: chunk),
+    );
+    final random = Random(20261117);
+    for (var run = 0; run < 300; run++) {
+      final damaged = Uint8List.fromList(cipher);
+      damaged[random.nextInt(damaged.length)] ^= 1 + random.nextInt(255);
+      final data = random.nextInt(5) == 0
+          ? Uint8List.sublistView(damaged, 0, random.nextInt(damaged.length))
+          : damaged;
+      try {
+        final back = await collect(vault.decrypt(Stream.value(data), key));
+        // A change to an unauthenticated reserved header byte may still open.
+        expect(back, plain);
+      } on Exception {
+        // Refused by the header checks or authentication. An Error such as a
+        // range error would escape here and fail the test.
+      }
+    }
   });
 
   test('truncated file fails', () async {
@@ -221,6 +245,47 @@ void main() {
           collect(vault.encrypt(const Stream.empty(), key, chunkSize: invalid)),
           throwsArgumentError,
         );
+      }
+    },
+  );
+
+  test(
+    'plaintextLength rejects short, headerless and truncated files',
+    () async {
+      final cipher = await collect(
+        vault.encrypt(
+          Stream.value(bytes(chunk * 2 + 5)),
+          key,
+          chunkSize: chunk,
+        ),
+      );
+      final dir = await Directory.systemTemp.createTemp('quietake-length');
+      try {
+        final cases = <String, List<int>>{
+          'empty': const [],
+          'short': cipher.sublist(0, 6),
+          'bad-magic': [0, ...cipher.sublist(1)],
+          'bad-version': [...cipher.sublist(0, 4), 2, ...cipher.sublist(5)],
+          'header-only': cipher.sublist(0, vault.headerLength),
+          'partial-tag': cipher.sublist(0, vault.headerLength + 10),
+          'header-only-plus-tag-short': cipher.sublist(
+            0,
+            vault.headerLength + 16,
+          ),
+        };
+        for (final entry in cases.entries) {
+          final file = await File('${dir.path}/${entry.key}.shtr')
+              .writeAsBytes(entry.value);
+          await expectLater(
+            vault.plaintextLength(file),
+            throwsFormatException,
+            reason: entry.key,
+          );
+        }
+        final whole = await File('${dir.path}/whole.shtr').writeAsBytes(cipher);
+        expect(await vault.plaintextLength(whole), chunk * 2 + 5);
+      } finally {
+        await dir.delete(recursive: true);
       }
     },
   );

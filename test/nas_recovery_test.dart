@@ -223,6 +223,19 @@ void main() {
     );
   }
 
+  test(
+    'stale recovery staging in the vault is removed before a change',
+    () async {
+      final stale = await Directory('${vault.dir.path}/.recovery-work-old')
+          .create();
+      await File('${stale.path}/leftover').writeAsBytes([1, 2, 3]);
+      final other = await Directory('${vault.dir.path}/.keep-me').create();
+      await recovery.change(vault, 'local-pin', phrase);
+      expect(await stale.exists(), isFalse);
+      expect(await other.exists(), isTrue);
+    },
+  );
+
   test('enable, replace and disable preserve media and never get recreated by sync', () async {
     final plain = await File('${dir.path}/plain').writeAsBytes([1, 2, 3]);
     final capture = await vault.ingestAs(plain, 'photo.jpg');
@@ -342,6 +355,30 @@ void main() {
     );
     expect(server.files.keys.toSet(), old.keys.toSet());
     expect(server.files['quietake.catalog'], [1, 2, 3]);
+  });
+  test('restoring a randomly named backup brings back capture names', () async {
+    final plain = await File('${dir.path}/plain').writeAsBytes([1, 2, 3]);
+    await vault.ingestAs(plain, 'photo.jpg');
+    await SyncService(vault, dav, useRandomNames: true).sync();
+    expect(server.files.keys.any((n) => n.contains('photo')), isFalse);
+    await recovery.change(vault, 'local-pin', phrase);
+    final target = await fresh();
+    await NasRecovery(target, dav).restore(phrase, 'new-pin');
+    final key = await target.unlockWithPasscode('new-pin');
+    final restored = Vault(
+      VaultCrypto(store.sodium),
+      key,
+      Directory('${target.dir.path}/vault'),
+    );
+    try {
+      expect((await restored.list()).map((f) => f.uri.pathSegments.last), [
+        'photo.jpg.shtr',
+      ]);
+      await restored.catalog.load();
+      expect(restored.catalog.remoteNames.isEmpty, isFalse);
+    } finally {
+      restored.dispose();
+    }
   });
   for (final hasMedia in [false, true]) {
     test(

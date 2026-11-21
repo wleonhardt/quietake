@@ -8,6 +8,8 @@ import 'package:sodium/sodium_sumo.dart';
 
 import '../crypto/vault_crypto.dart';
 import '../keys.dart';
+import '../l10n/l10n.dart';
+import '../lock/recovery_key_field.dart';
 import '../form_body.dart';
 import '../privacy/privacy_scope.dart';
 import '../session.dart';
@@ -45,7 +47,8 @@ class _PortableScreenState extends State<PortableScreen>
   bool _preparing = false;
   bool _committing = false;
   String? _selected;
-  String _result = '';
+  // Kept as a selector so the text follows the language at build time.
+  String Function(AppLocalizations)? _result;
 
   @override
   void initState() {
@@ -77,9 +80,12 @@ class _PortableScreenState extends State<PortableScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused && _preparing && !_committing) {
-      _cancel();
-    }
+    if (state != AppLifecycleState.paused) return;
+    // The content stays alive behind the lock screen, so typed secrets must not.
+    _recovery.clear();
+    _pass.clear();
+    _confirm.clear();
+    if (_preparing && !_committing) _cancel();
   }
 
   void _cancel() {
@@ -92,7 +98,7 @@ class _PortableScreenState extends State<PortableScreen>
     }
   }
 
-  void _status(String value) {
+  void _status(String Function(AppLocalizations) value) {
     if (mounted) setState(() => _result = value);
   }
 
@@ -101,7 +107,7 @@ class _PortableScreenState extends State<PortableScreen>
     _portableBusy = true;
     setState(() {
       _busy = true;
-      _result = 'Choose an encrypted ZIP in Files.';
+      _result = (l10n) => l10n.portablePicking;
     });
     try {
       if (_selected != null) {
@@ -112,11 +118,11 @@ class _PortableScreenState extends State<PortableScreen>
       _selected = await portableChannel.invokeMethod<String>('pick');
       _status(
         _selected == null
-            ? 'Selection cancelled.'
-            : 'Backup selected. Enter its recovery key and a new passcode.',
+            ? (l10n) => l10n.portablePickCancelled
+            : (l10n) => l10n.portablePicked,
       );
     } catch (_) {
-      _status('Could not copy backup. Check storage and try again.');
+      _status((l10n) => l10n.portableCopyFailed);
     } finally {
       _portableBusy = false;
       if (mounted) {
@@ -129,19 +135,23 @@ class _PortableScreenState extends State<PortableScreen>
     }
   }
 
-  Future<void> _run() async {
+  /// [dryRun] checks the selected ZIP with the recovery key and restores nothing.
+  Future<void> _run({bool dryRun = false}) async {
     if (_busy) return;
     if (_portableBusy) {
-      _status('Previous backup is finishing. Try again shortly.');
+      _status((l10n) => l10n.portableStillFinishing);
+      return;
+    }
+    if (dryRun && (_selected == null || _recovery.text.trim().isEmpty)) {
+      _status((l10n) => l10n.portableNeedKey);
       return;
     }
     if (_restoring &&
+        !dryRun &&
         (_selected == null ||
             _pass.text.length < MasterKeyStore.minPasscodeLength ||
             _pass.text != _confirm.text)) {
-      _status(
-        'Choose a backup and confirm a passcode of at least six characters.',
-      );
+      _status((l10n) => l10n.portableNeedPasscode);
       return;
     }
     _portableBusy = true;
@@ -149,8 +159,11 @@ class _PortableScreenState extends State<PortableScreen>
       _busy = true;
       _cancelled = false;
       _preparing = true;
-      _result = 'Preparing encrypted backup…';
+      _result = (l10n) => l10n.portablePreparing;
     });
+    // Read before any await: a pause clears the fields while this runs.
+    final passcode = _pass.text;
+    final recoveryText = _recovery.text;
     SecureKey? key;
     Directory? staged;
     Vault? temporary;
@@ -158,7 +171,9 @@ class _PortableScreenState extends State<PortableScreen>
       if (_restoring) {
         final transaction = RestoreTransaction(widget.store);
         await transaction.requireFresh();
-        key = widget.store.importRecovery(_recovery.text);
+        key = widget.store.importRecovery(
+          await widget.store.recoveryText(recoveryText),
+        );
         temporary = Vault(
           VaultCrypto(widget.store.sodium),
           key.copy(),
@@ -179,24 +194,26 @@ class _PortableScreenState extends State<PortableScreen>
           isCancelled: () => _cancelled,
           onProgress: (done, total) {
             _fraction = total == 0 ? null : done / total;
-            _status('Checking encrypted files: $done of $total…');
+            _status((l10n) => l10n.portableChecking(done, total));
           },
         );
         _fraction = null;
+        if (dryRun) {
+          _status((l10n) => l10n.portableChecked);
+          return;
+        }
         await transaction.commit(
           staged,
           key,
-          _pass.text,
+          passcode,
           isCancelled: () => _cancelled,
-          onProgress: (phase) => _status('$phase…'),
+          onProgress: (phase) => _status((_) => '$phase…'),
           onCommitting: () => _committing = true,
         );
-        _status(
-          'Vault restored. Use your new passcode once to enable biometric unlock.',
-        );
+        _status((l10n) => l10n.portableRestored);
         if (mounted) widget.onRestored?.call();
       } else {
-        key = await widget.store.unlockWithPasscode(_pass.text);
+        key = await widget.store.unlockWithPasscode(passcode);
         if (_cancelled) throw StateError('Backup cancelled');
         final root = await Directory(
           '${(await getTemporaryDirectory()).path}/quietake-backup',
@@ -207,7 +224,7 @@ class _PortableScreenState extends State<PortableScreen>
           isCancelled: () => _cancelled,
           onProgress: (done, total) {
             _fraction = total == 0 ? null : done / total;
-            _status('Preparing encrypted files: $done of $total…');
+            _status((l10n) => l10n.portableExporting(done, total));
           },
         );
         if (_cancelled) throw StateError('Backup cancelled');
@@ -219,17 +236,21 @@ class _PortableScreenState extends State<PortableScreen>
             false;
         _status(
           saved
-              ? 'Encrypted backup saved. Keep its recovery key separately.'
-              : 'Save cancelled. Vault originals kept.',
+              ? (l10n) => l10n.portableSaved
+              : (l10n) => l10n.portableSaveCancelled,
         );
       }
+    } on PasscodeLockedException catch (e) {
+      _status((l10n) => passcodeLockedMessage(l10n, e));
     } on WrongPasscodeException {
-      _status('Wrong passcode. Try again.');
-    } on BadRecoveryKeyException {
-      _status('Enter the recovery key saved for this backup.');
+      _status((l10n) => l10n.settingsWrongPasscode);
+    } on BadRecoveryKeyException catch (e) {
+      _status((l10n) => recoveryWordsMessage(l10n, e) ?? l10n.portableBadKey);
     } catch (_) {
       _status(
-        _cancelled ? 'Cancelled. Vault originals kept.' : 'Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.',
+        _cancelled
+            ? (l10n) => l10n.portableCancelled
+            : (l10n) => l10n.portableFailed,
       );
     } finally {
       key?.dispose();
@@ -255,107 +276,115 @@ class _PortableScreenState extends State<PortableScreen>
   }
 
   @override
-  Widget build(BuildContext context) => PopScope(
-    canPop: !_committing,
-    child: Scaffold(
-      key: Keys.portableScreen,
-      appBar: AppBar(
-        title: Text(
-          _restoring ? 'Restore encrypted backup' : 'Portable backup',
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return PopScope(
+      canPop: !_committing,
+      child: Scaffold(
+        key: Keys.portableScreen,
+        appBar: AppBar(
+          title: Text(
+            _restoring ? l10n.portableTitleRestore : l10n.portableTitleExport,
+          ),
+          actions: const [LockButton()],
         ),
-        actions: const [LockButton()],
-      ),
-      body: FormBody(
-        children: [
-          Text(
-            _restoring
-                ? 'Restore only into a fresh empty vault. Your recovery key opens the ZIP and encrypted captures. Existing libraries cannot be merged.'
-                : 'Save an encrypted ZIP of captures and organization. Your existing recovery key opens it; keep that key separately. No credentials or keyfiles are included.',
-          ),
-          const SizedBox(height: 20),
-          if (_restoring)
-            OutlinedButton.icon(
-              key: Keys.portablePick,
-              onPressed: _busy ? null : _pick,
-              icon: const Icon(Icons.folder_open),
-              label: const Text('Choose backup ZIP'),
+        body: FormBody(
+          children: [
+            Text(
+              _restoring ? l10n.portableIntroRestore : l10n.portableIntroExport,
             ),
-          if (_restoring) const SizedBox(height: 16),
-          if (_restoring)
+            const SizedBox(height: 20),
+            if (_restoring)
+              OutlinedButton.icon(
+                key: Keys.portablePick,
+                onPressed: _busy ? null : _pick,
+                icon: const Icon(Icons.folder_open),
+                label: Text(l10n.portableChoose),
+              ),
+            if (_restoring) const SizedBox(height: 16),
+            if (_restoring)
+              RecoveryKeyField(
+                fieldKey: Keys.portableRecovery,
+                controller: _recovery,
+                onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
+                enabled: !_busy,
+              ),
+            if (_restoring) const SizedBox(height: 16),
             TextField(
-              key: Keys.portableRecovery,
-              controller: _recovery,
+              key: Keys.portablePasscode,
+              controller: _pass,
+              onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
               enabled: !_busy,
               obscureText: true,
               enableSuggestions: false,
               autocorrect: false,
-              decoration: const InputDecoration(labelText: 'Recovery key'),
-            ),
-          if (_restoring) const SizedBox(height: 16),
-          TextField(
-            key: Keys.portablePasscode,
-            controller: _pass,
-            enabled: !_busy,
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-            decoration: InputDecoration(
-              labelText: _restoring ? 'New passcode' : 'Current passcode',
-            ),
-          ),
-          if (_restoring) const SizedBox(height: 16),
-          if (_restoring)
-            TextField(
-              key: Keys.portableConfirm,
-              controller: _confirm,
-              enabled: !_busy,
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Confirm new passcode',
+              decoration: InputDecoration(
+                labelText: _restoring
+                    ? l10n.newPasscodeLabel
+                    : l10n.currentPasscodeLabel,
               ),
             ),
-          const SizedBox(height: 20),
-          if (_busy)
-            LinearProgressIndicator(
-              key: Keys.portableProgress,
-              value: _fraction,
-            ),
-          if (_result.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Semantics(
-              liveRegion: true,
-              child: Text(_result, key: Keys.portableResult),
-            ),
-            const SizedBox(height: 12),
-          ],
-          FilledButton(
-            key: Keys.portableStart,
-            onPressed: _busy ? null : _run,
-            child: Text(
-              _restoring ? 'Restore empty vault' : 'Create encrypted ZIP',
-            ),
-          ),
-          const SizedBox(height: 12),
-          const ExpansionTile(
-            key: Keys.portableDetails,
-            tilePadding: EdgeInsets.zero,
-            title: Text('Backup limits and storage'),
-            children: [
-              Text(
-                'Up to 10,000 captures and 2 GiB per ZIP. Preparation needs private temporary storage. Vault originals stay unchanged. No credentials or keyfiles are included.',
+            if (_restoring) const SizedBox(height: 16),
+            if (_restoring)
+              TextField(
+                key: Keys.portableConfirm,
+                controller: _confirm,
+                onChanged: (_) => PrivacyScope.maybeOf(context)?.activity(),
+                enabled: !_busy,
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                decoration: InputDecoration(
+                  labelText: l10n.confirmNewPasscodeLabel,
+                ),
               ),
+            const SizedBox(height: 20),
+            if (_busy)
+              LinearProgressIndicator(
+                key: Keys.portableProgress,
+                value: _fraction,
+              ),
+            if (_result != null) ...[
+              const SizedBox(height: 12),
+              Semantics(
+                liveRegion: true,
+                child: Text(_result!(l10n), key: Keys.portableResult),
+              ),
+              const SizedBox(height: 12),
             ],
-          ),
-          if (_busy)
-            OutlinedButton(
-              key: Keys.portableCancel,
-              onPressed: _committing ? null : _cancel,
-              child: const Text('Cancel preparation'),
+            if (_restoring) ...[
+              OutlinedButton(
+                key: Keys.portableCheck,
+                onPressed: _busy ? null : () => _run(dryRun: true),
+                child: Text(l10n.portableCheckOnly),
+              ),
+              const SizedBox(height: 12),
+            ],
+            FilledButton(
+              key: Keys.portableStart,
+              onPressed: _busy ? null : _run,
+              child: Text(
+                _restoring
+                    ? l10n.portableRestoreButton
+                    : l10n.portableCreateButton,
+              ),
             ),
-        ],
+            const SizedBox(height: 12),
+            ExpansionTile(
+              key: Keys.portableDetails,
+              tilePadding: EdgeInsets.zero,
+              title: Text(l10n.portableLimitsTitle),
+              children: [Text(l10n.portableLimitsBody)],
+            ),
+            if (_busy)
+              OutlinedButton(
+                key: Keys.portableCancel,
+                onPressed: _committing ? null : _cancel,
+                child: Text(l10n.portableCancelPrep),
+              ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

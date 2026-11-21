@@ -132,18 +132,16 @@ void main() {
           await tap(const Key('library.search.show'));
           expect(
             tester
-                .widget<GridView>(find.byKey(Keys.galleryGrid))
-                .childrenDelegate
-                .estimatedChildCount,
+                .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+                .semanticChildCount,
             1,
           );
           await tap(const Key('library.search.options'));
           await tap(const Key('library.search.any'));
           expect(
             tester
-                .widget<GridView>(find.byKey(Keys.galleryGrid))
-                .childrenDelegate
-                .estimatedChildCount,
+                .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+                .semanticChildCount,
             2,
           );
           await tap(Keys.libraryCloseSearch);
@@ -155,9 +153,8 @@ void main() {
           await tap(Keys.libraryClearFilters);
           expect(
             tester
-                .widget<GridView>(find.byKey(Keys.galleryGrid))
-                .childrenDelegate
-                .estimatedChildCount,
+                .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+                .semanticChildCount,
             3,
           );
           expect(tester.takeException(), isNull);

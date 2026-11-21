@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import '../privacy/privacy_controller.dart';
 import '../privacy/privacy_scope.dart';
+import '../vault/backup_passphrase.dart';
 import '../vault/vault.dart';
 import 'item.dart';
+import 'redact_screen.dart';
 import 'share_media.dart';
 
 Future<void> showShareCopies(
@@ -39,7 +42,11 @@ class _ShareDialogState extends State<_ShareDialog> {
   bool _cancelled = false;
   int _prepared = 0;
   bool _stripLocation = true;
-  String? _error;
+  bool _encrypted = false;
+
+  /// Areas to hide per photo, keyed by capture name (decision 024).
+  Map<String, List<Rect>> _regions = {};
+  String Function(AppLocalizations)? _error;
   PrivacyController? _privacy;
 
   void _onPrivacy() {
@@ -61,7 +68,96 @@ class _ShareDialogState extends State<_ShareDialog> {
       (WidgetsBinding.instance.lifecycleState == null ||
           WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed);
 
+  List<VaultItem> get _photos => [
+    for (final item in widget.items)
+      if (!item.isVideo) item,
+  ];
+
+  bool get _canRedact => _photos.isNotEmpty;
+
+  int get _areaCount =>
+      _regions.values.fold(0, (sum, areas) => sum + areas.length);
+
+  /// Opens one editor page per photo, in order. Backing out of a page stops
+  /// there and keeps the choices already made.
+  Future<void> _redact() async {
+    setState(() => _error = null);
+    try {
+      for (final item in _photos) {
+        final bytes = await widget.vault.readAll(item.file);
+        if (!mounted) return;
+        final chosen = await Navigator.push<List<Rect>>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RedactScreen(
+              bytes: bytes,
+              initial: _regions[item.name] ?? const [],
+            ),
+          ),
+        );
+        if (chosen == null || !mounted) return;
+        setState(() {
+          _regions = {..._regions, if (chosen.isNotEmpty) item.name: chosen}
+            ..removeWhere((name, _) => name == item.name && chosen.isEmpty);
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _error = (l10n) => l10n.shareFailed);
+    }
+  }
+
+  /// Shows a fresh passphrase once; null when the person backs out.
+  Future<String?> _askPassphrase() async {
+    final phrase = await BackupPassphrase.generate(widget.vault.crypto.sodium);
+    if (!mounted) return null;
+    final go = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        scrollable: true,
+        title: Text(context.l10n.sharePassphraseTitle),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SelectableText(
+              phrase,
+              key: Keys.sharePassphrase,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Text(context.l10n.sharePassphraseBody),
+          ],
+        ),
+        actions: [
+          TextButton(
+            key: Keys.sharePassphraseCancel,
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            key: Keys.sharePassphraseContinue,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.l10n.sharePassphraseContinue),
+          ),
+        ],
+      ),
+    );
+    return go == true ? phrase : null;
+  }
+
   Future<void> _share() async {
+    String? phrase;
+    if (_encrypted) {
+      try {
+        phrase = await _askPassphrase();
+      } catch (_) {
+        if (mounted) setState(() => _error = (l10n) => l10n.shareFailed);
+        return;
+      }
+      if (phrase == null) return;
+    }
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -76,6 +172,8 @@ class _ShareDialogState extends State<_ShareDialog> {
         widget.items,
         origin: widget.origin,
         stripLocation: _stripLocation,
+        passphrase: phrase,
+        redactions: _regions,
         isActive: () => _active,
         onProgress: (prepared, _) {
           if (mounted) setState(() => _prepared = prepared);
@@ -89,15 +187,13 @@ class _ShareDialogState extends State<_ShareDialog> {
           ? ''
           : widget.vault.catalog.details(item.name).title;
       setState(
-        () => _error = item == null
+        () => _error = (_) => item == null
             ? error.message
             : '${title.isEmpty ? item.name : title}: ${error.message}',
       );
     } catch (_) {
       if (_active) {
-        setState(
-          () => _error = 'Could not share. Another share may still be finishing. Try again.',
-        );
+        setState(() => _error = (l10n) => l10n.shareFailed);
       }
     } finally {
       if (_cancelled && mounted && ModalRoute.of(context)!.isCurrent) {
@@ -107,72 +203,111 @@ class _ShareDialogState extends State<_ShareDialog> {
     }
   }
 
+  String _redactLabel(AppLocalizations l10n) {
+    if (_photos.length == 1) {
+      return _regions.isEmpty
+          ? l10n.shareRedactButton
+          : l10n.shareRedactEdit(_areaCount);
+    }
+    return _regions.isEmpty
+        ? l10n.shareRedactButtonMany
+        : l10n.shareRedactEditMany(_areaCount, _regions.length);
+  }
+
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    key: Keys.shareDialog,
-    scrollable: true,
-    title: Text(
-      widget.items.length == 1
-          ? 'Share a copy?'
-          : 'Share ${widget.items.length} copies?',
-    ),
-    content: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'The app you choose receives unencrypted copies and may keep them.',
-        ),
-        CheckboxListTile(
-          key: Keys.shareStripLocation,
-          contentPadding: EdgeInsets.zero,
-          value: _stripLocation,
-          onChanged: _busy
-              ? null
-              : (value) => setState(() => _stripLocation = value ?? true),
-          title: const Text('Remove GPS from JPEG photo copies'),
-          subtitle: Text(
-            _stripLocation
-                ? 'JPEG EXIF GPS is removed. Other metadata and PNG/video copies stay unchanged.'
-                : 'Copies keep all original metadata, including location if present.',
-          ),
-        ),
-        if (widget.items.length > 1)
-          const Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: Text(
-              'Up to $maxShareItems captures and ${maxShareBatchBytes ~/ (1024 * 1024)} MiB per batch.',
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      key: Keys.shareDialog,
+      scrollable: true,
+      title: Text(
+        widget.items.length == 1
+            ? l10n.shareTitleOne
+            : l10n.shareTitleMany(widget.items.length),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.shareWarning),
+          if (_canRedact)
+            OutlinedButton(
+              key: Keys.shareRedact,
+              onPressed: _busy ? null : _redact,
+              child: Text(_redactLabel(l10n)),
             ),
+          if (_regions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                _photos.length == 1
+                    ? l10n.shareRedactNote
+                    : l10n.shareRedactNoteMany,
+              ),
+            ),
+          if (_regions.length < _photos.length || _photos.isEmpty)
+            CheckboxListTile(
+              key: Keys.shareStripLocation,
+              contentPadding: EdgeInsets.zero,
+              value: _stripLocation,
+              onChanged: _busy
+                  ? null
+                  : (value) => setState(() => _stripLocation = value ?? true),
+              title: Text(l10n.shareStripTitle),
+              subtitle: Text(
+                _stripLocation ? l10n.shareStripOn : l10n.shareStripOff,
+              ),
+            ),
+          CheckboxListTile(
+            key: Keys.shareEncrypted,
+            contentPadding: EdgeInsets.zero,
+            value: _encrypted,
+            onChanged: _busy
+                ? null
+                : (value) => setState(() => _encrypted = value ?? false),
+            title: Text(l10n.shareEncryptedTitle),
+            subtitle: Text(l10n.shareEncryptedBody),
           ),
-        if (_busy) ...[
-          const SizedBox(height: 16),
-          const LinearProgressIndicator(),
-          Text(
-            'Preparing $_prepared of ${widget.items.length}',
-            key: Keys.shareProgress,
-          ),
+          if (widget.items.length > 1)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                l10n.shareLimits(
+                  maxShareItems,
+                  maxShareBatchBytes ~/ (1024 * 1024),
+                ),
+              ),
+            ),
+          if (_busy) ...[
+            const SizedBox(height: 16),
+            const LinearProgressIndicator(),
+            Text(
+              l10n.shareProgress(_prepared, widget.items.length),
+              key: Keys.shareProgress,
+            ),
+          ],
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(_error!(l10n), key: Keys.shareError),
+            ),
         ],
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(_error!, key: Keys.shareError),
-          ),
+      ),
+      actions: [
+        TextButton(
+          key: Keys.shareCancel,
+          onPressed: () {
+            _cancelled = true;
+            Navigator.pop(context);
+          },
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          key: Keys.shareConfirm,
+          onPressed: _busy ? null : _share,
+          child: Text(l10n.shareChooseApp),
+        ),
       ],
-    ),
-    actions: [
-      TextButton(
-        key: Keys.shareCancel,
-        onPressed: () {
-          _cancelled = true;
-          Navigator.pop(context);
-        },
-        child: const Text('Cancel'),
-      ),
-      FilledButton(
-        key: Keys.shareConfirm,
-        onPressed: _busy ? null : _share,
-        child: const Text('Choose app'),
-      ),
-    ],
-  );
+    );
+  }
 }

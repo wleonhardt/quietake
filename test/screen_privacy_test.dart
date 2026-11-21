@@ -38,6 +38,32 @@ void main() {
     expect(backgrounds, 1);
   });
 
+  testWidgets('a native lockNow request runs the lock callback', (
+    tester,
+  ) async {
+    var locks = 0;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      ScreenPrivacy.channel,
+      (call) async => call.method == 'status' ? {'captured': false} : null,
+    );
+    final privacy = ScreenPrivacy((_) {}, onLockNow: () => locks++);
+    addTearDown(() {
+      privacy.dispose();
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        ScreenPrivacy.channel,
+        null,
+      );
+    });
+    await privacy.start();
+    ui.channelBuffers.push(
+      ScreenPrivacy.channel.name,
+      const StandardMethodCodec().encodeMethodCall(const MethodCall('lockNow')),
+      (_) {},
+    );
+    await tester.pump();
+    expect(locks, 1);
+  });
+
   testWidgets(
     'native capture events and frame acknowledgments follow the current root',
     (tester) async {

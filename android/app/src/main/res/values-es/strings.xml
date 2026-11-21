@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lock_tile_label">Bloquear Quietake</string>
+    <string name="neutral_app_label">Herramientas</string>
+    <string name="camera_tile_label">Cámara Quietake</string>
+    <string name="neutral_lock_tile_label">Bloquear</string>
+    <string name="neutral_camera_tile_label">Cámara</string>
+</resources>

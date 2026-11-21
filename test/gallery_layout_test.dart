@@ -108,7 +108,9 @@ void main() {
           await tester.pump();
           expect(find.byKey(Keys.gallerySyncResult), findsNothing);
           await revealLibraryControl(tester, Keys.gallerySync);
-          expect(find.byTooltip('Set up backup'), findsOneWidget);
+          // Import and sync are labelled rows, not bare icons.
+          expect(find.text('Set up backup'), findsOneWidget);
+          expect(find.text('Import copies from Files'), findsOneWidget);
           final title = tester.renderObject<RenderParagraph>(
             find.text('Library'),
           );

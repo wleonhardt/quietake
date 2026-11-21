@@ -1,0 +1,6 @@
+/* Permission prompts. English is in Info.plist. Translations need native review. */
+"NSCameraUsageDescription" = "Quietake hace fotos y vídeos directamente en tu bóveda cifrada.";
+"NSMicrophoneUsageDescription" = "Necesario para grabar el sonido de los vídeos.";
+"NSFaceIDUsageDescription" = "Desbloquear la bóveda sin escribir el código de acceso.";
+"NSPhotoLibraryAddUsageDescription" = "Guardar una foto o un vídeo en Fotos solo cuando elijas Guardar en el menú de compartir.";
+"NSLocalNetworkUsageDescription" = "Quietake busca televisores en tu Wi-Fi para transmitir y les envía la imagen desde este teléfono.";

@@ -46,9 +46,11 @@ class MediaImporter {
     List<ImportInput> inputs, {
     bool Function()? isCancelled,
     void Function(ImportResult)? onResult,
+    Map<int, Set<String>>? knownDigests,
   }) async {
     final results = <ImportResult>[];
-    final digests = <int, Set<String>>{};
+    // Callers importing in chunks share this so the vault is scanned once.
+    final digests = knownDigests ?? <int, Set<String>>{};
     var remaining = maxBatchBytes;
     try {
       for (final input in inputs) {

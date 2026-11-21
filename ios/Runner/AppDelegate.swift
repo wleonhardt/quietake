@@ -6,6 +6,7 @@ import AVFoundation
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let privateImport = PrivateImport()
   private let portableFiles = PortableFiles()
+  private let folderImport = FolderImportPicker()
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -20,7 +21,19 @@ import AVFoundation
       .setMethodCallHandler { [weak self] call, result in self?.portableFiles.handle(call, result: result) }
 
     let imports = FlutterMethodChannel(name: "quietake/import", binaryMessenger: registrar.messenger())
-    imports.setMethodCallHandler { [self] call, result in privateImport.handle(call, result: result) }
+    _ = IncomingShare.shared  // removes stale copies before any file is opened with the app
+    imports.setMethodCallHandler { [self] call, result in
+      switch call.method {
+      case "incomingShare": IncomingShare.shared.available(result)
+      case "takeIncomingShare":
+        let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+          .appendingPathComponent("quietake-import", isDirectory: true)
+        IncomingShare.shared.take(into: directory, result)
+      default: privateImport.handle(call, result: result)
+      }
+    }
+    FlutterMethodChannel(name: "quietake/folder", binaryMessenger: registrar.messenger())
+      .setMethodCallHandler { [weak self] call, result in self?.folderImport.handle(call, result: result) }
     FlutterMethodChannel(name: "quietake/captures", binaryMessenger: registrar.messenger())
       .setMethodCallHandler { call, result in
         // Dart owns the pending-capture path and passes it; it must stay inside Documents.
@@ -54,6 +67,37 @@ import AVFoundation
         DispatchQueue.main.async { result(granted) }
       }
     }
+    let screen = FlutterMethodChannel(name: "quietake/screen", binaryMessenger: registrar.messenger())
+    screen.setMethodCallHandler { call, result in
+      guard call.method == "keepAwake" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      UIApplication.shared.isIdleTimerDisabled = (call.arguments as? Bool) == true
+      result(nil)
+    }
+    // Optional plain launcher icon (decision 029). iOS changes the icon, not the name under it.
+    let appearance = FlutterMethodChannel(name: "quietake/appearance", binaryMessenger: registrar.messenger())
+    appearance.setMethodCallHandler { call, result in
+      switch call.method {
+      case "neutral":
+        result(UIApplication.shared.alternateIconName == "NeutralIcon")
+      case "setNeutral":
+        guard UIApplication.shared.supportsAlternateIcons else {
+          result(FlutterError(code: "unsupported", message: "Alternate icons are not available", details: nil))
+          return
+        }
+        let name: String? = (call.arguments as? Bool) == true ? "NeutralIcon" : nil
+        UIApplication.shared.setAlternateIconName(name) { error in
+          if error == nil {
+            result(nil)
+          } else {
+            result(FlutterError(code: "failed", message: "Could not change the app icon", details: nil))
+          }
+        }
+      default: result(FlutterMethodNotImplemented)
+      }
+    }
     let privacy = FlutterMethodChannel(name: "quietake/privacy", binaryMessenger: registrar.messenger())
     SceneDelegate.privacyChannel = privacy
     privacy.setMethodCallHandler { call, result in
@@ -63,6 +107,9 @@ import AVFoundation
       case "ready":
         if let generation = call.arguments as? Int { scene?.flutterFrameReady(generation) }
         result(nil)
+      case "takeLockedCamera":
+        result(LockedCameraRequest.pending)
+        LockedCameraRequest.pending = false
       #if DEBUG
       case "checkCover": result(scene?.checkCover())
       #endif
@@ -71,6 +118,25 @@ import AVFoundation
     }
     let channel = FlutterMethodChannel(name: "quietake/previews", binaryMessenger: registrar.messenger())
     channel.setMethodCallHandler { call, result in
+      if call.method == "encode" {
+        // A decoded preview as a small JPEG for the encrypted thumbnail store.
+        guard let args = call.arguments as? [String: Any],
+              let width = args["width"] as? Int, let height = args["height"] as? Int,
+              let rgba = (args["rgba"] as? FlutterStandardTypedData)?.data,
+              width > 0, height > 0, rgba.count == width * height * 4,
+              let provider = CGDataProvider(data: rgba as CFData),
+              let image = CGImage(
+                width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32,
+                bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent),
+              let jpeg = UIImage(cgImage: image).jpegData(compressionQuality: 0.8) else {
+          result(FlutterError(code: "preview", message: "Thumbnail unavailable", details: nil))
+          return
+        }
+        result(FlutterStandardTypedData(bytes: jpeg))
+        return
+      }
       guard call.method == "video", let args = call.arguments as? [String: Any],
             let raw = args["url"] as? String, let url = URL(string: raw) else {
         result(FlutterMethodNotImplemented)

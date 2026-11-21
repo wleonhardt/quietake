@@ -6,6 +6,8 @@ import 'dart:typed_data';
 import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart' as hashes;
 
+import '../limits.dart';
+
 /// ZIP work runs away from the UI isolate. Killing it closes its Dart-owned file
 /// handles; the caller owns and clears the incomplete private output directory.
 Future<void> runArchiveWorker(
@@ -121,8 +123,9 @@ void _run((SendPort, Map<String, Object>) request) {
               header.compressedSize != header.uncompressedSize + 28 ||
               (name == 'manifest.shtr' &&
                   header.uncompressedSize > 4 * 1024 * 1024) ||
+              // The app's catalog limit plus room for the container framing.
               (name == 'catalog.shtr' &&
-                  header.uncompressedSize > 2 * 1024 * 1024)) {
+                  header.uncompressedSize > maxCatalogBytes + 64 * 1024)) {
             throw const FormatException('Unsupported backup entry');
           }
           total += header.uncompressedSize;

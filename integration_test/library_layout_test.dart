@@ -15,8 +15,7 @@ void main() {
   ) async {
     final app = await TestApp.unlocked();
     try {
-      (await app.session.store.createWithPasscode('layout-test-passcode'))
-          .dispose();
+      await app.setPasscode('layout-test-passcode');
       await tester.pumpWidget(app.widget());
       Future<void> until(Key key) async {
         final deadline = DateTime.now().add(const Duration(seconds: 30));

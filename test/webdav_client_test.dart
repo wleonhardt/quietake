@@ -314,4 +314,100 @@ void main() {
       await server.close();
     }
   });
+
+  for (final (label, body) in [
+    (
+      'without an href',
+      '<d:response><d:propstat><d:prop><d:resourcetype/></d:prop></d:propstat></d:response>',
+    ),
+    (
+      'whose href has no file name',
+      '<d:response><d:href>/</d:href><d:propstat><d:prop><d:resourcetype/>'
+          '</d:prop></d:propstat></d:response>',
+    ),
+  ]) {
+    test('a listing entry $label is a FormatException', () async {
+      final server = await FakeWebDavServer.start();
+      server.collectionExists = true;
+      server.respond = (request) async {
+        if (request.method != 'PROPFIND') return false;
+        await request.drain<void>();
+        request.response.statusCode = 207;
+        request.response.write(
+          '<?xml version="1.0"?><d:multistatus xmlns:d="DAV:">$body</d:multistatus>',
+        );
+        await request.response.close();
+        return true;
+      };
+      final dav = WebDavClient(
+        base: server.url,
+        username: server.username,
+        password: server.password,
+      );
+      try {
+        await expectLater(dav.list(), throwsFormatException);
+      } finally {
+        dav.close();
+        await server.close();
+      }
+    });
+  }
+
+  test('a listing over the size limit is refused', () async {
+    final server = await FakeWebDavServer.start();
+    server.collectionExists = true;
+    server.respond = (request) async {
+      if (request.method != 'PROPFIND') return false;
+      await request.drain<void>();
+      request.response.statusCode = 207;
+      request.response.write('<d:multistatus xmlns:d="DAV:">${' ' * 4096}');
+      await request.response.close();
+      return true;
+    };
+    final dav = WebDavClient(
+      base: server.url,
+      username: server.username,
+      password: server.password,
+    );
+    try {
+      await expectLater(dav.list(maxBytes: 1024), throwsFormatException);
+    } finally {
+      dav.close();
+      await server.close();
+    }
+  });
+
+  test(
+    'a rejected listing reports the HTTP status without the credentials',
+    () async {
+      final server = await FakeWebDavServer.start();
+      server.collectionExists = true;
+      server.respond = (request) async {
+        if (request.method != 'PROPFIND') return false;
+        await request.drain<void>();
+        request.response.statusCode = 503;
+        await request.response.close();
+        return true;
+      };
+      final dav = WebDavClient(
+        base: server.url,
+        username: server.username,
+        password: server.password,
+      );
+      try {
+        final error = await dav.list().then<Object?>(
+          (_) => null,
+          onError: (Object e) => e,
+        );
+        expect(error, isA<WebDavException>());
+        expect((error! as WebDavException).status, 503);
+        expect(error.toString(), startsWith('WebDAV PROPFIND'));
+        expect(error.toString(), endsWith('failed: HTTP 503'));
+        expect(error.toString(), isNot(contains(server.password)));
+      } finally {
+        dav.close();
+        await server.close();
+      }
+    },
+  );
 }

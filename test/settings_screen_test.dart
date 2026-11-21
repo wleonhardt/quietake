@@ -143,6 +143,16 @@ void main() {
             isTrue,
           );
         }
+        // The server form has its own screen (decision 047); the row says
+        // whether a server is set up.
+        await tester.ensureVisible(find.byKey(Keys.settingsBackupOpen));
+        expect(
+          find.text('Not set up'),
+          configured ? findsNothing : findsOneWidget,
+        );
+        expect(find.byKey(Keys.settingsUrl), findsNothing);
+        await tester.tap(find.byKey(Keys.settingsBackupOpen));
+        await tester.pumpAndSettle();
         await tester.ensureVisible(find.byKey(Keys.settingsUser));
         expect(tester.getSize(find.byKey(Keys.settingsSave)).width,
           tester.getSize(find.byKey(Keys.settingsTest)).width);
@@ -190,6 +200,10 @@ void main() {
           await tester.pageBack();
           await tester.pumpAndSettle();
         }
+        // Back from the server screen to Settings.
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.byKey(Keys.settingsBackupOpen), findsOneWidget);
         for (final key in [
           Keys.settingsRecovery,
           Keys.nasRecoveryOpen,
@@ -235,8 +249,11 @@ void main() {
           }
           expect(find.byType(SettingsScreen), findsOneWidget);
         }
+        await tester.ensureVisible(find.byKey(Keys.settingsBackupOpen));
+        await tester.tap(find.byKey(Keys.settingsBackupOpen));
+        await tester.pumpAndSettle();
         final disconnect = find.text(
-          configured ? 'Disconnect NAS backup' : 'Clear saved NAS details',
+          configured ? 'Disconnect backup server' : 'Clear saved backup server details',
         );
         await tester.scrollUntilVisible(
           disconnect,
@@ -247,7 +264,7 @@ void main() {
         await tester.ensureVisible(disconnect);
         await tester.tap(disconnect);
         await tester.pumpAndSettle();
-        expect(find.textContaining('Pending NAS deletions'), findsOneWidget);
+        expect(find.textContaining('Pending deletions on the server'), findsOneWidget);
         await tester.tap(
           find.text(
             confirm ? (configured ? 'Disconnect' : 'Clear details') : 'Cancel',

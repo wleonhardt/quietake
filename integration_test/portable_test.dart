@@ -175,8 +175,7 @@ void main() {
     (tester) async {
       final app = await TestApp.unlocked();
       await seed(app);
-      (await app.session.store.createWithPasscode('portable-passcode'))
-          .dispose();
+      await app.setPasscode('portable-passcode');
       final external = File('${docs.path}/portable-saved.zip');
       var sends = 0;
       binding.defaultBinaryMessenger.setMockMethodCallHandler(portableChannel, (
@@ -209,7 +208,7 @@ void main() {
         await tap(tester, Keys.gallerySettings);
         await until(
           tester,
-          () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,
+          () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
         );
         await tap(tester, Keys.portableExportOpen);
         expect(find.byKey(Keys.portableResult), findsNothing);
@@ -343,8 +342,9 @@ void main() {
           );
           await until(
             tester,
-            () => find.byKey(Keys.portableRestoreOpen).evaluate().isNotEmpty,
+            () => find.byKey(Keys.setupRestoreOpen).evaluate().isNotEmpty,
           );
+          await tap(tester, Keys.setupRestoreOpen);
           await tap(tester, Keys.portableRestoreOpen);
           await tap(tester, Keys.portablePick);
           expect(
@@ -444,4 +444,79 @@ void main() {
       },
     );
   }
+
+  testWidgets('Check backup only authenticates the ZIP and restores nothing', (
+    tester,
+  ) async {
+    final app = await TestApp.unlocked();
+    await seed(app);
+    final key = app.vault.masterKeyForTests.copy();
+    final crypto = app.vault.crypto;
+    final source = File('${docs.path}/portable-check-source.zip');
+    await PortableBackup(app.vault, key).export(source);
+    await app.close();
+    await Directory('${docs.path}/vault').delete(recursive: true);
+    await const FlutterSecureStorage().deleteAll();
+    final store = MasterKeyStore(crypto.sodium, docs);
+    if (await store.hasKeyfile) await store.keyfile.delete();
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(portableChannel, (
+      call,
+    ) async {
+      if (call.method == 'pick') {
+        await cache.create(recursive: true);
+        return (await source.copy('${cache.path}/selected.zip')).path;
+      }
+      if (call.method == 'clear' && await cache.exists()) {
+        await cache.delete(recursive: true);
+      }
+      return null;
+    });
+    String? result() => find.byKey(Keys.portableResult).evaluate().isEmpty
+        ? null
+        : tester.widget<Text>(find.byKey(Keys.portableResult)).data;
+    try {
+      await tester.pumpWidget(
+        QuietakeApp(
+          store: store,
+          auth: FakeAuthenticator(isAvailable: false),
+          castBackend: FakeCastBackend(),
+        ),
+      );
+      await until(
+        tester,
+        () => find.byKey(Keys.setupRestoreOpen).evaluate().isNotEmpty,
+      );
+      await tap(tester, Keys.setupRestoreOpen);
+      await tap(tester, Keys.portableRestoreOpen);
+      await tap(tester, Keys.portablePick);
+      await enter(tester, Keys.portableRecovery, 'not a recovery key');
+      await tap(tester, Keys.portableCheck);
+      await until(
+        tester,
+        () => result() == 'Enter the recovery key saved for this backup.',
+      );
+
+      await tap(tester, Keys.portablePick);
+      await enter(tester, Keys.portableRecovery, store.exportRecovery(key));
+      await tap(tester, Keys.portableCheck);
+      await until(
+        tester,
+        () => result()?.startsWith('Backup checked: ') ?? false,
+      );
+      expect(find.byKey(Keys.portableScreen), findsOneWidget);
+      expect(await File('${docs.path}/vault.keyfile.json').exists(), isFalse);
+      final vaultDir = Directory('${docs.path}/vault');
+      expect(
+        !await vaultDir.exists() || (await vaultDir.list().toList()).isEmpty,
+        isTrue,
+      );
+      expect(await source.exists(), isTrue);
+      expect(tester.takeException(), isNull);
+    } finally {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 1));
+      key.dispose();
+      if (await source.exists()) await source.delete();
+    }
+  });
 }

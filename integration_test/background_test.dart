@@ -73,6 +73,8 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         await tester.tap(find.byKey(Keys.gallerySettings));
         await tester.pump(const Duration(seconds: 1));
+        await tap(Keys.settingsBackupOpen);
+        await tester.pump(const Duration(seconds: 1));
         expect(
           tester
               .widget<SwitchListTile>(find.byKey(Keys.backgroundUploads))
@@ -110,11 +112,14 @@ void main() {
         expect(settings.backgroundUploads, isTrue);
         expect(settings.mobileData, isFalse);
         await tester.tap(find.byKey(Keys.gallerySettings));
+        await tap(Keys.settingsBackupOpen);
         await tap(Keys.backgroundMobileData);
         await tap(Keys.settingsSave);
         await app.session.sync.sync();
         expect((await SyncSettings.load()).mobileData, isTrue);
         await tester.tap(find.byKey(Keys.gallerySettings));
+        await tester.pump(const Duration(seconds: 1));
+        await tap(Keys.settingsBackupOpen);
         await tester.pump(const Duration(seconds: 1));
         expect(
           tester

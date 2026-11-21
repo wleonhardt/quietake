@@ -24,9 +24,30 @@ first release target; iOS development is ongoing.
   permission screens; unlock again after responding to continue capturing.
 - Backup is optional and stores ciphertext on your own server. File sizes and
   filenames remain visible to that server. Sync does not infer deletion from absence.
+- Delete can first move a capture to Recently deleted, encrypted on the phone for
+  30 days and still on the NAS. Delete now and expiry remove it for good. A
+  Settings switch turns this off.
 - Explicit sharing gives the selected recipient an unencrypted copy. JPEG share
-  copies erase EXIF GPS directory contents and referenced values by default.
-  Other metadata and PNG/video copies remain unchanged; this is not complete metadata anonymization.
+  copies keep only their orientation by default: all other EXIF fields, XMP,
+  Photoshop data, comments and any data after the image end are removed. PNG copies are rebuilt from
+  their pixels, so they carry no metadata either. Video copies remain unchanged, so this is not
+  complete metadata anonymization. The share dialog
+  can instead make one encrypted `.quietake-share` bundle with a fresh six-word
+  passphrase, shown once; send the passphrase by another route. Import has
+  "Open encrypted share", another app can open a `.quietake-share` file with
+  Quietake (kept privately until you unlock, then offered in Import), and
+  `quietake-recover -share` opens a bundle too.
+  The passphrase protects the bundle only as well as it is kept secret.
+- The lock screen has a Camera button, shown once the vault has been unlocked
+  after this feature shipped. A photo taken there is sealed to a public key
+  without the vault key and becomes a normal capture at the next unlock; the
+  locked camera shows no library, tags or settings. On Android a Quick Settings
+  tile, "Quietake camera", opens the same locked camera (also over the phone
+  lock screen); it locks the app first and shows nothing else. On iOS 18 a Lock
+  Screen or Control Center control named "Camera" does the same once the phone
+  is unlocked.
+- Settings can switch the launcher to a plain gray icon (and, on Android, the
+  name Tools). This does not hide Quietake from the app list or system settings.
 - Casting sends decrypted media over local HTTP to the selected receiver. It is
   not end-to-end encrypted. Locking stops casting and clears decrypted caches.
 - Android blocks screenshots through platform protection. iOS hides inactive
@@ -51,6 +72,10 @@ go vet ./...
 go test ./...
 ```
 
+Those commands need no phone or emulator: install [Flutter](https://docs.flutter.dev/get-started/install)
+and [Go](https://go.dev/dl/) at the pinned versions and they run on the host. The host suite takes
+about two minutes. Changes to app screens or vault code also need the device tests below.
+
 Run Flutter commands sequentially in each checkout. Synthetic device tests use
 `tool/e2e.sh android` and `tool/e2e.sh ios`. For focused diagnosis, use
 `tool/e2e.sh android integration_test/lock_test.dart`; each file has a five-minute
@@ -65,8 +90,11 @@ iOS and physical/Play-delivered release checks remain separate gates.
 
 ## Recovery and documentation
 
+- [Threat model](docs/threat-model.md)
+- [Architecture overview](docs/architecture.md)
 - [Recovery CLI](recover/README.md)
 - [Container contract](docs/container-format.md)
+- [Recovery key forms](docs/recovery-key.md)
 - [Private catalog](docs/private-catalog.md)
 - [Portable encrypted backups](docs/portable-backup.md)
 - [NAS passphrase recovery](docs/nas-recovery.md)

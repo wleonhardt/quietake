@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
+	"strings"
 
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/nacl/secretbox"
@@ -69,14 +70,33 @@ func MasterKeyFromKeyfile(data []byte, passcode string) (*[32]byte, error) {
 
 var recoverySep = regexp.MustCompile(`[\s-]`)
 
-// MasterKeyFromRecovery parses the recovery key as shown by the app:
-// base64 of 32 bytes, in groups of four.
+var listNumber = regexp.MustCompile(`^\d+[.)]?$`)
+
+// recoveryTokens splits typed text and drops list numbers such as "7", "7."
+// or "7)": the app shows the words numbered (decision 042).
+func recoveryTokens(s string) []string {
+	var tokens []string
+	for _, field := range strings.Fields(s) {
+		if !listNumber.MatchString(field) {
+			tokens = append(tokens, field)
+		}
+	}
+	return tokens
+}
+
+// MasterKeyFromRecovery parses the recovery key as shown by the app: 21 words,
+// or base64 of 32 bytes in groups of four. The base64 form has at most eleven
+// groups, so more tokens than that are read as words.
 func MasterKeyFromRecovery(s string) (*[32]byte, error) {
+	if tokens := recoveryTokens(s); len(tokens) > 11 {
+		return masterKeyFromWords(tokens)
+	}
 	raw, err := base64.StdEncoding.DecodeString(recoverySep.ReplaceAllString(s, ""))
 	if err != nil || len(raw) != 32 {
 		return nil, errors.New("recovery key is not 32 bytes of base64")
 	}
 	var out [32]byte
 	copy(out[:], raw)
+	clear(raw)
 	return &out, nil
 }

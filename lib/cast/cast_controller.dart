@@ -102,8 +102,14 @@ class CastController extends ChangeNotifier {
     final url = server.register(item.file);
     _lastUrl = url;
     try {
+      // The receiver and Google's Cast metadata get a plain label, never the
+      // file name, which is the capture time.
       await backend
-          .load(url, item.contentType, title: item.name)
+          .load(
+            url,
+            item.contentType,
+            title: item.isVideo ? 'Video' : 'Photo',
+          )
           .timeout(loadTimeout);
       if (shown == _shown) _error = null;
     } catch (e) {

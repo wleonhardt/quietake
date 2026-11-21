@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 
 Future<void> editLibraryName(
   BuildContext context, {
@@ -48,7 +49,9 @@ class _NameDialogState extends State<_NameDialog> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = e is FormatException ? e.message : 'Could not save. Retry.';
+          _error = e is FormatException
+              ? e.message
+              : context.l10n.librarySaveFailed;
         });
       }
     }
@@ -65,17 +68,20 @@ class _NameDialogState extends State<_NameDialog> {
         controller: _controller,
         autofocus: true,
         maxLength: 120,
-        decoration: InputDecoration(labelText: 'Name', errorText: _error),
+        decoration: InputDecoration(
+          labelText: context.l10n.libraryNameLabel,
+          errorText: _error,
+        ),
       ),
       actions: [
         TextButton(
           onPressed: _busy ? null : () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         FilledButton(
           key: Keys.librarySave,
           onPressed: _busy ? null : _save,
-          child: const Text('Save'),
+          child: Text(context.l10n.save),
         ),
       ],
     ),
@@ -96,11 +102,9 @@ Future<void> updateLibrary(
     }
   } catch (_) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not update private library. Retry.'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.libraryUpdateFailed)));
     }
   }
 }

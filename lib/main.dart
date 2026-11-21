@@ -1,3 +1,5 @@
+import 'l10n/app_localizations.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ import 'vault/master_key_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await clearShareFiles();
+  await clearShareFiles(atStartup: true);
   final sodium = await SodiumSumoInit.init();
   final store = MasterKeyStore(
     sodium,
@@ -78,6 +80,7 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
   late final _screenPrivacy = ScreenPrivacy(
     _captureChanged,
     onBackground: _backgroundLock,
+    onLockNow: () => _privacy.lock(),
   );
   bool _captured = false;
   bool _autoPrompt = true;
@@ -233,9 +236,13 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
       _updateIdle();
       s.sync.sync();
     } catch (_) {
-      // Session.start disposed the key. Stay on the lock screen with a reason.
+      // Session.start disposed the key. Setup and restore commit the keyfile
+      // before they call _start, so the lock screen is the right place to retry.
       if (mounted) {
-        setState(() => _startError = 'Could not open the vault. Try again.');
+        setState(() {
+          _hasKeyfile = true;
+          _startError = 'Could not open the vault. Try again.';
+        });
       }
     } finally {
       _openingKey = null;
@@ -276,6 +283,8 @@ class _QuietakeAppState extends State<QuietakeApp> with WidgetsBindingObserver {
     }
     return MaterialApp(
       title: 'Quietake',
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       onNavigationNotification: (notification) {
         _contentCanHandlePop = notification.canHandlePop;
         _updateBackHandling();

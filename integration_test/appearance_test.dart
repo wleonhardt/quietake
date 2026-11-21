@@ -25,8 +25,7 @@ void main() {
         ).writeAsBytes(fixtureBytes('tiny.jpg'));
         final photo = await app.vault.ingestAs(source, 'appearance.jpg');
         final encrypted = await photo.readAsBytes();
-        (await app.session.store.createWithPasscode('appearance-test-passcode'))
-            .dispose();
+        await app.setPasscode('appearance-test-passcode');
         await tester.pumpWidget(app.widget());
         Future<void> until(bool Function() ready) async {
           final deadline = DateTime.now().add(const Duration(seconds: 30));
@@ -120,6 +119,9 @@ void main() {
               find.byKey(Keys.settingsPrivacySection).hitTestable(),
               findsOneWidget,
             );
+            await tester.ensureVisible(find.byKey(Keys.settingsBackupOpen));
+            await tap(Keys.settingsBackupOpen, Keys.settingsPass);
+            expect(appearance(Keys.settingsPass), brightness);
             await tester.ensureVisible(find.byKey(Keys.settingsPass));
             expect(find.byKey(Keys.settingsPass).hitTestable(), findsOneWidget);
             expect(
@@ -127,6 +129,7 @@ void main() {
               lessThanOrEqualTo(600),
             );
             expect(tester.takeException(), isNull);
+            await back(Keys.settingsBackupOpen);
             await back(Keys.gallerySettings);
             await back(Keys.openGallery);
           }

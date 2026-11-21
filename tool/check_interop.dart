@@ -4,7 +4,9 @@ import 'dart:typed_data';
 
 import 'package:sodium/sodium_sumo.dart';
 
+import 'package:quietake/crypto/pending_crypto.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
+import 'package:quietake/vault/recovery_words.dart';
 
 /// Temporary synthetic data only. Never rewrites the frozen format vectors.
 Future<void> main() async {
@@ -47,6 +49,26 @@ Future<void> main() async {
         }
       }
     }
+    // Captures sealed while locked and published with the master key must
+    // read as ordinary v1 containers (decision 028).
+    final pending = PendingCrypto(sodium);
+    final pair = pending.generateKeyPair();
+    for (final size in [0, 1, VaultCrypto.defaultChunkSize, 300000]) {
+      final name = 'pending-size-$size.bin';
+      cases[name] = size;
+      final plain = await File(
+        '${root.path}/input',
+      ).writeAsBytes(Uint8List.fromList(List.generate(size, (i) => i % 251)));
+      final sealed = File('${root.path}/$name.pending');
+      await pending.seal(plain, sealed, pair.publicKey);
+      await pending.publish(
+        sealed,
+        File('${containers.path}/$name.shtr'),
+        pair.publicKey,
+        pair.secretKey,
+        key,
+      );
+    }
     final manifest = utf8.encode(
       '{"version":1,"albums":{"synthetic":"Private tag","action":"Running"},'
       '"items":{"synthetic.jpg.shtr":{"title":"Synthetic capture",'
@@ -79,6 +101,24 @@ Future<void> main() async {
     if (recovery.exitCode != 0) {
       throw StateError('Synthetic recovery failed: ${recovery.stderr}');
     }
+    // The word form of the same key must open the same files (decision 041).
+    final wordList = File('assets/passphrases/eff_large_wordlist.txt')
+        .readAsLinesSync()
+        .map((line) => line.trim().split(RegExp(r'\s+')).last)
+        .toList();
+    final fromWords = await Directory('${root.path}/from-words').create();
+    final wordRecovery = await Process.run(binary, [
+      '-key',
+      RecoveryWords.encode(publicKey, wordList),
+      '-dir',
+      containers.path,
+      '-out',
+      fromWords.path,
+    ]);
+    if (wordRecovery.exitCode != 0 ||
+        await fromWords.list().length != await restored.list().length) {
+      throw StateError('Word-form recovery differs: ${wordRecovery.stderr}');
+    }
     if ((await restored.list().length) != cases.length + 1) {
       throw StateError('Recovery file count differs');
     }
@@ -103,6 +143,46 @@ Future<void> main() async {
       if (offset != entry.value) {
         throw StateError('Recovery length differs: ${entry.key}');
       }
+    }
+    final namedFolder = await Directory('${root.path}/random-names').create();
+    final namedOutput = await Directory('${root.path}/random-restored')
+        .create();
+    const randomRemote = '3f9c0a7e5b1d44c2a86e0d1f7b92c4aa.shtr';
+    final namedPlain = Uint8List.fromList(List.generate(300, (i) => i % 251));
+    final namedMedia = File('${namedFolder.path}/$randomRemote').openWrite();
+    try {
+      await namedMedia.addStream(crypto.encrypt(Stream.value(namedPlain), key));
+    } finally {
+      await namedMedia.close();
+    }
+    final namedManifest = utf8.encode(
+      '{"version":1,"albums":{},"items":{},'
+      '"remoteNames":{"2026-10-26T12-30-00.000Z.jpg.shtr":"$randomRemote"}}',
+    );
+    final namedCatalog = File('${namedFolder.path}/quietake.catalog')
+        .openWrite();
+    try {
+      await namedCatalog.addStream(
+        crypto.encrypt(Stream.value(namedManifest), key),
+      );
+    } finally {
+      await namedCatalog.close();
+    }
+    final namedRecovery = await Process.run(binary, [
+      '-key',
+      base64Encode(publicKey),
+      '-dir',
+      namedFolder.path,
+      '-out',
+      namedOutput.path,
+    ]);
+    final namedFile = File('${namedOutput.path}/2026-10-26T12-30-00.000Z.jpg');
+    if (namedRecovery.exitCode != 0 ||
+        await namedOutput.list().length != 2 ||
+        !await namedFile.exists() ||
+        base64Encode(await namedFile.readAsBytes()) !=
+            base64Encode(namedPlain)) {
+      throw StateError('Randomly named container recovery differs');
     }
     final emptyFolder = await Directory('${root.path}/empty-catalog').create();
     final emptyOutput = await Directory('${root.path}/empty-restored').create();
@@ -133,7 +213,7 @@ Future<void> main() async {
       throw StateError('Empty ownership catalog recovery differs');
     }
     stdout.writeln(
-      'Verified ${cases.length} Dart-to-Go v1 media containers and two encrypted catalog cases, all final-block remainders, 64 B / 256 KiB / 1 MiB chunks.',
+      'Verified ${cases.length} Dart-to-Go v1 media containers (including captures sealed while locked and published) and two encrypted catalog cases, a randomly named container restored under its capture name, all final-block remainders, 64 B / 256 KiB / 1 MiB chunks.',
     );
     final recoveryBox = await Process.run('flutter', [
       'test',

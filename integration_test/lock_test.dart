@@ -2,6 +2,7 @@ import '../test_support/integration_binding.dart';
 import '../test_support/fixtures.dart';
 import '../test_support/test_vault.dart';
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
@@ -12,7 +13,10 @@ import 'package:quietake/keys.dart';
 import 'package:quietake/main.dart';
 import 'package:quietake/lock/lock_screen.dart';
 import 'package:quietake/lock/setup_screen.dart';
+import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/vault/master_key_store.dart';
+import 'package:quietake/vault/recovery_words.dart';
+import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/fake_authenticator.dart';
@@ -51,8 +55,9 @@ class _DelayedUnlockStore extends MasterKeyStore {
 }
 
 /// Setup, lock, biometric and passcode unlock, recovery export and restore,
-/// all through the UI. Starts from a wiped key state and a vault that holds
-/// one container, which must survive every step.
+/// all through the UI. Starts with no keyfile and a key left in the keystore,
+/// which setup must not use (decision 033). The first test adds one container,
+/// which must survive every later step.
 void main() {
   initializeIntegrationBinding();
 
@@ -60,6 +65,7 @@ void main() {
   late FakeAuthenticator auth;
   late FakeCastBackend backend;
   late String recoveryKey;
+  late String staleKey;
 
   setUpAll(() async {
     final sodium = await SodiumSumoInit.init();
@@ -67,15 +73,10 @@ void main() {
     store = MasterKeyStore(sodium, docs);
     await store.clearCache();
     if (await store.hasKeyfile) await store.keyfile.delete();
-    // A pre-passcode install: key in the keystore, one container on disk.
     final vault = await openTestVault();
     for (final f in await vault.list()) {
       await f.delete();
     }
-    final tmp = await getTemporaryDirectory();
-    final data = fixtureBytes('tiny.jpg');
-    final f = File('${tmp.path}/legacy.jpg')..writeAsBytesSync(data);
-    await vault.ingestAs(f, '2026-01.legacy.jpg');
     auth = FakeAuthenticator();
     backend = FakeCastBackend();
     // How long Argon2id (moderate) takes here; the first call also spawns the isolate.
@@ -84,7 +85,14 @@ void main() {
       (await store.createWithPasscode('timing')).dispose();
       debugPrint('KDF createWithPasscode #$i: ${sw.elapsedMilliseconds} ms');
     }
-    await store.keyfile.delete(); // back to the pre-passcode state
+    // An earlier install's leftovers: a key in the keystore and no keyfile.
+    final leftover = await store.unlockWithPasscode('timing');
+    await store.enableBiometricUnlock(leftover);
+    leftover.dispose();
+    await store.keyfile.delete();
+    final stale = (await store.cachedKey())!;
+    staleKey = base64Encode(stale.extractBytes());
+    stale.dispose();
   });
 
   bool has(Key k) => find.byKey(k).evaluate().isNotEmpty;
@@ -148,11 +156,13 @@ void main() {
     }
   }
 
-  testWidgets('setup adopts the existing key and shows the recovery key', (
+  testWidgets('setup creates a new key and shows the recovery key', (
     tester,
   ) async {
     await tester.pumpWidget(app());
-    await pumpUntil(tester, () => has(Keys.setupPasscode));
+    // First run starts with a choice (decision 046).
+    await pumpUntil(tester, () => has(Keys.setupCreateOpen));
+    expect(has(Keys.setupPasscode), isFalse);
     final filesBeforePolicy = await (await getApplicationDocumentsDirectory())
         .list()
         .map((file) => file.path)
@@ -167,6 +177,7 @@ void main() {
     expect(await store.hasKeyfile, isFalse);
     await tester.pageBack();
     await settle(tester);
+    await tap(tester, Keys.setupCreateOpen);
     expect(has(Keys.setupPasscode), isTrue);
     expect(
       await (await getApplicationDocumentsDirectory())
@@ -188,20 +199,64 @@ void main() {
     await settle(tester);
     expect(find.textContaining('encrypted files'), findsOneWidget);
     expect(find.textContaining('enabled'), findsOneWidget);
-    recoveryKey = tester
-        .widget<SelectableText>(find.byKey(Keys.recoveryKeyText))
-        .data!;
+    String shownKey() =>
+        tester.widget<SelectableText>(find.byKey(Keys.recoveryKeyText)).data!;
+    // The words are kept and typed back below; the text form is the same key.
+    recoveryKey = shownKey();
+    final words = RecoveryWords.wordsOf(recoveryKey);
+    expect(words, hasLength(21));
+    await tap(tester, Keys.recoveryShowText);
+    final textForm = shownKey();
     expect(
-      recoveryKey.replaceAll(' ', '').length,
+      textForm.replaceAll(' ', '').length,
       44,
       reason: '32 bytes of base64',
     );
+    expect(
+      (await store.recoveryText(recoveryKey)),
+      textForm.replaceAll(' ', ''),
+    );
+    expect(
+      textForm.replaceAll(' ', ''),
+      isNot(staleKey),
+      reason: 'setup must not hand out a key left in the keystore',
+    );
     expect(find.byKey(Keys.recoveryFingerprint), findsOneWidget);
+    // Done asks for one word of the saved copy (decision 042).
     await tap(tester, Keys.recoveryDone);
+    await pumpUntil(tester, () => has(Keys.recoveryConfirmField));
+    expect(has(Keys.recoveryKeyText), isFalse);
+    expect(await store.hasKeyfile, isFalse);
+    final asked = int.parse(
+      tester
+          .widget<TextField>(find.byKey(Keys.recoveryConfirmField))
+          .decoration!
+          .labelText!
+          .split(' ')
+          .last,
+    );
+    await enter(tester, Keys.recoveryConfirmField, words[asked % 21]);
+    await tap(tester, Keys.recoveryConfirmOk);
+    await pumpUntil(tester, () => has(Keys.recoveryConfirmError));
+    await enter(tester, Keys.recoveryConfirmField, words[asked - 1]);
+    await tap(tester, Keys.recoveryConfirmOk);
     await pumpUntil(tester, () => has(Keys.openGallery));
     expect(await store.hasKeyfile, isTrue);
 
-    // The legacy container still decrypts under the adopted key.
+    // One container under the new key, for this and every later test.
+    final tmp = await getTemporaryDirectory();
+    final f = File('${tmp.path}/first.jpg')
+      ..writeAsBytesSync(fixtureBytes('tiny.jpg'));
+    final vault = Vault(
+      VaultCrypto(store.sodium),
+      store.importRecovery(await store.recoveryText(recoveryKey)),
+      await Vault.defaultDir(),
+    );
+    try {
+      await vault.ingestAs(f, '2026-01.first.jpg');
+    } finally {
+      vault.dispose();
+    }
     await tap(tester, Keys.openGallery);
     await pumpUntil(tester, () => has(Keys.galleryTile(0)));
     await settle(tester);
@@ -220,6 +275,12 @@ void main() {
   testWidgets(
     'cold lock resumes with one biometric prompt and a working retry',
     (tester) async {
+      // Biometric unlock is off after Setup (decision 043); turn it on the
+      // way Settings does, with a key from a passcode unlock.
+      expect(await store.hasCachedKey, isFalse);
+      final current = await store.unlockWithPasscode('hunter22');
+      await store.enableBiometricUnlock(current);
+      current.dispose();
       auth.answer = false;
       await tester.pumpWidget(app());
       await pumpUntil(tester, () => has(Keys.lockBiometric));
@@ -297,7 +358,7 @@ void main() {
     await enter(tester, Keys.lockPasscode, 'nope');
     await tap(tester, Keys.lockUnlock);
     await pumpUntil(tester, () => has(Keys.lockError));
-    expect(text(tester, Keys.lockError), 'wrong passcode');
+    expect(text(tester, Keys.lockError), 'Wrong passcode. Try again.');
     await expectLiveError(tester, Keys.lockError);
     await enter(tester, Keys.lockPasscode, 'hunter22');
     await tap(tester, Keys.lockUnlock);
@@ -337,7 +398,7 @@ void main() {
     await pumpUntil(tester, () => has(Keys.gallerySettings));
     await settle(tester);
     await tap(tester, Keys.gallerySettings);
-    await pumpUntil(tester, () => has(Keys.settingsUrl));
+    await pumpUntil(tester, () => has(Keys.settingsBackupOpen));
     await settle(tester);
     await tester.scrollUntilVisible(
       find.byKey(Keys.settingsRecovery),
@@ -383,7 +444,8 @@ void main() {
     await store.keyfile.delete();
     await tester.pumpWidget(const SizedBox());
     await tester.pumpWidget(app());
-    await pumpUntil(tester, () => has(Keys.setupToggleRestore));
+    await pumpUntil(tester, () => has(Keys.setupRestoreOpen));
+    await tap(tester, Keys.setupRestoreOpen);
     await tap(tester, Keys.setupToggleRestore);
     await pumpUntil(tester, () => has(Keys.setupRecoveryKey));
     await enter(tester, Keys.setupRecoveryKey, 'not a key');
@@ -442,10 +504,15 @@ void main() {
     testWidgets(
       'backgrounding invalidates a pending real ${restoring ? 'restore' : 'passcode'} result',
       (tester) async {
-        (await store.createWithPasscode('pending-passcode')).dispose();
+        // Same vault key, new passcode: a new vault would get a new key
+        // (decision 033) that the container on disk cannot prove.
+        (await store.restoreFromRecovery(
+          recoveryKey,
+          'pending-passcode',
+        )).dispose();
         final delayed = _DelayedUnlockStore(store);
         var unlocked = false;
-        final key = (await store.cachedKey())!;
+        final key = store.importRecovery(await store.recoveryText(recoveryKey));
         final recovery = store.exportRecovery(key);
         key.dispose();
         void onUnlocked(SecureKey key) {

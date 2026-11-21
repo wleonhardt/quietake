@@ -30,6 +30,9 @@ def manifest_errors(xml, expected_id):
     if any(node.get(android + "name", "").removeprefix("android.permission.") in broad_storage
            for node in root.findall("uses-permission")):
         errors.append("Broad shared-media/storage permissions are not needed for private capture")
+    if not any(node.get(android + "name") == "android.permission.INTERNET"
+               for node in root.findall("uses-permission")):
+        errors.append("INTERNET permission is missing; backup, Cast and playback need it")
     if any(node.get(android + "name", "").endswith(".MediaNotificationService")
            for node in application.findall("service")):
         errors.append("Obsolete Cast notification service is declared")

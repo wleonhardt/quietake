@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 
+import '../limits.dart' as limits;
 import '../vault/vault.dart';
 import '../compat/legacy_identity.dart';
 import '../library/private_catalog.dart';
@@ -36,6 +37,7 @@ class SyncReport {
     required this.pulled,
     required this.remoteTotal,
     required this.deleted,
+    this.skipped = 0,
   });
 
   final int pushed;
@@ -43,19 +45,45 @@ class SyncReport {
   final int remoteTotal;
   final int deleted;
 
+  /// NAS files that did not authenticate with this vault's key: damaged, or
+  /// written by another vault. They are left exactly as they are.
+  final int skipped;
+
   @override
   String toString() =>
       'Synced: $pushed uploaded, $pulled downloaded · '
-      '${deleted == 0 ? '' : '$deleted deleted · '}$remoteTotal on NAS';
+      '${deleted == 0 ? '' : '$deleted deleted · '}$remoteTotal on NAS'
+      '${skipped == 0 ? '' : ' · $skipped NAS ${skipped == 1 ? 'file' : 'files'} skipped (unreadable)'}';
+}
+
+/// Result of [SyncService.renameRemote].
+class RenameReport {
+  const RenameReport({required this.candidates, required this.renamed});
+
+  /// NAS captures that kept their readable name and are on the phone too.
+  final int candidates;
+  final int renamed;
 }
 
 /// The caller owns session serialization, including verification and cancellation.
 class SyncService {
-  SyncService(this.vault, this.dav, {this.isCancelled});
+  SyncService(
+    this.vault,
+    this.dav, {
+    this.isCancelled,
+    this.useRandomNames = false,
+  });
 
   /// A collection listing larger than this is not a vault we made.
-  static const maxListingBytes = 16 * 1024 * 1024;
+  static const maxListingBytes = limits.maxListingBytes;
+
+  /// Bound for a download whose size the server did not report.
+  static const maxUnknownSizeBytes = 4 * 1024 * 1024 * 1024;
   final bool Function()? isCancelled;
+
+  /// New uploads get a random NAS name (decision 026). Captures already on the
+  /// NAS keep their name. Off until the recovery tool reads the mapping.
+  final bool useRandomNames;
   final Vault vault;
   final WebDavClient dav;
   String? authenticatedCatalogHash;
@@ -100,6 +128,23 @@ class SyncService {
     return listEquals(await digest(a), await digest(b));
   }
 
+  static final _randomName = RegExp(r'^[0-9a-f]{32}\.shtr$');
+  bool _looksRandom(String name) => _randomName.hasMatch(name);
+
+  /// The phone capture with no NAS copy whose bytes equal [remoteCopy], if any.
+  Future<String?> _phoneCopyOf(
+    File remoteCopy,
+    Map<String, File> local,
+    Map<String, RemoteEntry> remote,
+    Set<String> skip,
+  ) async {
+    for (final e in local.entries) {
+      if (remote.containsKey(e.key) || skip.contains(e.key)) continue;
+      if (await _same(e.value, remoteCopy)) return e.key;
+    }
+    return null;
+  }
+
   Future<File?> _catalog(List<RemoteEntry> entries, Directory work) async {
     LegacyIdentity.rejectBackupWrites(entries.map((e) => e.name));
     final matches = entries.where((e) => e.name == PrivateCatalog.fileName);
@@ -135,14 +180,25 @@ class SyncService {
           await dav.delete(entry.name);
         }
       }
+      final incomingCatalog = await _catalog(entries, work);
+      var names = vault.catalog.remoteNames;
+      if (incomingCatalog != null && !await vault.catalog.file.exists()) {
+        names = await vault.catalog.remoteNamesOf(incomingCatalog);
+      }
       final remote = {
         for (final e in entries)
-          if (e.name.endsWith('.shtr')) e.name: e,
+          if (e.name.endsWith('.shtr')) names.localFor(e.name): e,
       };
-      final incomingCatalog = await _catalog(entries, work);
       final incoming = <String, File>{};
       // Validate the entire prospective restore before any upload, removal or adoption.
+      // A trashed capture keeps its NAS copy and must not come back as a new one.
+      final held = (await vault.trashedAt()).keys.toSet();
+      final rebuilt = <String, String>{};
+      // NAS files that failed authentication: never adopted, uploaded over or
+      // removed, and they do not stop the other captures.
+      final skipped = <String>{};
       for (final entry in remote.entries) {
+        if (held.contains(entry.key)) continue;
         final own = local[entry.key];
         final conflict = own != null && entry.value.size != await own.length();
         if (incomingCatalog != null &&
@@ -153,13 +209,38 @@ class SyncService {
         final file = File('${work.path}/${entry.key}');
         // The listing bounds the download; a server that omits sizes says 0.
         await dav.get(
-          entry.key,
+          entry.value.name,
           file,
-          maxBytes: entry.value.size > 0 ? entry.value.size : null,
+          maxBytes: entry.value.size > 0
+              ? entry.value.size
+              : maxUnknownSizeBytes,
         );
-        await _authenticate(file);
+        try {
+          await _authenticate(file);
+        } on Exception {
+          // Without a catalog that proves this folder is ours, an unreadable
+          // file may mean another vault's folder: stop before uploading into
+          // it. Cancellation is a StateError and always ends the pass.
+          if (incomingCatalog == null) rethrow;
+          skipped.add(entry.key);
+          await file.delete();
+          continue;
+        }
         if (own != null && !await _same(own, file)) {
           throw BackupConflictException(entry.key);
+        }
+        if (own == null && _looksRandom(entry.key)) {
+          // A mapping lost to an older app version: the same ciphertext on the
+          // phone proves this is that capture, not a new one.
+          final match = await _phoneCopyOf(file, local, remote, {
+            ...deleted,
+            ...rebuilt.keys,
+          });
+          if (match != null) {
+            rebuilt[match] = entry.key;
+            await file.delete();
+            continue;
+          }
         }
         if (own == null && !deleted.contains(entry.key)) {
           incoming[entry.key] = file;
@@ -168,8 +249,16 @@ class SyncService {
         }
       }
       _checkCancelled();
+      if (rebuilt.isNotEmpty) {
+        names = await vault.catalog.adoptRemoteNames(rebuilt);
+        for (final e in rebuilt.entries) {
+          final entry = remote.remove(e.value);
+          if (entry != null) remote[e.key] = entry;
+        }
+      }
       deleted.addAll(await vault.deletedNames());
       if (incomingCatalog != null) await vault.catalog.restore(incomingCatalog);
+      names = vault.catalog.remoteNames;
       var pulled = 0;
       for (final entry in incoming.entries) {
         _checkCancelled();
@@ -183,10 +272,18 @@ class SyncService {
       var removed = 0;
       for (final name in deleted) {
         _checkCancelled();
-        if (remote.remove(name) != null) {
-          await dav.delete(name);
+        if (skipped.contains(name)) continue;
+        final gone = remote.remove(name);
+        if (gone != null) {
+          await dav.delete(gone.name);
           removed++;
         }
+      }
+      if (useRandomNames) {
+        names = await vault.catalog.assignRemoteNames([
+          for (final e in local.entries)
+            if (!deleted.contains(e.key) && !remote.containsKey(e.key)) e.key,
+        ]);
       }
       var pushed = 0;
       for (final entry in local.entries) {
@@ -196,7 +293,7 @@ class SyncService {
         if (!await entry.value.exists()) continue;
         if (!deleted.contains(entry.key) && !remote.containsKey(entry.key)) {
           try {
-            await dav.putStaged(entry.key, entry.value);
+            await dav.putStaged(names.remoteFor(entry.key), entry.value);
           } on WebDavException catch (e) {
             // Appeared on the NAS since the listing: keep both copies.
             if (e.status == 412) throw BackupConflictException(entry.key);
@@ -208,8 +305,9 @@ class SyncService {
       final later = (await vault.deletedNames()).difference(deleted);
       for (final name in later) {
         await vault.delete(File('${vault.dir.path}/$name'));
+        if (skipped.contains(name)) continue;
         if (remote.containsKey(name) || local.containsKey(name)) {
-          await dav.delete(name);
+          await dav.delete(remote[name]?.name ?? names.remoteFor(name));
           removed++;
         }
       }
@@ -247,7 +345,9 @@ class SyncService {
         }
       }
       _checkCancelled();
-      confirmedMedia = {...local.keys, ...remote.keys}..removeAll(deleted);
+      confirmedMedia = {...local.keys, ...remote.keys}
+        ..removeAll(deleted)
+        ..removeAll(skipped);
       return SyncReport(
         pushed: pushed,
         pulled: pulled,
@@ -256,10 +356,69 @@ class SyncService {
           ...local.keys,
         }..removeAll(deleted)).length,
         deleted: removed,
+        skipped: skipped.length,
       );
     } finally {
       await work.delete(recursive: true);
     }
+  }
+
+  /// Gives captures that already sit on the NAS under their readable name a
+  /// random one (decision 026, slice 5). Only captures with an identical copy
+  /// on the phone qualify, so nothing is renamed on trust. The mapping is saved
+  /// in the catalog first, each file is then moved on the server without
+  /// overwriting, and a closing listing must show every new name at the same
+  /// size before the catalog is uploaded by a normal sync. An interrupted run
+  /// resumes with the saved mapping. [dryRun] only counts.
+  Future<RenameReport> renameRemote({bool dryRun = false}) async {
+    await vault.catalog.load();
+    final deleted = await vault.deletedNames();
+    final held = (await vault.trashedAt()).keys.toSet();
+    final local = {
+      for (final f in await vault.list()) f.uri.pathSegments.last: f,
+    };
+    await dav.ensureCollection();
+    final entries = await dav.list(maxBytes: maxListingBytes);
+    var names = vault.catalog.remoteNames;
+    final todo = <String, RemoteEntry>{};
+    for (final e in entries) {
+      if (!e.name.endsWith('.shtr') ||
+          e.name.startsWith(WebDavClient.stagePrefix) ||
+          names.localFor(e.name) != e.name ||
+          _looksRandom(e.name) ||
+          deleted.contains(e.name) ||
+          held.contains(e.name)) {
+        continue;
+      }
+      final own = local[e.name];
+      if (own == null || e.size != await own.length()) continue;
+      todo[e.name] = e;
+    }
+    if (dryRun || todo.isEmpty) {
+      return RenameReport(candidates: todo.length, renamed: 0);
+    }
+    names = await vault.catalog.assignRemoteNames([
+      for (final k in todo.keys)
+        if (names.remoteFor(k) == k) k,
+    ]);
+    for (final e in todo.entries) {
+      _checkCancelled();
+      await dav.move(e.value.name, names.remoteFor(e.key), replace: false);
+    }
+    final after = {
+      for (final e in await dav.list(maxBytes: maxListingBytes)) e.name: e,
+    };
+    for (final e in todo.entries) {
+      final moved = after[names.remoteFor(e.key)];
+      if (moved == null ||
+          moved.size != e.value.size ||
+          after.containsKey(e.key)) {
+        throw StateError('Rename could not be confirmed for ${e.key}');
+      }
+    }
+    // Uploads the catalog that carries the new names.
+    await sync();
+    return RenameReport(candidates: todo.length, renamed: todo.length);
   }
 
   /// Reads every remote copy without repairing, deleting or adopting any original.
@@ -269,6 +428,7 @@ class SyncService {
     final work = await _work();
     try {
       final deleted = await vault.deletedNames();
+      final held = (await vault.trashedAt()).keys.toSet();
       final local = {
         for (final f
             in await vault.dir
@@ -276,13 +436,16 @@ class SyncService {
                 .where((f) => f is File && f.path.endsWith('.shtr'))
                 .cast<File>()
                 .toList())
-          if (!deleted.contains(f.uri.pathSegments.last))
+          if (!deleted.contains(f.uri.pathSegments.last) &&
+              !held.contains(f.uri.pathSegments.last))
             f.uri.pathSegments.last: f,
       };
       final entries = await dav.list(maxBytes: maxListingBytes);
+      await vault.catalog.load();
+      final names = vault.catalog.remoteNames;
       final remote = {
         for (final entry in entries)
-          if (entry.name.endsWith('.shtr')) entry.name: entry,
+          if (entry.name.endsWith('.shtr')) names.localFor(entry.name): entry,
       };
       if (deleted.any(remote.containsKey)) {
         throw const BackupCheckException(
@@ -317,7 +480,11 @@ class SyncService {
       for (final name in remote.keys) {
         final file = File('${work.path}/$name');
         final size = remote[name]!.size;
-        await dav.get(name, file, maxBytes: size > 0 ? size : null);
+        await dav.get(
+          remote[name]!.name,
+          file,
+          maxBytes: size > 0 ? size : null,
+        );
         await _authenticate(file);
         final own = local[name];
         if (own != null && !await _same(own, file)) {

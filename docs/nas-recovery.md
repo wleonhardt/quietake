@@ -6,7 +6,7 @@ does not add a server or publisher-operated recovery service.
 
 ## Enable, change or disable
 
-Complete one successful foreground sync first, then open Settings → Backup
+Complete one successful foreground sync first, then open Settings → NAS backup
 passphrase. Enter the current local passcode, generate six random words or enter
 a strong phrase, confirm it and approve saving. Save the phrase separately from
 the phone. Generated words come from the attributed EFF long list; app licenses
@@ -41,7 +41,7 @@ envelope, encrypted catalog and every media container before adopting the staged
 vault. A metadata-only backup is supported. Restore requires an empty vault;
 there is no merge or live identity replacement. Wrong credentials/passphrases,
 damaged captures and unsupported schema fail without replacing originals.
-The list is bounded to 16 MiB and 10,000 captures. Incoming media is
+The list is bounded to 64 MiB and 40,000 captures. Incoming media is
 authenticated incrementally while copying ciphertext into private staging;
 malformed media streams and GET error responses are terminated without downloading
 their remaining bodies. Unused WebDAV control response bodies are capped at

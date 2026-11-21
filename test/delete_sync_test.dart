@@ -75,6 +75,27 @@ void main() {
     },
   );
 
+  test(
+    'a legacy backup without a catalog never restores a deleted capture',
+    () async {
+      final sync = SyncService(vault, dav);
+      await sync.sync();
+      server.files.remove('quietake.catalog');
+      await journal();
+      await sync.sync();
+      expect(await photo.exists(), isFalse);
+      expect(await vault.list(), isEmpty);
+      expect(
+        Directory(vault.dir.path)
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.shtr')),
+        isEmpty,
+        reason: 'the downloaded copy is discarded, not adopted',
+      );
+    },
+  );
+
   test('unfinished local unlink is replayed before an offline sync', () async {
     await journal(unlink: false);
     final offline = WebDavClient(

@@ -130,7 +130,7 @@ func (w *webdav) list() ([]string, error) {
 	if res.StatusCode != 207 {
 		return nil, fmt.Errorf("PROPFIND %s: HTTP %d", w.base, res.StatusCode)
 	}
-	const maxListingBytes = 16 * 1024 * 1024
+	const maxListingBytes = 64 * 1024 * 1024
 	data, err := io.ReadAll(io.LimitReader(res.Body, maxListingBytes+1))
 	if err != nil {
 		return nil, err
@@ -155,7 +155,7 @@ func (w *webdav) list() ([]string, error) {
 		name := path.Base(p)
 		if strings.HasSuffix(name, ".shtr") {
 			captures++
-			if captures > 10000 {
+			if captures > 40000 {
 				return nil, fmt.Errorf("backup capture count exceeds limit")
 			}
 		}

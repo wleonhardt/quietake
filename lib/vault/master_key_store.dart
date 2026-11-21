@@ -9,17 +9,39 @@ import '../compat/legacy_identity.dart';
 import '../crypto/vault_crypto.dart';
 import '../library/private_catalog.dart';
 import 'backup_passphrase.dart';
+import 'recovery_words.dart';
 
 class WrongPasscodeException implements Exception {
   @override
   String toString() => 'wrong passcode';
 }
 
+/// A passcode try refused without checking it, because too many recent tries
+/// failed. A subtype so every caller that handles a wrong passcode stays safe.
+class PasscodeLockedException extends WrongPasscodeException {
+  PasscodeLockedException(this.retryAfter);
+  final Duration retryAfter;
+  @override
+  String toString() {
+    final seconds = (retryAfter.inMilliseconds / 1000).ceil();
+    final wait = seconds < 60
+        ? '$seconds seconds'
+        : seconds < 120
+        ? '1 minute'
+        : '${(seconds / 60).ceil()} minutes';
+    return 'Too many wrong passcodes. Try again in $wait.';
+  }
+}
+
 class BadRecoveryKeyException implements Exception {
   BadRecoveryKeyException([
     this.message = 'recovery key is not 32 bytes of base64',
+    this.words,
   ]);
   final String message;
+
+  /// Set when the word form was typed, so a screen can say which word.
+  final RecoveryWordsException? words;
   @override
   String toString() => message;
 }
@@ -31,20 +53,50 @@ class BadRecoveryKeyException implements Exception {
 ///   pwhash, moderate limits). Losing it is fine as long as the recovery
 ///   key exists; losing both is total loss.
 /// - Platform keystore entry `quietake.master_key`: the raw master key, so a
-///   biometric prompt can unlock without the Argon2id round trip. Best effort:
-///   refreshed on passcode unlock and recovery restore, and cleared when that
-///   refresh fails so it can never hold a key the keyfile no longer has.
+///   biometric prompt can unlock without the Argon2id round trip. It exists
+///   only while biometric unlock is turned on in Settings (decision 043).
+///   Best effort: refreshed on passcode unlock and recovery restore, and
+///   cleared when that refresh fails so it can never hold a key the keyfile
+///   no longer has.
 /// - Recovery key: the master key itself, base64, shown once at setup and on
 ///   demand after a passcode check. Enough on its own to read every container.
 class MasterKeyStore {
-  MasterKeyStore(this.sodium, this.dir, {FlutterSecureStorage? storage})
-    : _storage = storage ?? const FlutterSecureStorage();
+  MasterKeyStore(
+    this.sodium,
+    this.dir, {
+    FlutterSecureStorage? storage,
+    this._clock = DateTime.now,
+  }) : _storage = storage ?? const FlutterSecureStorage();
 
   final SodiumSumo sodium;
   final Directory dir;
   final FlutterSecureStorage _storage;
+  final DateTime Function() _clock;
+
+  /// Consecutive wrong passcodes in this app process. The fifth starts a
+  /// 30 second lock that doubles with each further failure, up to 15 minutes.
+  /// It is not persisted: Argon2id already prices each guess, and a stored
+  /// counter could lock the owner out of their own vault.
+  int _failures = 0;
+  DateTime? _lockedUntil;
+  static const _freeTries = 5;
+  static const _firstLock = Duration(seconds: 30);
+  static const _longestLock = Duration(minutes: 15);
 
   static const cacheName = 'quietake.master_key';
+  static const _recoveryCheckedName = 'quietake.recovery_checked';
+
+  /// Remembers that a typed recovery key matched this vault, for a reminder.
+  /// Only the date is kept, never the key or what was typed.
+  Future<void> saveRecoveryChecked() => _storage.write(
+    key: _recoveryCheckedName,
+    value: _clock().toUtc().toIso8601String(),
+  );
+
+  Future<DateTime?> loadRecoveryChecked() async {
+    final saved = await _storage.read(key: _recoveryCheckedName);
+    return saved == null ? null : DateTime.tryParse(saved);
+  }
 
   /// Minimum for new passcodes (decision 038); existing keyfiles keep unlocking.
   static const minPasscodeLength = 6;
@@ -68,7 +120,13 @@ class MasterKeyStore {
     }
   }
 
+  /// Turns biometric unlock off: without the keystore copy only the passcode
+  /// or the recovery key opens the vault.
   Future<void> clearCache() => _storage.delete(key: cacheName);
+
+  /// Turns biometric unlock on. [key] must come from a passcode unlock, so
+  /// the person who asks is the one who knows the passcode.
+  Future<void> enableBiometricUnlock(SecureKey key) => _cache(key);
 
   /// First-run setup in one step; the UI uses [prepareKey] and
   /// [commitPasscode] so nothing is persisted before the recovery key is saved
@@ -84,10 +142,24 @@ class MasterKeyStore {
     return key;
   }
 
-  /// The future vault key, persisted nowhere yet. Adopts a key already in the
-  /// keystore (pre-passcode installs) so existing containers stay readable.
-  Future<SecureKey> prepareKey() async =>
-      await cachedKey() ?? sodium.crypto.secretBox.keygen();
+  /// The future vault key, persisted nowhere yet. Always new: a key left in
+  /// the keystore without a keyfile proves nothing about who is setting up
+  /// (decision 033).
+  Future<SecureKey> prepareKey() async {
+    await _forgetPreviousVault();
+    return sodium.crypto.secretBox.keygen();
+  }
+
+  /// A new or restored vault starts without the old vault's keystore entries;
+  /// the iOS keychain can outlive an uninstall. Best effort: the keyfile is
+  /// written next and its cache refresh replaces or removes the key entry.
+  Future<void> _forgetPreviousVault() async {
+    for (final name in [_recoveryCheckedName, cacheName]) {
+      try {
+        await _storage.delete(key: name);
+      } catch (_) {}
+    }
+  }
 
   /// Makes [key] the vault identity: keyfile wrapped by [passcode], then the
   /// best-effort biometric cache.
@@ -96,7 +168,37 @@ class MasterKeyStore {
     await _refreshCache(key);
   }
 
+  /// The attempt is counted before the slow key derivation, so attempts
+  /// started together cannot all pass the lock check. (No future is kept on
+  /// this object: the derivation isolate receives a copy of it.)
   Future<SecureKey> unlockWithPasscode(String passcode) async {
+    final until = _lockedUntil;
+    if (until != null && _clock().isBefore(until)) {
+      throw PasscodeLockedException(until.difference(_clock()));
+    }
+    final failuresBefore = _failures;
+    final lockedBefore = _lockedUntil;
+    _failures++;
+    if (_failures >= _freeTries) {
+      final lock = _firstLock * (1 << (_failures - _freeTries).clamp(0, 10));
+      _lockedUntil = _clock().add(lock > _longestLock ? _longestLock : lock);
+    }
+    try {
+      final key = await _unlockWithPasscode(passcode);
+      _failures = 0;
+      _lockedUntil = null;
+      return key;
+    } on WrongPasscodeException {
+      rethrow;
+    } catch (_) {
+      // An unreadable keyfile is not a guess.
+      _failures = failuresBefore;
+      _lockedUntil = lockedBefore;
+      rethrow;
+    }
+  }
+
+  Future<SecureKey> _unlockWithPasscode(String passcode) async {
     final j = jsonDecode(await keyfile.readAsString());
     // Untrusted bytes: shape first, so a damaged file is a FormatException.
     if (j is! Map ||
@@ -174,6 +276,30 @@ class MasterKeyStore {
     ].join(' ');
   }
 
+  /// The master key as 21 words (decision 041). The same key as
+  /// [exportRecovery]; either form restores the vault.
+  Future<String> exportRecoveryWords(SecureKey key) async {
+    final list = await BackupPassphrase.words();
+    return key.runUnlockedSync((bytes) => RecoveryWords.encode(bytes, list));
+  }
+
+  /// A typed recovery key as text for [importRecovery]: the word form is
+  /// converted to base64, anything else passes through unchanged.
+  Future<String> recoveryText(String typed) async {
+    if (!RecoveryWords.looksLikeWords(typed)) return typed;
+    final list = await BackupPassphrase.words();
+    try {
+      final raw = RecoveryWords.decode(typed, list);
+      try {
+        return base64Encode(raw);
+      } finally {
+        raw.fillRange(0, raw.length, 0);
+      }
+    } on RecoveryWordsException catch (e) {
+      throw BadRecoveryKeyException(e.message, e);
+    }
+  }
+
   /// Short, human-comparable identity of a key: 32 bits of BLAKE2b as hex.
   /// Shown with the recovery key and checked when an empty vault adopts a
   /// typed key (decision 038). It reveals nothing useful about the key.
@@ -200,7 +326,7 @@ class MasterKeyStore {
     bool Function(SecureKey)? acceptsKey,
     Future<bool> Function(String fingerprint)? confirmFingerprint,
   }) async {
-    final key = importRecovery(recovery);
+    final key = importRecovery(await recoveryText(recovery));
     try {
       if (acceptsKey != null && !acceptsKey(key)) {
         throw BadRecoveryKeyException(
@@ -255,7 +381,8 @@ class MasterKeyStore {
   /// The keyfile is authoritative; a cache that cannot follow it is removed.
   Future<void> _refreshCache(SecureKey key) async {
     try {
-      await _cache(key);
+      // Off by default: nothing is written until Settings turns it on.
+      if (await hasCachedKey) await _cache(key);
     } catch (_) {
       await _storage.delete(key: cacheName);
     }
@@ -425,6 +552,7 @@ class MasterKeyStore {
     }
     final target = File('${dir.path}/.portable-restore/vault.keyfile.json');
     await _writeKeyfile(key, passcode, destination: target);
+    await _forgetPreviousVault();
     return target;
   }
 

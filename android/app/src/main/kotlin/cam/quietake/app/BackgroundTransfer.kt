@@ -33,6 +33,9 @@ class BackgroundTransfer(
     private val remember: (Set<String>) -> Unit = {},
     private val removed: MutableSet<String> = linkedSetOf(),
     private val rememberRemoved: (Set<String>) -> Unit = {},
+    /** Local capture name to NAS name (decision 026). Null keeps capture names;
+     *  otherwise a capture without an entry is left for the foreground sync. */
+    private val remoteNames: Map<String, String>? = null,
 ) {
     private val auth = Credentials.basic(username, password, Charsets.UTF_8)
     private val client = OkHttpClient.Builder()
@@ -216,10 +219,11 @@ class BackgroundTransfer(
                 check()
                 if (deleted(file.name)) continue
                 if (file.name in confirmed) continue
-                val hash = remoteDigest(file.name, file.length())
+                val remote = if (remoteNames == null) file.name else remoteNames[file.name] ?: continue
+                val hash = remoteDigest(remote, file.length())
                 if (hash != null && hash != digest(file, ::check)) throw BackgroundConflict()
-                if (hash == null && upload(file.name, file)) uploaded++
-                if (deleted(file.name)) remove(file.name)
+                if (hash == null && upload(remote, file)) uploaded++
+                if (deleted(file.name)) remove(remote)
                 else {
                     confirmed.add(file.name)
                     if (confirmed.size > 100000) confirmed.remove(confirmed.first())
@@ -233,6 +237,7 @@ class BackgroundTransfer(
                 ?.map { "$it.shtr" }?.filter { it !in removed }
                 ?.forEach {
                     remove(it)
+                    remoteNames?.get(it)?.let(::remove)
                     removed.add(it)
                     if (removed.size > 100000) removed.remove(removed.first())
                     rememberRemoved(removed)

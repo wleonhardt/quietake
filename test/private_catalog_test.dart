@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
@@ -11,11 +12,13 @@ void main() {
   late Vault vault;
   late Directory dir;
   late PrivateCatalog catalog;
+  late SecureKey masterKey;
   setUp(() async {
     final sodium = await SodiumSumoInit.init();
     final crypto = VaultCrypto(sodium);
     dir = await Directory.systemTemp.createTemp('private-catalog-');
-    vault = Vault(crypto, crypto.generateMasterKey(), dir);
+    masterKey = crypto.generateMasterKey();
+    vault = Vault(crypto, masterKey, dir);
     catalog = vault.catalog;
   });
   tearDown(() async {
@@ -378,4 +381,230 @@ void main() {
     await catalog.createAlbum('Local remains usable');
     expect(catalog.albums.values, ['Local remains usable']);
   });
+
+  test(
+    'a library too large to save is refused and leaves state unchanged',
+    () async {
+      await catalog.load();
+      // Enough long names to pass the size limit, whatever it is.
+      final names = {
+        for (var i = 0; i < PrivateCatalog.maxBytes ~/ 200; i++)
+          'capture-${'x' * 200}-$i.shtr',
+      };
+      await expectLater(
+        catalog.organize(names, favorite: true),
+        throwsA(isA<FormatException>()),
+      );
+      expect(catalog.items, isEmpty);
+      expect(await catalog.file.exists(), isFalse);
+    },
+  );
+
+  test('a catalog larger than the size limit is refused on load', () async {
+    final padding = 'x' * (PrivateCatalog.maxBytes + 1);
+    await vault.writeMetadata(
+      catalog.file,
+      utf8.encode(
+        jsonEncode({'version': 1, 'albums': {}, 'items': {}, 'pad': padding}),
+      ),
+    );
+    await expectLater(
+      PrivateCatalog(vault).load(),
+      throwsA(isA<FormatException>()),
+    );
+  });
+
+  test('edits naming a deleted tag are refused and change nothing', () async {
+    await catalog.load();
+    final tag = await catalog.createAlbum('Gone');
+    await catalog.deleteAlbum(tag);
+    await expectLater(catalog.renameAlbum(tag, 'Back'), throwsFormatException);
+    await expectLater(
+      catalog.organize({'one.jpg.shtr'}, albumId: tag),
+      throwsFormatException,
+    );
+    expect(catalog.albums, isEmpty);
+    expect(catalog.items, isEmpty);
+  });
+
+  group('tag covers', () {
+    const cover = 'one.jpg.shtr';
+
+    test(
+      'a cover survives reopen and a file without covers still loads',
+      () async {
+        await catalog.load();
+        final tag = await catalog.createAlbum('Trips');
+        expect(catalog.covers, isEmpty);
+        final plain = jsonDecode(
+          utf8.decode(await _plain(vault, catalog.file)),
+        );
+        expect(plain.containsKey('covers'), isFalse);
+
+        await catalog.setCover(tag, cover);
+        final reopened = PrivateCatalog(vault);
+        await reopened.load();
+        expect(reopened.covers, {tag: cover});
+        await reopened.close();
+
+        await catalog.setCover(tag, null);
+        expect(catalog.covers, isEmpty);
+      },
+    );
+
+    test('older schema-one files without covers decode unchanged', () async {
+      await vault.writeMetadata(
+        catalog.file,
+        utf8.encode('{"version":1,"albums":{"a":"Old"},"items":{}}'),
+      );
+      await catalog.load();
+      expect(catalog.albums, {'a': 'Old'});
+      expect(catalog.covers, isEmpty);
+    });
+
+    test('invalid covers are rejected before adoption', () async {
+      for (final covers in [
+        '{"unknown":"$cover"}',
+        '{"a":"../x.shtr"}',
+        '{"a":"photo.jpg"}',
+        '{"a":3}',
+        '[]',
+      ]) {
+        await vault.writeMetadata(
+          catalog.file,
+          utf8.encode(
+            '{"version":1,"albums":{"a":"Old"},"items":{},"covers":$covers}',
+          ),
+        );
+        await expectLater(
+          PrivateCatalog(vault).load(),
+          throwsA(isA<FormatException>()),
+          reason: covers,
+        );
+      }
+    });
+
+    test('setCover refuses a missing tag and a bad name', () async {
+      await catalog.load();
+      await expectLater(catalog.setCover('nope', cover), throwsFormatException);
+      final tag = await catalog.createAlbum('Trips');
+      await expectLater(catalog.setCover(tag, 'x.jpg'), throwsFormatException);
+      expect(catalog.covers, isEmpty);
+    });
+
+    test(
+      'deleting a tag, deleting the media and merging keep covers consistent',
+      () async {
+        await catalog.load();
+        final a = await catalog.createAlbum('A');
+        final b = await catalog.createAlbum('B');
+        final c = await catalog.createAlbum('C');
+        await catalog.setCover(a, cover);
+        await catalog.setCover(b, 'two.jpg.shtr');
+        await catalog.setCover(c, 'three.jpg.shtr');
+
+        await catalog.mergeTags(a, b);
+        // The destination keeps its own cover; the source cover is dropped.
+        expect(catalog.covers, {b: 'two.jpg.shtr', c: 'three.jpg.shtr'});
+
+        await catalog.deleteAlbum(c);
+        expect(catalog.covers, {b: 'two.jpg.shtr'});
+
+        await File('${dir.path}/two.jpg.shtr').writeAsBytes([1]);
+        await vault.delete(File('${dir.path}/two.jpg.shtr'));
+        await catalog.forgetDeleted();
+        expect(catalog.covers, isEmpty);
+      },
+    );
+
+    test(
+      'merging gives the destination the source cover when it has none',
+      () async {
+        await catalog.load();
+        final a = await catalog.createAlbum('A');
+        final b = await catalog.createAlbum('B');
+        await catalog.setCover(a, cover);
+        await catalog.mergeTags(a, b);
+        expect(catalog.covers, {b: cover});
+      },
+    );
+  });
+
+  test('a closed catalog refuses edits', () async {
+    await catalog.load();
+    await catalog.close();
+    await expectLater(catalog.createAlbum('Late'), throwsStateError);
+  });
+
+  group('remote names', () {
+    const media = 'one.jpg.shtr';
+
+    test('no mapping writes no field and a plain file still loads', () async {
+      await catalog.load();
+      await catalog.createAlbum('Trips');
+      final plain = jsonDecode(utf8.decode(await _plain(vault, catalog.file)));
+      expect(plain.containsKey('remoteNames'), isFalse);
+      expect(catalog.remoteNames.isEmpty, isTrue);
+    });
+
+    test(
+      'an assigned name is stable, survives reopen and other edits',
+      () async {
+        await catalog.load();
+        final first = await catalog.assignRemoteName(media, Random(1));
+        expect(first, matches(RegExp(r'^[0-9a-f]{32}\.shtr$')));
+        expect(await catalog.assignRemoteName(media, Random(2)), first);
+        await catalog.createAlbum('Trips');
+        await catalog.organize({media}, favorite: true);
+        final reopened = PrivateCatalog(vault);
+        await reopened.load();
+        expect(reopened.remoteNames.remoteFor(media), first);
+        await reopened.close();
+        final plain = utf8.decode(await _plain(vault, catalog.file));
+        expect(plain, contains(first));
+        final raw = utf8.decode(
+          await catalog.file.readAsBytes(),
+          allowMalformed: true,
+        );
+        expect(raw, isNot(contains(first)));
+      },
+    );
+
+    test('invalid mappings are rejected before adoption', () async {
+      for (final names in [
+        '{"a.shtr":"dir/b.shtr"}',
+        '{"a.shtr":"b.txt"}',
+        '[]',
+        '{"a.shtr":"s.shtr","b.shtr":"s.shtr"}',
+      ]) {
+        await vault.writeMetadata(
+          catalog.file,
+          utf8.encode(
+            '{"version":1,"albums":{},"items":{},"remoteNames":$names}',
+          ),
+        );
+        await expectLater(
+          PrivateCatalog(vault).load(),
+          throwsA(isA<FormatException>()),
+          reason: names,
+        );
+      }
+    });
+
+    test('a restored catalog brings its mapping with it', () async {
+      await catalog.load();
+      final name = await catalog.assignRemoteName(media, Random(1));
+      final copy = File('${dir.path}/copy.catalog');
+      await catalog.file.copy(copy.path);
+      final other = Directory('${dir.path}/other')..createSync();
+      final peer = PrivateCatalog(Vault(vault.crypto, masterKey, other));
+      await peer.restore(copy);
+      expect(peer.remoteNames.remoteFor(media), name);
+      await peer.close();
+    });
+  });
 }
+
+Future<List<int>> _plain(Vault vault, File file) async => [
+  for (final chunk in await vault.read(file).toList()) ...chunk,
+];

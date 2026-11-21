@@ -184,9 +184,9 @@ func TestWebDAVRejectsUnboundedRecoveryListing(t *testing.T) {
 				w.WriteHeader(http.StatusMultiStatus)
 				io.WriteString(w, `<D:multistatus xmlns:D="DAV:">`)
 				if mode == "bytes" {
-					io.WriteString(w, "<!--"+strings.Repeat("x", 16*1024*1024)+"-->")
+					io.WriteString(w, "<!--"+strings.Repeat("x", 64*1024*1024)+"-->")
 				} else {
-					for i := 0; i < 10001; i++ {
+					for i := 0; i < 40001; i++ {
 						fmt.Fprintf(w, `<D:response><D:href>/vault/capture-%d.shtr</D:href></D:response>`, i)
 					}
 				}

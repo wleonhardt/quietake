@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart' show getCrc32;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quietake/crypto/share_bundle.dart';
 import 'package:quietake/crypto/vault_crypto.dart';
 import 'package:quietake/gallery/item.dart';
 import 'package:quietake/gallery/share_media.dart';
@@ -12,6 +14,7 @@ import 'package:quietake/vault/vault.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../test_support/exif_fixture.dart';
+import '../test_support/png_fixture.dart';
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -71,6 +74,56 @@ void main() {
     expect(await vault.list(), hasLength(1));
     expect(await vault.readAll(item.file), original);
   });
+
+  test(
+    'a passphrase shares one bundle with neutral names and no plain copies',
+    () async {
+      final second = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/b.mp4').writeAsBytes([1, 2, 3]),
+          'second.mp4',
+        ),
+      );
+      late File bundleCopy;
+      var shared = 0;
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        shared++;
+        final args = call.arguments as Map;
+        final file = File((args['paths'] as List).single as String);
+        expect(file.path, endsWith('.quietake-share'));
+        expect(args['mimeTypes'], ['application/octet-stream']);
+        // Nothing but the bundle may be in the folder handed to the chooser.
+        expect(file.parent.listSync().map((e) => e.path), [file.path]);
+        bundleCopy = await file.copy('${root.path}/copy.quietake-share');
+        return '';
+      });
+      await shareMediaCopies(
+        vault,
+        [item, second],
+        origin: origin,
+        passphrase: 'correct horse battery staple',
+        isActive: () => true,
+      );
+      expect(shared, 1);
+      expect(await Directory('${root.path}/quietake-share').exists(), isFalse);
+      final out = await Directory('${root.path}/opened').create();
+      final names = await ShareBundle(vault.crypto.sodium)
+          .extract(bundleCopy, 'correct horse battery staple', out);
+      expect(names, ['video-01.mp4', 'video-02.mp4']);
+      expect(await File('${out.path}/video-01.mp4').readAsBytes(), original);
+      expect(await File('${out.path}/video-02.mp4').readAsBytes(), [1, 2, 3]);
+      await expectLater(
+        ShareBundle(vault.crypto.sodium).extract(
+          bundleCopy,
+          'wrong passphrase wrong',
+          await Directory('${root.path}/nope').create(),
+        ),
+        throwsA(isA<ShareBundleException>()),
+      );
+    },
+  );
 
   test('leaving the viewer during export prevents the share sheet', () async {
     binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (_) async {
@@ -162,6 +215,19 @@ void main() {
       expect(await vault.list(), hasLength(1));
     },
   );
+  test(
+    'startup cleanup also removes interrupted import copies; a share does not',
+    () async {
+      final staging = await Directory('${root.path}/quietake-import').create();
+      final copy = File('${staging.path}/interrupted.jpg');
+      await copy.writeAsBytes([1, 2, 3]);
+      await clearShareFiles();
+      expect(await copy.exists(), isTrue, reason: 'an import may be running');
+      await clearShareFiles(atStartup: true);
+      expect(await staging.exists(), isFalse);
+      expect(await vault.list(), hasLength(1));
+    },
+  );
   test('each export has a fresh filename so old URI grants cannot read a later share', () async {
     final names = <String>[];
     binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
@@ -177,9 +243,10 @@ void main() {
   });
   test('mixed batch snapshots selection, preserves MIME, reports progress and cleans copies', () async {
     final selected = <VaultItem>[item];
+    final png = await gradientPng();
     for (final extension in ['jpg', 'png']) {
       final plain = await File('${root.path}/input.$extension')
-          .writeAsBytes([1, 2, 3]);
+          .writeAsBytes(extension == 'png' ? png : [1, 2, 3]);
       selected.add(VaultItem(await vault.ingestAs(plain, 'test.$extension')));
     }
     final progress = <int>[];
@@ -192,7 +259,11 @@ void main() {
       expect(files.toSet(), hasLength(3));
       expect(await File(files[0]).readAsBytes(), original);
       expect(await File(files[1]).readAsBytes(), [1, 2, 3]);
-      expect(await File(files[2]).readAsBytes(), [1, 2, 3]);
+      // A PNG copy is rebuilt from its pixels (no metadata), so only its
+      // signature is fixed.
+      expect((await File(files[2]).readAsBytes()).sublist(0, 8), [
+        137, 80, 78, 71, 13, 10, 26, 10, //
+      ]);
       return '';
     });
     await shareMediaCopies(
@@ -304,8 +375,138 @@ void main() {
     },
   );
 
+  test('a PNG copy loses its text chunks unless metadata is kept', () async {
+    // A tEXt chunk right after the 33-byte signature and header.
+    final plain = await gradientPng();
+    final body = [...'tEXt'.codeUnits, ...'Comment\x00GPSLatitude=37.8'.codeUnits];
+    final crc = getCrc32(body);
+    final png = Uint8List.fromList([
+      ...plain.sublist(0, 33),
+      ...[0, 0, 0, body.length - 4],
+      ...body,
+      ...[crc >> 24 & 255, crc >> 16 & 255, crc >> 8 & 255, crc & 255],
+      ...plain.sublist(33),
+    ]);
+    bool hasLocation(Uint8List bytes) =>
+        String.fromCharCodes(bytes).contains('GPSLatitude');
+    expect(hasLocation(png), isTrue);
+    final photo = VaultItem(
+      await vault.ingestAs(
+        await File('${root.path}/t.png').writeAsBytes(png),
+        't.png',
+      ),
+    );
+    final sent = <Uint8List>[];
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+      call,
+    ) async {
+      for (final path in (call.arguments as Map)['paths'] as List) {
+        sent.add(await File(path as String).readAsBytes());
+      }
+      return '';
+    });
+    await shareMediaCopies(vault, [photo], origin: origin, isActive: () => true);
+    await shareMediaCopies(
+      vault,
+      [photo],
+      origin: origin,
+      stripLocation: false,
+      isActive: () => true,
+    );
+    expect(sent, hasLength(2));
+    expect(sent[0].sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+    expect(hasLocation(sent[0]), isFalse, reason: 'rebuilt from pixels');
+    expect(sent[1], png, reason: 'kept as it is when metadata is kept');
+    expect(await vault.readAll(photo.file), png);
+  });
+
   test(
-    'photo copies lose their GPS directory unless the caller keeps it',
+    'redacted photos share as a metadata-free PNG; others are untouched',
+    () async {
+      final png = await gradientPng();
+      final photo = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/g.png').writeAsBytes(png),
+          'g.png',
+        ),
+      );
+      final gps = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/h.jpg').writeAsBytes(jpegWithGps()),
+          'h.jpg',
+        ),
+      );
+      final names = <String>[];
+      final mimes = <dynamic>[];
+      final sent = <Uint8List>[];
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        mimes.addAll(args['mimeTypes'] as List);
+        for (final path in args['paths'] as List) {
+          names.add((path as String).split('/').last);
+          sent.add(await File(path).readAsBytes());
+        }
+        return '';
+      });
+      await shareMediaCopies(
+        vault,
+        [photo, gps],
+        origin: origin,
+        redactions: {
+          photo.name: [const Rect.fromLTRB(.25, .25, .75, .75)],
+        },
+        isActive: () => true,
+      );
+      expect(mimes, ['image/png', 'image/jpeg']);
+      expect(names[0], matches(RegExp(r'^photo-[0-9a-f]{32}\.png$')));
+      expect(sent[0].sublist(0, 8), [137, 80, 78, 71, 13, 10, 26, 10]);
+      expect(sent[0], isNot(png));
+      // The other photo only had its metadata reduced, still a JPEG.
+      expect(names[1], endsWith('.jpg'));
+      expect(sent[1].sublist(0, 2), [0xff, 0xd8]);
+      // The vault original is unchanged.
+      expect(await vault.readAll(photo.file), png);
+    },
+  );
+
+  test(
+    'a GPS JPEG that is redacted becomes a PNG even if metadata is kept',
+    () async {
+      final jpeg = jpegWithGps();
+      final photo = VaultItem(
+        await vault.ingestAs(
+          await File('${root.path}/r.jpg').writeAsBytes(jpeg),
+          'r.jpg',
+        ),
+      );
+      final sent = <Uint8List>[];
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
+        call,
+      ) async {
+        final args = call.arguments as Map;
+        for (final path in args['paths'] as List) {
+          sent.add(await File(path as String).readAsBytes());
+        }
+        return '';
+      });
+      await shareMediaCopies(
+        vault,
+        [photo],
+        origin: origin,
+        stripLocation: false,
+        redactions: {
+          photo.name: [const Rect.fromLTRB(0, 0, .5, .5)],
+        },
+        isActive: () => true,
+      );
+      expect(sent.single.sublist(0, 4), [137, 80, 78, 71]);
+    },
+  );
+
+  test(
+    'photo copies keep only orientation unless the caller keeps everything',
     () async {
       final photo = VaultItem(
         await vault.ingestAs(
@@ -328,9 +529,12 @@ void main() {
         origin: origin,
         isActive: () => true,
       );
-      expect(gpsEntryCount(Uint8List.fromList(sent.single)), 0);
-      expect(sent.single.sublist(12 + 38, 12 + 92), everyElement(0));
-      expect(sent.single.length, jpegWithGps().length);
+      final copy = Uint8List.fromList(sent.single);
+      expect(copy.length, lessThan(jpegWithGps().length - 40));
+      // The rebuilt EXIF segment holds one entry: orientation 6.
+      expect(ByteData.sublistView(copy).getUint16(12 + 8), 1);
+      expect(ByteData.sublistView(copy).getUint16(12 + 10), 0x0112);
+      expect(ByteData.sublistView(copy).getUint16(12 + 18), 6);
       await shareMediaCopies(
         vault,
         [photo],
@@ -344,10 +548,10 @@ void main() {
   );
 
   test(
-    'unsafe GPS metadata aborts the entire batch and clears prepared copies',
+    'unsafe metadata aborts the entire batch and clears prepared copies',
     () async {
       final malformed = jpegWithGps();
-      ByteData.sublistView(malformed).setUint32(12 + 60, 8, Endian.little);
+      ByteData.sublistView(malformed).setUint32(12 + 4, 5000, Endian.little);
       final photo = VaultItem(
         await vault.ingestAs(
           await File('${root.path}/unsafe.jpg').writeAsBytes(malformed),

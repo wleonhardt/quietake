@@ -1,11 +1,22 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sodium/sodium_sumo.dart';
 
 import '../auth/authenticator.dart';
 import '../keys.dart';
+import '../privacy/screen_privacy.dart';
+import '../settings/launcher_appearance.dart';
+import '../l10n/l10n.dart';
 import '../form_body.dart';
 import '../brand.dart';
+import '../camera/locked_camera_screen.dart';
+import '../camera/locked_capture_store.dart';
+import '../crypto/pending_crypto.dart';
 import '../vault/master_key_store.dart';
+import '../vault/pending_key_store.dart';
+import '../vault/vault.dart';
 import 'setup_screen.dart';
 
 /// Passcode or biometric unlock. Produces the master key; the caller decides
@@ -19,6 +30,7 @@ class LockScreen extends StatefulWidget {
     this.autoPrompt = true,
     this.acceptsRecoveryKey,
     this.message,
+    this.vaultDir = Vault.defaultDir,
   });
 
   /// Shown until the next attempt, e.g. why the previous unlock did not open.
@@ -26,6 +38,9 @@ class LockScreen extends StatefulWidget {
   final bool autoPrompt;
   final bool Function(SecureKey)? acceptsRecoveryKey;
   final MasterKeyStore store;
+
+  /// Where sealed captures wait while locked; replaced in tests.
+  final Future<Directory> Function() vaultDir;
   final Authenticator auth;
   final void Function(SecureKey key) onUnlocked;
 
@@ -36,23 +51,86 @@ class LockScreen extends StatefulWidget {
 class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   final _pass = TextEditingController();
   bool _busy = false;
+  bool _plain = false;
+  bool _showPasscode = false;
   bool _biometric = false;
   bool _prompting = false;
   bool _resumePrompt = false;
   int _attempt = 0;
-  String? _error;
+  Uint8List? _publicKey;
+  String Function(AppLocalizations)? _error;
+
+  static String Function(AppLocalizations)? _text(String? message) =>
+      message == null ? null : (_) => message;
 
   @override
   void initState() {
     super.initState();
-    _error = widget.message;
+    _error = _text(widget.message);
     WidgetsBinding.instance.addObserver(this);
     _probe();
+    LauncherAppearance.neutral().then((plain) {
+      if (mounted && plain == true) setState(() => _plain = true);
+    });
+    _loadPublicKey().then((_) => _openCameraIfRequested());
+  }
+
+  bool _cameraOpen = false;
+
+  /// The Android camera tile asks the native side to bring the app up for the
+  /// locked camera only (decision 028). The native flag is read once, and a
+  /// vault without a key pair offers no camera, tile or not.
+  Future<void> _openCameraIfRequested() async {
+    if (!mounted || _cameraOpen) return;
+    bool asked;
+    try {
+      asked =
+          await ScreenPrivacy.channel.invokeMethod<bool>('takeLockedCamera') ??
+          false;
+    } on MissingPluginException {
+      return;
+    }
+    if (asked && mounted && _publicKey != null) await _openCamera();
+  }
+
+  /// The locked camera needs the vault public key; a vault that has none yet
+  /// (never unlocked since this feature) offers no camera.
+  Future<void> _loadPublicKey() async {
+    final key = await PendingKeyStore(
+      widget.store.sodium,
+      widget.store.dir,
+    ).publicKey();
+    if (mounted && key != null) setState(() => _publicKey = key);
+  }
+
+  Future<void> _openCamera() async {
+    final key = _publicKey;
+    if (key == null) return;
+    if (_cameraOpen) return;
+    _cameraOpen = true;
+    try {
+      final dir = await widget.vaultDir();
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => LockedCameraScreen(
+            store: LockedCaptureStore(PendingCrypto(widget.store.sodium), dir),
+            publicKey: key,
+          ),
+        ),
+      );
+    } catch (_) {
+      if (mounted) setState(() => _error = (l) => l.camUnavailable);
+    } finally {
+      _cameraOpen = false;
+    }
   }
 
   @override
   void didUpdateWidget(covariant LockScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // The app reports a failed vault open through the same, still-mounted screen.
+    if (widget.message != oldWidget.message) _error = _text(widget.message);
     if (oldWidget.autoPrompt && !widget.autoPrompt) {
       _attempt++;
       _resumePrompt = false;
@@ -64,6 +142,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   /// Leaving mid-prompt: dismiss it, or the plugin refuses the next one.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _openCameraIfRequested();
     if (state == AppLifecycleState.paused) {
       _resumePrompt = widget.autoPrompt || _prompting;
       _attempt++;
@@ -136,16 +215,17 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
     }
     _resumePrompt = false;
     final attempt = ++_attempt;
+    final reason = context.l10n.lockUnlockReason;
     setState(() {
       _prompting = true;
       _error = null;
     });
     try {
-      final ok = await widget.auth.authenticate('Unlock Quietake');
+      final ok = await widget.auth.authenticate(reason);
       if (!mounted || attempt != _attempt) return;
       if (!ok) {
         final why = widget.auth.lastError;
-        if (why != null) setState(() => _error = why);
+        if (why != null) setState(() => _error = _text(why));
         return;
       }
       SecureKey? key;
@@ -159,7 +239,7 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
         if (mounted && attempt == _attempt) {
           setState(() {
             _biometric = false;
-            _error = 'Biometric unlock is unavailable. Use your passcode.';
+            _error = (l10n) => l10n.lockBiometricUnavailable;
           });
         }
       } else if (mounted && attempt == _attempt) {
@@ -186,16 +266,17 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
       } else {
         key.dispose();
       }
-    } on WrongPasscodeException catch (e) {
+    } on PasscodeLockedException catch (e) {
       if (mounted && attempt == _attempt) {
-        setState(() => _error = e.toString());
+        setState(() => _error = (l10n) => passcodeLockedMessage(l10n, e));
+      }
+    } on WrongPasscodeException {
+      if (mounted && attempt == _attempt) {
+        setState(() => _error = (l10n) => l10n.settingsWrongPasscode);
       }
     } catch (_) {
       if (mounted && attempt == _attempt) {
-        setState(
-          () =>
-              _error = 'Could not unlock. Try again or use your recovery key.',
-        );
+        setState(() => _error = (l10n) => l10n.lockFailed);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -204,31 +285,65 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: FormBody(
         centered: true,
         children: [
-          const BrandHeader(message: 'Unlock your private vault.'),
+          BrandHeader(message: l10n.lockMessage, plain: _plain),
           TextField(
             key: Keys.lockPasscode,
             controller: _pass,
-            obscureText: true,
+            obscureText: !_showPasscode,
             autofocus: !_biometric,
             onSubmitted: (_) => _usePasscode(),
-            decoration: const InputDecoration(labelText: 'Passcode'),
+            decoration: InputDecoration(
+              labelText: l10n.passcodeLabel,
+              suffixIcon: IconButton(
+                key: Keys.lockShowPasscode,
+                tooltip: _showPasscode ? l10n.passcodeHide : l10n.passcodeShow,
+                icon: Icon(
+                  _showPasscode
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+                onPressed: () => setState(() => _showPasscode = !_showPasscode),
+              ),
+              // Under the field and above the buttons, so it stays in view
+              // while the keyboard is up.
+              error: _error == null
+                  ? null
+                  : Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        _error!(l10n),
+                        key: Keys.lockError,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ),
+            ),
           ),
           const SizedBox(height: 16),
           FilledButton(
             key: Keys.lockUnlock,
             onPressed: _busy || _prompting ? null : _usePasscode,
-            child: const Text('Unlock'),
+            child: Text(_busy ? l10n.formWorking : l10n.lockUnlock),
           ),
           if (_biometric)
             TextButton.icon(
               key: Keys.lockBiometric,
               icon: const Icon(Icons.fingerprint),
-              label: const Text('Use biometrics'),
+              label: Text(l10n.lockUseBiometrics),
               onPressed: _busy || _prompting ? null : _useBiometric,
+            ),
+          if (_publicKey != null)
+            TextButton.icon(
+              key: Keys.lockCamera,
+              icon: const Icon(Icons.photo_camera_outlined),
+              label: Text(l10n.lockCamera),
+              onPressed: _busy || _prompting ? null : _openCamera,
             ),
           TextButton(
             key: Keys.lockRecovery,
@@ -247,17 +362,8 @@ class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
-            child: const Text('Forgot passcode?'),
+            child: Text(l10n.lockForgot),
           ),
-          if (_error != null)
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                _error!,
-                key: Keys.lockError,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
         ],
       ),
     );

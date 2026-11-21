@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
@@ -41,6 +43,24 @@ void main() {
     await root.delete(recursive: true);
   });
 
+  test('export leaves out captures in Recently deleted', () async {
+    final extra = await File('${root.path}/input2').writeAsBytes([9, 9, 9]);
+    final trashed = await vault.ingestAs(extra, 'trashed.jpg');
+    await vault.trash(trashed);
+
+    await backup.export(archive);
+    final stage = await backup.stage(archive, root);
+    final restored = Vault(vault.crypto, key.copy(), stage);
+    try {
+      final names = (await restored.list()).map((f) => f.uri.pathSegments.last);
+      expect(names, ['private-title.jpg.shtr']);
+    } finally {
+      await restored.catalog.close();
+      restored.dispose();
+      await stage.delete(recursive: true);
+    }
+  });
+
   test('encrypted ZIP round trip preserves media and catalog without exposing original names', () async {
     final before = await (await vault.list()).single.readAsBytes();
     await backup.export(archive);
@@ -76,6 +96,93 @@ void main() {
     }
     expect(await (await vault.list()).single.readAsBytes(), before);
   });
+
+  test(
+    'random damage to an entry payload is refused and leaves no staging',
+    () async {
+      await backup.export(archive);
+      final good = await archive.readAsBytes();
+      // Only the encrypted payload of each entry is authenticated. ZIP framing
+      // such as times, data descriptors and attributes is not, and readers use
+      // the central directory instead of it.
+      final payloads = <(int, int)>[];
+      final input = InputFileStream(archive.path);
+      try {
+        for (final h in (ZipDirectory()..read(input)).fileHeaders) {
+          final start =
+              h.localHeaderOffset +
+              30 +
+              utf8.encode(h.filename).length +
+              (h.extraField?.length ?? 0);
+          payloads.add((start, h.compressedSize));
+        }
+      } finally {
+        await input.close();
+      }
+      final random = Random(20261117);
+      for (var run = 0; run < 40; run++) {
+        final bad = Uint8List.fromList(good);
+        final (start, length) = payloads[random.nextInt(payloads.length)];
+        bad[start + random.nextInt(length)] ^= 1 + random.nextInt(255);
+        await archive.writeAsBytes(bad);
+        try {
+          await backup.stage(archive, root);
+          fail('run $run: a changed payload byte was accepted');
+        } on TestFailure {
+          rethrow;
+        } on Exception {
+          // Refused; an Error would escape and fail the test.
+        }
+        expect(
+          root.listSync().whereType<Directory>().map(
+            (d) => d.uri.pathSegments.where((s) => s.isNotEmpty).last,
+          ),
+          ['vault'],
+          reason: 'run $run',
+        );
+      }
+    },
+  );
+
+  test(
+    'a changed byte in the central directory is refused or harmless',
+    () async {
+      await backup.export(archive);
+      final good = await archive.readAsBytes();
+      final before = await (await vault.list()).single.readAsBytes();
+      final eocd = _lastIndexOf(good, [0x50, 0x4b, 0x05, 0x06]);
+      final central = _lastIndexOf(good, [0x50, 0x4b, 0x01, 0x02], eocd);
+      var first = central;
+      for (var i = 0; i + 3 < eocd; i++) {
+        if (good[i] == 0x50 &&
+            good[i + 1] == 0x4b &&
+            good[i + 2] == 1 &&
+            good[i + 3] == 2) {
+          first = i;
+          break;
+        }
+      }
+      // Every third byte keeps the run short; the full sweep was checked once.
+      for (var at = first; at < good.length; at += 3) {
+        final bad = Uint8List.fromList(good)..[at] ^= 0x01;
+        await archive.writeAsBytes(bad);
+        try {
+          final stage = await backup.stage(archive, root);
+          final restored = Vault(vault.crypto, key.copy(), stage);
+          try {
+            final file = (await restored.list()).single;
+            expect(await file.readAsBytes(), before, reason: 'offset $at');
+          } finally {
+            await restored.catalog.close();
+            restored.dispose();
+            await stage.delete(recursive: true);
+          }
+        } on Exception {
+          // Refused.
+        }
+      }
+    },
+  );
 
   test('wrong key rejects before staging becomes visible and preserves source archive', () async {
     await backup.export(archive);
@@ -258,4 +365,15 @@ void main() {
       expect(await source.length(), 64 * 1024 * 1024);
     },
   );
+}
+
+int _lastIndexOf(Uint8List b, List<int> sig, [int? before]) {
+  for (var i = (before ?? b.length) - sig.length; i >= 0; i--) {
+    var hit = true;
+    for (var j = 0; j < sig.length && hit; j++) {
+      hit = b[i + j] == sig[j];
+    }
+    if (hit) return i;
+  }
+  return -1;
 }

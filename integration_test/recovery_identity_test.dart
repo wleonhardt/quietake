@@ -18,8 +18,7 @@ void main() {
       for (final entry in await app.vault.dir.list().toList()) {
         await entry.delete(recursive: true);
       }
-      (await app.session.store.createWithPasscode('identity-test-old'))
-          .dispose();
+      await app.setPasscode('identity-test-old');
       final foreign = app.vault.crypto.generateMasterKey();
       Future<void> until(bool Function() done) async {
         final deadline = DateTime.now().add(const Duration(seconds: 30));

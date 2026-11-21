@@ -106,4 +106,21 @@ void main() {
       reason: 'A plain phrase does not silently become recognition or tokens',
     );
   });
+
+  test('a month filter keeps only captures taken in that local month', () {
+    final dated = [
+      VaultItem(File('/vault/2026-11-03T10-00-00.jpg.shtr')),
+      VaultItem(File('/vault/2026-11-20T08-30-00.mp4.shtr')),
+      VaultItem(File('/vault/2026-10-31T23-59-59.jpg.shtr')),
+      VaultItem(File('/vault/not-a-date.jpg.shtr')),
+    ];
+    List<String> inMonth(DateTime month) =>
+        LibraryQuery(month: month)
+            .apply(dated, const {}, const {})
+            .map((i) => i.name)
+            .toList();
+    expect(inMonth(DateTime(2026, 11)), [dated[1].name, dated[0].name]);
+    expect(inMonth(DateTime(2026, 10)), [dated[2].name]);
+    expect(inMonth(DateTime(2025, 11)), isEmpty);
+  });
 }

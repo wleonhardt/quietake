@@ -1,5 +1,6 @@
 package cam.quietake.app
 
+import android.content.ComponentName
 import android.content.Intent
 import android.Manifest
 import android.content.pm.PackageManager
@@ -13,6 +14,8 @@ import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 
 class MainActivity : FlutterFragmentActivity() {
@@ -21,13 +24,56 @@ class MainActivity : FlutterFragmentActivity() {
     private var microphoneResult: MethodChannel.Result? = null
     private var privacyChannel: MethodChannel? = null
     private lateinit var privateImport: PrivateImport
+    // Created on first use: a cold start from "Open with" reaches handleLaunch in
+    // onCreate, before the Flutter engine is configured.
+    private val incomingShareLazy = lazy { IncomingShare(this) }
+    private val incomingShare get() = incomingShareLazy.value
+    private lateinit var folderImport: FolderImport
     private lateinit var portableFiles: PortableFiles
     private lateinit var videoPreparation: VideoPreparation
     private lateinit var backgroundUploads: BackgroundUploads
 
+    companion object {
+        const val LOCKED_CAMERA = "cam.quietake.app.LOCKED_CAMERA"
+    }
+
+    /** Set by the camera tile; the Dart lock screen takes it once (decision 028). */
+    @Volatile private var lockedCameraRequested = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         super.onCreate(savedInstanceState)
+        handleLaunch(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleLaunch(intent)
+    }
+
+    /**
+     * Only the camera tile's action may show this window over the device lock
+     * screen. The app is locked first, so an unlocked session never appears
+     * there, and the flag is dropped as soon as the activity pauses.
+     */
+    private fun handleLaunch(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_VIEW) incomingShare.accept(intent)
+        if (intent?.action != LOCKED_CAMERA) return
+        intent.action = null
+        // Any app can send this action to an exported activity; only the tile
+        // holds a ticket.
+        if (!LockedCameraTicket.redeem(intent.getStringExtra(LockedCameraTicket.EXTRA))) return
+        lockedCameraRequested = true
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+        privacyChannel?.invokeMethod("lockNow", null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        lockedCameraRequested = false
+        setShowWhenLocked(false)
+        setTurnScreenOn(false)
     }
 
     override fun onUserLeaveHint() {
@@ -42,13 +88,28 @@ class MainActivity : FlutterFragmentActivity() {
             .setMethodCallHandler(backgroundUploads::handle)
         videoPreparation = VideoPreparation(this)
         privateImport = PrivateImport(this)
+        incomingShareLazy.value // creating it removes copies left by an earlier process
         portableFiles = PortableFiles(this)
+        folderImport = FolderImport(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/folder")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "pick" -> folderImport.pick(result, call.argument<Boolean>("subfolders") == true)
+                    "copy" -> folderImport.copy(call.argument<String>("id")!!, call.argument<String>("directory")!!, result)
+                    "cancel" -> { folderImport.cancel(); result.success(null) }
+                    "release" -> folderImport.release(result)
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/backup")
             .setMethodCallHandler { call, result -> portableFiles.handle(call, result) }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/import")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "pick" -> privateImport.pick(result)
+                    "pickShare" -> privateImport.pick(result, bundle = true)
+                    "incomingShare" -> incomingShare.available(result)
+                    "takeIncomingShare" -> incomingShare.take(File(cacheDir, "quietake-import"), result)
                     "clear" -> privateImport.clear(result)
                     "cancel" -> { privateImport.cancel(); result.success(null) }
                     else -> result.notImplemented()
@@ -70,8 +131,43 @@ class MainActivity : FlutterFragmentActivity() {
                     requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), microphoneRequestCode)
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/screen")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "keepAwake") { result.notImplemented(); return@setMethodCallHandler }
+                if (call.arguments == true) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+                result.success(null)
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/appearance")
+            .setMethodCallHandler { call, result ->
+                fun set(name: String, state: Int) = packageManager.setComponentEnabledSetting(
+                    ComponentName(this, name), state, PackageManager.DONT_KILL_APP
+                )
+                when (call.method) {
+                    "neutral" -> result.success(
+                        packageManager.getComponentEnabledSetting(ComponentName(this, LauncherEntries.NEUTRAL)) ==
+                            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    )
+                    "setNeutral" -> try {
+                        // Enable the wanted entry first so a launcher entry always exists.
+                        val (enable, disable) = LauncherEntries.switchTo(call.arguments == true)
+                        set(enable, PackageManager.COMPONENT_ENABLED_STATE_ENABLED)
+                        set(disable, PackageManager.COMPONENT_ENABLED_STATE_DISABLED)
+                        // Earlier development builds disabled the activity itself; put it back.
+                        set(MainActivity::class.java.name, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        result.error("failed", "Could not switch the launcher entry", null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         val privacy = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/privacy")
         privacyChannel = privacy
+        LockBridge.channel = privacy
         privacy.setMethodCallHandler { call, result ->
             when (call.method) {
                 "status" -> result.success(mapOf(
@@ -79,11 +175,29 @@ class MainActivity : FlutterFragmentActivity() {
                     "captured" to false, "covered" to false, "backgrounded" to false, "generation" to 0
                 ))
                 "ready" -> result.success(null)
+                "takeLockedCamera" -> {
+                    result.success(lockedCameraRequested)
+                    lockedCameraRequested = false
+                }
                 else -> result.notImplemented()
             }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "quietake/previews")
             .setMethodCallHandler { call, result ->
+                if (call.method == "encode") {
+                    // A decoded preview as a small JPEG for the encrypted thumbnail store.
+                    try {
+                        val bitmap = Bitmap.createBitmap(call.argument<Int>("width")!!, call.argument<Int>("height")!!, Bitmap.Config.ARGB_8888)
+                        bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(call.argument<ByteArray>("rgba")!!))
+                        val bytes = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, bytes)
+                        bitmap.recycle()
+                        result.success(bytes.toByteArray())
+                    } catch (error: Exception) {
+                        result.error("preview", "Thumbnail unavailable", null)
+                    }
+                    return@setMethodCallHandler
+                }
                 if (call.method != "video") { result.notImplemented(); return@setMethodCallHandler }
                 val url = call.argument<String>("url")!!
                 previews.execute {
@@ -112,6 +226,7 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == privateImport.requestCode) privateImport.result(resultCode, data)
+        if (requestCode == folderImport.requestCode) folderImport.result(resultCode, data)
         if (requestCode == portableFiles.pickCode || requestCode == portableFiles.saveCode) portableFiles.result(requestCode, resultCode, data)
     }
 
@@ -124,8 +239,11 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     override fun onDestroy() {
+        if (LockBridge.channel === privacyChannel) LockBridge.channel = null
         backgroundUploads.close()
         privateImport.close()
+        if (incomingShareLazy.isInitialized()) incomingShare.close()
+        folderImport.close()
         portableFiles.close()
         videoPreparation.close()
         microphoneResult?.success(false)

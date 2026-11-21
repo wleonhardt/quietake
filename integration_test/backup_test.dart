@@ -79,6 +79,11 @@ void main() {
     await tap(tester, Keys.gallerySettings);
     await until(
       tester,
+      () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
+    );
+    await tap(tester, Keys.settingsBackupOpen);
+    await until(
+      tester,
       () => find.byKey(Keys.backupOpen).evaluate().isNotEmpty,
     );
     await tap(tester, Keys.backupOpen);
@@ -130,8 +135,12 @@ void main() {
           ),
           isTrue,
         );
+        // The check leaves no work folder; the thumbnail cache (decision
+        // 045) belongs to the library, not to the check.
         expect(
-          (await app.vault.dir.list().toList()).whereType<Directory>(),
+          (await app.vault.dir.list().toList()).whereType<Directory>().where(
+            (folder) => !folder.path.endsWith('/.thumbs'),
+          ),
           isEmpty,
         );
         expect(tester.takeException(), isNull);
@@ -144,8 +153,7 @@ void main() {
   testWidgets(
     'manual lock protects active check; cancel and retry retain originals',
     (tester) async {
-      (await app.session.store.createWithPasscode('backup-test-passcode'))
-          .dispose();
+      await app.setPasscode('backup-test-passcode');
       try {
         await open(tester);
         dav.stalledGets.add('backup.jpg.shtr');
@@ -255,6 +263,11 @@ void main() {
         await tester.pageBack();
         await tester.pump(const Duration(milliseconds: 500));
         await tap(tester, Keys.gallerySettings);
+        await until(
+          tester,
+          () => find.byKey(Keys.settingsBackupOpen).evaluate().isNotEmpty,
+        );
+        await tap(tester, Keys.settingsBackupOpen);
         await until(
           tester,
           () => find.byKey(Keys.settingsUrl).evaluate().isNotEmpty,

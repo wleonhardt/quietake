@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../keys.dart';
+import '../l10n/l10n.dart';
 import 'tag_sort.dart';
 import 'private_catalog.dart';
 
@@ -49,10 +50,10 @@ class _MergeTargetState extends State<_MergeTarget> {
             shrinkWrap: true,
             children: [
               ListTile(
-                title: const Text('Choose the tag to keep'),
+                title: Text(context.l10n.mergeChoose),
                 trailing: IconButton(
                   key: Keys.tagMergeClose,
-                  tooltip: 'Cancel merge',
+                  tooltip: context.l10n.mergeCancel,
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -63,14 +64,14 @@ class _MergeTargetState extends State<_MergeTarget> {
                   key: Keys.tagMergeSearch,
                   controller: _search,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
-                    labelText: 'Find destination tag',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.mergeFindDestination,
                     prefixIcon: Icon(Icons.search),
                   ),
                 ),
               ),
               if (entries.isEmpty)
-                const ListTile(title: Text('No matching tags')),
+                ListTile(title: Text(context.l10n.tagsNoMatch)),
               for (final entry in entries)
                 ListTile(
                   key: Keys.tagMergeTarget(entry.key),

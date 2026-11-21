@@ -3,9 +3,12 @@ import 'package:flutter/widgets.dart';
 
 /// Native covers stay up until the current scene has a fresh protected frame.
 class ScreenPrivacy {
-  ScreenPrivacy(this.onCaptured, {this.onBackground});
+  ScreenPrivacy(this.onCaptured, {this.onBackground, this.onLockNow});
   final void Function(bool) onCaptured;
   final Future<void> Function()? onBackground;
+
+  /// The Android Quick Settings tile asks for an immediate lock.
+  final void Function()? onLockNow;
   static const channel = MethodChannel('quietake/privacy');
   static ScreenPrivacy? _owner;
   int _generation = -1;
@@ -17,6 +20,10 @@ class ScreenPrivacy {
       if (!identical(_owner, this)) return;
       if (call.method == 'userLeaving') {
         await onBackground?.call();
+        return;
+      }
+      if (call.method == 'lockNow') {
+        onLockNow?.call();
         return;
       }
       if (call.method != 'state') return;

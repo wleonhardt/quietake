@@ -10,6 +10,7 @@ import 'package:quietake/lock/setup_screen.dart';
 import 'package:quietake/vault/master_key_store.dart';
 import 'package:sodium/sodium_sumo.dart';
 
+import '../test_support/setup_steps.dart';
 import '../test_support/fake_authenticator.dart';
 
 class _RejectingStore extends MasterKeyStore {
@@ -80,6 +81,7 @@ void main() {
           ),
         );
         await tester.pump();
+        await openSetupCreate(tester);
         expect(tester.getSize(find.byKey(field)).width, lessThanOrEqualTo(600));
         if (form != 'unlock') {
           final next = form == 'setup' ? Keys.setupConfirm : Keys.newPasscode;
@@ -124,8 +126,11 @@ void main() {
           home: SetupScreen(store: store, onUnlocked: (_) => fail('Unlocked')),
         ),
       );
+      await openSetupCreate(tester);
       await tester.tap(find.byKey(Keys.setupSubmit));
       await tester.pump();
+      // The message fades in under its field before it is announced.
+      await tester.pump(const Duration(milliseconds: 300));
       expectAnnouncement(
         tester,
         Keys.setupError,
@@ -134,6 +139,8 @@ void main() {
       await tester.enterText(find.byKey(Keys.setupPasscode), 'test-passcode');
       await tester.tap(find.byKey(Keys.setupSubmit));
       await tester.pump();
+      // The message fades in under its field before it is announced.
+      await tester.pump(const Duration(milliseconds: 300));
       expectAnnouncement(tester, Keys.setupError, 'Passcodes do not match');
       await expectGuidelines(tester);
     } finally {
@@ -160,7 +167,9 @@ void main() {
       await tester.enterText(find.byKey(Keys.lockPasscode), 'wrong');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
-      expectAnnouncement(tester, Keys.lockError, 'wrong passcode');
+      // The message fades in under its field before it is announced.
+      await tester.pump(const Duration(milliseconds: 300));
+      expectAnnouncement(tester, Keys.lockError, 'Wrong passcode. Try again.');
       expect(
         tester.widget<TextField>(find.byKey(Keys.lockPasscode)).obscureText,
         isTrue,

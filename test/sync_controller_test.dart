@@ -53,6 +53,45 @@ void main() {
     return encrypted;
   }
 
+  test('saving settings stores them and then starts a sync', () async {
+    await capture('a.jpg');
+    await controller.saveSettings(settings);
+    expect((await SyncSettings.load()).url, settings.url);
+    for (var i = 0; i < 100 && server.files.isEmpty; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    }
+    expect(server.files.keys, contains('a.jpg.shtr'));
+  });
+
+  test('the controller passes the random name option to uploads', () async {
+    final random = SyncController(
+      vault,
+      loadSettings: () async => settings,
+      useRandomNames: true,
+    );
+    addTearDown(random.close);
+    await capture('r.jpg');
+    await random.sync();
+    expect(server.files.keys.any((n) => n.contains('r.jpg')), isFalse);
+    expect(server.files.keys.where((n) => n.endsWith('.shtr')), hasLength(1));
+  });
+
+  test('saving settings reports busy during recovery', () async {
+    final entered = Completer<void>(), release = Completer<void>();
+    final operation = controller.recoveryOperation((_) async {
+      entered.complete();
+      await release.future;
+    });
+    await entered.future;
+    try {
+      await expectLater(controller.saveSettings(settings), throwsStateError);
+      expect((await SyncSettings.load()).isConfigured, isFalse);
+    } finally {
+      release.complete();
+      await operation;
+    }
+  });
+
   test('disconnect reports busy during recovery and can be retried', () async {
     await settings.save();
     final entered = Completer<void>(), release = Completer<void>();
@@ -172,6 +211,25 @@ void main() {
       await controller.sync();
       expect(controller.state, SyncState.synced);
       expect(server.files.length, 2);
+    },
+  );
+
+  test(
+    'a conflicting NAS copy is kept and the result names the capture',
+    () async {
+      await capture('one.jpg');
+      await controller.sync();
+      expect(server.files.keys, contains('one.jpg.shtr'));
+      // A same-key copy with different content, as another phone could upload.
+      final source = await File('${dir.path}/other.jpg')
+          .writeAsBytes([1, 2, 3, 4, 5, 6, 7, 8]);
+      final other = await vault.ingestAs(source, 'other.jpg');
+      server.files['one.jpg.shtr'] = await other.readAsBytes();
+      await other.delete();
+      await controller.sync();
+      expect(controller.state, SyncState.pending);
+      expect(controller.result, startsWith('NAS conflict for '));
+      expect(controller.result, contains('Both copies kept'));
     },
   );
 
@@ -453,6 +511,51 @@ void main() {
       await stalled.close(force: true);
     }
   });
+  test(
+    'checking an unconfigured backup asks to connect and sends nothing',
+    () async {
+      settings = SyncSettings(url: '', username: '', password: '');
+      server.log.clear();
+      await controller.verify();
+      expect(controller.state, SyncState.unconfigured);
+      expect(
+        controller.verificationResult,
+        'Connect a saved NAS backup before checking.',
+      );
+      expect(controller.verificationCurrent, isFalse);
+      expect(server.log, isEmpty);
+    },
+  );
+  test('checking with a rejected password explains the HTTP status', () async {
+    await capture('a.jpg');
+    settings = SyncSettings(
+      url: server.url.toString(),
+      username: 'vaultapp',
+      password: 'wrong',
+    );
+    await controller.verify();
+    expect(controller.state, SyncState.pending);
+    expect(controller.verificationCurrent, isFalse);
+    expect(
+      controller.verificationResult,
+      'Could not check NAS (HTTP 401). Check saved connection.',
+    );
+  });
+
+  test('checking an unreachable NAS asks to check the connection', () async {
+    await capture('a.jpg');
+    final url = server.url.toString();
+    await server.close();
+    settings = SyncSettings(url: url, username: 'vaultapp', password: 'secret');
+    await controller.verify();
+    expect(controller.state, SyncState.pending);
+    expect(
+      controller.verificationResult,
+      'Could not reach NAS. Check connection and retry.',
+    );
+    server = await FakeWebDavServer.start();
+  });
+
   test('verification is read-only, scoped to saved target and invalidated by later capture', () async {
     await capture('a.jpg');
     await controller.sync();
@@ -606,6 +709,83 @@ void main() {
     await controller.verify();
     expect(controller.verificationCurrent, isTrue);
   });
+
+  test(
+    'the native job gets mapped names only while names are random',
+    () async {
+      final readable = _RecordingScheduler();
+      final random = _RecordingScheduler();
+      final plain = SyncController(
+        vault,
+        loadSettings: () async => settings,
+        background: readable,
+      );
+      final mapped = SyncController(
+        vault,
+        loadSettings: () async => settings,
+        background: random,
+        useRandomNames: true,
+      );
+      addTearDown(plain.close);
+      addTearDown(mapped.close);
+      final file = await capture('photo.jpg');
+      await plain.sync();
+      expect(readable.calls, [null]);
+      await mapped.sync();
+      expect(random.calls, [isEmpty]);
+      // A deleted capture keeps its mapping so the job can remove the random name.
+      await vault.catalog.assignRemoteNames(['photo.jpg.shtr']);
+      await vault.delete(file);
+      await mapped.sync();
+      expect(random.calls.last!.keys, ['photo.jpg.shtr']);
+      expect(
+        random.calls.last!['photo.jpg.shtr'],
+        matches(RegExp(r'^[0-9a-f]{32}\.shtr$')),
+      );
+    },
+  );
+
+  test(
+    'renaming NAS files runs through the controller: dry run, then move',
+    () async {
+      await capture('photo.jpg');
+      await controller.sync();
+      expect(server.files.keys, contains('photo.jpg.shtr'));
+
+      final preview = await controller.renameRemote(dryRun: true);
+      expect(preview.candidates, 1);
+      expect(preview.renamed, 0);
+      expect(server.files.keys, contains('photo.jpg.shtr'));
+
+      final done = await controller.renameRemote();
+      expect(done.renamed, 1);
+      expect(server.files.keys, isNot(contains('photo.jpg.shtr')));
+      expect(
+        server.files.keys.where(
+          (n) => RegExp(r'^[0-9a-f]{32}\.shtr$').hasMatch(n),
+        ),
+        hasLength(1),
+      );
+      expect((await controller.renameRemote(dryRun: true)).candidates, 0);
+    },
+  );
+}
+
+/// Records what the foreground pass hands to the native scheduler.
+class _RecordingScheduler extends BackgroundUploads {
+  _RecordingScheduler() : super(enabled: false);
+  final calls = <Map<String, String>?>[];
+
+  @override
+  Future<void> configure(
+    SyncSettings settings,
+    Vault vault,
+    String? proof,
+    Set<String> confirmedMedia, {
+    Map<String, String>? remoteNames,
+  }) async {
+    calls.add(remoteNames);
+  }
 }
 
 /// Native scheduling that always fails after a successful foreground pass.
@@ -617,8 +797,9 @@ class _FailingScheduler extends BackgroundUploads {
     SyncSettings settings,
     Vault vault,
     String? proof,
-    Set<String> confirmedMedia,
-  ) async {
+    Set<String> confirmedMedia, {
+    Map<String, String>? remoteNames,
+  }) async {
     throw PlatformException(code: 'background');
   }
 }

@@ -226,6 +226,53 @@ void main() {
     );
   }
 
+  testWidgets('backgrounding pauses playback and foregrounding resumes it', (
+    tester,
+  ) async {
+    await open(tester);
+    final player = tester
+        .widget<VideoPlayer>(find.byKey(Keys.viewerVideo))
+        .controller;
+    expect(player.value.isPlaying, isTrue);
+    for (final state in [
+      AppLifecycleState.inactive,
+      AppLifecycleState.hidden,
+      AppLifecycleState.paused,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await tester.pump();
+    expect(player.value.isPlaying, isFalse);
+    for (final state in [
+      AppLifecycleState.hidden,
+      AppLifecycleState.inactive,
+      AppLifecycleState.resumed,
+    ]) {
+      tester.binding.handleAppLifecycleStateChanged(state);
+    }
+    await tester.pump();
+    expect(player.value.isPlaying, isTrue);
+  });
+
+  testWidgets('a paused video with hidden controls offers a play overlay', (
+    tester,
+  ) async {
+    await open(tester);
+    final player = tester
+        .widget<VideoPlayer>(find.byKey(Keys.viewerVideo))
+        .controller;
+    await tester.tap(find.byKey(Keys.viewerPlay));
+    await tester.pump();
+    expect(player.value.isPlaying, isFalse);
+    expect(find.byKey(Keys.viewerPlayOverlay), findsNothing);
+    await tester.tap(find.byKey(Keys.viewerControls));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(Keys.viewerPlayOverlay), findsOneWidget);
+    await tester.tap(find.byKey(Keys.viewerPlayOverlay));
+    await tester.pump();
+    expect(player.value.isPlaying, isTrue);
+  });
+
   testWidgets(
     'completed decoder restarts at zero even with a lagging position',
     (tester) async {

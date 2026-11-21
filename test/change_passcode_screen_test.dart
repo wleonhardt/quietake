@@ -114,4 +114,37 @@ void main() {
       },
     );
   }
+
+  testWidgets('typed passcodes are cleared when the app pauses', (
+    tester,
+  ) async {
+    late SodiumSumo sodium;
+    await tester.runAsync(() async {
+      sodium = await SodiumSumoInit.init();
+    });
+    await tester.pumpWidget(
+      MaterialApp(home: ChangePasscodeScreen(store: _Store(sodium))),
+    );
+    for (final key in [
+      Keys.currentPasscode,
+      Keys.newPasscode,
+      Keys.confirmPasscode,
+    ]) {
+      await tester.enterText(find.byKey(key), 'secret value');
+    }
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    for (final key in [
+      Keys.currentPasscode,
+      Keys.newPasscode,
+      Keys.confirmPasscode,
+    ]) {
+      expect(tester.widget<TextField>(find.byKey(key)).controller!.text, '');
+    }
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+  });
 }

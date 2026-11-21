@@ -17,11 +17,22 @@ class RestoreTransaction {
   Directory get target => Directory('${store.dir.path}/vault');
 
   Future<void> requireFresh() async {
+    // A keystore entry without a keyfile is not a vault (decision 033).
     if (await store.hasKeyfile ||
-        await store.hasCachedKey ||
         (await target.exists() && !await target.list().isEmpty)) {
       throw const FormatException('Restore requires a fresh empty vault');
     }
+  }
+
+  /// Gives up an unfinished restore that cannot resume. The backup itself is
+  /// never touched. Media already moved into the vault folder is removed only
+  /// when no keyfile exists: a restore needs an empty vault without one, so
+  /// such media can only have come from this restore.
+  Future<void> discard() async {
+    if (!await store.hasKeyfile && await target.exists()) {
+      await target.delete(recursive: true);
+    }
+    if (await pending.exists()) await pending.delete(recursive: true);
   }
 
   Future<String> _fingerprint(File file) async {

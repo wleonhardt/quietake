@@ -89,4 +89,72 @@ void main() {
       expect(auth.lastError, isNull);
     });
   }
+
+  test(
+    'a passed prompt returns true and a declined one returns false',
+    () async {
+      final native = _NativeAuth()..outcomes.addAll([true, false]);
+      final auth = LocalAuthenticator(auth: native);
+      expect(await auth.authenticate('Unlock'), isTrue);
+      expect(await auth.authenticate('Unlock'), isFalse);
+      expect(auth.lastError, isNull);
+    },
+  );
+
+  test(
+    'a failure code gives a plain message and a later success clears it',
+    () async {
+      final native = _NativeAuth()
+        ..outcomes.addAll([
+          const LocalAuthException(
+            code: LocalAuthExceptionCode.temporaryLockout,
+          ),
+          true,
+        ]);
+      final auth = LocalAuthenticator(auth: native);
+      expect(await auth.authenticate('Unlock'), isFalse);
+      expect(
+        auth.lastError,
+        'Could not authenticate. Try again or use your passcode.',
+      );
+      expect(await auth.authenticate('Unlock'), isTrue);
+      expect(auth.lastError, isNull);
+    },
+  );
+
+  test('a plugin exception never leaks its text', () async {
+    final native = _NativeAuth()
+      ..outcomes.add(PlatformException(code: 'x', message: 'secret detail'));
+    final auth = LocalAuthenticator(auth: native);
+    expect(await auth.authenticate('Unlock'), isFalse);
+    expect(auth.lastError, isNot(contains('secret')));
+    expect(auth.lastError, isNotNull);
+  });
+
+  test(
+    'a prompt stuck in progress twice stops retrying after one retry',
+    () async {
+      final native = _NativeAuth()
+        ..outcomes.addAll([
+          const LocalAuthException(code: LocalAuthExceptionCode.authInProgress),
+          const LocalAuthException(code: LocalAuthExceptionCode.authInProgress),
+        ]);
+      final auth = LocalAuthenticator(auth: native);
+      expect(await auth.authenticate('Unlock'), isFalse);
+      expect(native.calls, 2);
+      expect(native.stops, 1);
+      expect(auth.lastError, isNotNull);
+    },
+  );
+
+  test('cancel swallows a native failure', () async {
+    final auth = LocalAuthenticator(auth: _ThrowingStop());
+    await auth.cancel();
+  });
+}
+
+class _ThrowingStop extends Fake implements LocalAuthentication {
+  @override
+  Future<bool> stopAuthentication() async =>
+      throw PlatformException(code: 'gone');
 }

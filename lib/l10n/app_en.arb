@@ -1,0 +1,1183 @@
+{
+  "@@locale": "en",
+  "recentlyDeletedTitle": "Recently deleted",
+  "recentlyDeletedEmpty": "Nothing recently deleted",
+  "recentlyDeletedNote": "Deleted captures stay encrypted on this phone for {days} days, then are removed for good.",
+  "@recentlyDeletedNote": {
+    "description": "Explains how long deleted captures are kept.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "recentlyDeletedLoadFailed": "Could not read deleted captures. Retry",
+  "recentlyDeletedDaysLeft": "{count, plural, =1{1 day left} other{{count} days left}}",
+  "@recentlyDeletedDaysLeft": {
+    "description": "Days before a deleted capture is removed for good.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recentlyDeletedRestore": "Restore",
+  "recentlyDeletedDeleteNow": "Delete now",
+  "recentlyDeletedDeleteNowTitle": "Delete now?",
+  "recentlyDeletedDeleteNowBody": "This capture is permanently removed from this phone and your backup server. It cannot be restored.",
+  "recentlyDeletedAllTitle": "Delete all now?",
+  "recentlyDeletedAllBody": "{count, plural, =1{1 capture is permanently removed from this phone and your backup server. It cannot be restored.} other{{count} captures are permanently removed from this phone and your backup server. They cannot be restored.}}",
+  "@recentlyDeletedAllBody": {
+    "description": "Confirmation for permanently deleting every capture in Recently deleted.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recentlyDeletedAllNow": "Delete all now",
+  "recentlyDeletedRestoreFailed": "Could not restore. Please retry.",
+  "recentlyDeletedDeleteFailed": "Could not finish deleting. Please retry.",
+  "cancel": "Cancel",
+  "lockUnlockReason": "Unlock Quietake",
+  "lockBiometricUnavailable": "Biometric unlock is unavailable. Use your passcode.",
+  "lockFailed": "Could not unlock. Try again or use your recovery key.",
+  "lockMessage": "Unlock your private vault.",
+  "passcodeLabel": "Passcode",
+  "passcodeLockedSeconds": "{count, plural, =1{Too many wrong passcodes. Try again in 1 second.} other{Too many wrong passcodes. Try again in {count} seconds.}}",
+  "@passcodeLockedSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passcodeLockedMinutes": "{count, plural, =1{Too many wrong passcodes. Try again in 1 minute.} other{Too many wrong passcodes. Try again in {count} minutes.}}",
+  "@passcodeLockedMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passcodeTooShort": "Passcode needs at least {count} characters",
+  "@passcodeTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passcodeShow": "Show passcode",
+  "passcodeHide": "Hide passcode",
+  "formWorking": "Working…",
+  "lockUnlock": "Unlock",
+  "lockUseBiometrics": "Use biometrics",
+  "lockForgot": "Forgot passcode?",
+  "lockCamera": "Camera",
+  "lockedCameraSaved": "Photo sealed. It appears in your library after you unlock.",
+  "lockedCameraFailed": "Could not save the photo.",
+  "lockedCameraClose": "Close camera",
+  "lockedCapturesPublished": "{count, plural, =1{1 photo from the lock screen camera is now in your library.} other{{count} photos from the lock screen camera are now in your library.}}",
+  "@lockedCapturesPublished": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryKeyLabel": "Recovery key",
+  "recoveryKeyIntro": "Keep this key in your password manager or on paper in a safe place, separately from your encrypted files. You need both to recover your captures if you forget the passcode or lose this device. A backup passphrase is another recovery option only if you have enabled it.",
+  "recoveryFingerprint": "Check code {fingerprint}",
+  "@recoveryFingerprint": {
+    "placeholders": {
+      "fingerprint": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryFingerprintNote": "Save the check code with the key. A new phone shows it so you can check the key you typed.",
+  "recoverySaved": "I saved it",
+  "recoveryShowText": "Show as text",
+  "recoveryShowWords": "Show as words",
+  "recoveryFormsNote": "The words and the text are the same key. Save either one.",
+  "recoveryKeyFieldHelp": "21 words, or the text form",
+  "recoveryKeyShow": "Show recovery key",
+  "recoveryKeyHide": "Hide recovery key",
+  "recoveryWordsCount": "A recovery key has 21 words. Check for a missing or extra word.",
+  "recoveryWordsUnknown": "Word {position} is not in the word list. Check its spelling.",
+  "@recoveryWordsUnknown": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryWordsWrong": "A word is wrong or in the wrong place. Check the 21 words.",
+  "recoveryConfirmTitle": "Check your saved copy",
+  "recoveryConfirmBody": "Look at the copy you saved, not at this phone. Type word {position}, or paste the whole key.",
+  "@recoveryConfirmBody": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryConfirmField": "Word {position}",
+  "@recoveryConfirmField": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "recoveryConfirmAction": "Confirm",
+  "recoveryConfirmBack": "Show the key again",
+  "recoveryConfirmWrong": "That is not word {position}. Check your saved copy.",
+  "@recoveryConfirmWrong": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "changePasscodeTitle": "Change passcode",
+  "changePasscodeNote": "Your captures and recovery key stay the same.",
+  "currentPasscodeLabel": "Current passcode",
+  "newPasscodeLabel": "New passcode",
+  "confirmNewPasscodeLabel": "Confirm new passcode",
+  "passcodesDoNotMatch": "Passcodes do not match",
+  "currentPasscodeIncorrect": "Current passcode is incorrect",
+  "changePasscodeFailed": "Could not change passcode. Try again.",
+  "changePasscodeBusy": "Changing…",
+  "setupConfirmKeyTitle": "Confirm recovery key",
+  "setupConfirmKeyBody": "This phone has no captures yet, so the key cannot be checked against them. Compare this check code with the one saved next to your recovery key.",
+  "setupNotMine": "Not mine",
+  "setupMatches": "Matches",
+  "setupCreateFailed": "Could not create the vault. Check storage and try again.",
+  "setupRestoreFailed": "Could not restore the vault. Check storage and try again.",
+  "setupRestoreTitle": "Restore vault",
+  "setupCreateTitle": "Set a passcode",
+  "setupRestoreMessage": "Unlock your encrypted files with your saved recovery key.",
+  "setupTagline": "Your camera. Your captures. Your control.",
+  "setupPasscodeHelper": "At least {count} characters",
+  "@setupPasscodeHelper": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmPasscodeLabel": "Confirm passcode",
+  "restore": "Restore",
+  "setupCreateVault": "Create vault",
+  "setupWelcomeTitle": "Welcome",
+  "setupWelcomeBody": "Quietake keeps your photos and videos encrypted on this phone. You choose a passcode to open them. Nobody can reset it for you, so you also get a recovery key to keep.",
+  "setupCreateOpen": "Create a new vault",
+  "setupRestoreOpen": "Restore a vault I already have",
+  "setupRestoreIntro": "Choose what you have.",
+  "setupRestoreKeyBody": "For the encrypted files on this phone, or to start again with the same key. You choose a new passcode.",
+  "setupRestoreZipBody": "A backup file saved from Quietake. You need its recovery key.",
+  "setupRestoreNasBody": "Downloads your captures from your backup server. You need the server address and the backup passphrase.",
+  "setupHaveKey": "I have a recovery key",
+  "setupRestoreZip": "Restore an encrypted ZIP",
+  "setupRestoreNas": "Restore from my backup server",
+  "privacyPolicy": "Privacy policy",
+  "camUnavailable": "Camera unavailable. Check camera permission in Settings.",
+  "camTagsOpenFailed": "Could not open private tags. Retry from Library.",
+  "camOrientationFailed": "Could not update camera orientation.",
+  "camPendingSave": "Capture waiting for secure save. Free storage, then lock and unlock to retry.",
+  "camRecovered": "Recovered {count, plural, =1{1 capture} other{{count} captures}}.",
+  "@camRecovered": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "camRecoveredVideoNote": "Interrupted videos may be incomplete or may not play on a TV.",
+  "camPendingCheckFailed": "Could not check pending captures. Free storage and reopen the camera.",
+  "camNone": "No camera",
+  "camFocusLockFailed": "Could not lock focus and exposure on this camera.",
+  "camRecordStartFailed": "Could not start recording. Try again.",
+  "camRecordStopFailed": "Could not stop recording. Try again.",
+  "camNoFrames": "No video frames were recorded. Try again.",
+  "camPendingNoTags": "Capture waiting for secure save. Tags were not applied; check Library after recovery.",
+  "camSaveFailed": "Could not save capture. Try again.",
+  "camSavedPhotos": "Saved {count} photos securely",
+  "@camSavedPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "camSwitchFailed": "Could not switch camera. Try again.",
+  "camMicDenied": "Allow microphone access in Settings to record video. Photos are still available.",
+  "camVideoStartFailed": "Could not start video. Check camera and microphone permissions in Settings.",
+  "camSaving": "Saving securely…",
+  "camSaved": "Saved securely",
+  "camTagsNotApplied": "Tags were not applied; organize in Library.",
+  "camNotCastReady": "This video may not play on your TV.",
+  "camPreview": "Camera preview",
+  "camPreviewHint": "Tap to focus. Press and hold to lock focus and exposure.",
+  "camFocusLocked": "Focus and exposure locked",
+  "camRecTimer": "REC {time}",
+  "@camRecTimer": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "camStartingVideo": "Starting video…",
+  "camCastFailed": "Could not cast. Try again.",
+  "camCasting": "Casting to {device}",
+  "@camCasting": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "camChooseTags": "Choose tags for new captures",
+  "camTags": "Tags",
+  "camTagCount": "{count} tags",
+  "@camTagCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "camFlashOff": "Flash off",
+  "camFlashAuto": "Flash automatic",
+  "camFlashOn": "Flash on",
+  "camFlashUnavailable": "This camera has no flash.",
+  "camTimerOff": "Timer off",
+  "camTimerSeconds": "Timer {seconds} seconds",
+  "@camTimerSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "camGridHide": "Hide grid",
+  "camGridShow": "Show grid",
+  "camSwitchRear": "Switch to rear camera",
+  "camSwitchFront": "Switch to front camera",
+  "camStopRecording": "Stop recording",
+  "camRecordVideo": "Record video",
+  "camStop": "Stop",
+  "camVideo": "Video",
+  "camTakePhoto": "Take photo",
+  "camCancelTimer": "Cancel timer",
+  "camPhoto": "Photo",
+  "camOpenLibrary": "Open Library",
+  "camLibrary": "Library",
+  "camTakeBurst": "Take {count} photos",
+  "@camTakeBurst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "save": "Save",
+  "tagsTitle": "Tags",
+  "tagsMoments": "Moments",
+  "tagsSortName": "Sort by name",
+  "tagsSortCount": "Sort by most captures",
+  "tagsCreate": "Create tag",
+  "tagsFind": "Find tags",
+  "tagsCountFailed": "Could not count captures. Retry",
+  "tagsUntagged": "Untagged",
+  "tagsCaptureCount": "{count, plural, =1{1 capture} other{{count} captures}}",
+  "@tagsCaptureCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsNoMatch": "No matching tags",
+  "tagsNone": "No tags yet",
+  "tagsNoMatchHint": "Try another name or create this one.",
+  "tagsNoneHint": "Tags group captures across the Library.",
+  "tagsCreateNamed": "Create '{name}'",
+  "@tagsCreateNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagsCreateFirst": "Create first tag",
+  "tagsOptions": "Tag options",
+  "tagsRename": "Rename",
+  "tagsRenameTitle": "Rename tag",
+  "tagsSetCover": "Set cover",
+  "tagsClearCover": "Clear cover",
+  "tagsMergeInto": "Merge into…",
+  "tagsDelete": "Delete tag",
+  "tagsDeleteTitle": "Delete tag?",
+  "tagsDeleteBody": "Remove “{name}” from all captures? Photos and videos stay in your vault.",
+  "@tagsDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagsMergeTitle": "Merge tags?",
+  "tagsMergeBody": "Merge “{source}” into “{target}”? {count, plural, =1{1 capture} other{{count} captures}} will use the remaining tag. The source tag is removed. Photos, videos and other tags stay unchanged.",
+  "@tagsMergeBody": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsMergeConfirm": "Merge tags",
+  "mergeChoose": "Choose the tag to keep",
+  "mergeCancel": "Cancel merge",
+  "mergeFindDestination": "Find destination tag",
+  "libraryNameLabel": "Name",
+  "librarySaveFailed": "Could not save. Retry.",
+  "libraryUpdateFailed": "Could not update private library. Retry.",
+  "momentsLoadFailed": "Could not read captures. Retry",
+  "momentsEmpty": "No dated captures yet",
+  "viewTitle": "View",
+  "viewAll": "All",
+  "viewPhotos": "Photos",
+  "viewVideos": "Videos",
+  "viewFavoritesOnly": "Favorites only",
+  "viewSort": "Sort",
+  "viewNewest": "Newest first",
+  "viewOldest": "Oldest first",
+  "viewName": "Name",
+  "viewApply": "Apply view",
+  "viewShowCount": "{count, plural, =1{Show 1 capture} other{Show {count} captures}}",
+  "@viewShowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewReset": "Reset",
+  "pickerCameraTitle": "Tags for new captures",
+  "pickerRemoveTitle": "Remove tags",
+  "pickerAddTitle": "Add tags",
+  "pickerCameraNote": "Clears on lock or background.",
+  "pickerSelectionNote": "{count, plural, =1{1 capture} other{{count} captures}} · other tags stay unchanged",
+  "@pickerSelectionNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerCancel": "Cancel tag selection",
+  "pickerNoTags": "No tags",
+  "pickerAlreadyTagged": "{tagged} of {total} already tagged",
+  "@pickerAlreadyTagged": {
+    "placeholders": {
+      "tagged": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerManage": "Manage tags",
+  "pickerStale": "A selected tag changed. Review your selection.",
+  "pickerReview": "Review",
+  "pickerUse": "{count, plural, =1{Use 1 tag} other{Use {count} tags}}",
+  "@pickerUse": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerAddCount": "{count, plural, =1{Add 1 tag} other{Add {count} tags}}",
+  "@pickerAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickerRemoveCount": "{count, plural, =1{Remove 1 tag} other{Remove {count} tags}}",
+  "@pickerRemoveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryActions": "Library actions",
+  "galleryActionsClose": "Close Library actions",
+  "gallerySelectCaptures": "Select captures",
+  "gallerySearchEdit": "Edit search",
+  "gallerySearchHint": "Search names and tags",
+  "galleryRemovedTag": "Removed tag",
+  "galleryScopeAny": "All Library · Match any tag",
+  "galleryScopeAll": "All Library · Match all tags",
+  "galleryToday": "Today",
+  "galleryYesterday": "Yesterday",
+  "galleryNoDate": "No date",
+  "gallerySortNewest": "Newest captures",
+  "gallerySortOldest": "Oldest captures",
+  "gallerySortName": "Name order",
+  "galleryTagMatching": "Tag matching",
+  "galleryMatchAll": "Match all tags",
+  "galleryMatchAny": "Match any tag",
+  "galleryFavorites": "Favorites",
+  "galleryResetView": "Reset view",
+  "galleryAddTag": "Add a tag",
+  "galleryAddTagHint": "Choose existing tags, or search names with the text above.",
+  "galleryCancelSelection": "Cancel selection",
+  "galleryDeleteTitle": "{count, plural, =1{Delete 1 capture?} other{Delete {count} captures?}}",
+  "@galleryDeleteTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryDeleteKeepBody": "The selection moves to Recently deleted and stays on this phone, encrypted, for {days} days so you can restore it. Any copy on your backup server stays until then.",
+  "@galleryDeleteKeepBody": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryDeleteMove": "Move to Recently deleted",
+  "gallerySelectedCount": "{count} selected",
+  "@gallerySelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gallerySelectAll": "Select all results",
+  "galleryShareCopies": "Share copies",
+  "galleryUnfavorite": "Unfavorite",
+  "galleryFavorite": "Favorite",
+  "galleryNameCapture": "Name capture",
+  "galleryNasReadFailed": "Could not read the saved backup server details. Try again.",
+  "galleryImportTooltip": "Import copies from Files",
+  "gallerySyncCancel": "Cancel sync",
+  "gallerySyncSetup": "Set up backup",
+  "gallerySyncNow": "Sync with backup server",
+  "galleryCloseSearch": "Close search",
+  "gallerySearchTitle": "Search",
+  "gallerySettings": "Settings",
+  "galleryOrgUnavailable": "Organization unavailable. Originals are safe. Retry",
+  "galleryOpenFailed": "Could not open vault. Retry",
+  "galleryEmptyTitle": "Your library starts here",
+  "galleryEmptyMessage": "Take a photo or import copies from Files.",
+  "galleryOpenCamera": "Open camera",
+  "galleryImportCopies": "Import copies",
+  "galleryNoMatchTitle": "No captures match",
+  "galleryNoMatchMessage": "Clear your search and filters to see all captures.",
+  "galleryClearFilters": "Clear search and filters",
+  "galleryTileSelect": "Select {label}",
+  "@galleryTileSelect": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryTileOpen": "Open {label}",
+  "@galleryTileOpen": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryTileFavorite": "favorite",
+  "galleryTilePosition": "{position} of {total}",
+  "@galleryTilePosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "galleryTileDuration": "duration {time}",
+  "@galleryTileDuration": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "galleryPreviewUnavailable": "Preview unavailable",
+  "importIntro": "Copy photos and videos from Files into your Library. Originals stay unchanged, including location and other metadata. Nothing is deleted or shared.",
+  "importChooseFiles": "Choose files",
+  "importChooseFolder": "Choose folder",
+  "importSubfolders": "Include subfolders",
+  "importSubfoldersBody": "Also reads photos and videos in folders inside the chosen one.",
+  "importOpenShare": "Open encrypted share",
+  "importSharePassphraseTitle": "Passphrase for this share",
+  "importSharePassphraseLabel": "Passphrase",
+  "importShareOpenButton": "Open",
+  "importShareFailed": "Could not open the share. Check the passphrase and the file.",
+  "importSupportedTitle": "Supported files and limits",
+  "importSupportedBody": "JPEG, PNG or playable MP4. Up to 20 files and 512 MiB total; photos up to 32 MiB and 64 MP. A folder imports its files (not subfolders), up to 10,000, 20 at a time; choose the same folder again to resume. TV playback depends on codecs. Imports use the date added. Selected copies may finish encrypting while Quietake is locked. An encrypted share (.quietake-share) opens with its passphrase; its photos and videos then import like other files.",
+  "importCancelling": "Cancelling after current file…",
+  "importCancelRemaining": "Cancel remaining",
+  "importFolderCount": "{handled} of {total} files",
+  "@importFolderCount": {
+    "placeholders": {
+      "handled": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importBusyPrevious": "Previous import is finishing. Try again shortly.",
+  "importOpenFailed": "Could not open import. Check storage and try again.",
+  "importStoppedEarly": "Import stopped early. Copies listed as imported are saved.",
+  "importCleanupFailed": "Temporary cleanup failed. Restart Quietake before trying again.",
+  "importFolderStopped": "Folder import stopped. Choose the folder again to continue; finished files are saved.",
+  "importImported": "{count} imported",
+  "@importImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importDuplicates": "{count, plural, =1{1 duplicate skipped} other{{count} duplicates skipped}}",
+  "@importDuplicates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importAlreadyDone": "{count} already imported earlier",
+  "@importAlreadyDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importFailedCount": "{count} failed",
+  "@importFailedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importNotStarted": "{count} not started",
+  "@importNotStarted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryEnd": "{summary}.",
+  "@importSummaryEnd": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryContinue": "{summary}. Choose the same folder again to continue.",
+  "@importSummaryContinue": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "shareTitleOne": "Share a copy?",
+  "shareTitleMany": "Share {count} copies?",
+  "@shareTitleMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareWarning": "The app you choose receives unencrypted copies and may keep them.",
+  "shareStripTitle": "Remove metadata from photo copies",
+  "shareStripOn": "JPEG copies keep only their orientation: location, camera, time, comments and thumbnails are removed. PNG copies are rebuilt from their pixels with no metadata. Video copies stay unchanged.",
+  "shareStripOff": "Copies keep all original metadata, including location if present.",
+  "shareLimits": "Up to {items} captures and {mib} MiB per batch.",
+  "@shareLimits": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "mib": {
+        "type": "int"
+      }
+    }
+  },
+  "shareProgress": "Preparing {prepared} of {total}",
+  "@shareProgress": {
+    "placeholders": {
+      "prepared": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "shareFailed": "Could not share. Another share may still be finishing. Try again.",
+  "shareChooseApp": "Choose app",
+  "viewerShareFailed": "Could not share. Please try again.",
+  "viewerDetails": "Details",
+  "viewerType": "Type: {kind}",
+  "@viewerType": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerCaptured": "Captured: {when}",
+  "@viewerCaptured": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerUnknown": "Unknown",
+  "viewerTags": "Tags: {tags}",
+  "@viewerTags": {
+    "placeholders": {
+      "tags": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerNone": "None",
+  "viewerSize": "Encrypted size: {bytes} bytes",
+  "@viewerSize": {
+    "placeholders": {
+      "bytes": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerSizeUnavailable": "Encrypted size: unavailable",
+  "viewerClose": "Close",
+  "viewerSetCover": "Use as cover of {tag}",
+  "viewerCoverSet": "Cover of {tag} updated.",
+  "@viewerSetCover": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "@viewerCoverSet": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerDeletePhotoTitle": "Delete this photo?",
+  "viewerDeleteVideoTitle": "Delete this video?",
+  "viewerDeleteKeepNas": "Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. The copy on your backup server stays until then. Delete now removes it from this phone and your backup server permanently.",
+  "@viewerDeleteKeepNas": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerDeleteKeep": "Recently deleted keeps it on this phone, encrypted, for {days} days so you can restore it. Delete now removes it from this phone permanently.",
+  "@viewerDeleteKeep": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerDeleteNasNow": "It will be permanently removed from this phone and your backup server.",
+  "viewerDeleteNow": "It will be permanently removed from this phone.",
+  "viewerDeleteNasTail": "If the backup server is unavailable, deletion finishes when sync succeeds.",
+  "viewerDeletePendingTail": "Pending deletions apply if you connect the backup server again.",
+  "viewerDeleteEnd": "Other backups and shared copies are unaffected. Active casting will stop.",
+  "viewerDelete": "Delete",
+  "viewerRemoveFavorite": "Remove favorite",
+  "viewerAddFavorite": "Add favorite",
+  "viewerSlideshowStart": "Start slideshow",
+  "viewerSlideshowStop": "Stop slideshow",
+  "viewerShare": "Share a copy",
+  "viewerDeletePhoto": "Delete photo",
+  "viewerDeleteVideo": "Delete video",
+  "viewerHideControls": "Hide controls",
+  "viewerShowControls": "Show controls",
+  "viewerCasting": "casting to {device}",
+  "@viewerCasting": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerPhotoUnavailable": "Photo unavailable. Retry",
+  "viewerPrivatePhoto": "Private photo",
+  "viewerResetFit": "Reset to fit",
+  "viewerVideoUnavailable": "Video unavailable. Retry",
+  "viewerReplay": "Replay video",
+  "viewerPlay": "Play video",
+  "viewerPause": "Pause video",
+  "viewerVideoPosition": "Video position",
+  "viewerBack10": "Back 10 seconds",
+  "viewerForward10": "Forward 10 seconds",
+  "viewerMute": "Mute video",
+  "viewerUnmute": "Unmute video",
+  "lockNow": "Lock now",
+  "brandTagline": "Private camera",
+  "backupTitle": "Check backup",
+  "backupIntro": "Checks every encrypted file on your backup server using this vault’s key. Large libraries need time, data and temporary space. This check does not change originals.",
+  "backupNeverChecked": "This backup has never been fully checked. Check it to confirm your copies can be read.",
+  "backupStale": "The last full check was {days, plural, =1{1 day} other{{days} days}} ago. Check again to confirm your copies can still be read.",
+  "@backupStale": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCancelCheck": "Cancel check",
+  "backupCancelQueued": "Cancel queued check",
+  "backupCheckSaved": "Check saved backup",
+  "backupCheckedAt": "Checked {date} at {time} · {state}",
+  "@backupCheckedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "backupUnchanged": "Nothing changed since",
+  "backupChanged": "Changed since; check again",
+  "backupKeepKey": "Keep your recovery key separately. A successful check does not test the copy of the key you saved elsewhere.",
+  "backupLeaveNote": "You can leave this screen while checking. Capture uploads wait for the check to finish. Checks stop if the app process closes.",
+  "castSearchFailed": "Could not search for TVs. Check Wi-Fi and try again.",
+  "castConnected": "Connected to {device}. Open a capture to cast it.",
+  "@castConnected": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "castTitle": "Cast to a TV",
+  "castClose": "Close Cast picker",
+  "castUnencrypted": "Selected media streams unencrypted over your local network while casting.",
+  "castLooking": "Looking for TVs on this network",
+  "castNoneFound": "No TVs found",
+  "castSameWifi": "Is the TV on the same Wi-Fi as this phone?",
+  "castRetry": "Retry",
+  "castStop": "Stop casting to {device}",
+  "@castStop": {
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "castCancelConnection": "Cancel connection",
+  "castToTv": "Cast to TV",
+  "settingsTitle": "Settings",
+  "settingsPrivacySection": "Privacy & access",
+  "settingsIdleLabel": "Lock after inactivity",
+  "settingsIdleOff": "Off",
+  "settingsIdleMinutes": "{minutes, plural, =1{1 minute} other{{minutes} minutes}}",
+  "@settingsIdleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsIdleNote": "Recording and video playback delay idle locking. Lock now saves an active recording, pauses playback and stops casting.",
+  "settingsScreenshotsIos": "App-switcher previews are hidden. iOS screenshots cannot be blocked.",
+  "settingsScreenshotsAndroid": "Screenshots, screen recording and app-switcher previews are protected on Android.",
+  "settingsPrivacySaveFailed": "Could not save privacy settings. Try again.",
+  "settingsPasscodeChanged": "Passcode changed",
+  "settingsBackupSection": "Backup",
+  "settingsBackupIntro": "Optional backup of encrypted media to a server you run yourself (WebDAV over HTTPS).",
+  "settingsUrlLabel": "Backup server folder URL (WebDAV)",
+  "settingsUsername": "Username",
+  "settingsPassword": "Password",
+  "settingsBackgroundTitle": "Back up while app is closed",
+  "settingsBackgroundBody": "Android schedules encrypted uploads when network and battery allow. Save and complete one foreground sync first. Force-stop pauses work until you reopen Quietake.",
+  "settingsMobileTitle": "Allow mobile data",
+  "settingsMobileBody": "Off uses unmetered networks only. Large videos can consume substantial data.",
+  "settingsBgChecking": "Checking Android scheduler…",
+  "settingsBgScheduled": "Scheduled when network and battery allow.",
+  "settingsBgUploading": "Android is uploading encrypted copies.",
+  "settingsBgTransferred": "Last background pass finished. Full backup verification is separate.",
+  "settingsBgReconcile": "Open the vault and sync to check this backup before background uploads resume.",
+  "settingsBgPending": "Background backup pending. Android will retry.",
+  "settingsBgOff": "Background backup is off or waiting for its first successful sync.",
+  "settingsBgUnavailable": "Scheduler unavailable. Foreground sync remains available.",
+  "settingsSave": "Save backup settings",
+  "settingsTest": "Test connection",
+  "settingsTesting": "Testing connection…",
+  "settingsConnected": "Connected · {count, plural, =1{1 file} other{{count} files}}",
+  "@settingsConnected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsErrHttp": "Connection failed (HTTP {status}). Check folder URL, username and password.",
+  "@settingsErrHttp": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsErrReach": "Could not reach the backup server. Check the URL and Wi-Fi.",
+  "settingsErrGeneric": "Connection failed. Check the saved details and try again.",
+  "settingsSaveFirst": "Save connection changes before checking backup.",
+  "settingsEnterDetails": "Enter a folder URL, username and password",
+  "settingsSaveFailed": "Could not save connection details. Try again.",
+  "settingsDisconnectFailed": "Could not disconnect the backup server. Try again.",
+  "settingsWrongPasscode": "Wrong passcode. Try again.",
+  "settingsRecoveryReadFailed": "Could not read the recovery key. Try again.",
+  "settingsDisconnectTitle": "Disconnect the backup server?",
+  "settingsClearTitle": "Clear saved backup server details?",
+  "settingsDisconnectBody": "Stops automatic backup and removes saved connection details. Captures stay on your phone and on the backup server. Pending deletions on the server will not finish until you connect it again.",
+  "settingsDisconnectAction": "Disconnect",
+  "settingsClearAction": "Clear details",
+  "settingsDisconnectButton": "Disconnect backup server",
+  "settingsClearButton": "Clear saved backup server details",
+  "settingsRecoverySection": "Recovery & export",
+  "settingsShowRecovery": "Show recovery key",
+  "settingsNasPassTitle": "Backup passphrase",
+  "settingsNasPassBody": "Enable, change or disable recovery without your recovery key",
+  "settingsPortableTitle": "Portable encrypted backup",
+  "settingsPortableBody": "Save a ZIP to Files using your recovery key",
+  "settingsCameraSection": "Camera",
+  "settingsVideoLabel": "Video quality",
+  "settingsVideoHelp": "Higher quality makes larger files.",
+  "settingsBurstLabel": "Photos in a burst",
+  "settingsBurstHelp": "Press and hold the shutter.",
+  "settingsBurstChoice": "{count} photos",
+  "@settingsBurstChoice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsStorageSection": "Storage",
+  "settingsStorageUnreadable": "Storage could not be read.",
+  "settingsStorageCounting": "Counting captures…",
+  "settingsStorageNone": "No captures on this phone yet.",
+  "settingsStorageSummary": "{count, plural, =1{1 capture} other{{count} captures}}, {size} encrypted on this phone.",
+  "@settingsStorageSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsStorageTrashed": "{count} in Recently deleted, removed for good after {days} days.",
+  "@settingsStorageTrashed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSizeBytes": "{value} bytes",
+  "@settingsSizeBytes": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsSizeKb": "{value} KB",
+  "@settingsSizeKb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsSizeMb": "{value} MB",
+  "@settingsSizeMb": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsBiometric": "Unlock with fingerprint or face",
+  "settingsBiometricBody": "When on, this phone keeps a copy of the vault key in its secure storage. The passcode always works.",
+  "settingsBiometricTurnOn": "Turn on",
+  "settingsBiometricFailed": "Could not change fingerprint or face unlock.",
+  "settingsBackupServer": "Backup server",
+  "settingsBackupNotSet": "Not set up",
+  "settingsPlainIcon": "Use a plain icon and name",
+  "settingsPlainIconBody": "Shows a gray icon named Tools instead of Quietake. The app may close for a moment when you switch. This does not hide Quietake from the app list or system settings.",
+  "settingsPlainIconBodyIos": "Shows a different gray icon. The name stays Quietake, and iOS shows a notice when the icon changes. This does not hide Quietake from the app list or system settings.",
+  "settingsPlainIconFailed": "Could not change the app icon.",
+  "settingsKeepDeleted": "Keep deleted captures for 30 days",
+  "settingsKeepDeletedBody": "Delete moves a capture to Recently deleted first. It stays encrypted.",
+  "settingsLicenses": "Licenses",
+  "settingsVersion": "Version {version}",
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsShow": "Show",
+  "portableTitleRestore": "Restore encrypted backup",
+  "portableTitleExport": "Portable backup",
+  "portableIntroRestore": "Restore only into a fresh empty vault. Your recovery key opens the ZIP and encrypted captures. Existing libraries cannot be merged.",
+  "portableIntroExport": "Save an encrypted ZIP of captures and organization. Your existing recovery key opens it; keep that key separately. No credentials or keyfiles are included.",
+  "portableChoose": "Choose backup ZIP",
+  "portableCheckOnly": "Check backup only",
+  "portableRestoreButton": "Restore empty vault",
+  "portableCreateButton": "Create encrypted ZIP",
+  "portableLimitsTitle": "Backup limits and storage",
+  "portableLimitsBody": "Up to 10,000 captures and 2 GiB per ZIP. Preparation needs private temporary storage. Vault originals stay unchanged. No credentials or keyfiles are included.",
+  "portableCancelPrep": "Cancel preparation",
+  "portablePicking": "Choose an encrypted ZIP in Files.",
+  "portablePickCancelled": "Selection cancelled.",
+  "portablePicked": "Backup selected. Enter its recovery key and a new passcode.",
+  "portableCopyFailed": "Could not copy backup. Check storage and try again.",
+  "portableStillFinishing": "Previous backup is finishing. Try again shortly.",
+  "portableNeedKey": "Choose a backup and enter its recovery key.",
+  "portableNeedPasscode": "Choose a backup and confirm a passcode of at least six characters.",
+  "portablePreparing": "Preparing encrypted backup…",
+  "portableChecking": "Checking encrypted files: {done} of {total}…",
+  "@portableChecking": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "portableChecked": "Backup checked: every encrypted file and the catalog authenticate with this key. Nothing was restored. Choose the file again to restore it.",
+  "portableRestored": "Vault restored. Use your new passcode once to enable biometric unlock.",
+  "portableExporting": "Preparing encrypted files: {done} of {total}…",
+  "@portableExporting": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "portableSaved": "Encrypted backup saved. Keep its recovery key separately.",
+  "portableSaveCancelled": "Save cancelled. Vault originals kept.",
+  "portableBadKey": "Enter the recovery key saved for this backup.",
+  "portableCancelled": "Cancelled. Vault originals kept.",
+  "portableFailed": "Could not restore or save backup. Check its key, file, available storage and empty-vault requirement.",
+  "nasTitleRestore": "Restore from backup server",
+  "nasTitleManage": "Backup passphrase",
+  "nasIntroRestore": "Use the separate backup passphrase previously enabled on your backup server. The short phone passcode cannot recover this backup. Restore authenticates all files into an empty vault; no merge. Your backup server stays read-only.",
+  "nasIntroManage": "Protect recovery from your backup server with a separate strong passphrase. Anyone with the encrypted file can try guesses offline. Prefer six random words; length alone does not prove strength. Complete a sync with the saved backup server first. The server must support safe file locking; otherwise nothing is written.",
+  "nasUrlLabel": "Backup server folder URL (HTTPS WebDAV)",
+  "nasUserLabel": "Backup server username",
+  "nasPasswordLabel": "Backup server password",
+  "nasPinNew": "New local passcode",
+  "nasPinCurrent": "Current local passcode",
+  "nasPinConfirm": "Confirm new local passcode",
+  "nasPhraseLabel": "Backup passphrase",
+  "nasPhraseConfirm": "Confirm backup passphrase",
+  "nasGenerate": "Generate six words",
+  "nasHide": "Hide passphrase",
+  "nasShow": "Show passphrase",
+  "nasWordsCredit": "Words: Electronic Frontier Foundation · CC BY 4.0",
+  "nasWordLicenses": "Word-list licenses",
+  "nasEnableButton": "Enable or change passphrase",
+  "nasDisableButton": "Disable passphrase recovery",
+  "nasFootRestore": "Up to 10,000 captures. Private temporary space is needed. Unlock with your new passcode afterward. Background upload stays off.",
+  "nasFootManage": "This changes recovery protection only. It never changes your phone passcode or re-encrypts captures. Removing current recovery does not revoke old server snapshots.",
+  "nasGenerateFailed": "Could not generate a passphrase. Try again.",
+  "nasConfirmDisableTitle": "Disable passphrase recovery?",
+  "nasConfirmSaveTitle": "Save backup passphrase?",
+  "nasConfirmDisableBody": "Removes the current recovery file from the saved backup server folder. Captures stay. Old server snapshots may still accept an earlier passphrase. Keep your independent recovery key.",
+  "nasConfirmSaveBody": "Creates or replaces recovery in the saved backup server folder. Save the new passphrase separately. Old server snapshots may still accept an earlier passphrase; this does not rotate your vault key.",
+  "nasDisableAction": "Disable recovery",
+  "nasSaveAction": "Save passphrase",
+  "nasSeparatePhrase": "Use a separate backup passphrase, not your local passcode.",
+  "nasNeedPasscode": "Choose and confirm a new passcode of at least six characters.",
+  "nasNeedDetails": "Enter your backup server folder, username and password.",
+  "nasMismatch": "Backup passphrases do not match.",
+  "nasCheckingRestore": "Checking the encrypted backup on the server…",
+  "nasCheckingSaved": "Checking saved recovery on the backup server…",
+  "nasRestoredTitle": "Vault restored",
+  "nasRestoredUnsaved": "The backup server connection could not be saved. Your captures are restored; add the connection again in Settings to resume backups.",
+  "nasContinue": "Continue",
+  "nasDisabledDone": "Passphrase recovery disabled. Captures kept.",
+  "nasSavedDone": "Backup passphrase saved. Keep it and your recovery key separately.",
+  "nasWrongCurrent": "Wrong current passcode. Try again.",
+  "nasCancelled": "Cancelled. Originals kept.",
+  "nasRestoreFailed": "Could not restore. Check the backup server connection, backup passphrase and empty-vault requirement. Originals kept.",
+  "nasChangeFailed": "Could not change recovery. Check the saved backup server, supported recovery file and server compatibility. Sync first, then retry. Originals kept.",
+  "coverChooseTitle": "Choose cover",
+  "coverEmpty": "Tag some captures first, then choose one as the cover.",
+  "coverUse": "Use this capture as the cover",
+  "restoreGateFailed": "Could not finish interrupted backup restore. Prepared encrypted files are preserved. Check available storage, then try again.",
+  "restoreGateRetry": "Retry restore",
+  "restoreGateDiscard": "Discard the unfinished restore",
+  "restoreGateDiscardTitle": "Discard the unfinished restore?",
+  "restoreGateDiscardBody": "This removes only the copy that was being prepared on this phone. Your backup is not changed, and you can restore it again.",
+  "restoreGateDiscardConfirm": "Discard",
+  "settingsCheckRecovery": "Check my recovery key",
+  "recoveryCheckTitle": "Check recovery key",
+  "recoveryCheckIntro": "Type the recovery key you saved elsewhere. It is compared on this phone and never stored.",
+  "recoveryCheckAction": "Check",
+  "recoveryCheckClose": "Close",
+  "recoveryCheckNever": "Never checked.",
+  "recoveryCheckLast": "Last matched {date}.",
+  "@recoveryCheckLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryCheckDue": "Last matched {date}. Check again every few months.",
+  "@recoveryCheckDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryCheckMatch": "This matches your vault's recovery key.",
+  "recoveryCheckMismatch": "This key does not match this vault. Check where you saved it, then try again.",
+  "recoveryCheckInvalid": "This is not a valid recovery key. Check for missing or extra characters.",
+  "redactTitle": "Hide parts of the photo",
+  "redactUndo": "Undo last area",
+  "redactDone": "Done",
+  "redactStatus": "{count, plural, =0{Drag over the photo to hide an area.} =1{1 area will be hidden.} other{{count} areas will be hidden.}}",
+  "@redactStatus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "redactFailed": "This photo could not be opened for editing.",
+  "shareRedactButton": "Hide parts of this photo…",
+  "shareRedactEdit": "Hidden areas: {count}. Change…",
+  "@shareRedactEdit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shareRedactNote": "The shared copy becomes a PNG with those areas covered in black and no metadata. The original stays unchanged in your vault.",
+  "shareRedactButtonMany": "Hide parts of these photos…",
+  "shareRedactEditMany": "Hidden areas: {areas} in {photos, plural, =1{1 photo} other{{photos} photos}}. Change…",
+  "@shareRedactEditMany": {
+    "placeholders": {
+      "areas": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      }
+    }
+  },
+  "shareRedactNoteMany": "Photos with hidden areas are shared as PNG copies with those areas covered in black and no metadata. The originals stay unchanged in your vault.",
+  "redactCell": "Row {row}, column {column}",
+  "@redactCell": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "column": {
+        "type": "int"
+      }
+    }
+  },
+  "redactSections": "Or hide a section of the photo",
+  "settingsRenameRemote": "Give files on the backup server random names",
+  "settingsRenameRemoteNone": "No files on the backup server need new names.",
+  "settingsRenameRemoteTitle": "Rename files on the backup server?",
+  "settingsRenameRemoteBody": "{count, plural, =1{1 encrypted file on the backup server gets a random name, so its name and time no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.} other{{count} encrypted files on the backup server get random names, so their names and times no longer show there. Update Quietake on every other phone first: older versions cannot find renamed files. Your originals stay on this phone.}}",
+  "@settingsRenameRemoteBody": {
+    "description": "Confirmation before renaming NAS files; count is the number of files.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsRenameRemoteAction": "Rename",
+  "settingsRenameRemoteDone": "{count, plural, =1{Renamed 1 file on the backup server.} other{Renamed {count} files on the backup server.}}",
+  "@settingsRenameRemoteDone": {
+    "description": "Result after renaming NAS files.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsRenameRemoteFailed": "Renaming stopped. Run it again to continue. Nothing was lost.",
+  "shareEncryptedTitle": "Encrypt with a passphrase",
+  "shareEncryptedBody": "The copies go into one file that only a passphrase opens. Quietake shows the passphrase once. Send it by a different route than the file.",
+  "sharePassphraseTitle": "Passphrase for this share",
+  "sharePassphraseBody": "Write it down or send it separately now. Quietake does not keep it and cannot show it again.",
+  "sharePassphraseContinue": "Choose app"
+}

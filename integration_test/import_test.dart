@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:quietake/keys.dart';
+import 'package:quietake/library/folder_import.dart';
 import 'package:quietake/library/import_media.dart';
 
 import '../test_support/fixtures.dart';
@@ -42,6 +44,10 @@ void main() {
   tearDown(() async {
     binding.defaultBinaryMessenger.setMockMethodCallHandler(
       importChannel,
+      null,
+    );
+    binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      folderChannel,
       null,
     );
     if (await external.exists()) await external.delete(recursive: true);
@@ -194,9 +200,8 @@ void main() {
       );
       expect(
         tester
-            .widget<GridView>(find.byKey(Keys.galleryGrid))
-            .childrenDelegate
-            .estimatedChildCount,
+            .widget<CustomScrollView>(find.byKey(Keys.galleryGrid))
+            .semanticChildCount,
         3,
       );
       await tester.pumpWidget(const SizedBox());
@@ -206,8 +211,7 @@ void main() {
   testWidgets(
     'selected import finishes behind manual lock and remains protected until unlock',
     (tester) async {
-      (await app.session.store.createWithPasscode('import-fixture-only'))
-          .dispose();
+      await app.setPasscode('import-fixture-only');
       final selected = Completer<List<Map<String, String>>>();
       binding.defaultBinaryMessenger.setMockMethodCallHandler(
         importChannel,
@@ -334,6 +338,82 @@ void main() {
       expect(await app.vault.list(), hasLength(3));
       expect(await staging.exists(), isFalse);
       await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets(
+    'folder import copies supported files, retries a failure and resumes',
+    (tester) async {
+      // The system folder picker cannot be driven here; its channel is mocked
+      // over real files so the pipeline, vault and ledger run for real.
+      await File('${external.path}/notes.txt').writeAsString('not media');
+      final broken = <String>{'video.mp4'};
+      final copied = <String>[];
+      binding.defaultBinaryMessenger.setMockMethodCallHandler(folderChannel, (
+        call,
+      ) async {
+        switch (call.method) {
+          case 'pick':
+            return {
+              'identity': 'device-test-folder',
+              'entries': [
+                for (final entry in external.listSync().whereType<File>())
+                  if (!entry.path.endsWith('oversized.png'))
+                    {
+                      'id': entry.uri.pathSegments.last,
+                      'name': entry.uri.pathSegments.last,
+                    },
+              ],
+            };
+          case 'copy':
+            final id = call.arguments['id'] as String;
+            if (broken.contains(id)) {
+              throw PlatformException(code: 'copy');
+            }
+            copied.add(id);
+            final directory = Directory(call.arguments['directory'] as String);
+            await directory.create(recursive: true);
+            return (await File(
+              '${external.path}/$id',
+            ).copy('${directory.path}/$id')).path;
+          default:
+            return null;
+        }
+      });
+      await begin(tester);
+      await tap(tester, Keys.importFolder);
+      await until(
+        tester,
+        () => find.byKey(Keys.importFolderSummary).evaluate().isNotEmpty,
+      );
+      expect(
+        find.text(
+          '2 imported · 1 failed. Choose the same folder again to continue.',
+        ),
+        findsOneWidget,
+      );
+      expect(await app.vault.list(), hasLength(2));
+
+      // The failure is fixed; only that file is copied on the second run.
+      broken.clear();
+      copied.clear();
+      await tap(tester, Keys.importFolder);
+      await until(
+        tester,
+        () =>
+            find.byKey(Keys.importFolderSummary).evaluate().isNotEmpty &&
+            find.byKey(Keys.importProgress).evaluate().isEmpty,
+      );
+      expect(copied, ['video.mp4']);
+      expect(
+        find.text('1 imported · 2 already imported earlier.'),
+        findsOneWidget,
+      );
+      expect(await app.vault.list(), hasLength(3));
+      for (final name in ['photo.jpg', 'photo.png', 'video.mp4', 'notes.txt']) {
+        expect(await File('${external.path}/$name').exists(), isTrue);
+      }
+      expect(await staging.exists(), isFalse);
     },
   );
 }
